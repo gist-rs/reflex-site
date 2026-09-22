@@ -15,6 +15,7 @@
     <nav>
       <a href="/#playground">Playground</a>
       <a href="/bench/">Benchmark</a>
+      <a href="/#skill">For agents</a>
       <a href="https://github.com/gist-rs/reflex/releases">Download</a>
     </nav>
   </div>
@@ -115,6 +116,34 @@ promote</textarea>
         </table>
       </div>
     </div>
+  </section>
+
+  <section id="skill">
+    <h2>Give your coding agent a decision engine.</h2>
+    <p class="sub">
+      One file teaches your agent to drive Reflex properly — the wire, questions that work,
+      thresholds fitted from your data, calibration, and the traps we found building this arena.
+      Curl-installable, plain instructions, exact HTTP calls.
+    </p>
+    <div class="cmd"><span class="os">Claude Code</span><code>mkdir -p .claude/skills/reflex-integration &amp;&amp; curl -fsSL https://reflex.gist.rs/skills/reflex-integration/SKILL.md -o .claude/skills/reflex-integration/SKILL.md</code><button data-copy="mkdir -p .claude/skills/reflex-integration &amp;&amp; curl -fsSL https://reflex.gist.rs/skills/reflex-integration/SKILL.md -o .claude/skills/reflex-integration/SKILL.md">copy</button></div>
+    <div class="cmd"><span class="os">Zed / any agent</span><code>mkdir -p .agents/skills/reflex-integration &amp;&amp; curl -fsSL https://reflex.gist.rs/skills/reflex-integration/SKILL.md -o .agents/skills/reflex-integration/SKILL.md</code><button data-copy="mkdir -p .agents/skills/reflex-integration &amp;&amp; curl -fsSL https://reflex.gist.rs/skills/reflex-integration/SKILL.md -o .agents/skills/reflex-integration/SKILL.md">copy</button></div>
+    <details class="faq">
+      <summary>Which agents does it work with?</summary>
+      <p>Claude Code reads <code>.claude/skills/</code> natively; Zed reads <code>.agents/skills/</code>.
+      And any agent that accepts a markdown instruction file works — the skill is plain
+      instructions plus exact HTTP calls your agent already knows how to make.</p>
+    </details>
+    <details class="faq">
+      <summary>What does it change?</summary>
+      <p>Without it, an agent asked to classify, route, or triage reaches for an LLM call.
+      With it, it starts a microsecond-tier local engine, asks typed questions with the
+      answer space defined at request time, fits confidence thresholds from your labeled
+      data, wires abstention into a fallback path instead of an error — and reports
+      measured accuracy instead of a guess.</p>
+    </details>
+    <p class="fine">Section pattern borrowed with thanks from the
+      <a href="https://www.brainfunctioncollapse.com/laya/#skill">laya page's skill section</a>;
+      the file itself is written fresh against Reflex, traps and all.</p>
   </section>
 
 </div>
