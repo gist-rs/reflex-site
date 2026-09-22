@@ -82,6 +82,18 @@ function laneRow(l, bestAcc) {
   return "<tr>" + tds.join("") + "</tr>";
 }
 
+// Gate fit (Issue 009 T2/T3 — the engine's fit-time threshold
+// recommendation, jimothy's shape): cite the posture with the numbers,
+// disclose support, per-axis null ("thin → defaults") on thin support.
+function gateFit(m) {
+  const tr = m && m.threshold_recommendation;
+  if (!tr) return "";
+  const axis = (a) => a
+    ? `≥ ${a.threshold.toFixed(4)} · acc ${a.targetAccuracy.toFixed(2)} · pass ${a.support.nPass}/${a.support.n}${a.status !== "fitted" ? " · " + a.status : ""}`
+    : "thin → defaults";
+  return `<p class="g1">Gate fit (ρ=${tr.posture.rho}): score ${axis(tr.score)} · distance ${axis(tr.distance)}</p>`;
+}
+
 function suiteSection(s) {
   const lanes = [];
   if (s.modelless) lanes.push(s.modelless);
@@ -94,7 +106,7 @@ function suiteSection(s) {
   <div class="scroll"><table class="bench">
     <thead><tr><th>lane · model</th><th>acc</th><th>macro F1</th><th>ECE(maxp)</th><th>Brier</th><th>acc@50cov</th><th>readout ECE cal (raw)</th><th>abstain / sel-acc</th><th>p50</th><th>p99</th><th>det</th></tr></thead>
     <tbody>${lanes.map((l) => laneRow(l, bestAcc)).join("")}</tbody>
-  </table></div>${g1}`;
+  </table></div>${g1}${gateFit(s.modelless)}`;
 }
 
 function render(d) {

@@ -18,7 +18,7 @@ In `riir-reflex`:
 
 ```sh
 scripts/fetch_datasets.sh            # once
-cargo run --release --features laya --bin harness
+cargo run --release --features laya-riir --bin harness
 python3 ../reflex-site/scripts/publish_bench.py \
     .benchmarks/001_phase1_tables/results.json ../reflex-site
 ```
