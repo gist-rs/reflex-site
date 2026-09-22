@@ -1,0 +1,7 @@
+# Served on purpose: index.html, assets/, bench/, data/bench.json, skills/
+# Everything else is repo plumbing — never ship it as public assets.
+.git
+README.md
+wrangler.toml
+scripts
+.DS_Store
