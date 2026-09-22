@@ -5,9 +5,17 @@
 name = "reflex-site"
 compatibility_date = "2026-09-01"
 
-routes = [
-  { pattern = "reflex.gist.rs", custom_domain = true }
-]
+# ⚠ The reflex.gist.rs custom domain needs a token with Workers Routes + DNS
+# permission on the gist.rs zone — neither .env token has it (measured
+# 2026-09-22: deploy token = "No access to the specified resource" on
+# /zones/.../workers/routes). Owner step — either grant the permission and
+# re-add this block, or attach via the dashboard:
+#   Workers & Pages → reflex-site → Settings → Domains & Routes → Add →
+#   Custom domain → reflex.gist.rs
+#
+# routes = [
+#   { pattern = "reflex.gist.rs", custom_domain = true }
+# ]
 
 [assets]
 directory = "./"
