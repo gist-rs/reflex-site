@@ -5,13 +5,15 @@
 name = "reflex-site"
 compatibility_date = "2026-09-01"
 
-# ⚠ The reflex.gist.rs custom domain needs a token with Workers Routes + DNS
+# ✅ reflex.gist.rs is LIVE (attached 2026-09-22 by the owner via the
+# dashboard: Workers & Pages → reflex-site → Settings → Domains & Routes →
+# Custom domain). Deliberately NOT declared here: a config `routes` block
+# makes every future `wrangler deploy` require Workers Routes + DNS
 # permission on the gist.rs zone — neither .env token has it (measured
 # 2026-09-22: deploy token = "No access to the specified resource" on
-# /zones/.../workers/routes). Owner step — either grant the permission and
-# re-add this block, or attach via the dashboard:
-#   Workers & Pages → reflex-site → Settings → Domains & Routes → Add →
-#   Custom domain → reflex.gist.rs
+# /zones/.../workers/routes), and a dashboard-attached custom domain
+# persists across config-less deploys on its own. Enable the block below
+# ONLY if the deploy token is ever granted zone route permission.
 #
 # routes = [
 #   { pattern = "reflex.gist.rs", custom_domain = true }

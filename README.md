@@ -29,7 +29,8 @@ inside `bench.json` and renders on the page.
 ## Deploy
 
 ```sh
-npx wrangler deploy          # static assets + the reflex.gist.rs custom domain
+npx wrangler deploy          # static assets; the reflex.gist.rs custom domain
+                             # is dashboard-attached (wrangler.toml has the why)
 npx wrangler dev             # local preview
 ```
 
