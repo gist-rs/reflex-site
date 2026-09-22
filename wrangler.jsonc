@@ -1,0 +1,14 @@
+name = "reflex-site"
+compatibility_date = "2026-09-01"
+
+# Tier 0 (Proposal 014 §hosted-serving): the arena site is static assets —
+# zero marginal cost, zero secrets. The playground talks to the visitor's OWN
+# localhost engine; this worker serves files and nothing else.
+[assets]
+directory = "./"
+not_found_handling = "404-page"
+
+# reflex.gist.rs — the custom domain (attached at deploy; needs the zone).
+routes = [
+  { pattern = "reflex.gist.rs", custom_domain = true }
+]

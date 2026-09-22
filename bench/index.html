@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reflex — benchmark tables</title>
+  <meta name="description" content="Per-task arena tables over the modelless and laya lanes — byte-identical questions, honest losses published.">
+  <link rel="stylesheet" href="/assets/style.css">
+  <style>
+    .suite { margin: 26px 0 8px; font-size: 21px; color: var(--ember); }
+    .cases { color: var(--muted); font-weight: 400; font-size: 15px; }
+    table.bench { width: 100%; border-collapse: collapse; font-size: 13.5px; margin: 10px 0 6px; }
+    table.bench th, table.bench td { padding: 6px 8px; border-bottom: 1px solid var(--line); text-align: right; white-space: nowrap; }
+    table.bench th { color: var(--muted); font-weight: 500; font-size: 12.5px; }
+    table.bench td:first-child, table.bench th:first-child { text-align: left; }
+    table.bench td.best { color: var(--ember); font-weight: 700; }
+    .g1 { font-size: 14px; margin: 8px 0; color: var(--text); }
+    .g1 .pass { color: var(--ok); font-weight: 700; }
+    .g1 .fail { color: var(--warn); font-weight: 700; }
+    .protocol { font-size: 13px; color: var(--muted); margin: 6px 0 0; }
+    #bench-meta { color: var(--muted); font-size: 13.5px; }
+    .scroll { overflow-x: auto; }
+  </style>
+</head>
+<body>
+
+<header class="site">
+  <div class="wrap">
+    <div class="brand">Reflex <span>· bench</span></div>
+    <nav>
+      <a href="/">Home</a>
+      <a href="/#playground">Playground</a>
+      <a href="https://github.com/gist-rs/reflex/releases">Download</a>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap">
+  <section style="border-top:0">
+    <h2>Per-task tables — the losses are the point</h2>
+    <p class="sub">
+      Both lanes see byte-identical questions. The modelless lane is ns–µs tier and
+      bit-deterministic on a given build; the open-weights laya lane is the accuracy
+      heavyweight. No single "we win" number exists or will exist — audit the tables.
+      The modelless lane's near-chance rows on out-of-domain text are structural
+      (it is corpus-bound by design), and they are published here rather than trimmed.
+    </p>
+    <p id="bench-meta">loading data/bench.json …</p>
+    <div id="tables"></div>
+
+    <h2 style="margin-top:40px">Protocol</h2>
+    <div id="protocol"></div>
+
+    <p class="sub" style="margin-top:26px">
+      Not affiliated with, or endorsed by, TypeSafe AI; Jev is their product, named only to compare against.
+      The laya lane loads Apache-2.0 checkpoints from the brainfunctioncollapse laya Hugging Face repositories
+      at runtime — unmodified, SHA-256-verified, never redistributed.
+    </p>
+  </section>
+</div>
+
+<script>
+const fmt = (v, d = 4) => (v === null || v === undefined) ? "—" : (typeof v === "number" ? v.toFixed(d) : String(v));
+const ms = (v) => (v === null || v === undefined) ? "—" : (v >= 1000 ? (v / 1000).toFixed(1) + " s" : v.toFixed(v < 10 ? 3 : 1) + " ms");
+
+function laneRow(l, bestAcc) {
+  const h = l.hard || {};
+  const tds = [];
+  const accCell = h.accuracy === bestAcc ? "best" : "";
+  tds.push(`<td>${fmt(l.lane)} · ${fmt(l.model)}</td>`);
+  tds.push(`<td class="${accCell}">${fmt(h.accuracy)}</td>`);
+  tds.push(`<td>${fmt(h.macro_f1)}</td>`);
+  tds.push(`<td>${fmt(h.ece, 3)}</td>`);
+  tds.push(`<td>${fmt(h.brier, 3)}</td>`);
+  tds.push(`<td>${fmt(h.acc_at_50_coverage, 3)}</td>`);
+  tds.push(`<td>${l.readout_ece_raw === null || l.readout_ece_raw === undefined ? "—" : fmt(l.readout_ece_calibrated, 4) + " (raw " + fmt(l.readout_ece_raw, 3) + ")"}</td>`);
+  const abst = l.calibrated_abstain;
+  tds.push(`<td>${abst ? fmt(abst.abstain_rate, 2) + " / " + fmt(abst.selective_accuracy, 3) : "—"}</td>`);
+  tds.push(`<td>${ms(l.latency_p50_ms)}</td>`);
+  tds.push(`<td>${ms(l.latency_p99_ms)}</td>`);
+  tds.push(`<td>${l.determinism_ok ? "✓" : "✗"}</td>`);
+  return "<tr>" + tds.join("") + "</tr>";
+}
+
+function suiteSection(s) {
+  const lanes = [];
+  if (s.modelless) lanes.push(s.modelless);
+  for (const k of Object.keys(s.laya || {})) lanes.push(s.laya[k]);
+  const bestAcc = Math.max(...lanes.map((l) => (l.hard || {}).accuracy ?? 0));
+  const g1 = s.modelless && s.modelless.g1_pass !== undefined
+    ? `<p class="g1">G1 (modelless calibration): raw ${fmt(s.modelless.readout_ece_raw, 4)} · calibrated ${fmt(s.modelless.readout_ece_calibrated, 4)} · conformal-naive floor ${fmt(s.modelless.floor_ece, 4)} → <span class="${s.modelless.g1_pass ? "pass" : "fail"}">${s.modelless.g1_pass ? "PASS" : "FAIL"}</span></p>`
+    : "";
+  return `<h3 class="suite">${s.name} <span class="cases">— ${s.n_cases} cases / ${s.n_questions} questions</span></h3>
+  <div class="scroll"><table class="bench">
+    <thead><tr><th>lane · model</th><th>acc</th><th>macro F1</th><th>ECE(maxp)</th><th>Brier</th><th>acc@50cov</th><th>readout ECE cal (raw)</th><th>abstain / sel-acc</th><th>p50</th><th>p99</th><th>det</th></tr></thead>
+    <tbody>${lanes.map((l) => laneRow(l, bestAcc)).join("")}</tbody>
+  </table></div>${g1}`;
+}
+
+function render(d) {
+  const meta = d.meta || {};
+  document.getElementById("bench-meta").innerHTML =
+    `Run <code>${meta.git_sha || "?"}</code> on <code>${meta.host || "?"}</code> · ${meta.date_utc || "?"} · profile <code>${meta.profile || "?"}</code> · laya feature: ${meta.laya_feature ? "on" : "off"} · generated from the harness, never hand-typed.`;
+  document.getElementById("tables").innerHTML = (d.suites || []).map(suiteSection).join("");
+  const proto = [];
+  for (const [k, v] of Object.entries(meta)) {
+    if (["date_utc", "git_sha", "host", "profile", "laya_feature", "datasets_dir"].includes(k)) continue;
+    if (Array.isArray(v)) { proto.push(`<p class="protocol"><strong>${k}:</strong> ${v.map(String).join(" · ")}</p>`); }
+    else if (typeof v === "string") { proto.push(`<p class="protocol"><strong>${k}:</strong> ${v}</p>`); }
+  }
+  document.getElementById("protocol").innerHTML = proto.join("");
+}
+
+fetch("/data/bench.json", { cache: "no-store" })
+  .then((r) => { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+  .then(render)
+  .catch((e) => {
+    document.getElementById("bench-meta").textContent = "failed to load bench data: " + e;
+  });
+</script>
+</body>
+</html>

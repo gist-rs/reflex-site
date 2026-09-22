@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reflex — a modelless decision engine for your machine</title>
+  <meta name="description" content="Typed decisions (choice / score / yes-no) with calibrated confidence and first-class abstention, served on localhost in microseconds. No AI service, no telemetry.">
+  <link rel="stylesheet" href="/assets/style.css">
+</head>
+<body>
+
+<header class="site">
+  <div class="wrap">
+    <div class="brand">Reflex <span>· KatGPT</span></div>
+    <nav>
+      <a href="/#playground">Playground</a>
+      <a href="/bench/">Benchmark</a>
+      <a href="https://github.com/gist-rs/reflex/releases">Download</a>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="hero">
+    <h1>Typed decisions, <em>calibrated honestly</em>, on your machine.</h1>
+    <p class="lead">
+      Reflex answers <strong>choice</strong>, <strong>score</strong>, and <strong>yes/no</strong> questions about
+      a state you give it — with calibrated confidence and a first-class <strong>abstain</strong>:
+      when it has no signal, it declines instead of guessing. No trained weights on the decision
+      path, no AI service, no telemetry. Loopback-only, microsecond-tier, bit-deterministic.
+    </p>
+
+    <div class="cmd"><span class="os">macOS / Linux</span><code>curl -fsSL https://raw.githubusercontent.com/gist-rs/reflex/main/install.sh | sh</code><button data-copy="curl -fsSL https://raw.githubusercontent.com/gist-rs/reflex/main/install.sh | sh">copy</button></div>
+    <div class="cmd"><span class="os">Windows</span><code>iwr -useb https://raw.githubusercontent.com/gist-rs/reflex/main/install.ps1 | iex</code><button data-copy="iwr -useb https://raw.githubusercontent.com/gist-rs/reflex/main/install.ps1 | iex">copy</button></div>
+    <div class="cmd"><span class="os">Homebrew</span><code>brew tap gist-rs/tap &amp;&amp; brew install riir-reflex</code><button data-copy="brew tap gist-rs/tap && brew install riir-reflex">copy</button></div>
+
+    <div class="badges">
+      <span class="badge">G1 calibration beats the conformal-naive floor — 8/9 suites</span>
+      <span class="badge">G2 p99 0.06 ms / decision set</span>
+      <span class="badge">G4 zero allocs on the hot path</span>
+      <span class="badge muted">laya parity: 88/88 forwards, top-1 1.000, drift ≤ 3.1e-6</span>
+    </div>
+  </div>
+
+  <section id="how">
+    <h2>Three steps</h2>
+    <p class="sub">The engine never phones home. The browser cannot reach it until you open the door for exactly one origin.</p>
+    <div class="steps">
+      <div class="step"><h3>1 · Install</h3><p>One binary. <code>riir-reflex --version</code> prints its compiled feature set and warns if the build is incomplete.</p></div>
+      <div class="step"><h3>2 · Run with the door open</h3><p><code>RIIR_REFLEX_ALLOWED_ORIGIN=https://reflex.gist.rs riir-reflex</code> — the engine listens on <code>127.0.0.1:7331</code> and accepts browser calls from this page only.</p></div>
+      <div class="step"><h3>3 · Play</h3><p>Type a state and a question. Answers come back in microseconds, with confidence — or an honest abstain.</p></div>
+    </div>
+  </section>
+
+  <section id="playground">
+    <h2>Playground</h2>
+    <p class="sub">This page talks to YOUR engine on YOUR machine — nothing is uploaded anywhere.</p>
+
+    <div id="status"><span class="dot"></span><span id="status-text">checking for a local engine…</span></div>
+
+    <div class="launch" id="launch-box" hidden>
+      <strong>No local engine found.</strong> Install and start it, then refresh:
+      <code>RIIR_REFLEX_ALLOWED_ORIGIN=https://reflex.gist.rs riir-reflex</code>
+    </div>
+
+    <div class="play">
+      <div class="card">
+        <label for="state">State (the situation under decision)</label>
+        <textarea id="state">Deploy the server to staging and verify the rollout before promoting to production. Rollback is one command when a deploy regresses the error budget.</textarea>
+        <label for="kind">Question type</label>
+        <select id="kind">
+          <option value="noul">yes / no</option>
+          <option value="choice">choice (pick one option)</option>
+          <option value="score">score (rate 1–5)</option>
+        </select>
+        <div class="options" id="options-box">
+          <label for="options">Options (one per line; the first is the default outcome order)</label>
+          <textarea id="options" style="min-height:70px">roll back
+promote</textarea>
+        </div>
+        <label for="prompt">Question</label>
+        <input type="text" id="prompt" value="Should the rollout proceed now?">
+        <button class="go" id="ask" disabled>Decide</button>
+      </div>
+
+      <div class="card">
+        <label>Answer</label>
+        <div class="answer" id="answer"><span style="color:var(--muted)">—</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="bench-teaser">
+    <h2>Measured, with the losses published</h2>
+    <p class="sub">
+      The arena exists to make the trade visible: the modelless lane is ~10³–10⁴× faster and
+      deterministic; the open-weights <strong>laya</strong> lane is the accuracy heavyweight.
+      Same questions, both lanes, per-task tables —
+      <a href="/bench/">full benchmark</a>.
+    </p>
+    <div class="teaser">
+      <div class="cell">
+        <div class="big" id="t-ml-p50">0.475 ms</div>
+        <div class="lbl">modelless p50 per 2,000-question typed-decision set</div>
+      </div>
+      <div class="cell">
+        <table>
+          <thead><tr><th>suite</th><th>modelless</th><th>laya·best</th><th>laya p50</th></tr></thead>
+          <tbody>
+            <tr><td>typed decisions</td><td>0.278</td><td><strong>0.744</strong></td><td>4493 ms</td></tr>
+            <tr><td>AG News</td><td>0.258</td><td><strong>0.950</strong></td><td>388 ms</td></tr>
+            <tr><td>emotion</td><td>0.295</td><td><strong>0.593</strong></td><td>170 ms</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<footer class="site">
+  <div class="wrap">
+    <div>
+      Reflex is part of the <a href="https://github.com/katopz">KatGPT</a> funnel ·
+      binary releases at <a href="https://github.com/gist-rs/reflex">gist-rs/reflex</a> ·
+      benchmark protocol in the <a href="https://gist.github.com">open-weights</a> tradition of honest tables.
+    </div>
+    <div class="fine">
+      Not affiliated with, or endorsed by, TypeSafe AI; Jev is their product, named only to compare against.
+      The optional laya comparison lane loads Apache-2.0-licensed checkpoints (ModernBERT, mmBERT, mask-scoring head)
+      from the brainfunctioncollapse laya Hugging Face repositories at runtime — unmodified, SHA-256-verified, and never
+      redistributed here; their license text ships in every release archive's THIRD_PARTY_LICENSES.md.
+      Site content original; measurements regenerate from the open harness, never hand-typed.
+    </div>
+  </div>
+</footer>
+
+<script src="/assets/app.js"></script>
+</body>
+</html>
