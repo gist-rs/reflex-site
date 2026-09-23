@@ -1,0 +1,108 @@
+/* Arena page — the games arena's own chrome on top of the site theme. */
+
+.hero.slim { padding: 40px 0 20px; }
+.hero.slim h1 { font-size: 30px; margin: 0 0 10px; }
+.hero.slim p.lead { font-size: 16px; margin: 0 0 18px; }
+
+.statusbar {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  margin: 14px 0 10px; font-size: 14px;
+}
+.chip {
+  border: 1px solid var(--line); border-radius: 999px;
+  padding: 3px 12px; color: var(--muted); background: var(--bg2);
+}
+.chip b { color: var(--text); font-weight: 600; }
+.chip.ok { border-color: var(--ok); color: var(--ok); }
+.chip.warn { border-color: var(--warn); color: var(--warn); }
+.chip.err { border-color: var(--dark-red); color: var(--ember); }
+.status-text { color: var(--muted); }
+.launch p { font-size: 14.5px; color: var(--muted); margin: 8px 0; }
+
+.tabs { display: flex; gap: 8px; margin: 18px 0 14px; }
+.tab {
+  border: 1px solid var(--line); background: var(--bg2); color: var(--muted);
+  border-radius: 8px; padding: 8px 18px; font-size: 15px; cursor: pointer;
+}
+.tab:hover { color: var(--text); }
+.tab.on { background: var(--rust); border-color: var(--rust); color: #fff; font-weight: 600; }
+
+.game { display: none; }
+.game.on { display: block; }
+
+.controls {
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  margin: 0 0 14px; font-size: 14px; color: var(--muted);
+}
+.controls label { display: flex; align-items: center; gap: 6px; }
+.controls input[type="text"] {
+  background: var(--bg2); border: 1px solid var(--line); color: var(--text);
+  border-radius: 6px; padding: 4px 8px;
+}
+.ctl {
+  border: 1px solid var(--line); background: var(--bg2); color: var(--text);
+  border-radius: 8px; padding: 8px 20px; font-size: 15px; cursor: pointer;
+}
+.ctl:hover { background: var(--rust); }
+.ctl.primary { background: var(--rust); border-color: var(--rust); color: #fff; font-weight: 600; }
+.ctl.primary:disabled { opacity: 0.5; cursor: wait; }
+
+.duo { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
+.boardcard {
+  background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
+  padding: 14px;
+}
+.boardhead { display: flex; align-items: baseline; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+.boardhead > b { color: var(--ember); font-size: 16px; }
+.lane-note { color: var(--muted); font-size: 12.5px; }
+.scorebox { margin-left: auto; display: flex; gap: 10px; align-items: baseline; }
+.scorebox span { color: var(--muted); font-size: 11px; letter-spacing: 1px; }
+.scorebox b {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 20px; color: var(--text); font-variant-numeric: tabular-nums;
+}
+canvas {
+  display: block; width: 200px; height: 400px;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 6px;
+}
+#game-flappy canvas { width: 160px; height: 240px; }
+
+.lanes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; max-width: 320px; }
+.lanes .lane {
+  background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  min-height: 90px; padding: 8px; font-size: 12.5px; color: var(--muted);
+  display: flex; flex-direction: column; gap: 4px;
+}
+.lanes .lane .kind { font-weight: 600; color: var(--text); }
+.lanes .lane.blocked { border-color: var(--dark-red); }
+.lanes .lane.blocked .kind { color: var(--ember); }
+.lanes .lane.clear .kind { color: var(--ok); }
+.lanes .lane.chosen { outline: 2px solid var(--ember); }
+.lanes .lane .p { font-family: ui-monospace, Menlo, monospace; color: var(--ember); }
+
+.stats { color: var(--muted); font-size: 13px; margin: 8px 0 4px; }
+
+.readout {
+  margin-top: 8px; border-top: 1px solid var(--line); padding-top: 8px;
+  display: grid; gap: 4px; font-size: 12.5px;
+}
+.readout div { display: grid; grid-template-columns: 92px 1fr; gap: 8px; }
+.readout span { color: var(--muted); letter-spacing: 0.5px; font-size: 11px; padding-top: 1px; }
+.readout em {
+  font-style: normal; color: var(--text); font-family: ui-monospace, Menlo, monospace;
+  font-size: 12px; overflow-wrap: anywhere;
+}
+
+.explain {
+  margin: 18px 0 8px; border: 1px solid var(--line); border-radius: 10px;
+  background: var(--bg2); padding: 10px 16px; color: var(--muted); font-size: 14.5px;
+}
+.explain summary { cursor: pointer; color: var(--ember); font-size: 15px; }
+.explain code { color: var(--text); }
+
+.footnote { margin: 26px 0 40px; color: var(--muted); font-size: 14px; }
+.footnote code { color: var(--text); }
+
+footer.site-foot {
+  border-top: 1px solid var(--line); padding: 18px 0; color: var(--muted); font-size: 13.5px;
+}

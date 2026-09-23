@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Arena · live games · Reflex</title>
+  <meta name="description" content="Watch the two Reflex lanes play Tetris, Flappy and three-lanes live — the modelless lane and the open-weights laya lane, same questions, honest losses published.">
+  <link rel="stylesheet" href="/assets/style.css">
+  <link rel="stylesheet" href="/assets/arena.css">
+</head>
+<body>
+  <header class="site">
+    <div class="wrap">
+      <div class="brand">Reflex<span> · arena</span></div>
+      <nav>
+        <a href="/">Home</a>
+        <a href="/arena/">Arena</a>
+        <a href="/bench/">Benchmark</a>
+        <a href="/#skill">For agents</a>
+        <a href="https://github.com/gist-rs/reflex/releases">Download</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="hero slim">
+      <h1>Fast enough to <em>play a game live.</em></h1>
+      <p class="lead">
+        The games write their situation as sentences and ask one typed question per
+        option — the same protocol as the
+        <a href="/bench/">measured tables</a>. Two lanes play side by side from the
+        same seeded stream: the modelless lane answers in microseconds; the
+        open-weights <a href="https://www.brainfunctioncollapse.com/laya/">laya</a>
+        lane reads every sentence. Nothing is scripted and bad answers get played.
+      </p>
+      <div class="statusbar" id="status">
+        <span class="chip" id="chip-modelless"><b>modelless</b> —</span>
+        <span class="chip" id="chip-laya"><b>laya</b> —</span>
+        <span class="status-text" id="status-text">checking for a local engine…</span>
+      </div>
+      <div class="launch" id="launch-box" hidden>
+        <p>The page talks to <b>YOUR</b> engine on <b>YOUR</b> machine — nothing is uploaded anywhere.
+        Install, then start it with the door open for this page
+        (add <code>RIIR_REFLEX_LAYA=1</code> to arm the laya board — first start downloads ~650&nbsp;MB of
+        Apache-2.0 open weights):</p>
+        <div class="cmd"><span class="os">run</span><code id="launch-cmd">RIIR_REFLEX_ALLOWED_ORIGIN=https://reflex.gist.rs RIIR_REFLEX_LAYA=1 riir-reflex</code><button data-copy="RIIR_REFLEX_ALLOWED_ORIGIN=https://reflex.gist.rs RIIR_REFLEX_LAYA=1 riir-reflex">copy</button></div>
+      </div>
+    </section>
+
+    <div class="tabs" role="tablist">
+      <button class="tab on" data-game="tetris" role="tab">Tetris</button>
+      <button class="tab" data-game="flappy" role="tab">Flappy</button>
+      <button class="tab" data-game="lanes" role="tab">Three lanes</button>
+    </div>
+
+    <!-- ══════════════════════════ TETRIS ══════════════════════════ -->
+    <section class="game on" id="game-tetris">
+      <div class="controls">
+        <button class="ctl primary" id="tetris-run">Start</button>
+        <button class="ctl" id="tetris-reset">Reset</button>
+        <label>seed <input type="text" id="tetris-seed" value="607" size="6"></label>
+        <label>piece delay <input type="range" id="tetris-delay" min="0" max="3000" step="100" value="600"> <span id="tetris-delay-v">0.6s</span></label>
+      </div>
+      <div class="duo">
+        <div class="boardcard" id="tc-laya">
+          <div class="boardhead"><b>laya lane</b><span class="lane-note">reads every spot sentence · ~0.1 s per spot on CPU</span><span class="scorebox"><span>SCORE</span><b id="ts-laya">0000</b><span>LINES</span><b id="tl-laya">000</b></span></div>
+          <canvas id="tb-laya" width="200" height="400"></canvas>
+          <div class="stats" id="tst-laya">pieces 0 · decisions 0 · p50 — ms · errors 0</div>
+          <div class="readout">
+            <div><span>SOURCE</span><em id="tr-laya-src">—</em></div>
+            <div><span>STATE SENT</span><em id="tr-laya-state">—</em></div>
+            <div><span>QUESTION</span><em id="tr-laya-q">—</em></div>
+            <div><span>ANSWER</span><em id="tr-laya-a">—</em></div>
+            <div><span>ACTION</span><em id="tr-laya-act">—</em></div>
+            <div><span>TIMING</span><em id="tr-laya-t">—</em></div>
+          </div>
+        </div>
+        <div class="boardcard" id="tc-modelless">
+          <div class="boardhead"><b>modelless lane</b><span class="lane-note">µs decisions · abstains fall back to a random spot</span><span class="scorebox"><span>SCORE</span><b id="ts-modelless">0000</b><span>LINES</span><b id="tl-modelless">000</b></span></div>
+          <canvas id="tb-modelless" width="200" height="400"></canvas>
+          <div class="stats" id="tst-modelless">pieces 0 · decisions 0 · p50 — ms · errors 0</div>
+          <div class="readout">
+            <div><span>SOURCE</span><em id="tr-modelless-src">—</em></div>
+            <div><span>STATE SENT</span><em id="tr-modelless-state">—</em></div>
+            <div><span>QUESTION</span><em id="tr-modelless-q">—</em></div>
+            <div><span>ANSWER</span><em id="tr-modelless-a">—</em></div>
+            <div><span>ACTION</span><em id="tr-modelless-act">—</em></div>
+            <div><span>TIMING</span><em id="tr-modelless-t">—</em></div>
+          </div>
+        </div>
+      </div>
+      <details class="explain">
+        <summary>How does a decision engine play Tetris?</summary>
+        <p>Code lists every landing spot and does the counting. Each spot is described in
+        plain English — <i>“The piece leaves no holes under it in the middle, sits flat on
+        the surface, and the stack stays low.”</i> — and the engine answers one typed
+        yes/no question, <i>“Does the stack look clean?”</i>. The piece goes to the highest
+        P(clean), lowest index on ties. This is the exact <code>laya-tetris-v2</code>
+        grammar the <a href="/bench/">arena tables</a> were measured on; the fitted
+        modelless head in those tables needs a corpus per game — the out-of-the-box
+        engine you are watching honestly abstains here and falls back to a random spot.</p>
+      </details>
+    </section>
+
+    <!-- ══════════════════════════ FLAPPY ══════════════════════════ -->
+    <section class="game" id="game-flappy">
+      <div class="controls">
+        <button class="ctl primary" id="flappy-run">Start</button>
+        <button class="ctl" id="flappy-reset">Reset</button>
+        <label>seed <input type="text" id="flappy-seed" value="607" size="6"></label>
+      </div>
+      <div class="duo">
+        <div class="boardcard" id="fc-laya">
+          <div class="boardhead"><b>laya lane</b><span class="scorebox"><span>PIPES</span><b id="fp-laya">000</b><span>CRASHES</span><b id="fx-laya">000</b></span></div>
+          <canvas id="fb-laya" width="160" height="240"></canvas>
+          <div class="readout">
+            <div><span>STATE SENT</span><em id="fr-laya-state">—</em></div>
+            <div><span>ANSWER</span><em id="fr-laya-a">—</em></div>
+            <div><span>ACTION</span><em id="fr-laya-act">—</em></div>
+          </div>
+        </div>
+        <div class="boardcard" id="fc-modelless">
+          <div class="boardhead"><b>modelless lane</b><span class="scorebox"><span>PIPES</span><b id="fp-modelless">000</b><span>CRASHES</span><b id="fx-modelless">000</b></span></div>
+          <canvas id="fb-modelless" width="160" height="240"></canvas>
+          <div class="readout">
+            <div><span>STATE SENT</span><em id="fr-modelless-state">—</em></div>
+            <div><span>ANSWER</span><em id="fr-modelless-a">—</em></div>
+            <div><span>ACTION</span><em id="fr-modelless-act">—</em></div>
+          </div>
+        </div>
+      </div>
+      <details class="explain">
+        <summary>Why ask what it sees, not what to do?</summary>
+        <p>The game writes where the bird <i>is</i> — “The bird is a little below the gap
+        center, falling. The gap is narrow. The pipe is just ahead.” — and asks one typed
+        question per action: <i>“Will the bird pass through the gap cleanly?”</i> over the
+        frozen v2 option sentences. The bird does the action with the higher P(clean).
+        Asked which way to move, decision models answer backwards; asked where things
+        are, they read cleanly.</p>
+      </details>
+    </section>
+
+    <!-- ══════════════════════════ LANES ══════════════════════════ -->
+    <section class="game" id="game-lanes">
+      <div class="controls">
+        <button class="ctl primary" id="lanes-run">Start</button>
+        <button class="ctl" id="lanes-reset">Reset</button>
+        <label>seed <input type="text" id="lanes-seed" value="607" size="6"></label>
+      </div>
+      <div class="duo">
+        <div class="boardcard" id="lc-laya">
+          <div class="boardhead"><b>laya lane</b><span class="scorebox"><span>STEPS</span><b id="lp-laya">000</b><span>CRASHES</span><b id="lx-laya">000</b></span></div>
+          <div class="lanes" id="lb-laya"></div>
+          <div class="readout">
+            <div><span>STATE SENT</span><em id="lr-laya-state">—</em></div>
+            <div><span>ANSWER</span><em id="lr-laya-a">—</em></div>
+            <div><span>ACTION</span><em id="lr-laya-act">—</em></div>
+          </div>
+        </div>
+        <div class="boardcard" id="lc-modelless">
+          <div class="boardhead"><b>modelless lane</b><span class="scorebox"><span>STEPS</span><b id="lp-modelless">000</b><span>CRASHES</span><b id="lx-modelless">000</b></span></div>
+          <div class="lanes" id="lb-modelless"></div>
+          <div class="readout">
+            <div><span>STATE SENT</span><em id="lr-modelless-state">—</em></div>
+            <div><span>ANSWER</span><em id="lr-modelless-a">—</em></div>
+            <div><span>ACTION</span><em id="lr-modelless-act">—</em></div>
+          </div>
+        </div>
+      </div>
+      <details class="explain">
+        <summary>Does wording matter?</summary>
+        <p>A lot. Each barrier row is described in plain English and the engine answers
+        “Is this lane safe to run?” per lane. The runner takes the lane with the highest
+        P(safe). Small wording changes move the probabilities a lot; the grammar here is
+        the measured, pinned one.</p>
+      </details>
+    </section>
+
+    <section class="footnote">
+      <p>Same rules as the bench: every number on this page is produced live by the two
+      lanes on <b>your</b> machine — nothing here is scripted or pre-recorded. Protocol
+      and measurement tables: <a href="/bench/">the benchmark</a>. The engine never
+      phones home; the page reaches only <code>127.0.0.1:7331</code>.</p>
+    </section>
+  </main>
+
+  <footer class="site-foot">
+    <div class="wrap">
+      <p>Reflex is part of the KatGPT funnel · binary releases at
+      <a href="https://github.com/gist-rs/reflex">gist-rs/reflex</a>.</p>
+    </div>
+  </footer>
+
+  <script type="module" src="/assets/arena.js"></script>
+</body>
+</html>

@@ -1,0 +1,633 @@
+/* Reflex arena — the live games. Two lanes (laya | modelless) play side by
+   side from the same seeded stream; every decision is a real /decide call to
+   the visitor's own engine. Game logic lives in ./games/* — the exact ports
+   of the katgpt-rs Plan 607 sims + pinned sentence grammars, golden-checked
+   against the committed oracle fixtures. Nothing is scripted. */
+
+import { Rng } from "./games/rng.js";
+import * as T from "./games/tetris.js";
+import * as F from "./games/flappy.js";
+import * as L from "./games/lanes.js";
+
+const ENGINE = "http://127.0.0.1:7331";
+
+// ── engine client ──────────────────────────────────────────────────────────
+
+const lanes = { modelless: "unknown", laya: "unknown" };
+
+async function probe() {
+  const text = $("status-text");
+  try {
+    const r = await fetch(`${ENGINE}/healthz`, { mode: "cors", cache: "no-store" });
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    // Newer engines answer JSON with the lane map; an older build answers
+    // plain "ok" — the engine is up either way (the json() call is the
+    // discriminator, never a verdict on liveness).
+    const body = await r.json().catch(() => null);
+    if (body && body.lanes) {
+      lanes.modelless = body.lanes.modelless === "ready" ? "ready" : "unknown";
+      lanes.laya = body.lanes.laya || "off";
+    } else {
+      lanes.modelless = "ready";
+      lanes.laya = "off";
+    }
+  } catch (e) {
+    lanes.modelless = "down";
+    lanes.laya = "down";
+  }
+  renderStatus(text);
+}
+
+function renderStatus(text) {
+  const chip = (id, state) => {
+    const el = $(id);
+    el.classList.remove("ok", "warn", "err");
+    let cls = "err";
+    let label = "no engine";
+    if (state === "ready") [cls, label] = ["ok", "ready"];
+    else if (state === "loading") [cls, label] = ["warn", "loading…"];
+    else if (state === "failed") [cls, label] = ["err", "failed"];
+    else if (state === "off") [cls, label] = ["warn", "off (RIIR_REFLEX_LAYA=1)"];
+    else if (state === "unknown") [cls, label] = ["ok", "ready"];
+    el.classList.add(cls);
+    el.innerHTML = el.innerHTML.replace(/—.*$/, `— ${label}`);
+  };
+  chip("chip-modelless", lanes.modelless);
+  chip("chip-laya", lanes.laya);
+  const up = lanes.modelless !== "down";
+  const layaArmed = lanes.laya === "ready" || lanes.laya === "loading";
+  text.textContent = up
+    ? (layaArmed ? "local engine detected — both boards armed" : "local engine detected — modelless board armed (laya off)")
+    : "no local engine — start it, then refresh";
+  $("launch-box").hidden = up;
+}
+
+async function decide(state, question, laneHeader) {
+  const body = {
+    state,
+    questions: [{ id: "q0", kind: "noul", prompt: question, options: [] }],
+  };
+  const headers = { "Content-Type": "application/json" };
+  if (laneHeader) headers["X-Reflex-Lane"] = laneHeader;
+  const t0 = performance.now();
+  const r = await fetch(`${ENGINE}/decide`, {
+    method: "POST",
+    headers,
+    body: JSON.stringify(body),
+  });
+  const ms = performance.now() - t0;
+  const json = await r.json();
+  if (!r.ok) throw new Error(json.error || `HTTP ${r.status}`);
+  const a = (json.answers || [])[0];
+  if (!a) throw new Error("no answer");
+  // The wire's outcome is externally tagged: {"noul":{"yes":true}} — or
+  // null when the modelless lane abstained.
+  const abstain = a.outcome == null || a.outcome.noul == null;
+  return { p: abstain ? null : a.probabilities[0], ms };
+}
+
+// Fire noul questions for every option; resolves [{p, ms, error}] in order.
+async function scoreOptions(sentences, question, laneHeader, concurrency) {
+  const out = new Array(sentences.length);
+  let next = 0;
+  async function worker() {
+    while (next < sentences.length) {
+      const i = next++;
+      try {
+        out[i] = await decide(sentences[i], question, laneHeader);
+      } catch (e) {
+        out[i] = { p: null, ms: null, error: String(e.message || e) };
+      }
+    }
+  }
+  await Promise.all(
+    Array.from({ length: Math.min(concurrency, sentences.length) }, worker),
+  );
+  return out;
+}
+
+// First-argmax over the non-null p's (lowest index on ties).
+function argmax(ps) {
+  let best = -1;
+  for (let i = 0; i < ps.length; i++) {
+    if (ps[i] == null) continue;
+    if (best === -1 || ps[i] > ps[best]) best = i;
+  }
+  return best;
+}
+
+// ── shared helpers ─────────────────────────────────────────────────────────
+
+const $ = (id) => document.getElementById(id);
+const pad = (n, w) => String(n).padStart(w, "0");
+const p50 = (xs) => {
+  const v = xs.filter((x) => x != null).sort((a, b) => a - b);
+  return v.length ? Math.round(v[Math.floor(v.length / 2)]) : null;
+};
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+function setReadout(prefix, fields) {
+  for (const [k, v] of Object.entries(fields)) {
+    const el = $(`${prefix}-${k}`);
+    if (el) el.textContent = v;
+  }
+}
+
+const FALLBACK_NOTE = " · abstain → random fallback";
+
+// ── Tetris board ───────────────────────────────────────────────────────────
+
+class TetrisBoard {
+  constructor(lane, ui) {
+    this.lane = lane; // "laya" | "modelless"
+    this.ui = ui; // {canvas, score, lines, stats, readout}
+    this.running = false;
+    this.reset(607);
+  }
+
+  reset(seed) {
+    this.rng = new Rng(seed);
+    this.board = T.emptyBoard();
+    this.score = 0;
+    this.lines = 0;
+    this.pieces = 0;
+    this.decisions = 0;
+    this.abstains = 0;
+    this.errors = 0;
+    this.latencies = [];
+    this.opts = [];
+    this.ps = [];
+    this.chosen = -1;
+    this.over = false;
+    this.render();
+    this.renderStats();
+    setReadout(this.ui.readout, {
+      src: this.lane, state: "—", q: "—", a: "—", act: "—", t: "—",
+    });
+  }
+
+  async run(delayMs) {
+    this.running = true;
+    while (this.running && !this.over) {
+      await this.step();
+      if (this.running && !this.over && delayMs > 0) await sleep(delayMs);
+    }
+    this.running = false;
+  }
+
+  async step() {
+    const piece = T.PIECES[this.rng.u32Below(7)];
+    this.opts = T.buildTurn(this.board, piece);
+    if (this.opts.length === 0) {
+      this.over = true;
+      setReadout(this.ui.readout, {
+        a: "top-out — no landing spot fits",
+        act: "game over",
+      });
+      return;
+    }
+    setReadout(this.ui.readout, {
+      src: this.lane,
+      state: this.opts[0].stateSentence,
+      q: T.SPOT_QUESTION,
+      a: `reading ${this.opts.length} spots…`,
+      act: "…",
+      t: "…",
+    });
+    this.chosen = -1;
+    this.ps = new Array(this.opts.length).fill(null);
+    this.render();
+
+    // Progressive scoring: the heatmap fills as answers arrive.
+    const sentences = this.opts.map((o) => o.sentence);
+    const t0 = performance.now();
+    const results = await scoreOptions(
+      sentences,
+      T.SPOT_QUESTION,
+      this.lane === "laya" ? "laya" : null,
+      this.lane === "laya" ? 6 : 16,
+    );
+    const wall = Math.round(performance.now() - t0);
+    for (let i = 0; i < results.length; i++) {
+      const r = results[i];
+      if (r.error) this.errors += 1;
+      this.ps[i] = r.p;
+      if (r.ms != null) this.latencies.push(r.ms);
+    }
+    this.render();
+
+    if (results.every((r) => r.error)) {
+      // Every request failed — the engine is gone; stop instead of playing
+      // an unlabelled random game.
+      this.over = true;
+      setReadout(this.ui.readout, {
+        a: `engine unreachable (${results[0].error})`,
+        act: "stopped",
+      });
+      this.renderStats();
+      return;
+    }
+
+    const pick = argmax(this.ps);
+    this.decisions += 1;
+    if (pick === -1) {
+      // The honest abstain: no signal, so the game falls back to a random
+      // legal spot (labelled — never presented as an engine answer).
+      this.abstains += 1;
+      this.chosen = this.rng.u32Below(this.opts.length);
+      setReadout(this.ui.readout, {
+        a: `abstain ×${this.opts.length}${FALLBACK_NOTE}`,
+      });
+    } else {
+      this.chosen = pick;
+      const best = Math.max(...this.ps.filter((p) => p != null));
+      setReadout(this.ui.readout, {
+        a: `P(clean) ${best.toFixed(3)} — spot ${this.chosen + 1}/${this.opts.length}`,
+      });
+    }
+    const opt = this.opts[this.chosen];
+    setReadout(this.ui.readout, {
+      act: `${piece} → rot ${opt.rot}, col ${opt.col}${pick === -1 ? FALLBACK_NOTE : ""}`,
+      t: `p50 ${p50(this.latencies) ?? "—"} ms · ${this.opts.length} spots in ${wall} ms`,
+    });
+    this.render();
+
+    const cleared = T.commitPlacement(this.board, opt);
+    this.lines += cleared;
+    this.score += [0, 40, 100, 300, 1200][Math.min(cleared, 4)];
+    this.pieces += 1;
+    this.render();
+    this.renderStats();
+  }
+
+  render() {
+    const cv = $(this.ui.canvas);
+    const ctx = cv.getContext("2d");
+    const CW = cv.width / T.WIDTH;
+    const CH = cv.height / T.HEIGHT;
+    ctx.clearRect(0, 0, cv.width, cv.height);
+    ctx.strokeStyle = "rgba(58,33,23,0.6)";
+    ctx.lineWidth = 1;
+    for (let c = 1; c < T.WIDTH; c++) {
+      ctx.beginPath(); ctx.moveTo(c * CW, 0); ctx.lineTo(c * CW, cv.height); ctx.stroke();
+    }
+    for (let r = 1; r < T.HEIGHT; r++) {
+      ctx.beginPath(); ctx.moveTo(0, r * CH); ctx.lineTo(cv.width, r * CH); ctx.stroke();
+    }
+    for (let r = 0; r < T.HEIGHT; r++) {
+      for (let c = 0; c < T.WIDTH; c++) {
+        if (this.board[r][c]) {
+          ctx.fillStyle = "#8a5a3a";
+          ctx.fillRect(c * CW + 1, r * CH + 1, CW - 2, CH - 2);
+        }
+      }
+    }
+    // option heatmap
+    for (let i = 0; i < this.opts.length; i++) {
+      const opt = this.opts[i];
+      const p = this.ps[i];
+      const chosen = i === this.chosen;
+      const alpha = p == null ? 0.1 : 0.12 + 0.7 * p;
+      ctx.fillStyle = chosen ? "rgba(111,191,115,0.85)" : `rgba(224,92,27,${alpha.toFixed(2)})`;
+      for (const [r, c] of opt.cells) {
+        ctx.fillRect(c * CW + 1, r * CH + 1, CW - 2, CH - 2);
+      }
+      if (chosen) {
+        ctx.strokeStyle = "#6fbf73";
+        ctx.lineWidth = 2;
+        for (const [r, c] of opt.cells) {
+          ctx.strokeRect(c * CW + 1, r * CH + 1, CW - 3, CH - 3);
+        }
+      }
+    }
+  }
+
+  renderStats() {
+    $(this.ui.score).textContent = pad(this.score, 4);
+    $(this.ui.lines).textContent = pad(this.lines, 3);
+    $(this.ui.stats).textContent =
+      `pieces ${this.pieces} · decisions ${this.decisions}` +
+      ` · abstains ${this.abstains} · errors ${this.errors}` +
+      ` · p50 ${p50(this.latencies) ?? "—"} ms`;
+  }
+}
+
+// ── Flappy board ───────────────────────────────────────────────────────────
+
+class FlappyBoard {
+  constructor(lane, ui) {
+    this.lane = lane;
+    this.ui = ui; // {canvas, pipes, crashes, readout}
+    this.running = false;
+    this.reset(607);
+  }
+
+  reset(seed) {
+    this.seed = seed;
+    this.pipes = 0;
+    this.crashes = 0;
+    this.draw({ y: 6, v: 0, g: 6, h: 2 }, []);
+    $(this.ui.pipes).textContent = pad(0, 3);
+    $(this.ui.crashes).textContent = pad(0, 3);
+    setReadout(this.ui.readout, { state: "—", a: "—", act: "— " });
+  }
+
+  async run() {
+    this.running = true;
+    const rng = new Rng(this.seed);
+    let y = rng.i32Range(3, F.GRID_H - 3);
+    let v = rng.i32Range(-1, 2);
+    while (this.running) {
+      // Approach: pure coasting with gravity (no decisions), 2-3 ticks —
+      // the exact play_game stream shape.
+      const approach = rng.i32Range(2, 4);
+      let crashed = false;
+      for (let j = 0; j < approach; j++) {
+        v = Math.max(v - 1, F.V_MIN);
+        y += v;
+        if (!F.inBounds(y)) { crashed = true; break; }
+        this.draw({ y, v, g: null, h: 2 }, []);
+        await sleep(140);
+      }
+      if (crashed) {
+        this.crashes += 1;
+        $(this.ui.crashes).textContent = pad(this.crashes, 3);
+        y = rng.i32Range(3, F.GRID_H - 3);
+        v = rng.i32Range(-1, 2);
+        continue;
+      }
+      if (!this.running) break;
+      const h = rng.u32Below(2) === 0 ? 2 : 3;
+      const g = rng.i32Range(h + 1, F.GRID_H - h);
+      const s = { y, v, g, h };
+      const turn = F.buildTurn(s);
+      setReadout(this.ui.readout, {
+        state: F.renderStateSentence(s), a: "deciding…", act: "…",
+      });
+      const results = await scoreOptions(
+        turn.options.map((o) => o.sentence),
+        turn.question,
+        this.lane === "laya" ? "laya" : null,
+        2,
+      );
+      if (!this.running) break;
+      const ps = results.map((r) => r.p);
+      const pick = argmax(ps);
+      const idx = pick === -1 ? rng.u32Below(turn.options.length) : pick;
+      const note = pick === -1 ? FALLBACK_NOTE : `P(clean) ${ps[idx].toFixed(3)}`;
+      setReadout(this.ui.readout, {
+        a: `flap ${ps[0]?.toFixed(3) ?? "—"} · coast ${ps[1]?.toFixed(3) ?? "—"} — ${note}`,
+        act: turn.options[idx].label,
+      });
+      this.draw(s, ps, idx);
+      await sleep(200);
+      const [y2, v2] = F.result(s, turn.options[idx].label);
+      if (!F.inBounds(y2) || Math.abs(y2 - g) > h) {
+        this.crashes += 1;
+        $(this.ui.crashes).textContent = pad(this.crashes, 3);
+        this.draw(s, ps, idx, true);
+        await sleep(500);
+        y = rng.i32Range(3, F.GRID_H - 3);
+        v = rng.i32Range(-1, 2);
+        continue;
+      }
+      this.pipes += 1;
+      $(this.ui.pipes).textContent = pad(this.pipes, 3);
+      y = y2;
+      v = v2;
+    }
+    this.running = false;
+  }
+
+  draw(s, ps, chosen, crash) {
+    const cv = $(this.ui.canvas);
+    const ctx = cv.getContext("2d");
+    const COLS = 8;
+    const CW = cv.width / COLS;
+    const CH = cv.height / F.GRID_H;
+    ctx.clearRect(0, 0, cv.width, cv.height);
+    if (s.g != null) {
+      // the pipe's gap band + walls
+      ctx.fillStyle = "rgba(138,90,58,0.9)";
+      ctx.fillRect(cv.width - CW * 2, 0, CW * 2, (s.g - s.h) * CH);
+      const lo = s.g + s.h + 1;
+      if (lo < F.GRID_H) {
+        ctx.fillRect(cv.width - CW * 2, lo * CH, CW * 2, (F.GRID_H - lo) * CH);
+      }
+      ctx.fillStyle = "rgba(111,191,115,0.22)";
+      ctx.fillRect(cv.width - CW * 2, (s.g - s.h) * CH, CW * 2, (2 * s.h + 1) * CH);
+    }
+    // each option's resulting cell
+    F.ACTIONS.forEach((label, i) => {
+      const [y2] = F.result(s, label);
+      if (!F.inBounds(y2)) return;
+      const p = ps[i];
+      ctx.fillStyle =
+        i === chosen
+          ? (crash ? "rgba(224,92,92,0.9)" : "rgba(111,191,115,0.8)")
+          : `rgba(224,92,27,${p == null ? 0.1 : (0.15 + 0.6 * p).toFixed(2)})`;
+      ctx.fillRect(CW * 4, y2 * CH + 2, CW - 4, CH - 4);
+    });
+    // the bird
+    ctx.fillStyle = crash ? "#e05c5c" : "#e0b34c";
+    ctx.beginPath();
+    ctx.arc(CW * 2 + CW / 2, (s.y + 0.5) * CH, Math.min(CW, CH) * 0.4, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+// ── Lanes board ────────────────────────────────────────────────────────────
+
+class LanesBoard {
+  constructor(lane, ui) {
+    this.lane = lane;
+    this.ui = ui; // {lanesEl, steps, crashes, readout}
+    this.running = false;
+    this.reset(607);
+  }
+
+  reset(seed) {
+    this.seed = seed;
+    this.steps = 0;
+    this.crashes = 0;
+    this.draw(null, [], -1);
+    $(this.ui.steps).textContent = pad(0, 3);
+    $(this.ui.crashes).textContent = pad(0, 3);
+    setReadout(this.ui.readout, { state: "—", a: "—", act: "— " });
+  }
+
+  async run() {
+    this.running = true;
+    const rng = new Rng(this.seed);
+    while (this.running) {
+      const s = L.sampleState(rng);
+      const turn = L.buildTurn(s);
+      setReadout(this.ui.readout, {
+        state: L.renderStateSentence(s), a: "deciding…", act: "…",
+      });
+      const results = await scoreOptions(
+        turn.options.map((o) => o.sentence),
+        turn.question,
+        this.lane === "laya" ? "laya" : null,
+        3,
+      );
+      if (!this.running) break;
+      const ps = results.map((r) => r.p);
+      const pick = argmax(ps);
+      const idx = pick === -1 ? rng.u32Below(3) : pick;
+      setReadout(this.ui.readout, {
+        a: ps.map((p, i) => `${L.LANE_NAMES[i]} ${p == null ? "—" : p.toFixed(3)}`).join(" · ") +
+          (pick === -1 ? FALLBACK_NOTE : ""),
+        act: `${L.LANE_NAMES[idx]} (lane${idx})`,
+      });
+      this.draw(s, ps, idx);
+      await sleep(400);
+      const l = s.lanes[idx];
+      if (l.kind !== "Clear" && l.dist === "Close") {
+        this.crashes += 1;
+        $(this.ui.crashes).textContent = pad(this.crashes, 3);
+        this.draw(s, ps, idx, true);
+        await sleep(600);
+      } else {
+        this.steps += 1;
+        $(this.ui.steps).textContent = pad(this.steps, 3);
+      }
+    }
+    this.running = false;
+  }
+
+  draw(s, ps, chosen, crash) {
+    const box = $(this.ui.lanesEl);
+    box.innerHTML = "";
+    const lanesState = s ? s.lanes : [null, null, null];
+    lanesState.forEach((l, i) => {
+      const div = document.createElement("div");
+      div.className = "lane" + (l ? (l.kind === "Clear" ? " clear" : " blocked") : "");
+      if (i === chosen) div.classList.add("chosen");
+      const p = ps[i];
+      div.innerHTML =
+        `<span class="kind">${l ? (l.kind === "Clear" ? "clear" : String(l.kind)) : "—"}</span>` +
+        (l && l.kind !== "Clear" ? `<span>${String(l.dist)}</span>` : "") +
+        `<span class="p">${p == null ? "—" : `p ${p.toFixed(3)}`}</span>` +
+        (crash && i === chosen ? `<span>✕ crash</span>` : "");
+      box.appendChild(div);
+    });
+  }
+}
+
+// ── wiring ─────────────────────────────────────────────────────────────────
+
+const tetris = {
+  laya: new TetrisBoard("laya", {
+    canvas: "tb-laya", score: "ts-laya", lines: "tl-laya", stats: "tst-laya", readout: "tr-laya",
+  }),
+  modelless: new TetrisBoard("modelless", {
+    canvas: "tb-modelless", score: "ts-modelless", lines: "tl-modelless", stats: "tst-modelless", readout: "tr-modelless",
+  }),
+};
+const flappy = {
+  laya: new FlappyBoard("laya", {
+    canvas: "fb-laya", pipes: "fp-laya", crashes: "fx-laya", readout: "fr-laya",
+  }),
+  modelless: new FlappyBoard("modelless", {
+    canvas: "fb-modelless", pipes: "fp-modelless", crashes: "fx-modelless", readout: "fr-modelless",
+  }),
+};
+const lanesGame = {
+  laya: new LanesBoard("laya", {
+    lanesEl: "lb-laya", steps: "lp-laya", crashes: "lx-laya", readout: "lr-laya",
+  }),
+  modelless: new LanesBoard("modelless", {
+    lanesEl: "lb-modelless", steps: "lp-modelless", crashes: "lx-modelless", readout: "lr-modelless",
+  }),
+};
+
+function stopAll() {
+  for (const b of [...Object.values(tetris), ...Object.values(flappy), ...Object.values(lanesGame)]) {
+    b.running = false;
+  }
+}
+
+function laneReady(lane) {
+  if (lane === "modelless") return lanes.modelless === "ready" || lanes.modelless === "unknown";
+  return lanes.laya === "ready";
+}
+
+const LANE_HINT = {
+  laya: (state) =>
+    `laya lane is ${state}` +
+    (state === "off" || state === "down"
+      ? " — restart the engine with RIIR_REFLEX_LAYA=1"
+      : state === "loading"
+        ? " — weights still loading, retry in a minute"
+        : ""),
+  modelless: () => "engine unreachable — start it with the door open for this origin",
+};
+
+function bindRun(gameName, boards, runArg) {
+  const btn = $(`${gameName}-run`);
+  const reset = $(`${gameName}-reset`);
+  const seedInput = $(`${gameName}-seed`);
+  btn.addEventListener("click", async () => {
+    if (btn.textContent === "Stop") {
+      stopAll();
+      btn.textContent = "Start";
+      return;
+    }
+    stopAll();
+    const seed = Number(seedInput.value) || 607;
+    for (const b of Object.values(boards)) b.reset(seed);
+    await probe();
+    const jobs = [];
+    for (const [lane, b] of Object.entries(boards)) {
+      if (laneReady(lane)) {
+        jobs.push(b.run(typeof runArg === "function" ? runArg() : undefined));
+      } else {
+        setReadout(b.ui.readout, {
+          state: LANE_HINT[lane](lanes[lane]),
+          a: "lane unavailable", act: "—",
+        });
+      }
+    }
+    btn.textContent = "Stop";
+    await Promise.all(jobs);
+    btn.textContent = "Start";
+  });
+  reset.addEventListener("click", () => {
+    stopAll();
+    btn.textContent = "Start";
+    const seed = Number(seedInput.value) || 607;
+    for (const b of Object.values(boards)) b.reset(seed);
+  });
+}
+
+bindRun("tetris", tetris, () => Number($("tetris-delay").value));
+bindRun("flappy", flappy);
+bindRun("lanes", lanesGame);
+
+$("tetris-delay").addEventListener("input", (e) => {
+  $("tetris-delay-v").textContent = `${(e.target.value / 1000).toFixed(1)}s`;
+});
+
+// tabs
+document.querySelectorAll(".tab").forEach((t) => {
+  t.addEventListener("click", () => {
+    document.querySelectorAll(".tab").forEach((x) => x.classList.remove("on"));
+    document.querySelectorAll(".game").forEach((x) => x.classList.remove("on"));
+    t.classList.add("on");
+    $(`game-${t.dataset.game}`).classList.add("on");
+  });
+});
+
+// copy buttons
+document.querySelectorAll("button[data-copy]").forEach((b) => {
+  b.addEventListener("click", () => {
+    navigator.clipboard?.writeText(b.dataset.copy);
+    const t = b.textContent;
+    b.textContent = "copied";
+    setTimeout(() => (b.textContent = t), 1200);
+  });
+});
+
+probe();
+setInterval(probe, 4000);
