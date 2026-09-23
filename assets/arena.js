@@ -152,6 +152,38 @@ async function decide(state, question, laneHeader) {
   return { p: abstain ? null : a.probabilities[0], ms };
 }
 
+// The joined-state turn (issue 011, modelless lane only): ONE /decide
+// carries the whole turn — the state's sentences one per line, one noul
+// question per option in pinned order — and the engine's fitted head
+// answers answer i = option i. Used by the lanes board (the head's
+// cross-lane feature columns read ALL THREE sentences; a single-lane
+// request cannot reproduce it). Resolves [{p, ms}] per option, or throws.
+async function decideTurn(state, question, count, laneHeader) {
+  const body = {
+    state,
+    questions: Array.from({ length: count }, (_, i) => ({
+      id: `q${i}`, kind: "noul", prompt: question, options: [],
+    })),
+  };
+  const headers = { "Content-Type": "application/json" };
+  if (laneHeader) headers["X-Reflex-Lane"] = laneHeader;
+  const t0 = performance.now();
+  const r = await fetch(`${ENGINE}/decide`, {
+    method: "POST",
+    headers,
+    body: JSON.stringify(body),
+  });
+  const ms = performance.now() - t0;
+  const json = await r.json();
+  if (!r.ok) throw new Error(json.error || `HTTP ${r.status}`);
+  const answers = json.answers || [];
+  if (answers.length !== count) throw new Error(`expected ${count} answers, got ${answers.length}`);
+  return answers.map((a) => {
+    const abstain = a.outcome == null || a.outcome.noul == null;
+    return { p: abstain ? null : a.probabilities[0], ms };
+  });
+}
+
 // Fire noul questions for every option; resolves [{p, ms, error}] in order.
 // In demo mode there is no engine to ask — the lanes replay recorded data
 // (tetris laya: the recorded game; flappy/lanes modelless: the honest
@@ -184,6 +216,36 @@ async function scoreOptions(sentences, question, laneHeader, concurrency, demoPs
     const rec = allowDemoPs && demoPs && demoPs.length === sentences.length ? demoPs : null;
     const recMs = allowDemoPs && demoMs && demoMs.length === sentences.length ? demoMs : null;
     return sentences.map((_, i) => ({ p: rec ? rec[i] : null, ms: recMs ? recMs[i] : null }));
+  }
+  // Live-engine protocol shapes (modelless lane only — the laya lane's
+  // measured per-option shape NEVER moves, and raw skips the heads by
+  // design): flappy's head needs the (state, option) pair (two lines);
+  // lanes' head needs the joined turn (one request, three answers).
+  if (!laneHeader && stateSentence != null) {
+    const out = new Array(sentences.length);
+    let next = 0;
+    async function worker() {
+      while (next < sentences.length) {
+        const i = next++;
+        try {
+          out[i] = await decide(`${stateSentence}\n${sentences[i]}`, question, laneHeader);
+        } catch (e) {
+          out[i] = { p: null, ms: null, error: String(e.message || e) };
+        }
+      }
+    }
+    await Promise.all(
+      Array.from({ length: Math.min(concurrency, sentences.length) }, worker),
+    );
+    return out;
+  }
+  if (!laneHeader && stateSentence == null && question === L.QUESTION && sentences.length === 3) {
+    try {
+      return await decideTurn(sentences.join("\n"), question, 3, laneHeader);
+    } catch (e) {
+      const err = String(e.message || e);
+      return sentences.map(() => ({ p: null, ms: null, error: err }));
+    }
   }
   const out = new Array(sentences.length);
   let next = 0;
