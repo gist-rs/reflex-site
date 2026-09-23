@@ -5,3 +5,4 @@ README.md
 wrangler.toml
 scripts
 .DS_Store
+.wrangler
