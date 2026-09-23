@@ -48,13 +48,13 @@
         <p class="hint" id="pna-hint" hidden>Chrome blocked the local call — allow the local-network permission for this site (the icon in the address bar), then refresh.</p>
       </div>
       <div class="launch demo" id="demo-banner" hidden>
-        <p><b>Recorded demo — no local engine.</b> The boards below replay the committed
-        Plan 607 oracle (the same recorded decisions behind the <a href="/bench/">benchmark
-        tables</a>): the <b>laya</b> board shows the recorded probabilities; the
-        <b>modelless</b> board plays its real out-of-the-box behavior — with no engine it
-        abstains and falls back to a labelled random spot. The tetris walk is the recorded
-        state-capture game (mixed play, shown as played). Start the engine, then press
-        Start for the live lanes.</p>
+        <p><b>Recorded demo — no local engine.</b> The boards below replay committed
+        recorded games (the same one-question-per-option wire the <a href="/bench/">benchmark
+        tables</a> measure): the <b>laya</b> board replays a full-argmax model-based game;
+        the <b>modelless</b> board replays the <b>fitted head playing</b> — the same fit
+        the v0.2.2+ engine serves live, at the recorded per-decision latency shown on
+        each board. Both replays loop. Start the engine, then press Start for the live
+        lanes.</p>
       </div>
     </section>
 
@@ -199,8 +199,9 @@
     <section class="footnote">
       <p>With your engine connected, every number on this page is produced live by the two
       lanes on <b>your</b> machine — nothing is scripted or pre-recorded. Without an engine,
-      Start plays the <b>recorded demo</b>: the committed Plan 607 oracle replays labelled
-      as such, never mixed with live results. The laya lane runs our Rust port of the
+      Start plays the <b>recorded demo</b>: committed games recorded through this same
+      wire, labelled as such, never mixed with live results. The laya lane runs our Rust
+      port of the
       open-weights model — G5-parity-verified against its reference checkpoints (top-1
       agreement 1.000, probability drift ≤ 3e-6); there is no Python anywhere in the
       stack. Protocol and measurement tables:

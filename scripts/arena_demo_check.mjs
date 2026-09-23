@@ -34,18 +34,26 @@ function argmax(ps) {
   return best;
 }
 
-// ── tetris: the recorded walk chains under the site's own enumeration ──────
-{
-  const walk = oracle.tetris_walk;
-  assert.ok(walk.length >= 10, `tetris walk too short: ${walk.length}`);
+// ── tetris walks: the recorded games chain under the site's own enumeration ──
+// tetris_walk (the laya game) and tetris_head_walk (the fitted-head game)
+// share the record shape: [state sentence, ps, piece, board rows, pick, ms?].
+// A window-ended walk carries chainPick -1 on its final record; a naturally
+// topped-out walk ends on a real pick — both are accepted, the chain simply
+// stops at the last record.
+function verifyTetrisWalk(walk, name) {
+  assert.ok(walk.length >= 10, `${name} too short: ${walk.length}`);
   for (let k = 0; k < walk.length; k++) {
-    const [sentence, ps, piece, boardRows, chainPick] = walk[k];
+    const [sentence, ps, piece, boardRows, chainPick, ms] = walk[k];
     const board = T.fromStrings(boardRows);
     const opts = T.buildTurn(board, piece);
-    assert.equal(opts.length, ps.length, `walk[${k}]: arity ${ps.length} vs ${opts.length}`);
-    assert.equal(opts[0].stateSentence, sentence, `walk[${k}]: sentence drift`);
+    assert.equal(opts.length, ps.length, `${name}[${k}]: arity ${ps.length} vs ${opts.length}`);
+    assert.equal(opts[0].stateSentence, sentence, `${name}[${k}]: sentence drift`);
+    if (ms != null) {
+      assert.equal(ms.length, ps.length, `${name}[${k}]: ms arity`);
+      assert.ok(ms.every((x) => typeof x === "number" && x >= 0), `${name}[${k}]: ms values`);
+    }
     if (k + 1 < walk.length) {
-      assert.ok(chainPick >= 0 && chainPick < opts.length, `walk[${k}]: bad chainPick`);
+      assert.ok(chainPick >= 0 && chainPick < opts.length, `${name}[${k}]: bad chainPick`);
       const after = board.map((r) => [...r]);
       T.commitPlacement(after, opts[chainPick]);
       const next = walk[k + 1][3];
@@ -53,17 +61,51 @@ function argmax(ps) {
         for (let c = 0; c < T.WIDTH; c++) {
           assert.ok(
             after[r][c] === (next[r][c] === "#"),
-            `walk[${k}]: chain broken at (${r},${c})`,
+            `${name}[${k}]: chain broken at (${r},${c})`,
           );
         }
       }
-    } else {
-      assert.equal(chainPick, -1, "walk: final record must end the window (chainPick -1)");
     }
   }
+  const p50ms = (() => {
+    const all = walk.filter((r) => r[5]).flatMap((r) => r[5]).sort((a, b) => a - b);
+    return all.length ? all[Math.floor(all.length / 2)] : null;
+  })();
   console.log(
-    `tetris_walk: ${walk.length} turns chain-verified against the site's own enumeration`,
+    `${name}: ${walk.length} turns chain-verified against the site's own enumeration${
+      p50ms != null ? ` · recorded p50 ${p50ms} ms/decision` : ""
+    }`,
   );
+  return { p50ms };
+}
+
+{
+  verifyTetrisWalk(oracle.tetris_walk, "tetris_walk");
+  const headSummary = verifyTetrisWalk(oracle.tetris_head_walk, "tetris_head_walk");
+  // the head game must actually CLEAR lines — a random-quality walk (the old
+  // abstain behavior) scores ~1 line per 36 pieces and must never come back
+  const headLines = walkLines(oracle.tetris_head_walk);
+  console.log(`tetris_head_walk: clears ${headLines} lines over the recorded game`);
+  assert.ok(headLines >= 2, `head walk clears only ${headLines} lines — that is random-class play, not the fitted head`);
+  assert.ok(headSummary.p50ms != null, "head walk carries no recorded per-decision ms");
+}
+
+// replay the walk's placements to count cleared lines without a browser
+function walkLines(walk) {
+  const board = T.fromStrings(walk[0][3]);
+  let lines = 0;
+  for (const [, , piece, rows, pick] of walk) {
+    for (let r = 0; r < T.HEIGHT; r++) {
+      for (let c = 0; c < T.WIDTH; c++) {
+        if ((rows[r][c] === "#") !== board[r][c]) {
+          return -1; // chain drift — already caught above; do not double-report
+        }
+      }
+    }
+    const opts = T.buildTurn(board, piece);
+    lines += T.commitPlacement(board, opts[pick]);
+  }
+  return lines;
 }
 
 // ── flappy + lanes: reels re-render + decide exactly like the live boards ──

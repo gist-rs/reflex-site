@@ -56,21 +56,24 @@ try {
 
   // laya board replays recorded plays
   await page.waitForFunction(
-    () => /recorded play, spot \d+/.test(document.getElementById("tr-laya-a").textContent),
+    () => /recorded play, spot \d+|P\(clean\) [\d.]+ — spot \d+/.test(document.getElementById("tr-laya-a").textContent),
     { timeout: 15000 },
   );
   const layaStats = await page.textContent("#tst-laya");
   console.log(`[demo-smoke] laya answer: ${(await page.textContent("#tr-laya-a")).trim()}`);
   if (!/pieces [1-9]/.test(layaStats)) fail(`laya demo board not advancing: ${layaStats}`);
 
-  // modelless board abstains with the labelled fallback
+  // modelless board replays the fitted head's recorded play (ps + ms shown)
   await page.waitForFunction(
-    () => /abstain ×\d+ · abstain → random fallback/.test(document.getElementById("tr-modelless-a").textContent),
+    () => /P\(clean\) [\d.]+ — spot \d+/.test(document.getElementById("tr-modelless-a").textContent),
     { timeout: 15000 },
   );
   console.log(`[demo-smoke] modelless answer: ${(await page.textContent("#tr-modelless-a")).trim()}`);
   const mlStats = await page.textContent("#tst-modelless");
-  if (!/abstains [1-9]/.test(mlStats)) fail(`modelless demo board not advancing: ${mlStats}`);
+  if (!/pieces [1-9]/.test(mlStats)) fail(`modelless demo board not advancing: ${mlStats}`);
+  const mlTiming = await page.textContent("#tr-modelless-t");
+  if (!/recorded · p50 \d+(\.\d+)? ms/.test(mlTiming)) fail(`head board timing missing: ${mlTiming}`);
+  console.log(`[demo-smoke] modelless timing: ${mlTiming.trim()}`);
 
   await page.screenshot({ path: path.join(outDir, "arena_demo_tetris.png") });
 
@@ -101,8 +104,9 @@ try {
   if (!demoJson.tetris_walk?.length || !demoJson.flappy_walk?.length || !demoJson.lanes_walk?.length) {
     fail("demo oracle walks missing");
   }
+  if (!demoJson.tetris_head_walk?.length) fail("tetris_head_walk missing — the modelless demo has no head game to replay");
   console.log(
-    `[demo-smoke] oracle: tetris_walk ${demoJson.tetris_walk.length}, flappy_walk ${demoJson.flappy_walk.length}, lanes_walk ${demoJson.lanes_walk.length}`,
+    `[demo-smoke] oracle: tetris_walk ${demoJson.tetris_walk.length}, tetris_head_walk ${demoJson.tetris_head_walk.length}, flappy_walk ${demoJson.flappy_walk.length}, lanes_walk ${demoJson.lanes_walk.length}`,
   );
 } catch (e) {
   fail(e.message);
