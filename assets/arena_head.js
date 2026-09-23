@@ -4,7 +4,7 @@
 //
 // What loads here is `arena_head.wasm`: the published fit recipes
 // (standardize → ridge at the LOO-selected λ → linear score) re-run at boot
-// over the same digest-pinned oracle corpora the v0.2.2+ engine fits from —
+// over the same digest-pinned oracle corpora the v0.2.3+ engine fits from —
 // the fits are bit-identical to the engine's (every op is a correctly-rounded
 // IEEE-754 f64 primitive with a pinned accumulation order).
 //
