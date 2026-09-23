@@ -17,6 +17,7 @@
   .g1 { font-size: 14px; margin: 8px 0; color: var(--text); }
   .g1 .pass { color: var(--ok); font-weight: 700; }
   .g1 .fail { color: var(--warn); font-weight: 700; }
+  .g1 .noclaim { color: var(--muted); font-weight: 700; }
   .protocol { font-size: 13px; color: var(--muted); margin: 6px 0 0; }
   #bench-meta { color: var(--muted); font-size: 13.5px; }
   .scroll { overflow-x: auto; }
@@ -106,8 +107,14 @@ function suiteSection(s) {
   if (s.modelless) lanes.push(s.modelless);
   for (const k of Object.keys(s.laya || {})) lanes.push(s.laya[k]);
   const bestAcc = Math.max(...lanes.map((l) => (l.hard || {}).accuracy ?? 0));
-  const g1 = s.modelless && s.modelless.g1_pass !== undefined
-    ? `<p class="g1">G1 (modelless calibration): raw ${fmt(s.modelless.readout_ece_raw, 4)} · calibrated ${fmt(s.modelless.readout_ece_calibrated, 4)} · conformal-naive floor ${fmt(s.modelless.floor_ece, 4)} → <span class="${s.modelless.g1_pass ? "pass" : "fail"}">${s.modelless.g1_pass ? "PASS" : "FAIL"}</span></p>`
+  const m = s.modelless;
+  // The G1 verdict: g1_verdict (pass/fail/no_claim) when the run carries it;
+  // the g1_pass boolean is the pre-no-claim fallback. no_claim = the
+  // calibrator never fitted — never rendered as FAIL.
+  const v = m ? (m.g1_verdict || (m.g1_pass === true ? "pass" : m.g1_pass === false ? "fail" : null)) : null;
+  const g1Word = v === "pass" ? "PASS" : v === "fail" ? "FAIL" : v === "no_claim" ? "NO CLAIM" : null;
+  const g1 = g1Word
+    ? `<p class="g1">G1 (modelless calibration): raw ${fmt(m.readout_ece_raw, 4)} · calibrated ${fmt(m.readout_ece_calibrated, 4)} · conformal-naive floor ${fmt(m.floor_ece, 4)} → <span class="${v === "pass" ? "pass" : v === "fail" ? "fail" : "noclaim"}">${g1Word}</span>${v === "no_claim" ? " <span class=\"cases\">— the calibrator never fitted (cal window below the occupancy floor); nothing to pass or fail</span>" : ""}</p>`
     : "";
   return `<h3 class="suite">${s.name} <span class="cases">— ${s.n_cases} cases / ${s.n_questions} questions</span></h3>
   <div class="scroll"><table class="bench">
