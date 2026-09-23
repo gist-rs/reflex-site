@@ -52,8 +52,10 @@
         heads ship compiled to WebAssembly on this page: each fits its published head
         in-tab from the same pinned oracle corpus and answers every spot question itself
         — Tetris proven bit-exact against the recorded engine play, Flappy reproducing
-        its published 96/100 oracle agreement — hundreds of decisions verified before
-        either board moves. No engine, no server, no upload. The <b>laya</b> board — too
+        its published 96/100 oracle agreement, Three-lanes reproducing its published
+        84/100 through the joined-state protocol (its head reads all three lanes'
+        sentences) — hundreds of decisions verified before
+        any board moves. No engine, no server, no upload. The <b>laya</b> board — too
         heavy for a browser at ~650&nbsp;MB of weights — replays recorded full-argmax
         games. Both loop. Start the engine, then press Start for the live lanes.</p>
       </div>
@@ -88,7 +90,7 @@
           </div>
         </div>
         <div class="boardcard" id="tc-modelless">
-          <div class="boardhead"><b>modelless lane · reflex core</b><span class="lane-note">corpus-fitted heads play Tetris + Flappy — LIVE in-tab via WebAssembly with zero engine, or through your v0.2.2+ engine · three-lanes abstains → random</span><span class="scorebox"><span>SCORE</span><b id="ts-modelless">0000</b><span>LINES</span><b id="tl-modelless">000</b></span></div>
+          <div class="boardhead"><b>modelless lane · reflex core</b><span class="lane-note">corpus-fitted heads play Tetris + Flappy + three-lanes — LIVE in-tab via WebAssembly with zero engine, or through your v0.2.2+ engine</span><span class="scorebox"><span>SCORE</span><b id="ts-modelless">0000</b><span>LINES</span><b id="tl-modelless">000</b></span></div>
           <canvas id="tb-modelless" width="200" height="400"></canvas>
           <div class="stats" id="tst-modelless">pieces 0 · decisions 0 · p50 — ms · errors 0</div>
           <div class="readout">
@@ -120,9 +122,11 @@
         Flappy joins it on the <b>v3 render</b> (band + quantized offset + neutral
         post-motion — v2's band alone was the measured-degenerate arm) with its head
         served the same way; its decision reads the (state, option) sentence pair, the
-        joined-state protocol issue 011 records. Three-lanes still abstains honestly
-        (its head reads the OTHER lanes' sentences — unblock path in the engine repo,
-        issue 011).</p>
+        joined-state protocol issue 011 records. Three-lanes joins them the same way:
+        its head reads ALL THREE lanes' sentences per decision (the cross-lane feature
+        columns count the other lanes' obstacles), and in-tab the page holds the whole
+        turn — the published 84/100 head, reproduced exactly, beats the code-arithmetic
+        policy at imitating laya (84% vs clearest-lane 74%).</p>
         <p><b>And the head runs where the page runs.</b> With no engine connected, the
         modelless board still plays — live — on a WebAssembly build of the same fit:
         the page boots the head from the same pinned oracle corpus, re-verifies the
@@ -202,17 +206,23 @@
         <summary>Does wording matter?</summary>
         <p>A lot. Each barrier row is described in plain English and the engine answers
         “Is this lane safe to run?” per lane. The runner takes the lane with the highest
-        P(safe). Small wording changes move the probabilities a lot; the grammar here is
-        the measured, pinned one.</p>
+        P(safe). Small wording changes move the probabilities a lot — the measured trap
+        here was noun choice itself (the same lane blocked by “a barrier” vs “a train”
+        reads 0.75 vs 0.45), so the grammar carries ONE noun per obstacle class, never
+        varied — and the fitted head absorbs the residual noun-dependent weights from
+        the corpus, which is exactly why it beats the clearest-lane arithmetic policy
+        at imitating the model (84% vs 74%). The grammar here is the measured, pinned
+        one.</p>
       </details>
     </section>
 
     <section class="footnote">
       <p>With your engine connected, every number on this page is produced live by the two
       lanes on <b>your</b> machine — nothing is scripted or pre-recorded. Without an engine,
-      the modelless Tetris and Flappy boards play live in-tab on the compiled WebAssembly
-      heads (tetris parity-proven against the recorded engine play; flappy reproducing
-      its published agreement, before either moves),
+      the modelless Tetris, Flappy and three-lanes boards play live in-tab on the compiled
+      WebAssembly
+      heads (tetris parity-proven against the recorded engine play; flappy and lanes
+      reproducing their published agreements, before any board moves),
       while the other boards replay <b>recorded games</b> — committed runs through this
       same wire, labelled as such, never mixed with live results. The laya lane runs our Rust
       port of the

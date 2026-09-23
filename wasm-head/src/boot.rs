@@ -133,3 +133,36 @@ pub fn score_flappy<const D: usize>(
     let row = stdizer.design(&raw);
     Some(head_score(w, &row).clamp(0.0, 1.0))
 }
+
+/// One lanes decision (grammar `laya-lanes-v1`): decode ALL THREE option
+/// sentences — the joined-state protocol; the head row's cross-lane columns
+/// (6–7) read the OTHER lanes, so a single-sentence path cannot reproduce
+/// the published head — build lane `lane`'s 8-column row (EXACTLY the
+/// structured row; the decode arm is lossless), design → score clamped to
+/// [0,1]. `None` on any decode refusal or a lane index ≥ 3.
+pub fn score_lanes<const D: usize>(
+    stdizer: &Standardizer<8>,
+    w: &[f64; D],
+    sentences: [&str; 3],
+    lane: usize,
+) -> Option<f64> {
+    if lane >= 3 {
+        return None;
+    }
+    let mut lanes = [crate::grammar::LaneDecoded {
+        kind: 0,
+        dist: None,
+        lane: 0,
+    }; 3];
+    for (i, s) in sentences.iter().enumerate() {
+        let d = crate::grammar::decode_lanes_option(s)?;
+        if d.lane as usize != i {
+            // a sentence naming the wrong lane is not a well-formed turn
+            return None;
+        }
+        lanes[i] = d;
+    }
+    let raw = crate::grammar::lanes_decoded_features(&lanes, lane);
+    let row = stdizer.design(&raw);
+    Some(head_score(w, &row).clamp(0.0, 1.0))
+}

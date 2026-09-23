@@ -22,9 +22,7 @@
 use arena_head_wasm::boot::{self, BootPlan};
 use arena_head_wasm::corpus::owned::parse_owned;
 use arena_head_wasm::fit::{self, HeadFitter, Standardizer};
-use arena_head_wasm::gen::{
-    self, FLAPPY_D, FLAPPY_F, TETRIS_D, TETRIS_F,
-};
+use arena_head_wasm::gen::{self, FLAPPY_D, FLAPPY_F, LANES_D, LANES_F, TETRIS_D, TETRIS_F};
 
 /// The cross-repo data contract — the hex the engine pins in
 /// `riir-reflex/src/game_heads.rs`.
@@ -34,9 +32,25 @@ const TETRIS_FIXTURE_PIN: &str =
 /// `examples/decode_01_losslessness.rs` `FLAPPY_V3_DECODED_HEAD_ANCHOR`).
 const FLAPPY_HEAD_PIN: &str =
     "c93d36dc79c0490334c20353ce5d6479eaee3448b686ac057f8a4ad4b98ae3c5";
+/// The lanes fixture pin — the committed fixture's own BLAKE3 (the Bench 880
+/// record's `6a6d02af…4f600`).
+const LANES_FIXTURE_PIN: &str =
+    "6a6d02af05b529749ddac3bf962344c2e22565b467f28a5eecd37031d0a4f600";
+/// The lanes head digest prefix — Bench 880's published anchor. The decoded
+/// arm is EXACTLY lossless (Bench 882: identical digest), so the wasm port's
+/// fit must land on the same head.
+const LANES_HEAD_PREFIX: &str = "7d3f1d8e";
 
 fn flappy_digest(w: &[f64; FLAPPY_D]) -> String {
     let mut bytes = Vec::with_capacity(FLAPPY_D * 8);
+    for x in w {
+        bytes.extend_from_slice(&x.to_le_bytes());
+    }
+    blake3::hash(&bytes).to_hex().to_string()
+}
+
+fn lanes_digest(w: &[f64; LANES_D]) -> String {
+    let mut bytes = Vec::with_capacity(LANES_D * 8);
     for x in w {
         bytes.extend_from_slice(&x.to_le_bytes());
     }
@@ -56,6 +70,9 @@ fn fixture_copies_match_their_pinned_hashes() {
         "88ac82bfd2d50fb9f3448d57242d93f8fd9fd02ce101b5c1f97c249206f51fba",
         "the flappy fixture copy drifted"
     );
+    let l = blake3::hash(gen::LANES_FIXTURE.as_bytes()).to_hex().to_string();
+    assert_eq!(l, LANES_FIXTURE_PIN, "the lanes fixture copy drifted");
+    assert_eq!(gen::LANES_FIXTURE_BLAKE3, LANES_FIXTURE_PIN);
 }
 
 #[test]
@@ -73,6 +90,13 @@ fn committed_blobs_regenerate_byte_identically() {
         f.as_slice(),
         f_committed,
         "the flappy blob no longer matches the recipe — regenerate with `cargo run --bin gen_corpus`"
+    );
+    let l = gen::build_lanes_bytes();
+    let l_committed = include_bytes!("../src/lanes_corpus.bin");
+    assert_eq!(
+        l.as_slice(),
+        l_committed,
+        "the lanes blob no longer matches the recipe — regenerate with `cargo run --bin gen_corpus`"
     );
 }
 
@@ -105,6 +129,20 @@ fn every_corpus_sentence_round_trips_through_the_grammars() {
         let (rel, v, h) = arena_head_wasm::grammar::decode_flappy_state(st)
             .unwrap_or_else(|| panic!("flappy state {i} refused: {st}"));
         let _ = (rel, v, h); // the exactness test re-derives these below
+    }
+    let l = gen::parse_lanes();
+    assert_eq!(l.lane_sentences.len(), 100);
+    for (s, sentences) in l.lane_sentences.iter().enumerate() {
+        for (lane, s_text) in sentences.iter().enumerate() {
+            let d = arena_head_wasm::grammar::decode_lanes_option(s_text)
+                .unwrap_or_else(|| panic!("lanes state {s} lane {lane} refused: {s_text}"));
+            assert_eq!(d.lane as usize, lane, "lanes state {s}: lane order drifted");
+            assert_eq!(
+                arena_head_wasm::grammar::render_lanes(d),
+                s_text.as_str(),
+                "lanes re-render drifted"
+            );
+        }
     }
 }
 
@@ -170,6 +208,43 @@ fn the_flappy_recipe_reproduces_the_bench_882_decoded_arm() {
 }
 
 #[test]
+fn the_lanes_recipe_reproduces_the_bench_880_lossless_head() {
+    let c = gen::parse_lanes();
+    // the lossless anchor itself — parse_lanes already asserts every row,
+    // re-assert the count so this test stands alone
+    assert_eq!(c.raws.len(), 300);
+    assert_eq!(c.fixture_features.len(), 300);
+    assert_eq!(c.raws.as_slice(), c.fixture_features.as_slice());
+    let stdizer = Standardizer::<LANES_F>::fit(&c.raws);
+    let rows: Vec<[f64; LANES_D]> = c.raws.iter().map(|r| stdizer.design(r)).collect();
+    let mut fitter = HeadFitter::<LANES_D>::new();
+    let (lambda, loo_picks) = fit::loo_select(&mut fitter, &rows, &c.targets, &c.offsets);
+    assert_eq!(lambda, 0.01, "LOO-selected λ drifted from the Bench 880 fit");
+    let loo_agree = loo_picks
+        .iter()
+        .zip(c.argmaxes.iter())
+        .filter(|(p, a)| **p == **a as usize)
+        .count();
+    assert_eq!(loo_agree, 84, "LOO agreement drifted from Bench 880");
+    let head = fitter.fit_into(&rows, &c.targets, lambda);
+    let in_agree = (0..c.argmaxes.len())
+        .filter(|&s| {
+            fit::pick_range(
+                &head,
+                &rows,
+                (c.offsets[s] as usize, c.offsets[s + 1] as usize),
+            ) == c.argmaxes[s] as usize
+        })
+        .count();
+    assert_eq!(in_agree, 84, "in-corpus agreement drifted from Bench 880");
+    // the digest-prefix anchor — the same head the published record names
+    assert!(
+        lanes_digest(&head).starts_with(LANES_HEAD_PREFIX),
+        "the lanes head weights drifted from the Bench 880 anchor prefix"
+    );
+}
+
+#[test]
 fn the_flappy_reconstruction_is_exact_where_the_render_is_exact() {
     let c = gen::parse_flappy();
     assert_eq!(c.raws.len(), c.fixture_features.len());
@@ -230,6 +305,15 @@ fn the_committed_blobs_boot_to_the_published_anchors_and_are_deterministic() {
             200usize,
             100usize,
         ),
+        (
+            "lanes",
+            include_bytes!("../src/lanes_corpus.bin").as_slice(),
+            0.01,
+            84u32,
+            84u32,
+            300usize,
+            100usize,
+        ),
     ] {
         if name == "tetris" {
             let c = parse_owned(bytes).expect("tetris blob parses");
@@ -253,7 +337,7 @@ fn the_committed_blobs_boot_to_the_published_anchors_and_are_deterministic() {
             let out2 = boot::run(&plan, &mut rows2, &mut HeadFitter::<TETRIS_D>::new()).expect("boot ok 2");
             assert_eq!(out1.w, out2.w, "the tetris boot fit must be bit-deterministic");
             assert_eq!(out1.std, out2.std);
-        } else {
+        } else if name == "flappy" {
             let c = parse_owned(bytes).expect("flappy blob parses");
             assert_eq!(c.lambda, lambda_want);
             assert_eq!(c.in_anchor, in_want);
@@ -275,6 +359,32 @@ fn the_committed_blobs_boot_to_the_published_anchors_and_are_deterministic() {
             let mut rows2 = vec![[0.0; FLAPPY_D]; n_options];
             let out2 = boot::run(&plan, &mut rows2, &mut HeadFitter::<FLAPPY_D>::new()).expect("boot ok 2");
             assert_eq!(out1.w, out2.w, "the flappy boot fit must be bit-deterministic");
+            assert_eq!(out1.std, out2.std);
+        } else {
+            let c = parse_owned(bytes).expect("lanes blob parses");
+            assert_eq!(c.lambda, lambda_want);
+            assert_eq!(c.in_anchor, in_want);
+            assert_eq!(c.loo_anchor, loo_want);
+            let plan = BootPlan::<LANES_F, LANES_D> {
+                n_options: c.n_options,
+                n_states: c.n_states,
+                lambda: c.lambda,
+                in_anchor: c.in_anchor,
+                offsets: &c.offsets,
+                argmaxes: &c.argmaxes,
+                targets: &c.targets,
+                raws: &c.raws,
+            };
+            let mut rows1 = vec![[0.0; LANES_D]; n_options];
+            let out1 = boot::run(&plan, &mut rows1, &mut HeadFitter::<LANES_D>::new()).expect("boot ok");
+            assert_eq!(out1.in_agree, in_want);
+            assert!(
+                lanes_digest(&out1.w).starts_with(LANES_HEAD_PREFIX),
+                "the boot fit must reproduce the published digest prefix"
+            );
+            let mut rows2 = vec![[0.0; LANES_D]; n_options];
+            let out2 = boot::run(&plan, &mut rows2, &mut HeadFitter::<LANES_D>::new()).expect("boot ok 2");
+            assert_eq!(out1.w, out2.w, "the lanes boot fit must be bit-deterministic");
             assert_eq!(out1.std, out2.std);
         }
     }
@@ -317,6 +427,19 @@ fn i8_standardizer_equals_the_f64_one_bit_for_bit() {
     let f_f64 = Standardizer::<FLAPPY_F>::fit(&f_rows);
     let f_u8 = Standardizer::<FLAPPY_F>::fit_i8(&fflat);
     assert_eq!(f_f64, f_u8, "the flappy wasm standardizer drifted");
+
+    // lanes — the decoded rows are small non-negative integers (0/1/2); the
+    // blob carries them through the same i8 convention
+    let l = gen::parse_lanes();
+    let mut lflat = Vec::with_capacity(l.raws.len() * LANES_F);
+    for r in &l.raws {
+        for x in r {
+            lflat.push(*x as i8 as u8);
+        }
+    }
+    let l_f64 = Standardizer::<LANES_F>::fit(&l.raws);
+    let l_u8 = Standardizer::<LANES_F>::fit_i8(&lflat);
+    assert_eq!(l_f64, l_u8, "the lanes wasm standardizer drifted");
 }
 
 #[test]
@@ -363,4 +486,40 @@ fn the_score_paths_answer_corpus_sentences_and_refuse_garbage() {
     // off-grammar refusals — both sentences must carry their own grammar
     assert!(boot::score_flappy(&fout.std, &fout.w, "hello world", op).is_none());
     assert!(boot::score_flappy(&fout.std, &fout.w, st, "The piece leaves no holes under it in the middle, sits flat on the surface, and the stack stays low.").is_none());
+
+    // lanes — score through the SAME joined-state path the wasm export runs
+    let lc = parse_owned(include_bytes!("../src/lanes_corpus.bin")).expect("lanes blob parses");
+    let lplan = BootPlan::<LANES_F, LANES_D> {
+        n_options: lc.n_options,
+        n_states: lc.n_states,
+        lambda: lc.lambda,
+        in_anchor: lc.in_anchor,
+        offsets: &lc.offsets,
+        argmaxes: &lc.argmaxes,
+        targets: &lc.targets,
+        raws: &lc.raws,
+    };
+    let mut lrows = vec![[0.0; LANES_D]; lc.n_options];
+    let lout = boot::run(&lplan, &mut lrows, &mut HeadFitter::<LANES_D>::new()).expect("lanes boot ok");
+    let lp = gen::parse_lanes();
+    let sents: [&str; 3] = [
+        &lp.lane_sentences[0][0],
+        &lp.lane_sentences[0][1],
+        &lp.lane_sentences[0][2],
+    ];
+    for lane in 0..3 {
+        let q = boot::score_lanes(&lout.std, &lout.w, sents, lane)
+            .unwrap_or_else(|| panic!("lanes corpus turn scores (lane {lane})"));
+        assert!((0.0..=1.0).contains(&q));
+    }
+    // cross-grammar refusal: a flappy option sentence is not a lanes sentence
+    let flappy_sent = "The bird glides through the middle of the gap, at the center, holding this height.";
+    assert!(boot::score_lanes(&lout.std, &lout.w, [flappy_sent, sents[1], sents[2]], 0).is_none());
+    // a sentence naming the wrong lane refuses (turn coherence)
+    let shuffled = [sents[1], sents[0], sents[2]];
+    assert!(boot::score_lanes(&lout.std, &lout.w, shuffled, 0).is_none());
+    // lane index ≥ 3 refuses
+    assert!(boot::score_lanes(&lout.std, &lout.w, sents, 3).is_none());
+    // garbage refuses
+    assert!(boot::score_lanes(&lout.std, &lout.w, ["hello", sents[1], sents[2]], 0).is_none());
 }

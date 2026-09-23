@@ -95,14 +95,18 @@ try {
   console.log(`[demo-smoke] flappy laya: ${(await page.textContent("#fr-laya-a")).trim()}`);
   console.log(`[demo-smoke] flappy modelless: ${(await page.textContent("#fr-modelless-a")).trim()}`);
 
-  // ── lanes reel ──
+  // ── lanes reel — the modelless board is LIVE via the joined-state wasm
+  // head when it loads (numeric lane ps), else the recorded abstain reel ──
   await page.click('button[data-game="lanes"]');
   await page.click("#lanes-run");
   await page.waitForFunction(
-    () => /P\(clean\)|abstain/.test(document.getElementById("lr-modelless-a").textContent),
+    () => /left (—|\d\.\d{3})/.test(document.getElementById("lr-modelless-a").textContent),
     { timeout: 15000 },
   );
+  const lanesAns = (await page.textContent("#lr-modelless-a")).trim();
+  const lanesLive = /left \d/.test(lanesAns);
   console.log(`[demo-smoke] lanes laya: ${(await page.textContent("#lr-laya-a")).trim()}`);
+  console.log(`[demo-smoke] lanes modelless (${lanesLive ? "LIVE wasm · joined-state" : "recorded fallback"}): ${lanesAns}`);
   await page.screenshot({ path: path.join(outDir, "arena_demo_lanes.png") });
 
   // ── the demo oracle must actually serve from the static site ──

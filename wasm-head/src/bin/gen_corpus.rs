@@ -26,5 +26,13 @@ fn main() {
         fdest.display(),
         flappy.len()
     );
+    let lanes = gen::build_lanes_bytes();
+    let ldest = root.join("src/lanes_corpus.bin");
+    std::fs::write(&ldest, &lanes).unwrap_or_else(|e| panic!("write {}: {e}", ldest.display()));
+    println!(
+        "wrote {} ({} bytes)",
+        ldest.display(),
+        lanes.len()
+    );
     println!("run `cargo test` to verify the committed copies");
 }

@@ -9,11 +9,12 @@ static assets.
 - `/bench/` — the per-task arena tables, rendered client-side from
   `data/bench.json`.
 - `/arena/` — the live games. With an engine connected, both lanes play on
-  the visitor's machine. Without one, the modelless Tetris and Flappy
-  boards still play LIVE in-tab: `assets/arena_head.wasm` is the engine's
-  fitted game heads compiled to WebAssembly (`wasm-head/` builds them),
-  parity-proven against the recorded engine play before they move a piece;
-  the heavier boards replay recorded games from `arena/demo_oracle.json`.
+  the visitor's machine. Without one, the modelless Tetris, Flappy and
+  three-lanes boards still play LIVE in-tab: `assets/arena_head.wasm` is
+  the engine's fitted game heads compiled to WebAssembly (`wasm-head/`
+  builds them), parity-proven against the recorded engine play before they
+  move a piece; the heavier boards replay recorded games from
+  `arena/demo_oracle.json`.
 - `data/bench.json` — GENERATED from riir-reflex's harness output by
   `scripts/publish_bench.py` (sanitizes machine-local meta). Never
   hand-typed; a hand-typed number on the site is a defect by definition.
@@ -31,7 +32,7 @@ npm exec --yes -- wasm-opt -Oz --enable-bulk-memory \
     -o /tmp/arena_head_oz.wasm \
     /tmp/reflex_site_wasm_head/wasm32-unknown-unknown/release/arena_head_wasm.wasm
 cp /tmp/arena_head_oz.wasm ../assets/arena_head.wasm
-cd .. && node scripts/arena_head_parity.mjs                           # 836/836 bit-exact + flappy 96/100 or DO NOT ship
+cd .. && node scripts/arena_head_parity.mjs                           # tetris 836/836 bit-exact + flappy 96/100 + lanes 84/100 or DO NOT ship
 ```
 
 The corpus blobs inside the crate are generated from the digest-pinned

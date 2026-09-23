@@ -140,6 +140,36 @@ static FLAPPY_STATE_SEGS: [Seg; 7] = [
     Seg::Lit(". The pipe is just ahead."),
 ];
 
+// ── lanes `laya-lanes-v1` (Plan 607 T5 / Bench 880; the lossless arm of
+// Bench 882) ─────────────────────────────────────────────────────────────
+
+/// `LANE_NAMES` order (0 left · 1 middle · 2 right) — also the option order.
+static LANES_LANE: [&str; 3] = ["left", "middle", "right"];
+/// `Dist` order (0 close · 1 far).
+static LANES_DIST: [&str; 2] = ["close", "far"];
+/// ONE noun per obstacle class — the wording pin (`lanes_sim::obstacle_noun`):
+/// laya's own measured trap ("barrier" 0.75 vs "train" 0.45 for the same
+/// lane) is avoided by a closed grammar that never varies the noun. Fill i →
+/// obstacle kind i+1 (barrier/train/rock).
+static LANES_NOUN: [&str; 3] = ["a barrier", "a train", "a rock"];
+
+/// Clear template: `The {lane} lane is clear ahead.`
+static LANES_CLEAR_SEGS: [Seg; 3] = [
+    Seg::Lit("The "),
+    Seg::Slot(0), // LANES_LANE
+    Seg::Lit(" lane is clear ahead."),
+];
+/// Blocked template: `The {lane} lane is blocked {dist} ahead by {noun}.`
+static LANES_BLOCKED_SEGS: [Seg; 7] = [
+    Seg::Lit("The "),
+    Seg::Slot(0), // LANES_LANE
+    Seg::Lit(" lane is blocked "),
+    Seg::Slot(1), // LANES_DIST
+    Seg::Lit(" ahead by "),
+    Seg::Slot(2), // LANES_NOUN
+    Seg::Lit("."),
+];
+
 enum Seg {
     Lit(&'static str),
     Slot(u8),
@@ -152,6 +182,8 @@ pub enum GameGrammar {
     TetrisSpot,
     FlappyOptionV3,
     FlappyState,
+    LanesClear,
+    LanesBlocked,
 }
 
 impl GameGrammar {
@@ -160,6 +192,8 @@ impl GameGrammar {
             GameGrammar::TetrisSpot => &SEGS,
             GameGrammar::FlappyOptionV3 => &FLAPPY_OPT_SEGS,
             GameGrammar::FlappyState => &FLAPPY_STATE_SEGS,
+            GameGrammar::LanesClear => &LANES_CLEAR_SEGS,
+            GameGrammar::LanesBlocked => &LANES_BLOCKED_SEGS,
         }
     }
 
@@ -176,27 +210,38 @@ impl GameGrammar {
             (GameGrammar::FlappyState, 0) => &FLAPPY_REL,
             (GameGrammar::FlappyState, 1) => &FLAPPY_MOT,
             (GameGrammar::FlappyState, 2) => &FLAPPY_GAP,
+            (GameGrammar::LanesClear, 0) => &LANES_LANE,
+            (GameGrammar::LanesBlocked, 0) => &LANES_LANE,
+            (GameGrammar::LanesBlocked, 1) => &LANES_DIST,
+            (GameGrammar::LanesBlocked, 2) => &LANES_NOUN,
             _ => unreachable!("grammar: bad vocab index"),
         }
     }
 }
 
-/// Decode a sentence against a closed grammar. Zero-alloc, backtrack-free
-/// of guesses: exactly one derivation must exist, or the sentence is
-/// refused (Unknown/Ambiguous both refuse — the engine falls through, the
-/// wasm returns no score).
+/// Decode a sentence against a closed grammar. Zero-alloc: exactly one
+/// derivation must exist, or the sentence is refused (Unknown/Ambiguous both
+/// refuse — the engine falls through, the wasm returns no score).
 pub fn decode(g: GameGrammar, sentence: &str) -> Option<[u8; MAX_SLOTS]> {
-    let text = sentence.as_bytes();
-    let segs = g.segs();
-    let mut count = 0u32;
-    let mut first = [0u8; MAX_SLOTS];
-    let mut fills = [0u8; MAX_SLOTS];
-    walk(g, text, 0, 0, 0, &mut fills, &mut first, &mut count);
+    let (count, first) = decode_counting(g, sentence);
     if count == 1 {
         Some(first)
     } else {
         None
     }
+}
+
+/// `(derivation count, first derivation's fills)` — the counting walker's
+/// result, shared by the single-template [`decode`] and the lanes
+/// two-template decode (which must count across BOTH templates before
+/// refusing).
+fn decode_counting(g: GameGrammar, sentence: &str) -> (u32, [u8; MAX_SLOTS]) {
+    let text = sentence.as_bytes();
+    let mut count = 0u32;
+    let mut first = [0u8; MAX_SLOTS];
+    let mut fills = [0u8; MAX_SLOTS];
+    walk(g, text, 0, 0, 0, &mut fills, &mut first, &mut count);
+    (count, first)
 }
 
 fn walk(
@@ -291,6 +336,83 @@ pub fn decode_flappy_state(sentence: &str) -> Option<(u8, i32, i32)> {
     Some((m[0], v, h))
 }
 
+/// One decoded lanes option — the engine's `LaneDecoded` twin.
+/// `kind`: 0 clear · 1 barrier · 2 train · 3 rock; `dist`: Some(0) close /
+/// Some(1) far, None when clear; `lane`: 0 left · 1 middle · 2 right.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct LaneDecoded {
+    pub kind: u8,
+    pub dist: Option<u8>,
+    pub lane: u8,
+}
+
+/// Decode one lanes option sentence against BOTH `laya-lanes-v1` templates
+/// (clear / blocked) — the engine's multi-template decode twin: a sentence
+/// with zero or more than one derivation across the WHOLE grammar is
+/// refused, never guessed.
+pub fn decode_lanes_option(sentence: &str) -> Option<LaneDecoded> {
+    let (n_clear, m_clear) = decode_counting(GameGrammar::LanesClear, sentence);
+    let (n_blocked, m_blocked) = decode_counting(GameGrammar::LanesBlocked, sentence);
+    match (n_clear, n_blocked) {
+        (1, 0) => Some(LaneDecoded {
+            kind: 0,
+            dist: None,
+            lane: m_clear[0],
+        }),
+        (0, 1) => Some(LaneDecoded {
+            kind: 1 + m_blocked[2],
+            dist: Some(m_blocked[1]),
+            lane: m_blocked[0],
+        }),
+        _ => None,
+    }
+}
+
+/// The lanes decoded feature row for `lane` — EXACTLY the structured row
+/// (`lanes_sim::feature_row`; the lossless anchor of the whole decode arm —
+/// every column is recoverable from the three sentences). Column order
+/// mirrors `lanes_sim::FEATURE_NAMES`: [blocked, close, far, is_barrier,
+/// is_train, is_rock, blocked_neighbors, clear_lanes]. Columns 6–7 read the
+/// OTHER lanes — the cross-lane dependency that makes a single-sentence
+/// serving path impossible and the joined (three-sentence) protocol
+/// necessary.
+pub fn lanes_decoded_features(lanes: &[LaneDecoded; 3], lane: usize) -> [f64; 8] {
+    let l = lanes[lane];
+    let blocked = l.kind != 0;
+    [
+        blocked as u8 as f64,
+        (blocked && l.dist == Some(0)) as u8 as f64,
+        (blocked && l.dist == Some(1)) as u8 as f64,
+        (l.kind == 1) as u8 as f64,
+        (l.kind == 2) as u8 as f64,
+        (l.kind == 3) as u8 as f64,
+        lanes
+            .iter()
+            .enumerate()
+            .filter(|&(i, x)| i != lane && x.kind != 0)
+            .count() as f64,
+        lanes.iter().filter(|x| x.kind == 0).count() as f64,
+    ]
+}
+
+/// Render a lanes option sentence from its decoded form (the round-trip
+/// half). Host-only: `String` does not exist in the no_std wasm build.
+#[cfg(not(target_arch = "wasm32"))]
+pub fn render_lanes(d: LaneDecoded) -> String {
+    let mut out = String::from("The ");
+    out.push_str(LANES_LANE[d.lane as usize]);
+    if d.kind == 0 {
+        out.push_str(" lane is clear ahead.");
+    } else {
+        out.push_str(" lane is blocked ");
+        out.push_str(LANES_DIST[d.dist.unwrap_or(0) as usize]);
+        out.push_str(" ahead by ");
+        out.push_str(LANES_NOUN[(d.kind - 1) as usize]);
+        out.push('.');
+    }
+    out
+}
+
 /// The flappy v3 decoded feature row — the STRUCTURED-UNITS reconstruction
 /// law (Bench 882's decoded arm; column order mirrors
 /// `flappy_sim::FEATURE_NAMES`: [post_rel, post_abs_rel, post_v, pre_rel,
@@ -379,6 +501,47 @@ mod tests {
         let s2 = "The bird is a little below the gap center, falling. The gap is narrow. The pipe is just ahead.";
         let (rel2, v2, h2) = decode_flappy_state(s2).expect("decodes");
         assert_eq!((rel2, v2, h2), (3, -1, 2));
+    }
+
+    #[test]
+    fn a_lanes_clear_sentence_decodes() {
+        let s = "The middle lane is clear ahead.";
+        let d = decode_lanes_option(s).expect("decodes");
+        assert_eq!(d, LaneDecoded { kind: 0, dist: None, lane: 1 });
+        assert_eq!(render_lanes(d), s);
+    }
+
+    #[test]
+    fn a_lanes_blocked_sentence_decodes_to_kind_dist_lane() {
+        let s = "The left lane is blocked close ahead by a train.";
+        let d = decode_lanes_option(s).expect("decodes");
+        assert_eq!(d, LaneDecoded { kind: 2, dist: Some(0), lane: 0 });
+        assert_eq!(render_lanes(d), s);
+        let far = decode_lanes_option("The right lane is blocked far ahead by a rock.").expect("decodes");
+        assert_eq!(far, LaneDecoded { kind: 3, dist: Some(1), lane: 2 });
+    }
+
+    #[test]
+    fn lanes_garbage_refuses() {
+        assert!(decode_lanes_option("hello world").is_none());
+        assert!(decode_lanes_option("The middle lane is blocked soon ahead by a train.").is_none());
+        assert!(decode_lanes_option("").is_none());
+        // a tetris spot sentence is not a lanes sentence (grammar gating)
+        assert!(decode_lanes_option("The piece leaves no holes under it in the middle, sits flat on the surface, and the stack stays low.").is_none());
+    }
+
+    #[test]
+    fn the_lanes_feature_row_matches_the_published_first_state() {
+        // lanes_oracle_laya_en_v1.jsonl lanes_000: [Train/Close, Rock/Close,
+        // Train/Close] — the fixture's own feature arrays, verbatim.
+        let lanes = [
+            LaneDecoded { kind: 2, dist: Some(0), lane: 0 },
+            LaneDecoded { kind: 3, dist: Some(0), lane: 1 },
+            LaneDecoded { kind: 2, dist: Some(0), lane: 2 },
+        ];
+        assert_eq!(lanes_decoded_features(&lanes, 0), [1.0, 1.0, 0.0, 0.0, 1.0, 0.0, 2.0, 0.0]);
+        assert_eq!(lanes_decoded_features(&lanes, 1), [1.0, 1.0, 0.0, 0.0, 0.0, 1.0, 2.0, 0.0]);
+        assert_eq!(lanes_decoded_features(&lanes, 2), [1.0, 1.0, 0.0, 0.0, 1.0, 0.0, 2.0, 0.0]);
     }
 
     #[test]

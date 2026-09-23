@@ -13,6 +13,7 @@ import path from "node:path";
 import assert from "node:assert/strict";
 import * as T from "../assets/games/tetris.js";
 import * as F from "../assets/games/flappy.js";
+import * as L from "../assets/games/lanes.js";
 
 const here = path.dirname(import.meta.dirname);
 const WASM = path.join(here, "assets", "arena_head.wasm");
@@ -34,8 +35,11 @@ assert.equal(e.head_anchor(), 44, "tetris in-corpus anchor did not reproduce");
 assert.equal(mask & 2, 2, "the flappy head did not boot");
 assert.equal(e.head_flappy_lambda(), 1.0, "flappy λ drifted from the Bench 882 fit");
 assert.equal(e.head_flappy_anchor(), 96, "flappy in-corpus anchor did not reproduce");
+assert.equal(mask & 4, 4, "the lanes head did not boot");
+assert.equal(e.head_lanes_lambda(), 0.01, "lanes λ drifted from the Bench 880 fit");
+assert.equal(e.head_lanes_anchor(), 84, "lanes in-corpus anchor did not reproduce");
 console.log(
-  `[head-parity] boot ok in ${bootMs.toFixed(1)} ms — tetris λ ${e.head_lambda()} anchor ${e.head_anchor()}/120 · flappy λ ${e.head_flappy_lambda()} anchor ${e.head_flappy_anchor()}/100`,
+  `[head-parity] boot ok in ${bootMs.toFixed(1)} ms — tetris λ ${e.head_lambda()} anchor ${e.head_anchor()}/120 · flappy λ ${e.head_flappy_lambda()} anchor ${e.head_flappy_anchor()}/100 · lanes λ ${e.head_lanes_lambda()} anchor ${e.head_lanes_anchor()}/100`,
 );
 
 // ── the score calls ──────────────────────────────────────────────────────
@@ -61,6 +65,14 @@ function scoreState(state, option) {
   e.head_reset();
   return p;
 }
+function scoreLanes(s0, s1, s2, lane) {
+  const [ap, al] = write(s0);
+  const [bp, bl] = write(s1);
+  const [cp, cl] = write(s2);
+  const p = e.head_score_lanes(ap, al, bp, bl, cp, cl, lane);
+  e.head_reset();
+  return p;
+}
 
 // ── the honest abstain ───────────────────────────────────────────────────
 assert.ok(Number.isNaN(score("hello world")), "garbage must refuse (NaN)");
@@ -72,6 +84,20 @@ assert.ok(
 assert.ok(
   Number.isNaN(scoreState("hello world", "hello world")),
   "flappy garbage must refuse (NaN)",
+);
+assert.ok(
+  Number.isNaN(scoreLanes("The left lane is clear ahead.", "The middle lane is clear ahead.", "The right lane is clear ahead.", 3)),
+  "lanes lane index ≥ 3 must refuse (NaN)",
+);
+assert.ok(
+  Number.isNaN(scoreLanes("hello", "The middle lane is clear ahead.", "The right lane is clear ahead.", 0)),
+  "lanes garbage must refuse (NaN)",
+);
+// a shuffled turn (sentences not in pinned lane order) must refuse — the
+// joined-state protocol needs the turn coherent
+assert.ok(
+  Number.isNaN(scoreLanes("The middle lane is clear ahead.", "The left lane is clear ahead.", "The right lane is clear ahead.", 0)),
+  "a shuffled lanes turn must refuse (NaN)",
 );
 console.log("[head-parity] off-grammar inputs refuse (NaN) ✓");
 
@@ -154,3 +180,47 @@ assert.equal(
 );
 assert.equal(agree, 96, "flappy agreement drifted from the published 96/100");
 console.log(`[head-parity] flappy PASS — agreement ${agree}/100 = the published Bench 882 anchor`);
+
+// ── the lanes head: published agreement over the corpus reel ───────────
+// Same shape as flappy: the demo reel IS the lanes fixture. Each turn's
+// three option sentences are rebuilt with the site's own renderer
+// (golden-proven) and scored through the joined-state export; the wasm
+// head's argmax must match the recorded oracle argmax on exactly the
+// published 84 of 100.
+const lanesReel = oracle.lanes_walk;
+assert.ok(Array.isArray(lanesReel) && lanesReel.length === 100, `lanes reel broken (${lanesReel?.length})`);
+let lanesAgree = 0;
+const lanesT0 = performance.now();
+let lanesSumMs = 0;
+let lanesCalls = 0;
+for (const [stateSentence, ps, state] of lanesReel) {
+  assert.equal(L.renderStateSentence(state), stateSentence, "lanes state sentence drift");
+  const turn = L.buildTurn(state);
+  const scored = [];
+  for (let lane = 0; lane < 3; lane++) {
+    const t1 = performance.now();
+    const p = scoreLanes(turn.options[0].sentence, turn.options[1].sentence, turn.options[2].sentence, lane);
+    lanesSumMs += performance.now() - t1;
+    lanesCalls += 1;
+    scored.push(p);
+  }
+  for (let i = 0; i < 3; i++) {
+    assert.ok(Number.isFinite(scored[i]), `lanes head refused a grammar-valid turn (lane ${i})`);
+  }
+  let want = -1;
+  for (let i = 0; i < ps.length; i++) if (want === -1 || ps[i] > ps[want]) want = i;
+  let got = 0;
+  for (let i = 1; i < scored.length; i++) if (scored[i] > scored[got]) got = i;
+  if (got === want) lanesAgree += 1;
+}
+const lanesTotalMs = performance.now() - lanesT0;
+assert.equal(
+  lanesAgree,
+  e.head_lanes_anchor(),
+  `lanes behavioral agreement ${lanesAgree} != the boot anchor ${e.head_lanes_anchor()}`,
+);
+assert.equal(lanesAgree, 84, "lanes agreement drifted from the published 84/100");
+console.log(
+  `[head-parity] lanes PASS — agreement ${lanesAgree}/100 = the published Bench 880 anchor ` +
+    `(re-scored in ${lanesTotalMs.toFixed(1)} ms total, ~${((lanesSumMs / lanesCalls) * 1000).toFixed(1)} µs/decision incl. the 3-sentence decode)`,
+);

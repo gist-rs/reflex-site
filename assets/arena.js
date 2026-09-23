@@ -8,7 +8,7 @@ import { Rng } from "./games/rng.js";
 import * as T from "./games/tetris.js";
 import * as F from "./games/flappy.js";
 import * as L from "./games/lanes.js";
-import { ensureArenaHead, arenaHeadReady, arenaHeadScore, arenaFlappyHeadReady, arenaHeadScoreState } from "./arena_head.js";
+import { ensureArenaHead, arenaHeadReady, arenaHeadScore, arenaFlappyHeadReady, arenaHeadScoreState, arenaLanesHeadReady, arenaHeadScoreLanes } from "./arena_head.js";
 
 const ENGINE = "http://127.0.0.1:7331";
 
@@ -28,7 +28,7 @@ let demo = null; // { tetrisWalk, tetrisHeadWalk, flappyWalk, lanesWalk }
 
 async function loadDemo() {
   if (demo) {
-    await ensureArenaHead(demo.tetrisHeadWalk, demo.flappyWalk);
+    await ensureArenaHead(demo.tetrisHeadWalk, demo.flappyWalk, demo.lanesWalk);
     return demo;
   }
   const r = await fetch("/arena/demo_oracle.json", { cache: "no-cache" });
@@ -43,7 +43,7 @@ async function loadDemo() {
   // Best-effort: boot the browser-live heads and probe them against the
   // recorded games BEFORE any board starts, so a board never switches
   // posture mid-game. Resolves "ready" or "failed" — never throws.
-  await ensureArenaHead(demo.tetrisHeadWalk, demo.flappyWalk);
+  await ensureArenaHead(demo.tetrisHeadWalk, demo.flappyWalk, demo.lanesWalk);
   return demo;
 }
 
@@ -148,8 +148,9 @@ async function decide(state, question, laneHeader) {
 // abstain), EXCEPT the lanes with a browser-live wasm head, which answer
 // HERE, in-tab: grammar-gated (tetris: the pinned spot question over the
 // option sentence; flappy: the pinned question over the (state, option)
-// pair — the joined-state protocol, trivially natural in-tab), proven at
-// load, real per-decision timing.
+// pair; lanes: the joined-state protocol — the head reads ALL THREE option
+// sentences, its cross-lane feature columns count the other lanes), proven
+// at load, real per-decision timing.
 async function scoreOptions(sentences, question, laneHeader, concurrency, demoPs, demoMs, allowDemoPs, stateSentence) {
   if (demoMode) {
     if (!laneHeader && question === T.SPOT_QUESTION && arenaHeadReady()) {
@@ -165,6 +166,10 @@ async function scoreOptions(sentences, question, laneHeader, concurrency, demoPs
         const p = arenaHeadScoreState(stateSentence, s);
         return { p, ms: performance.now() - t1 };
       });
+    }
+    if (!laneHeader && stateSentence == null && question === L.QUESTION && arenaLanesHeadReady() && sentences.length === 3) {
+      // the joined-state protocol — one call scores the whole turn
+      return arenaHeadScoreLanes(sentences[0], sentences[1], sentences[2]);
     }
     const rec = allowDemoPs && demoPs && demoPs.length === sentences.length ? demoPs : null;
     const recMs = allowDemoPs && demoMs && demoMs.length === sentences.length ? demoMs : null;
@@ -679,7 +684,10 @@ class LanesBoard {
   }
 
   async run() {
-    if (demoMode && demo) return this.runDemo();
+    // Demo mode replays the recorded reel — EXCEPT the modelless lane with
+    // a live lanes wasm head, which plays its own game right here (the
+    // reel stays the laya lane's replay and the head-less fallback).
+    if (demoMode && demo && !(this.lane === "modelless" && arenaLanesHeadReady())) return this.runDemo();
     this.running = true;
     const rng = new Rng(this.seed);
     while (this.running) {
