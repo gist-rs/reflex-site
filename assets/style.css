@@ -84,7 +84,7 @@ section p.sub { color: var(--muted); margin: 0 0 22px; max-width: 760px; }
 /* Playground */
 #status {
   display: inline-flex; align-items: center; gap: 8px;
-  font-size: 14px; padding: 6px 14px; border-radius: 999px; margin-bottom: 16px;
+  font-size: 14px; padding: 6px 14px; border-radius: 8px; margin-bottom: 16px;
   border: 1px solid var(--line); color: var(--muted);
 }
 #status .dot { width: 9px; height: 9px; border-radius: 50%; background: #666; }
