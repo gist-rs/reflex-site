@@ -35,7 +35,7 @@
 
     <div class="cmd"><span class="os">macOS / Linux</span><code>curl -fsSL https://raw.githubusercontent.com/gist-rs/reflex/main/install.sh | sh</code><button data-copy="curl -fsSL https://raw.githubusercontent.com/gist-rs/reflex/main/install.sh | sh">copy</button></div>
     <div class="cmd"><span class="os">Windows</span><code>iwr -useb https://raw.githubusercontent.com/gist-rs/reflex/main/install.ps1 | iex</code><button data-copy="iwr -useb https://raw.githubusercontent.com/gist-rs/reflex/main/install.ps1 | iex">copy</button></div>
-    <div class="cmd"><span class="os">Homebrew</span><code>brew tap gist-rs/tap &amp;&amp; brew install riir-reflex</code><button data-copy="brew tap gist-rs/tap && brew install riir-reflex">copy</button></div>
+    <div class="cmd"><span class="os">Homebrew</span><code>brew tap gist-rs/tap &amp;&amp; brew install riir-reflex</code> <span class="hint-inline">— the command it installs is <code>reflex</code></span><button data-copy="brew tap gist-rs/tap && brew install riir-reflex">copy</button></div>
 
     <div class="badges">
       <span class="badge">G1 calibration beats the conformal-naive floor — 8/9 suites</span>
@@ -49,8 +49,8 @@
     <h2>Three steps</h2>
     <p class="sub">The engine never phones home. The browser cannot reach it until you open the door for exactly one origin.</p>
     <div class="steps">
-      <div class="step"><h3>1 · Install</h3><p>One binary. <code>riir-reflex --version</code> prints its compiled feature set and warns if the build is incomplete.</p></div>
-      <div class="step"><h3>2 · Run with the door open</h3><p><code>RIIR_REFLEX_ALLOWED_ORIGIN=https://reflex.gist.rs riir-reflex</code> — the engine listens on <code>127.0.0.1:7331</code> and accepts browser calls from this page only.</p></div>
+      <div class="step"><h3>1 · Install</h3><p>One binary. <code>reflex --version</code> prints its compiled feature set and warns if the build is incomplete.</p></div>
+      <div class="step"><h3>2 · Run with the door open</h3><p><code>RIIR_REFLEX_ALLOWED_ORIGIN=https://reflex.gist.rs reflex</code> — the engine listens on <code>127.0.0.1:7331</code> and accepts browser calls from this page only.</p></div>
       <div class="step"><h3>3 · Play</h3><p>Type a state and a question. Answers come back in microseconds, with confidence — or an honest abstain.</p></div>
     </div>
   </section>
@@ -63,7 +63,7 @@
 
     <div class="launch" id="launch-box" hidden>
       <strong>No local engine found.</strong> Install and start it, then refresh:
-      <code>RIIR_REFLEX_ALLOWED_ORIGIN=https://reflex.gist.rs riir-reflex</code>
+      <code>RIIR_REFLEX_ALLOWED_ORIGIN=https://reflex.gist.rs reflex</code>
     </div>
 
     <div class="play">
