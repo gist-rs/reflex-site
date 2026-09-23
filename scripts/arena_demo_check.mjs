@@ -110,7 +110,7 @@ function walkLines(walk) {
 
 // ── flappy + lanes: reels re-render + decide exactly like the live boards ──
 for (const [game, mod, fixtureFile] of [
-  ["flappy", F, "flappy_oracle_laya_en_v2.jsonl"],
+  ["flappy", F, "flappy_oracle_laya_en_v3.jsonl"],
   ["lanes", L, "lanes_oracle_laya_en_v1.jsonl"],
 ]) {
   const walk = oracle[`${game}_walk`];

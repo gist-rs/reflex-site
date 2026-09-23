@@ -1,11 +1,12 @@
-//! The boot sequence shared by the wasm module and the native test: fit the
+//! The boot sequence shared by the wasm module and the native test: fit a
 //! head from a parsed corpus blob and verify the in-corpus anchor.
 //! One sequence, two hosts — the test asserts exactly what the tab runs.
+//! Generic over the feature/design widths (tetris F=5/D=6, flappy F=8/D=9).
 
 use crate::corpus::Corrupt;
-use crate::fit::{head_score, pick_range, HeadFitter, Standardizer, D, F};
+use crate::fit::{head_score, pick_range, HeadFitter, Standardizer};
 
-/// What the wasm asserts at boot before trusting the blob.
+/// What the wasm asserts at boot before trusting a blob.
 #[derive(Debug)]
 pub enum BootErr {
     Corrupt,
@@ -19,7 +20,7 @@ impl From<Corrupt> for BootErr {
     }
 }
 
-pub struct BootPlan<'a> {
+pub struct BootPlan<'a, const F: usize, const D: usize> {
     pub n_options: usize,
     pub n_states: usize,
     pub lambda: f64,
@@ -27,26 +28,26 @@ pub struct BootPlan<'a> {
     pub offsets: &'a [u32],
     pub argmaxes: &'a [u8],
     pub targets: &'a [f64],
-    /// n_options × 5 decoded class ordinals (blob tail).
+    /// n_options × F decoded class ordinals (blob tail).
     pub raws: &'a [u8],
 }
 
-pub struct BootResult {
+pub struct BootResult<const F: usize, const D: usize> {
     pub w: [f64; D],
     pub in_agree: u32,
     /// The corpus-side standardizer the live decision path reuses.
-    pub std: Standardizer,
+    pub std: Standardizer<F>,
 }
 
 /// Standardize → design rows (into `rows`) → fit at `plan.lambda` → verify
 /// the in-corpus agreement anchor. `rows.len()` must equal
 /// `plan.n_options`. The accumulation order is the recipe's and is
 /// identical on both hosts.
-pub fn run(
-    plan: &BootPlan,
+pub fn run<const F: usize, const D: usize>(
+    plan: &BootPlan<F, D>,
     rows: &mut [[f64; D]],
-    fitter: &mut HeadFitter,
-) -> Result<BootResult, BootErr> {
+    fitter: &mut HeadFitter<D>,
+) -> Result<BootResult<F, D>, BootErr> {
     if plan.n_options != rows.len()
         || plan.n_options * F != plan.raws.len()
         || plan.offsets.len() != plan.n_states + 1
@@ -59,15 +60,15 @@ pub fn run(
     {
         return Err(BootErr::Shape);
     }
-    // 1. the corpus-side standardizer, straight from the u8 raws — pinned
-    //    bit-equal to `Standardizer::fit` over the f64 raws.
-    let stdizer = Standardizer::fit_u8(plan.raws);
+    // 1. the corpus-side standardizer, straight from the blob's i8 raws —
+    //    pinned bit-equal to `Standardizer::fit` over the f64 raws.
+    let stdizer = Standardizer::<F>::fit_i8(plan.raws);
 
     // 2. the design rows
     for (i, row) in rows.iter_mut().enumerate() {
         let mut raw = [0.0f64; F];
         for (x, k) in raw.iter_mut().zip(0..F) {
-            *x = plan.raws[i * F + k] as f64;
+            *x = plan.raws[i * F + k] as i8 as f64;
         }
         *row = stdizer.design(&raw);
     }
@@ -97,17 +98,38 @@ pub fn run(
     })
 }
 
-/// One live decision: decode → design → score, clamped to [0,1].
-/// `None` on any decode refusal (the caller abstains — never guesses).
-pub fn score_sentence(stdizer: &Standardizer, w: &[f64; D], sentence: &str) -> Option<f64> {
-    let fills = crate::grammar::decode(sentence)?;
-    let raw = [
-        fills[0] as f64,
-        fills[1] as f64,
-        fills[2] as f64,
-        fills[3] as f64,
-        fills[4] as f64,
-    ];
+/// One tetris decision: decode the spot sentence → design → score, clamped
+/// to [0,1]. `None` on any decode refusal (the caller abstains — never
+/// guesses).
+pub fn score_sentence<const F: usize, const D: usize>(
+    stdizer: &Standardizer<F>,
+    w: &[f64; D],
+    sentence: &str,
+) -> Option<f64> {
+    let fills = crate::grammar::decode_tetris_spot(sentence)?;
+    let mut raw = [0.0f64; F];
+    for (x, k) in raw.iter_mut().zip(0..F.min(5)) {
+        *x = fills[k] as f64;
+    }
+    let row = stdizer.design(&raw);
+    Some(head_score(w, &row).clamp(0.0, 1.0))
+}
+
+/// One flappy decision (grammar `laya-flappy-v3`): decode the state
+/// sentence → (rel band, exact v, exact h), decode the option sentence →
+/// (band, offset, post-motion), reconstruct the 8 structured units (the
+/// Bench 882 decoded-arm law, exact wherever the render is exact; crash
+/// tails collapse to the boundary ±(h+1)), design → score clamped to
+/// [0,1]. `None` on any decode refusal.
+pub fn score_flappy<const D: usize>(
+    stdizer: &Standardizer<8>,
+    w: &[f64; D],
+    state_sentence: &str,
+    option_sentence: &str,
+) -> Option<f64> {
+    let (rel, v, h) = crate::grammar::decode_flappy_state(state_sentence)?;
+    let post = crate::grammar::decode_flappy_option_v3(option_sentence)?;
+    let raw = crate::grammar::flappy_v3_decoded_features(post, rel, v, h);
     let row = stdizer.design(&raw);
     Some(head_score(w, &row).clamp(0.0, 1.0))
 }

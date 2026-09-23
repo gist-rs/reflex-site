@@ -27,7 +27,7 @@ import * as lanes from './lanes.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const FLAPPY_FIXTURE = process.env.FLAPPY_FIXTURE
-  ?? path.resolve(here, '../../../../tests/fixtures/flappy_oracle_laya_en_v2.jsonl');
+  ?? path.resolve(here, '../../../../tests/fixtures/flappy_oracle_laya_en_v3.jsonl');
 const LANES_FIXTURE = process.env.LANES_FIXTURE
   ?? path.resolve(here, '../../../../tests/fixtures/lanes_oracle_laya_en_v1.jsonl');
 

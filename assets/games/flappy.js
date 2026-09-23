@@ -1,14 +1,14 @@
 // Flappy micro-game — dependency-free ES-module port of katgpt-rs
-// `examples/common/flappy_sim.rs`, PINNED to grammar `laya-flappy-v2` (the
-// committed fixture's grammar): option sentences carry the position band
-// ALONE ("The bird {band}.") — v1's motion clause was a measured confound
-// (the v1 oracle went 85/100 to flap regardless of geometry, Bench 879/880),
-// and the live Rust grammar has since moved on to v3 (quantized offset +
-// neutral post-motion clauses, Issue 876), which is deliberately NOT ported
-// here. The state context sentence is unchanged across v1/v2/v3.
+// `examples/common/flappy_sim.rs`, PINNED to grammar `laya-flappy-v3` (the
+// committed v3 fixture's grammar, Bench 882): option sentences carry the
+// position band + a quantized offset clause (fine post_rel, clamped ±2) +
+// a NEUTRAL post-motion clause (kinematic "drifting"/"holding" wording —
+// v1's "rising"/"falling" was a measured confound, Bench 880; v2's band
+// alone collapsed the decoded arm to constant-flap, Bench 881). The state
+// context sentence is unchanged across v1/v2/v3.
 //
 // All sentences must stay byte-identical to
-// katgpt-rs/tests/fixtures/flappy_oracle_laya_en_v2.jsonl — enforced by
+// katgpt-rs/tests/fixtures/flappy_oracle_laya_en_v3.jsonl — enforced by
 // flappy_lanes_golden.test.mjs. Do not reword anything.
 //
 // Zero dependencies; no DOM. Decision shape: at each pipe the bird is ONE
@@ -28,9 +28,10 @@ export const V_MAX = 2;
 export const FLAP_DY = 2;
 export const FLAP_V = 2;
 
-/** Grammar identity — the committed v2 fixture's grammar (the live Rust
- * constant reads laya-flappy-v3; this port serves the v2 fixture). */
-export const GRAMMAR_ID = 'laya-flappy-v2';
+/** Grammar identity — the committed v3 fixture's grammar (the Bench 882
+ * decoded arm's render; v2's band-alone arm is the measured-degenerate
+ * 77/100 constant-pick, which is exactly why v3 exists). */
+export const GRAMMAR_ID = 'laya-flappy-v3';
 /** The per-option (noul) question — verbatim fixture `question` text. */
 export const QUESTION = 'Will the bird pass through the gap cleanly?';
 
@@ -85,9 +86,9 @@ export function bandClause(band) {
   return BAND_CLAUSES[band];
 }
 
-/** The bird's CURRENT motion — state sentence only. v2 option sentences
- * dropped it as a measured confound ("rising" read safe regardless of
- * geometry). */
+/** The bird's CURRENT motion — state sentence only. Option sentences
+ * dropped the value-loaded motion wording as a measured confound (v1);
+ * v3's post-motion clause is the NEUTRAL kinematic form instead. */
 export function motionClause(v) {
   if (v <= -2) return 'falling fast';
   if (v === -1) return 'falling';
@@ -98,6 +99,28 @@ export function motionClause(v) {
 
 export function gapClause(h) {
   return h === 2 ? 'narrow' : 'wide';
+}
+
+/** v3's quantized OFFSET clause — fine post_rel relative to the gap
+ * center, clamped at ±2 (recovers the sign and the 0/1/≥2 magnitude
+ * classes without raw numbers; the band + gap width pin the rest). */
+export function offsetClause(rel) {
+  if (rel <= -2) return 'under the center';
+  if (rel === -1) return 'just under the center';
+  if (rel === 0) return 'at the center';
+  if (rel === 1) return 'just over the center';
+  return 'over the center';
+}
+
+/** v3's NEUTRAL post-placement motion clause — kinematic magnitude +
+ * direction anchored to the achieved height, never the v1 value-loaded
+ * "rising"/"falling" wording. */
+export function postMotionClause(v) {
+  if (v <= -2) return 'drifting down two steps';
+  if (v === -1) return 'drifting down one step';
+  if (v === 0) return 'holding this height';
+  if (v === 1) return 'drifting up one step';
+  return 'drifting up two steps';
 }
 
 /** The state context sentence (grammar unchanged across versions):
@@ -114,9 +137,19 @@ export function renderStateSentence(s) {
   return `The bird is ${band} the gap center, ${motionClause(s.v)}. The gap is ${gapClause(s.h)}. The pipe is just ahead.`;
 }
 
-/** The frozen v2 option sentence: `The bird {band}.` — the position band
- * ALONE (Rust: render_option_sentence_v2). */
+/** The v3 option sentence: `The bird {band}, {offset}, {post-motion}.`
+ * (Rust: render_option_sentence — the Bench 882 render the decoded arm
+ * serves from). */
 export function renderOptionSentence(s, action) {
+  const [y2, v2] = result(s, action);
+  const rel2 = y2 - s.g;
+  return `The bird ${bandClause(posBand(rel2, s.h))}, ${offsetClause(rel2)}, ${postMotionClause(v2)}.`;
+}
+
+/** The frozen v2 option sentence: `The bird {band}.` — the position band
+ * ALONE. Kept for the v2 provenance (Bench 880/881's measured-degenerate
+ * arm); nothing live renders it. */
+export function renderOptionSentenceV2(s, action) {
   const [y2] = result(s, action);
   return `The bird ${bandClause(posBand(y2 - s.g, s.h))}.`;
 }
@@ -219,10 +252,13 @@ export function playGame(policy, seed, maxPipes) {
 
 /** The decision turn as the arena consumes it: the noul question (verbatim
  * fixture `question` text) + the two options in PINNED order, each with
- * its v2 sentence and frozen feature row. */
+ * its v3 sentence and frozen feature row, plus the state sentence (the
+ * flappy head's row needs the state's pre-rel/v/h — the joined-state
+ * protocol, riir-reflex issue 011). */
 export function buildTurn(s) {
   return {
     question: QUESTION,
+    stateSentence: renderStateSentence(s),
     options: ACTIONS.map((label) => ({
       label,
       sentence: renderOptionSentence(s, label),

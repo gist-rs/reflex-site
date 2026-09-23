@@ -1,46 +1,66 @@
-// The browser-live Tetris head — the engine's fitted game head compiled to
-// WebAssembly, so the latent-first lane plays IN-TAB with zero engine.
+// The arena's browser-live game heads — the engine's fitted game heads
+// compiled to WebAssembly, so the latent-first lane plays IN-TAB with zero
+// engine.
 //
-// What loads here is `arena_head.wasm`: the published fit recipe
+// What loads here is `arena_head.wasm`: the published fit recipes
 // (standardize → ridge at the LOO-selected λ → linear score) re-run at boot
-// over the same BLAKE3-pinned oracle corpus the v0.2.2+ engine fits from —
-// the fit is bit-identical to the engine's (every op is a correctly-rounded
+// over the same digest-pinned oracle corpora the v0.2.2+ engine fits from —
+// the fits are bit-identical to the engine's (every op is a correctly-rounded
 // IEEE-754 f64 primitive with a pinned accumulation order).
 //
-// Nothing is trusted without proof. Before any live play, the probe below
-// replays the demo's RECORDED head game (hundreds of real engine decisions)
-// and requires bit-exact f32 agreement on every single one. Any drift —
-// artifact, browser, future corpus — keeps the page on the recorded demo.
-// Off-grammar inputs refuse (NaN → null): the honest abstain, never a guess.
+// Nothing is trusted without proof. Before any live play, the probes below
+// replay the demo's RECORDED head game (hundreds of real engine decisions)
+// and require bit-exact f32 agreement on every single one (tetris), plus
+// the published 96/100 oracle agreement over the flappy corpus reel. Any
+// drift — artifact, browser, future corpus — keeps the page on the recorded
+// demo. Off-grammar inputs refuse (NaN → null): the honest abstain, never a
+// guess.
 import * as T from "./games/tetris.js";
+import * as F from "./games/flappy.js";
 
 const state = {
   status: "idle", // idle | loading | ready | failed
   promise: null,
   exports: null,
-  lambda: null,
-  anchor: null,
+  tetris: { lambda: null, anchor: null },
+  flappy: { lambda: null, anchor: null },
   bootMs: null,
-  probe: null, // { pairs, ms, ok }
+  probeTetris: null, // { pairs, mismatched, ms, ok }
+  probeFlappy: null, // { agree, ms, ok }
 };
 
 const enc = new TextEncoder();
 
-function scoreRaw(sentence) {
-  const b = enc.encode(sentence);
+function write(s) {
+  const b = enc.encode(s);
   const ptr = state.exports.head_alloc(b.length);
-  if (ptr === 0) return NaN; // OOM — refuse rather than guess
+  if (ptr === 0) return null; // OOM — refuse rather than guess
   new Uint8Array(state.exports.memory.buffer).set(b, ptr);
-  const p = state.exports.head_score(ptr, b.length);
+  return [ptr, b.length];
+}
+
+function scoreRaw(sentence) {
+  const w = write(sentence);
+  if (!w) return NaN;
+  const p = state.exports.head_score(w[0], w[1]);
   state.exports.head_reset();
   return p;
 }
 
-// The probe: replay the recorded head game and require bit-exact f32
+function scoreStateRaw(stateSentence, optionSentence) {
+  const s = write(stateSentence);
+  const o = write(optionSentence);
+  if (!s || !o) return NaN;
+  const p = state.exports.head_score_state(s[0], s[1], o[0], o[1]);
+  state.exports.head_reset();
+  return p;
+}
+
+// The tetris probe: replay the recorded head game and require bit-exact f32
 // agreement on every decision (the engine's wire serves f32(p); the JSON
 // recording carries the shortest decimal that round-trips to that f32, so
 // both sides are compared through Math.fround).
-function probe(headWalk) {
+function probeTetris(headWalk) {
   const t0 = performance.now();
   let pairs = 0;
   let mismatched = 0;
@@ -55,7 +75,34 @@ function probe(headWalk) {
       if (!Number.isFinite(p) || Math.fround(p) !== Math.fround(ps[i])) mismatched += 1;
     }
   }
-  return { pairs, mismatched, ok: mismatched === 0 && pairs > 0, ms: performance.now() - t0 };
+  return {
+    pairs,
+    mismatched,
+    ok: mismatched === 0 && pairs > 0,
+    ms: performance.now() - t0,
+  };
+}
+
+// The flappy probe: the corpus reel IS the v3 fixture (state + oracle ps).
+// Rebuild each turn's option sentences with the site's own renderer and
+// require the head's argmax to match the recorded oracle decision on
+// exactly the published 96 of 100 (the boot anchor cross-checks).
+function probeFlappy(flappyWalk) {
+  const t0 = performance.now();
+  let agree = 0;
+  for (const [stateSentence, ps, structured] of flappyWalk) {
+    const turn = F.buildTurn(structured);
+    if (turn.stateSentence !== stateSentence) {
+      return { agree, ok: false, ms: performance.now() - t0 };
+    }
+    const scored = turn.options.map((o) => scoreStateRaw(stateSentence, o.sentence));
+    let want = 0;
+    for (let i = 1; i < ps.length; i++) if (ps[i] > ps[want]) want = i;
+    let got = 0;
+    for (let i = 1; i < scored.length; i++) if (scored[i] > scored[got]) got = i;
+    if (Number.isFinite(scored[0]) && Number.isFinite(scored[1]) && got === want) agree += 1;
+  }
+  return { agree, ok: agree === state.exports.head_flappy_anchor(), ms: performance.now() - t0 };
 }
 
 async function instantiate() {
@@ -70,30 +117,42 @@ async function instantiate() {
   }
   state.exports = res.instance.exports;
   const rc = state.exports.head_init();
-  if (rc !== 0 || state.exports.head_ready() !== 1) {
-    throw new Error(`head_init refused (${rc})`);
+  if ((state.exports.head_ready() & 1) !== 1) {
+    throw new Error(`tetris head refused (${rc})`);
   }
-  state.lambda = state.exports.head_lambda();
-  state.anchor = state.exports.head_anchor();
+  state.tetris.lambda = state.exports.head_lambda();
+  state.tetris.anchor = state.exports.head_anchor();
+  state.flappy.lambda = state.exports.head_flappy_lambda();
+  state.flappy.anchor = state.exports.head_flappy_anchor();
   state.bootMs = performance.now() - t0;
 }
 
-// Start (once) and await the head's boot + probe. Resolves "ready" or
-// "failed" — never throws. The recorded demo stays the fallback either way.
-export function ensureArenaHead(headWalk) {
+// Start (once) and await the heads' boot + probes. Resolves "ready" (the
+// tetris head — the flappy head may independently fail) or "failed" — never
+// throws. The recorded demo stays the fallback either way.
+export function ensureArenaHead(headWalk, flappyWalk) {
   if (!state.promise) {
     state.status = "loading";
     state.promise = (async () => {
       try {
         await instantiate();
         if (!Array.isArray(headWalk) || headWalk.length === 0) throw new Error("no recorded walk to probe");
-        state.probe = probe(headWalk);
-        if (!state.probe.ok) throw new Error(`probe failed: ${state.probe.mismatched}/${state.probe.pairs} disagree`);
+        state.probeTetris = probeTetris(headWalk);
+        if (!state.probeTetris.ok) throw new Error(`tetris probe failed: ${state.probeTetris.mismatched}/${state.probeTetris.pairs} disagree`);
+        if (Array.isArray(flappyWalk) && flappyWalk.length > 0 && (state.exports.head_ready() & 2) === 2) {
+          state.probeFlappy = probeFlappy(flappyWalk);
+          if (!state.probeFlappy.ok) {
+            console.warn(`[arena-head] flappy probe failed (${state.probeFlappy.agree}/100) — flappy stays recorded; tetris plays`);
+          }
+        }
         state.status = "ready";
         console.log(
-          `[arena-head] LIVE — boot ${state.bootMs.toFixed(1)} ms, λ ${state.lambda}, ` +
-            `anchor ${state.anchor}/120, probe ${state.probe.pairs}/${state.probe.pairs} bit-exact ` +
-            `(${state.probe.ms.toFixed(0)} ms) — the modelless board plays in-tab`,
+          `[arena-head] LIVE — boot ${state.bootMs.toFixed(1)} ms, ` +
+            `tetris λ ${state.tetris.lambda} anchor ${state.tetris.anchor}/120 ` +
+            `probe ${state.probeTetris.pairs}/${state.probeTetris.pairs} bit-exact (${state.probeTetris.ms.toFixed(0)} ms)` +
+            (state.probeFlappy?.ok
+              ? `, flappy λ ${state.flappy.lambda} anchor ${state.flappy.anchor}/100 agreement ${state.probeFlappy.agree}/100 (${state.probeFlappy.ms.toFixed(0)} ms)`
+              : ", flappy unavailable — recorded reel stays"),
         );
       } catch (e) {
         state.status = "failed";
@@ -110,7 +169,12 @@ export function arenaHeadReady() {
   return state.status === "ready";
 }
 
-// P(clean) for one spot sentence, or null when the head refuses
+// The flappy head passed its own probe (independent of tetris's).
+export function arenaFlappyHeadReady() {
+  return state.status === "ready" && state.probeFlappy?.ok === true;
+}
+
+// P(clean) for one tetris spot sentence, or null when the head refuses
 // (off-grammar → the honest abstain, exactly like the engine's fall-through).
 export function arenaHeadScore(sentence) {
   if (state.status !== "ready") return null;
@@ -118,12 +182,13 @@ export function arenaHeadScore(sentence) {
   return Number.isFinite(p) ? p : null;
 }
 
+// P(clean) for one flappy (state, option) sentence pair, or null on refusal.
+export function arenaHeadScoreState(stateSentence, optionSentence) {
+  if (state.status !== "ready" || !arenaFlappyHeadReady()) return null;
+  const p = scoreStateRaw(stateSentence, optionSentence);
+  return Number.isFinite(p) ? p : null;
+}
+
 export function arenaHeadInfo() {
-  return {
-    status: state.status,
-    lambda: state.lambda,
-    anchor: state.anchor,
-    bootMs: state.bootMs,
-    probe: state.probe,
-  };
+  return { status: state.status, bootMs: state.bootMs, tetris: state.tetris, flappy: state.flappy, probeTetris: state.probeTetris, probeFlappy: state.probeFlappy };
 }

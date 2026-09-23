@@ -1,35 +1,42 @@
-//! The arena's browser-live Tetris head — the fitted game head compiled to
-//! WebAssembly so the latent-first lane plays in-tab with zero engine.
+//! The arena's browser-live game heads — the engine's fitted game heads
+//! compiled to WebAssembly so the latent-first lane plays in-tab with zero
+//! engine.
 //!
-//! This is NOT a second model: it is the engine's own published recipe
-//! (standardize → ridge at the LOO-selected λ → linear score) re-run over
-//! the same BLAKE3-pinned oracle fixture, as a compact corpus blob. The fit
-//! is bit-identical to the native engine's — every op is a correctly-rounded
-//! IEEE-754 f64 primitive with a pinned accumulation order — and nothing is
-//! trusted without proof:
+//! These are NOT second models: they are the engine's own published recipes
+//! (standardize → ridge at the LOO-selected λ → linear score) re-run at
+//! boot over the same digest-pinned oracle fixtures, as compact corpus
+//! blobs. The fits are bit-identical to the native engine's — every op is a
+//! correctly-rounded IEEE-754 f64 primitive with a pinned accumulation
+//! order — and nothing is trusted without proof:
 //!
-//! - build time (`tests/recipe.rs`): the committed blob regenerates
+//! - build time (`tests/recipe.rs`): each committed blob regenerates
 //!   byte-identically, the full recipe (LOO λ selection included) hits the
-//!   published Bench 881 anchors (λ=1, 44/120 in-corpus, 44/120 LOO), the
-//!   grammar round-trips every corpus sentence, and the u8-raw standardizer
-//!   equals the f64 one bit-for-bit;
-//! - boot time (this module): the blob is re-validated and the fit is
-//!   RE-RUN in the tab; if the in-corpus anchor (44/120) does not
-//!   reproduce, `head_init` refuses and the page keeps the recorded demo;
-//! - first play (JS probe): every recorded (sentence → f32 P(clean)) pair
-//!   of the demo's head game must match this module bit-exactly
-//!   (`Math.fround` equality) before the board plays live.
+//!   published anchors (tetris: Bench 881 λ=1, 44/120 + 44/120; flappy v3:
+//!   Bench 882 λ=1, 96/100 + 96/100 + the full head digest), the grammars
+//!   round-trip every corpus sentence, and the u8 standardizer equals the
+//!   f64 one bit-for-bit;
+//! - boot time (this module): each blob is re-validated and its fit is
+//!   RE-RUN in the tab; if the in-corpus anchor does not reproduce, that
+//!   head refuses and the page keeps the recorded demo for it;
+//! - first play (JS probe): the tetris head must match every recorded
+//!   (sentence → f32 P(clean)) pair of the demo's head game bit-exactly;
+//!   the flappy head must reproduce its published 96/100 agreement over the
+//!   corpus reel — before either board plays.
 //!
 //! ABI (all exports C-ABI, no wasm-bindgen, no allocator):
-//! - `head_init() -> u32`     0 = ready (memoized)
-//! - `head_ready() -> u32`    1 after a successful init
-//! - `head_lambda() -> f64`   the recipe's λ
-//! - `head_anchor() -> u32`   the verified in-corpus agreement (44)
-//! - `head_alloc(n) -> ptr`   16-aligned bump bytes (0 on OOM)
-//! - `head_reset()`           rewind the bump pointer (single-threaded)
-//! - `head_score(ptr, len) -> f64`  P(clean), or NaN when the sentence is
-//!   off-grammar (the honest abstain — never a guess)
-//! - `memory`                 JS writes sentence bytes at `head_alloc` ptrs
+//! - `head_init() -> u32`        0 = ok (memoized; a per-head failure does
+//!                               not take down the other head)
+//! - `head_ready() -> u32`       ready MASK: bit0 = tetris, bit1 = flappy
+//! - `head_lambda() -> f64`      the tetris recipe's λ
+//! - `head_anchor() -> u32`      the verified tetris in-corpus agreement
+//! - `head_flappy_lambda() -> f64` / `head_flappy_anchor() -> u32`
+//! - `head_alloc(n) -> ptr`      16-aligned bump bytes (0 on OOM)
+//! - `head_reset()`              rewind the bump pointer (single-threaded)
+//! - `head_score(ptr, len) -> f64`   tetris P(clean); NaN = off-grammar
+//! - `head_score_state(state_ptr, state_len, opt_ptr, opt_len) -> f64`
+//!                               flappy P(clean) from (state, option)
+//!                               sentences; NaN = off-grammar
+//! - `memory`                    JS writes sentence bytes at alloc'd ptrs
 
 #![cfg_attr(target_arch = "wasm32", no_std)]
 
@@ -41,6 +48,13 @@ pub mod grammar;
 #[cfg(not(target_arch = "wasm32"))]
 pub mod gen;
 
+/// The design widths (ungated — the wasm module pins its statics with
+/// these; `gen` re-exports them host-side).
+pub const TETRIS_F: usize = 5;
+pub const TETRIS_D: usize = TETRIS_F + 1;
+pub const FLAPPY_F: usize = 8;
+pub const FLAPPY_D: usize = FLAPPY_F + 1;
+
 // ── the wasm module ──────────────────────────────────────────────────────
 
 #[cfg(target_arch = "wasm32")]
@@ -51,27 +65,45 @@ mod wasm {
 
     use crate::boot::{self, BootPlan};
     use crate::corpus::BlobView;
-    use crate::fit::{HeadFitter, Standardizer, D};
+    use crate::fit::{HeadFitter, Standardizer};
+    use crate::{FLAPPY_D, FLAPPY_F, TETRIS_D, TETRIS_F};
 
-    /// The committed corpus blob — generated by `bin/gen_corpus.rs` from
-    /// the BLAKE3-pinned fixture and asserted by `tests/recipe.rs`.
-    static BLOB: &[u8] = include_bytes!("tetris_corpus.bin");
+    /// The committed corpus blobs — generated by `bin/gen_corpus.rs` from
+    /// the digest-pinned fixtures and asserted by `tests/recipe.rs`.
+    static TETRIS_BLOB: &[u8] = include_bytes!("tetris_corpus.bin");
+    static FLAPPY_BLOB: &[u8] = include_bytes!("flappy_corpus.bin");
 
-    /// The corpus shape this build pins (the boot asserts equality — a
-    /// future corpus regenerates the blob AND these two consts together;
+    /// The corpus shapes this build pins (each boot asserts equality — a
+    /// future corpus regenerates the blob AND these consts together;
     /// `tests/recipe.rs` holds the same pins on the host side).
-    const N_OPTIONS: usize = 2660;
-    const N_STATES: usize = 120;
+    const TETRIS_N_OPTIONS: usize = 2660;
+    const TETRIS_N_STATES: usize = 120;
+    const FLAPPY_N_OPTIONS: usize = 200;
+    const FLAPPY_N_STATES: usize = 100;
 
-    static mut ROWS: [[f64; D]; N_OPTIONS] = [[0.0; D]; N_OPTIONS];
-    static mut TARGETS: [f64; N_OPTIONS] = [0.0; N_OPTIONS];
-    static mut OFFSETS: [u32; N_STATES + 1] = [0; N_STATES + 1];
-    static mut ARGMAXES: [u8; N_STATES] = [0; N_STATES];
-    static mut HEAD: [f64; D] = [0.0; D];
-    static mut STD: Option<Standardizer> = None;
-    static mut STATE: u32 = 0; // 0 = not booted, 1 = ok, 2 = failed
-    static mut IN_AGREE: u32 = 0;
-    static mut LAMBDA: f64 = f64::NAN;
+    static mut TETRIS_ROWS: [[f64; TETRIS_D]; TETRIS_N_OPTIONS] =
+        [[0.0; TETRIS_D]; TETRIS_N_OPTIONS];
+    static mut TETRIS_TARGETS: [f64; TETRIS_N_OPTIONS] = [0.0; TETRIS_N_OPTIONS];
+    static mut TETRIS_OFFSETS: [u32; TETRIS_N_STATES + 1] = [0; TETRIS_N_STATES + 1];
+    static mut TETRIS_ARGMAXES: [u8; TETRIS_N_STATES] = [0; TETRIS_N_STATES];
+    static mut TETRIS_HEAD: [f64; TETRIS_D] = [0.0; TETRIS_D];
+    static mut TETRIS_STD: Option<Standardizer<TETRIS_F>> = None;
+    static mut TETRIS_OK: bool = false;
+    static mut TETRIS_IN_AGREE: u32 = 0;
+    static mut TETRIS_LAMBDA: f64 = f64::NAN;
+
+    static mut FLAPPY_ROWS: [[f64; FLAPPY_D]; FLAPPY_N_OPTIONS] =
+        [[0.0; FLAPPY_D]; FLAPPY_N_OPTIONS];
+    static mut FLAPPY_TARGETS: [f64; FLAPPY_N_OPTIONS] = [0.0; FLAPPY_N_OPTIONS];
+    static mut FLAPPY_OFFSETS: [u32; FLAPPY_N_STATES + 1] = [0; FLAPPY_N_STATES + 1];
+    static mut FLAPPY_ARGMAXES: [u8; FLAPPY_N_STATES] = [0; FLAPPY_N_STATES];
+    static mut FLAPPY_HEAD: [f64; FLAPPY_D] = [0.0; FLAPPY_D];
+    static mut FLAPPY_STD: Option<Standardizer<FLAPPY_F>> = None;
+    static mut FLAPPY_OK: bool = false;
+    static mut FLAPPY_IN_AGREE: u32 = 0;
+    static mut FLAPPY_LAMBDA: f64 = f64::NAN;
+
+    static mut BOOTED: bool = false;
     static mut BUMP: usize = 0;
 
     extern "C" {
@@ -81,7 +113,7 @@ mod wasm {
     #[panic_handler]
     fn panic(_: &PanicInfo) -> ! {
         // A panicking head is a broken build: halt. The page treats any
-        // non-zero init code as "no wasm head" and keeps the recorded demo.
+        // init/mask anomaly as "no wasm head" and keeps the recorded demo.
         loop {}
     }
 
@@ -89,80 +121,139 @@ mod wasm {
         addr_of!(__heap_base) as usize
     }
 
-    /// The shared boot sequence over this module's statics.
-    fn run_boot() -> u32 {
-        let v = match BlobView::parse(BLOB) {
-            Ok(v) => v,
-            Err(_) => return 2,
+    /// One head's boot: validate the blob, fill the statics, re-run the
+    /// fit, verify the in-corpus anchor. Returns ok + the verified anchor.
+    fn boot_one<const F: usize, const D: usize>(
+        blob: &[u8],
+        n_options: usize,
+        n_states: usize,
+        rows: &mut [[f64; D]],
+        targets: &mut [f64],
+        offsets: &mut [u32],
+        argmaxes: &mut [u8],
+    ) -> Result<(f64, u32, Standardizer<F>, [f64; D]), u32> {
+        let v = BlobView::parse(blob).map_err(|_| 2u32)?;
+        if v.n_options() != n_options
+            || v.n_states() != n_states
+            || v.feat_width() != F
+        {
+            return Err(3);
+        }
+        v.copy_targets(targets);
+        v.copy_offsets(offsets);
+        v.copy_argmaxes(argmaxes);
+        let plan = BootPlan::<F, D> {
+            n_options: v.n_options(),
+            n_states: v.n_states(),
+            lambda: v.lambda(),
+            in_anchor: v.in_anchor(),
+            offsets,
+            argmaxes,
+            targets,
+            raws: v.raws(),
         };
-        if v.n_options() != N_OPTIONS || v.n_states() != N_STATES {
-            return 3;
-        }
+        let mut fitter = HeadFitter::<D>::new();
+        let out = boot::run(&plan, rows, &mut fitter).map_err(|e| match e {
+            boot::BootErr::Anchor { .. } => 5u32,
+            _ => 4u32,
+        })?;
+        Ok((plan.lambda, out.in_agree, out.std, out.w))
+    }
+
+    /// The shared boot sequence over this module's statics. A per-head
+    /// failure degrades that head only (the page falls back per board).
+    fn run_boot() {
         // Safety: single-threaded wasm — every export is driven by the one
-        // JS thread; these statics are touched only here and in head_score.
+        // JS thread; these statics are touched only here and in the score
+        // exports.
         unsafe {
-            let targets: &mut [f64] = &mut *addr_of_mut!(TARGETS);
-            v.copy_targets(targets);
-            let offsets: &mut [u32] = &mut *addr_of_mut!(OFFSETS);
-            v.copy_offsets(offsets);
-            let argmaxes: &mut [u8] = &mut *addr_of_mut!(ARGMAXES);
-            v.copy_argmaxes(argmaxes);
-            let plan = BootPlan {
-                n_options: v.n_options(),
-                n_states: v.n_states(),
-                lambda: v.lambda(),
-                in_anchor: v.in_anchor(),
-                offsets,
-                argmaxes,
-                targets,
-                raws: v.raws(),
-            };
-            let rows: &mut [[f64; D]] = &mut *addr_of_mut!(ROWS);
-            let mut fitter = HeadFitter::new();
-            let out = match boot::run(&plan, rows, &mut fitter) {
-                Ok(r) => r,
-                Err(_) => return 4,
-            };
-            HEAD = out.w;
-            STD = Some(out.std);
-            IN_AGREE = out.in_agree;
-            LAMBDA = plan.lambda;
-            STATE = 1;
+            let t = boot_one::<TETRIS_F, TETRIS_D>(
+                TETRIS_BLOB,
+                TETRIS_N_OPTIONS,
+                TETRIS_N_STATES,
+                &mut *addr_of_mut!(TETRIS_ROWS),
+                &mut *addr_of_mut!(TETRIS_TARGETS),
+                &mut *addr_of_mut!(TETRIS_OFFSETS),
+                &mut *addr_of_mut!(TETRIS_ARGMAXES),
+            );
+            match t {
+                Ok((lambda, agree, std, w)) => {
+                    TETRIS_HEAD = w;
+                    TETRIS_STD = Some(std);
+                    TETRIS_IN_AGREE = agree;
+                    TETRIS_LAMBDA = lambda;
+                    TETRIS_OK = true;
+                }
+                Err(_) => TETRIS_OK = false,
+            }
+            let f = boot_one::<FLAPPY_F, FLAPPY_D>(
+                FLAPPY_BLOB,
+                FLAPPY_N_OPTIONS,
+                FLAPPY_N_STATES,
+                &mut *addr_of_mut!(FLAPPY_ROWS),
+                &mut *addr_of_mut!(FLAPPY_TARGETS),
+                &mut *addr_of_mut!(FLAPPY_OFFSETS),
+                &mut *addr_of_mut!(FLAPPY_ARGMAXES),
+            );
+            match f {
+                Ok((lambda, agree, std, w)) => {
+                    FLAPPY_HEAD = w;
+                    FLAPPY_STD = Some(std);
+                    FLAPPY_IN_AGREE = agree;
+                    FLAPPY_LAMBDA = lambda;
+                    FLAPPY_OK = true;
+                }
+                Err(_) => FLAPPY_OK = false,
+            }
+            BOOTED = true;
         }
-        0
     }
 
     #[no_mangle]
     pub extern "C" fn head_init() -> u32 {
         unsafe {
-            if STATE == 1 {
-                return 0;
+            if !BOOTED {
+                run_boot();
             }
-            if STATE == 2 {
-                return 1;
+            // 0 = both heads ok; 1 = partial; 2 = none (the page reads the
+            // mask for the truth).
+            let m = head_ready();
+            if m == 3 {
+                0
+            } else if m == 0 {
+                2
+            } else {
+                1
             }
-            STATE = 2;
         }
-        let rc = run_boot();
-        if rc == 0 {
-            unsafe { STATE = 1 };
-        }
-        rc
     }
 
+    /// Ready MASK: bit0 = tetris, bit1 = flappy.
     #[no_mangle]
     pub extern "C" fn head_ready() -> u32 {
-        unsafe { if STATE == 1 { 1 } else { 0 } }
+        unsafe {
+            (TETRIS_OK as u32) | ((FLAPPY_OK as u32) << 1)
+        }
     }
 
     #[no_mangle]
     pub extern "C" fn head_lambda() -> f64 {
-        unsafe { LAMBDA }
+        unsafe { TETRIS_LAMBDA }
     }
 
     #[no_mangle]
     pub extern "C" fn head_anchor() -> u32 {
-        unsafe { IN_AGREE }
+        unsafe { TETRIS_IN_AGREE }
+    }
+
+    #[no_mangle]
+    pub extern "C" fn head_flappy_lambda() -> f64 {
+        unsafe { FLAPPY_LAMBDA }
+    }
+
+    #[no_mangle]
+    pub extern "C" fn head_flappy_anchor() -> u32 {
+        unsafe { FLAPPY_IN_AGREE }
     }
 
     /// 16-aligned bump allocation over linear memory (grows as needed).
@@ -186,7 +277,7 @@ mod wasm {
     }
 
     /// Rewind the bump pointer — the JS score path calls this after each
-    /// sentence (single-threaded by construction).
+    /// call (single-threaded by construction).
     #[no_mangle]
     pub extern "C" fn head_reset() {
         unsafe {
@@ -194,16 +285,16 @@ mod wasm {
         }
     }
 
-    /// P(clean) for one spot sentence, or NaN when the sentence is not a
-    /// well-formed spot sentence (the honest abstain — the engine's
+    /// P(clean) for one tetris spot sentence, or NaN when the sentence is
+    /// not a well-formed spot sentence (the honest abstain — the engine's
     /// `respond` falls through the same way).
     #[no_mangle]
     pub extern "C" fn head_score(ptr: u32, len: u32) -> f64 {
         unsafe {
-            if STATE != 1 {
+            if !TETRIS_OK {
                 return f64::NAN;
             }
-            let std = match *addr_of!(STD) {
+            let std = match *addr_of!(TETRIS_STD) {
                 Some(s) => s,
                 None => return f64::NAN,
             };
@@ -212,7 +303,37 @@ mod wasm {
                 Ok(s) => s,
                 Err(_) => return f64::NAN,
             };
-            match boot::score_sentence(&std, &*addr_of!(HEAD), sentence) {
+            match boot::score_sentence(&std, &*addr_of!(TETRIS_HEAD), sentence) {
+                Some(p) => p,
+                None => f64::NAN,
+            }
+        }
+    }
+
+    /// P(clean) for one flappy (state, option) sentence pair, or NaN when
+    /// either sentence is off-grammar.
+    #[no_mangle]
+    pub extern "C" fn head_score_state(
+        state_ptr: u32,
+        state_len: u32,
+        opt_ptr: u32,
+        opt_len: u32,
+    ) -> f64 {
+        unsafe {
+            if !FLAPPY_OK {
+                return f64::NAN;
+            }
+            let std = match *addr_of!(FLAPPY_STD) {
+                Some(s) => s,
+                None => return f64::NAN,
+            };
+            let sb = core::slice::from_raw_parts(state_ptr as *const u8, state_len as usize);
+            let ob = core::slice::from_raw_parts(opt_ptr as *const u8, opt_len as usize);
+            let (state, option) = match (core::str::from_utf8(sb), core::str::from_utf8(ob)) {
+                (Ok(s), Ok(o)) => (s, o),
+                _ => return f64::NAN,
+            };
+            match boot::score_flappy(&std, &*addr_of!(FLAPPY_HEAD), state, option) {
                 Some(p) => p,
                 None => f64::NAN,
             }

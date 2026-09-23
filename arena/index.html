@@ -48,14 +48,14 @@
         <p class="hint" id="pna-hint" hidden>Chrome blocked the local call — allow the local-network permission for this site (the icon in the address bar), then refresh.</p>
       </div>
       <div class="launch demo" id="demo-banner" hidden>
-        <p><b>No local engine — the modelless board plays LIVE in your tab.</b> The
-        fitted head ships compiled to WebAssembly on this page: it fits the published
-        head in-tab from the same pinned oracle corpus and answers every spot question
-        itself (proven bit-exact against the recorded engine play before it plays —
-        hundreds of decisions, zero mismatches). No engine, no server, no upload. The
-        <b>laya</b> board — too heavy for a browser at ~650&nbsp;MB of weights — replays
-        a recorded full-argmax game. Both loop. Start the engine, then press Start for
-        the live lanes.</p>
+        <p><b>No local engine — the modelless boards play LIVE in your tab.</b> The fitted
+        heads ship compiled to WebAssembly on this page: each fits its published head
+        in-tab from the same pinned oracle corpus and answers every spot question itself
+        — Tetris proven bit-exact against the recorded engine play, Flappy reproducing
+        its published 96/100 oracle agreement — hundreds of decisions verified before
+        either board moves. No engine, no server, no upload. The <b>laya</b> board — too
+        heavy for a browser at ~650&nbsp;MB of weights — replays recorded full-argmax
+        games. Both loop. Start the engine, then press Start for the live lanes.</p>
       </div>
     </section>
 
@@ -88,7 +88,7 @@
           </div>
         </div>
         <div class="boardcard" id="tc-modelless">
-          <div class="boardhead"><b>modelless lane · reflex core</b><span class="lane-note">corpus-fitted head plays Tetris — LIVE in-tab via WebAssembly with zero engine, or through your v0.2.2+ engine · flappy/lanes abstain → random</span><span class="scorebox"><span>SCORE</span><b id="ts-modelless">0000</b><span>LINES</span><b id="tl-modelless">000</b></span></div>
+          <div class="boardhead"><b>modelless lane · reflex core</b><span class="lane-note">corpus-fitted heads play Tetris + Flappy — LIVE in-tab via WebAssembly with zero engine, or through your v0.2.2+ engine · three-lanes abstains → random</span><span class="scorebox"><span>SCORE</span><b id="ts-modelless">0000</b><span>LINES</span><b id="tl-modelless">000</b></span></div>
           <canvas id="tb-modelless" width="200" height="400"></canvas>
           <div class="stats" id="tst-modelless">pieces 0 · decisions 0 · p50 — ms · errors 0</div>
           <div class="readout">
@@ -117,9 +117,12 @@
         Engine <b>v0.2.2</b> serves exactly this fit: the out-of-the-box modelless board
         plays Tetris from the head (any grammar-valid sentence decodes — live boards
         included), and only grammar-invalid inputs fall back to a labelled random spot.
-        Flappy and three-lanes still abstain honestly (their heads need the site's v3
-        flappy render and cross-lane context — unblock paths recorded in the engine
-        repo, issue 011).</p>
+        Flappy joins it on the <b>v3 render</b> (band + quantized offset + neutral
+        post-motion — v2's band alone was the measured-degenerate arm) with its head
+        served the same way; its decision reads the (state, option) sentence pair, the
+        joined-state protocol issue 011 records. Three-lanes still abstains honestly
+        (its head reads the OTHER lanes' sentences — unblock path in the engine repo,
+        issue 011).</p>
         <p><b>And the head runs where the page runs.</b> With no engine connected, the
         modelless board still plays — live — on a WebAssembly build of the same fit:
         the page boots the head from the same pinned oracle corpus, re-verifies the
@@ -207,8 +210,9 @@
     <section class="footnote">
       <p>With your engine connected, every number on this page is produced live by the two
       lanes on <b>your</b> machine — nothing is scripted or pre-recorded. Without an engine,
-      the modelless Tetris board plays live in-tab on the compiled WebAssembly head
-      (parity-proven against the recorded engine play before it moves a single piece),
+      the modelless Tetris and Flappy boards play live in-tab on the compiled WebAssembly
+      heads (tetris parity-proven against the recorded engine play; flappy reproducing
+      its published agreement, before either moves),
       while the other boards replay <b>recorded games</b> — committed runs through this
       same wire, labelled as such, never mixed with live results. The laya lane runs our Rust
       port of the

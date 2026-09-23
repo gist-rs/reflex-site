@@ -7,16 +7,17 @@
 //! Layout (all little-endian):
 //! ```text
 //! "RFTC"            magic
-//! u32  version      = 1
+//! u32  version      = 2
 //! u32  n_options    design rows
 //! u32  n_states     LOO units
 //! f64  lambda       the recipe's selected λ (LOO over the pinned grid)
-//! u32  in_anchor    in-corpus agreement at λ (Bench 881: 44)
-//! u32  loo_anchor   LOO agreement at λ      (Bench 881: 44)
+//! u32  in_anchor    in-corpus agreement at λ (tetris Bench 881: 44; flappy v3 Bench 882: 96)
+//! u32  loo_anchor   LOO agreement at λ      (tetris Bench 881: 44; flappy v3 Bench 882: 96)
+//! u32  feat_width   decoded feature width F (tetris: 5; flappy: 8)
 //! u32  offsets      (n_states+1) state row ranges
 //! u8   argmaxes     n_states oracle decisions (lowest-index tie-break)
 //! f64  targets      n_options oracle P(clean) per option
-//! u8   raws         n_options × 5 decoded class ordinals
+//! u8   raws         n_options × F decoded class ordinals
 //! ```
 //!
 //! The wasm module reads the blob through [`BlobView`] — validation and
@@ -25,10 +26,10 @@
 //! share [`BlobView::parse`] so there is exactly one validation.
 
 pub const MAGIC: &[u8; 4] = b"RFTC";
-pub const VERSION: u32 = 1;
+pub const VERSION: u32 = 2;
 
-/// The decoded feature width (per-option raws stride in the blob).
-pub const F: usize = 5;
+/// Header size: magic + version + n_options + n_states + λ + in + loo + F.
+pub const HEADER: usize = 36;
 
 #[derive(Debug)]
 pub struct Corrupt;
@@ -36,7 +37,7 @@ pub struct Corrupt;
 // ── the no_std view ──────────────────────────────────────────────────────
 
 /// A validated view over the blob bytes — the wasm boot's only interface
-/// to the corpus. Zero allocation: every accessor reads LE fields in place.
+/// to a corpus. Zero allocation: every accessor reads LE fields in place.
 pub struct BlobView<'a> {
     bytes: &'a [u8],
     n_options: usize,
@@ -44,6 +45,7 @@ pub struct BlobView<'a> {
     lambda: f64,
     in_anchor: u32,
     loo_anchor: u32,
+    feat_width: usize,
     offsets_off: usize,
     argmaxes_off: usize,
     targets_off: usize,
@@ -65,7 +67,7 @@ impl<'a> BlobView<'a> {
     /// Parse + fully validate. Every later accessor is bounds-safe by
     /// construction after this succeeds.
     pub fn parse(bytes: &'a [u8]) -> Result<Self, Corrupt> {
-        if bytes.len() < 32 || &bytes[..4] != MAGIC || u32_at(bytes, 4) != VERSION {
+        if bytes.len() < HEADER || &bytes[..4] != MAGIC || u32_at(bytes, 4) != VERSION {
             return Err(Corrupt);
         }
         let n_options = u32_at(bytes, 8) as usize;
@@ -73,10 +75,17 @@ impl<'a> BlobView<'a> {
         let lambda = f64_at(bytes, 16);
         let in_anchor = u32_at(bytes, 24);
         let loo_anchor = u32_at(bytes, 28);
-        if !lambda.is_finite() || lambda <= 0.0 || n_states == 0 || n_options == 0 {
+        let feat_width = u32_at(bytes, 32) as usize;
+        if !lambda.is_finite()
+            || lambda <= 0.0
+            || n_states == 0
+            || n_options == 0
+            || feat_width == 0
+            || feat_width > 16
+        {
             return Err(Corrupt);
         }
-        let mut off = 32usize;
+        let mut off = HEADER;
         let mut need = |n: usize| -> Result<usize, Corrupt> {
             let at = off;
             off += n;
@@ -89,7 +98,7 @@ impl<'a> BlobView<'a> {
         let offsets_off = need((n_states + 1) * 4)?;
         let argmaxes_off = need(n_states)?;
         let targets_off = need(n_options * 8)?;
-        let raws_off = need(n_options * F)?;
+        let raws_off = need(n_options * feat_width)?;
         // shape sanity: the offsets must cover exactly n_options rows
         if u32_at(bytes, offsets_off) != 0
             || u32_at(bytes, offsets_off + n_states * 4) as usize != n_options
@@ -103,6 +112,7 @@ impl<'a> BlobView<'a> {
             lambda,
             in_anchor,
             loo_anchor,
+            feat_width,
             offsets_off,
             argmaxes_off,
             targets_off,
@@ -124,6 +134,9 @@ impl<'a> BlobView<'a> {
     }
     pub fn loo_anchor(&self) -> u32 {
         self.loo_anchor
+    }
+    pub fn feat_width(&self) -> usize {
+        self.feat_width
     }
 
     pub fn offset(&self, state: usize) -> u32 {
@@ -152,7 +165,7 @@ impl<'a> BlobView<'a> {
     }
     /// The raw ordinals as one contiguous slice (n_options × F).
     pub fn raws(&self) -> &'a [u8] {
-        &self.bytes[self.raws_off..self.raws_off + self.n_options * F]
+        &self.bytes[self.raws_off..self.raws_off + self.n_options * self.feat_width]
     }
 }
 
@@ -169,10 +182,11 @@ pub mod owned {
         pub loo_anchor: u32,
         pub n_options: usize,
         pub n_states: usize,
+        pub feat_width: usize,
         pub offsets: Vec<u32>,
         pub argmaxes: Vec<u8>,
         pub targets: Vec<f64>,
-        /// Per-option decoded class ordinals (5 per option, feature order).
+        /// Per-option decoded class ordinals (F per option, feature order).
         pub raws: Vec<u8>,
     }
 
@@ -192,6 +206,7 @@ pub mod owned {
             loo_anchor: v.loo_anchor(),
             n_options: v.n_options(),
             n_states: v.n_states(),
+            feat_width: v.feat_width(),
             offsets,
             argmaxes,
             targets,
@@ -200,6 +215,7 @@ pub mod owned {
     }
 
     pub fn write(
+        feat_width: u32,
         lambda: f64,
         in_anchor: u32,
         loo_anchor: u32,
@@ -210,7 +226,8 @@ pub mod owned {
     ) -> Vec<u8> {
         let n_options = targets.len();
         let n_states = argmaxes.len();
-        let mut out = Vec::with_capacity(32 + offsets.len() * 4 + n_states + n_options * 12);
+        let mut out =
+            Vec::with_capacity(HEADER + offsets.len() * 4 + n_states + n_options * 12);
         out.extend_from_slice(MAGIC);
         out.extend_from_slice(&VERSION.to_le_bytes());
         out.extend_from_slice(&(n_options as u32).to_le_bytes());
@@ -218,6 +235,7 @@ pub mod owned {
         out.extend_from_slice(&lambda.to_le_bytes());
         out.extend_from_slice(&in_anchor.to_le_bytes());
         out.extend_from_slice(&loo_anchor.to_le_bytes());
+        out.extend_from_slice(&feat_width.to_le_bytes());
         for o in offsets {
             out.extend_from_slice(&o.to_le_bytes());
         }

@@ -9,34 +9,41 @@ static assets.
 - `/bench/` — the per-task arena tables, rendered client-side from
   `data/bench.json`.
 - `/arena/` — the live games. With an engine connected, both lanes play on
-  the visitor's machine. Without one, the modelless Tetris board still plays
-  LIVE in-tab: `assets/arena_head.wasm` is the engine's fitted game head
-  compiled to WebAssembly (`wasm-head/` builds it), parity-proven against
-  the recorded engine play before it moves a piece; the heavier boards
-  replay recorded games from `arena/demo_oracle.json`.
+  the visitor's machine. Without one, the modelless Tetris and Flappy
+  boards still play LIVE in-tab: `assets/arena_head.wasm` is the engine's
+  fitted game heads compiled to WebAssembly (`wasm-head/` builds them),
+  parity-proven against the recorded engine play before they move a piece;
+  the heavier boards replay recorded games from `arena/demo_oracle.json`.
 - `data/bench.json` — GENERATED from riir-reflex's harness output by
   `scripts/publish_bench.py` (sanitizes machine-local meta). Never
   hand-typed; a hand-typed number on the site is a defect by definition.
 
-## Rebuild the wasm head
+## Rebuild the wasm heads
 
 `wasm-head/` is a zero-dependency Rust crate (its own workspace — it must
 never join katgpt-rs's). After any change:
 
 ```sh
 cd wasm-head
-CARGO_TARGET_DIR=/tmp/reflex_site_wasm_head cargo test                # recipe + anchors + blob regen
+CARGO_TARGET_DIR=/tmp/reflex_site_wasm_head cargo test                # recipes + anchors + digests + blob regen
 CARGO_TARGET_DIR=/tmp/reflex_site_wasm_head cargo build --release --target wasm32-unknown-unknown --lib
 npm exec --yes -- wasm-opt -Oz --enable-bulk-memory \
     -o /tmp/arena_head_oz.wasm \
     /tmp/reflex_site_wasm_head/wasm32-unknown-unknown/release/arena_head_wasm.wasm
 cp /tmp/arena_head_oz.wasm ../assets/arena_head.wasm
-cd .. && node scripts/arena_head_parity.mjs                           # 836/836 bit-exact or DO NOT ship
+cd .. && node scripts/arena_head_parity.mjs                           # 836/836 bit-exact + flappy 96/100 or DO NOT ship
 ```
 
-The corpus blob inside the crate is generated from the BLAKE3-pinned oracle
-fixture by `cargo run --bin gen_corpus` (the only step that runs the LOO λ
-selection); `cargo test` proves the committed blob still matches.
+The corpus blobs inside the crate are generated from the digest-pinned
+oracle fixtures by `cargo run --bin gen_corpus` (the only step that runs
+the LOO λ selection); `cargo test` proves the committed blobs still match.
+
+## Regenerate the demo oracle reels
+
+`scripts/gen_demo_oracle.mjs` rebuilds the flappy/lanes reels (and the
+tetris archetype rows) from the katgpt-rs fixtures — MERGE semantics: the
+`tetris_walk`/`tetris_head_walk` engine-played games are owned by
+`scripts/record_demo_walks.mjs` (needs a live engine) and are preserved.
 
 ## Regenerate the tables
 

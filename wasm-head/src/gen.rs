@@ -10,8 +10,12 @@
 //! remains anywhere.
 
 use crate::corpus;
-use crate::fit::{self, HeadFitter, Standardizer, F};
+use crate::fit::{self, HeadFitter, Standardizer};
 use crate::grammar;
+
+// the design widths live at the crate root (the wasm module pins its
+// statics with them); re-exported here for the host-side consumers
+pub use crate::{FLAPPY_D, FLAPPY_F, TETRIS_D, TETRIS_F};
 
 /// The fixture, verbatim from katgpt-rs `tests/fixtures/` via the
 /// riir-reflex serving copy (`assets/game_heads/`). The engine pins this
@@ -20,10 +24,15 @@ pub const FIXTURE: &str = include_str!("../fixtures/tetris_oracle_laya_en_v2.jso
 pub const FIXTURE_BLAKE3: &str =
     "f32c8577bca50726618d2bb4fb27c904148161d650f16a59c01676a97fa540bb";
 
+/// The flappy v3 fixture, verbatim from katgpt-rs `tests/fixtures/` (the
+/// Bench 882 record — the decoded arm's published anchors: λ=1, 96/100
+/// in-corpus + LOO, head digest pinned in `tests/recipe.rs`).
+pub const FLAPPY_FIXTURE: &str = include_str!("../fixtures/flappy_oracle_laya_en_v3.jsonl");
+
 struct RawState {
     argmax: u8,
     /// (fills, p_clean) per option, fixture order.
-    options: Vec<([u8; F], f64)>,
+    options: Vec<([u8; TETRIS_F], f64)>,
     /// The option sentences in the same order (the round-trip corpus).
     sentences: Vec<String>,
 }
@@ -91,6 +100,24 @@ fn find_key(b: &[u8], from: usize, key: &str) -> Option<usize> {
         .map(|p| p + from)
 }
 
+/// The LAST occurrence of `key` strictly before `until` (the flappy v3
+/// fixture's option objects order `features` BEFORE `sentence`, so each
+/// sentence pairs with its nearest preceding features array).
+fn find_last_key(b: &[u8], until: usize, key: &str) -> Option<usize> {
+    let mut best = None;
+    let mut cursor = 0usize;
+    while cursor < until {
+        match find_key(b, cursor, key) {
+            Some(p) if p < until => {
+                best = Some(p);
+                cursor = p + key.len();
+            }
+            _ => break,
+        }
+    }
+    best
+}
+
 /// Value end for a plain JSON number starting at `i`.
 fn number_end(b: &[u8], mut i: usize) -> usize {
     while i < b.len()
@@ -130,7 +157,7 @@ fn parse_state_line(line: &str) -> Option<RawState> {
             return None; // null p_clean — the corpus needs the oracle read
         }
         let p: f64 = line[vs..ve].parse().ok()?;
-        let fills = grammar::decode(sentence)?;
+        let fills = grammar::decode_tetris_spot(sentence)?;
         options.push(([fills[0], fills[1], fills[2], fills[3], fills[4]], p));
         sentences.push(sentence.to_string());
         cursor = after;
@@ -150,7 +177,7 @@ pub struct ParsedCorpus {
     pub offsets: Vec<u32>,
     pub argmaxes: Vec<u8>,
     pub targets: Vec<f64>,
-    pub raws: Vec<[f64; F]>,
+    pub raws: Vec<[f64; TETRIS_F]>,
     /// The decoded sentences in option order (the grammar round-trip test's
     /// corpus — host-side only; the blob carries the fills, not the text).
     pub sentences: Vec<String>,
@@ -202,10 +229,10 @@ pub fn parse_fixture() -> ParsedCorpus {
 pub fn build_corpus_bytes() -> Vec<u8> {
     let c = parse_fixture();
     let n = c.raws.len();
-    let stdizer = Standardizer::fit(&c.raws);
-    let rows: Vec<[f64; fit::D]> = c.raws.iter().map(|r| stdizer.design(r)).collect();
+    let stdizer = Standardizer::<TETRIS_F>::fit(&c.raws);
+    let rows: Vec<[f64; TETRIS_D]> = c.raws.iter().map(|r| stdizer.design(r)).collect();
 
-    let mut fitter = HeadFitter::new();
+    let mut fitter = HeadFitter::<TETRIS_D>::new();
     let (lambda, loo_picks) = fit::loo_select(&mut fitter, &rows, &c.targets, &c.offsets);
     let loo_agree = loo_picks
         .iter()
@@ -227,13 +254,209 @@ pub fn build_corpus_bytes() -> Vec<u8> {
     assert_eq!(in_agree, 44, "in-corpus agreement drifted from Bench 881");
     assert_eq!(loo_agree, 44, "LOO agreement drifted from Bench 881");
 
-    let mut flat = Vec::with_capacity(n * F);
+    let mut flat = Vec::with_capacity(n * TETRIS_F);
     for r in &c.raws {
         for x in r {
             flat.push(*x as u8);
         }
     }
     corpus::owned::write(
+        TETRIS_F as u32,
+        lambda,
+        in_agree,
+        loo_agree,
+        &c.offsets,
+        &c.argmaxes,
+        &c.targets,
+        &flat,
+    )
+}
+
+// ── flappy v3 (Bench 882's decoded arm) ─────────────────────────────
+
+struct FlappyStateRec {
+    argmax: u8,
+    state_sentence: String,
+    /// (reconstructed fills, p_clean, fixture structured features) per
+    /// option, fixture order.
+    options: Vec<([f64; FLAPPY_F], f64, [f64; FLAPPY_F])>,
+    option_sentences: Vec<String>,
+}
+
+fn parse_flappy_state_line(line: &str) -> Option<FlappyStateRec> {
+    let b = line.as_bytes();
+    if find_key(b, 0, "\"options\"").is_none() {
+        return None;
+    }
+    let ai = find_key(b, 0, "\"argmax\"")?;
+    let vs = skip_ws(b, ai + "\"argmax\":".len());
+    let ve = number_end(b, vs);
+    let argmax: u8 = line[vs..ve].parse().ok()?;
+
+    // the state sentence (one per record — the state's own decode)
+    let si = find_key(b, 0, "\"state_sentence\"")?;
+    let (qs, _) = json_string(b, si + "\"state_sentence\":".len())?;
+    let state_sentence = core::str::from_utf8(&qs).ok()?.to_string();
+    let (rel, v, h) = grammar::decode_flappy_state(&state_sentence)?;
+
+    let mut options = Vec::new();
+    let mut option_sentences = Vec::new();
+    let mut cursor = 0usize;
+    loop {
+        let si = match find_key(b, cursor, "\"sentence\"") {
+            Some(p) => p,
+            None => break,
+        };
+        let (qs, after) = json_string(b, si + "\"sentence\":".len())?;
+        let sentence = core::str::from_utf8(&qs).ok()?;
+        let (qs, after) = json_string(b, si + "\"sentence\":".len())?;
+        let sentence = core::str::from_utf8(&qs).ok()?;
+        // this fixture's option objects order features → label → p_clean →
+        // sentence, so BOTH the p_clean and the features pair with their
+        // nearest PRECEDING key (inside this option, after the previous
+        // option's sentence)
+        let pi = find_last_key(b, si, "\"p_clean\"")?;
+        let vs = skip_ws(b, pi + "\"p_clean\":".len());
+        let ve = number_end(b, vs);
+        if ve == vs {
+            return None;
+        }
+        let p: f64 = line[vs..ve].parse().ok()?;
+        // the option's structured features array (the exactness test's
+        // ground truth): the nearest "features":[...] BEFORE this sentence
+        let fi = find_last_key(b, si, "\"features\"")?;
+        let fs = skip_ws(b, fi + "\"features\":".len());
+        if b.get(fs) != Some(&b'[') {
+            return None;
+        }
+        let mut feats = [0.0f64; FLAPPY_F];
+        let mut pos = fs + 1;
+        for slot in feats.iter_mut() {
+            let vs = skip_ws(b, pos);
+            let ve = number_end(b, vs);
+            *slot = line[vs..ve].parse().ok()?;
+            pos = skip_ws(b, ve);
+            if b.get(pos) == Some(&b',') {
+                pos += 1;
+            }
+        }
+        let post = grammar::decode_flappy_option_v3(sentence)?;
+        let rec = grammar::flappy_v3_decoded_features(post, rel, v, h);
+        // the structured units include NEGATIVES (post_v, pre_rel,
+        // edge_margin) — the blob stores raws as i8; saturating u8 casts
+        // would corrupt every negative to 0 (measured, 846/1600 cells)
+        for x in rec.iter() {
+            assert!(x.trunc() == *x && *x >= -128.0 && *x <= 127.0,
+                "flappy raw {x} is not an exact i8");
+        }
+        options.push((rec, p, feats));
+        option_sentences.push(sentence.to_string());
+        cursor = after;
+    }
+    if options.is_empty() {
+        return None;
+    }
+    Some(FlappyStateRec {
+        argmax,
+        state_sentence,
+        options,
+        option_sentences,
+    })
+}
+
+/// Everything the flappy recipe consumes, straight from the v3 fixture.
+pub struct ParsedFlappy {
+    pub offsets: Vec<u32>,
+    pub argmaxes: Vec<u8>,
+    pub targets: Vec<f64>,
+    pub raws: Vec<[f64; FLAPPY_F]>,
+    /// (state, option) sentence pairs in option order — the round-trip +
+    /// parity corpora.
+    pub state_sentences: Vec<String>,
+    pub option_sentences: Vec<String>,
+    /// The fixtures' structured features per option (the reconstruction
+    /// exactness test's ground truth).
+    pub fixture_features: Vec<[f64; FLAPPY_F]>,
+}
+
+/// Parse + decode the flappy v3 fixture. Panics on any drift.
+pub fn parse_flappy() -> ParsedFlappy {
+    let mut offsets = vec![0u32];
+    let mut argmaxes = Vec::new();
+    let mut targets = Vec::new();
+    let mut raws = Vec::new();
+    let mut state_sentences = Vec::new();
+    let mut option_sentences = Vec::new();
+    let mut fixture_features = Vec::new();
+    for (ln, line) in FLAPPY_FIXTURE.lines().enumerate() {
+        match parse_flappy_state_line(line) {
+            Some(s) => {
+                for ((rec, p, feats), sentence) in
+                    s.options.into_iter().zip(s.option_sentences)
+                {
+                    raws.push(rec);
+                    targets.push(p);
+                    state_sentences.push(s.state_sentence.clone());
+                    option_sentences.push(sentence);
+                    fixture_features.push(feats);
+                }
+                offsets.push(raws.len() as u32);
+                argmaxes.push(s.argmax);
+            }
+            None if line.contains("\"checkpoint\"") => continue, // the meta line
+            None => panic!("flappy fixture line {}: unparseable state record", ln + 1),
+        }
+    }
+    assert_eq!(argmaxes.len(), 100, "flappy state count drifted");
+    assert_eq!(targets.len(), 200, "flappy corpus option count drifted");
+    ParsedFlappy {
+        offsets,
+        argmaxes,
+        targets,
+        raws,
+        state_sentences,
+        option_sentences,
+        fixture_features,
+    }
+}
+
+/// The FULL published recipe over the flappy v3 corpus — the Bench 882
+/// decoded arm (structured-units reconstruction). Returns the blob bytes.
+pub fn build_flappy_bytes() -> Vec<u8> {
+    let c = parse_flappy();
+    let stdizer = Standardizer::<FLAPPY_F>::fit(&c.raws);
+    let rows: Vec<[f64; FLAPPY_D]> = c.raws.iter().map(|r| stdizer.design(r)).collect();
+
+    let mut fitter = HeadFitter::<FLAPPY_D>::new();
+    let (lambda, loo_picks) = fit::loo_select(&mut fitter, &rows, &c.targets, &c.offsets);
+    let loo_agree = loo_picks
+        .iter()
+        .zip(c.argmaxes.iter())
+        .filter(|(p, a)| **p == **a as usize)
+        .count() as u32;
+
+    let head = fitter.fit_into(&rows, &c.targets, lambda);
+    let mut in_agree = 0u32;
+    for (s, &arg) in c.argmaxes.iter().enumerate() {
+        let (a, b) = (c.offsets[s] as usize, c.offsets[s + 1] as usize);
+        if fit::pick_range(&head, &rows, (a, b)) == arg as usize {
+            in_agree += 1;
+        }
+    }
+
+    // sanity: never emit a blob that disagrees with the published story
+    assert_eq!(lambda, 1.0, "LOO-selected λ drifted from the Bench 882 fit");
+    assert_eq!(in_agree, 96, "in-corpus agreement drifted from Bench 882");
+    assert_eq!(loo_agree, 96, "LOO agreement drifted from Bench 882");
+
+    let mut flat = Vec::with_capacity(c.raws.len() * FLAPPY_F);
+    for r in &c.raws {
+        for x in r {
+            flat.push(*x as i8 as u8);
+        }
+    }
+    corpus::owned::write(
+        FLAPPY_F as u32,
         lambda,
         in_agree,
         loo_agree,
@@ -253,5 +476,12 @@ mod tests {
         let c = parse_fixture();
         assert_eq!(c.offsets[0], 0);
         assert_eq!(c.offsets[120], 2660);
+    }
+
+    #[test]
+    fn flappy_fixture_shape_is_the_published_one() {
+        let c = parse_flappy();
+        assert_eq!(c.offsets[0], 0);
+        assert_eq!(c.offsets[100], 200);
     }
 }

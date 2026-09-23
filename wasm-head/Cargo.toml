@@ -31,3 +31,4 @@ blake3 = "1"
 opt-level = 3
 strip = true
 panic = "abort"
+

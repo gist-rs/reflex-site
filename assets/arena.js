@@ -8,7 +8,7 @@ import { Rng } from "./games/rng.js";
 import * as T from "./games/tetris.js";
 import * as F from "./games/flappy.js";
 import * as L from "./games/lanes.js";
-import { ensureArenaHead, arenaHeadReady, arenaHeadScore } from "./arena_head.js";
+import { ensureArenaHead, arenaHeadReady, arenaHeadScore, arenaFlappyHeadReady, arenaHeadScoreState } from "./arena_head.js";
 
 const ENGINE = "http://127.0.0.1:7331";
 
@@ -28,7 +28,7 @@ let demo = null; // { tetrisWalk, tetrisHeadWalk, flappyWalk, lanesWalk }
 
 async function loadDemo() {
   if (demo) {
-    await ensureArenaHead(demo.tetrisHeadWalk);
+    await ensureArenaHead(demo.tetrisHeadWalk, demo.flappyWalk);
     return demo;
   }
   const r = await fetch("/arena/demo_oracle.json", { cache: "no-cache" });
@@ -40,10 +40,10 @@ async function loadDemo() {
     flappyWalk: j.flappy_walk || [],
     lanesWalk: j.lanes_walk || [],
   };
-  // Best-effort: boot the browser-live head and probe it against the
-  // recorded game BEFORE any board starts, so a board never switches
+  // Best-effort: boot the browser-live heads and probe them against the
+  // recorded games BEFORE any board starts, so a board never switches
   // posture mid-game. Resolves "ready" or "failed" — never throws.
-  await ensureArenaHead(demo.tetrisHeadWalk);
+  await ensureArenaHead(demo.tetrisHeadWalk, demo.flappyWalk);
   return demo;
 }
 
@@ -145,15 +145,24 @@ async function decide(state, question, laneHeader) {
 // Fire noul questions for every option; resolves [{p, ms, error}] in order.
 // In demo mode there is no engine to ask — the lanes replay recorded data
 // (tetris laya: the recorded game; flappy/lanes modelless: the honest
-// abstain), EXCEPT the tetris modelless lane with the browser-live wasm
-// head, which answers HERE, in-tab: grammar-gated (only the pinned spot
-// question), bit-parity-proven at load, real per-decision timing.
-async function scoreOptions(sentences, question, laneHeader, concurrency, demoPs, demoMs, allowDemoPs) {
+// abstain), EXCEPT the lanes with a browser-live wasm head, which answer
+// HERE, in-tab: grammar-gated (tetris: the pinned spot question over the
+// option sentence; flappy: the pinned question over the (state, option)
+// pair — the joined-state protocol, trivially natural in-tab), proven at
+// load, real per-decision timing.
+async function scoreOptions(sentences, question, laneHeader, concurrency, demoPs, demoMs, allowDemoPs, stateSentence) {
   if (demoMode) {
     if (!laneHeader && question === T.SPOT_QUESTION && arenaHeadReady()) {
       return sentences.map((s) => {
         const t1 = performance.now();
         const p = arenaHeadScore(s);
+        return { p, ms: performance.now() - t1 };
+      });
+    }
+    if (!laneHeader && stateSentence != null && arenaFlappyHeadReady()) {
+      return sentences.map((s) => {
+        const t1 = performance.now();
+        const p = arenaHeadScoreState(stateSentence, s);
         return { p, ms: performance.now() - t1 };
       });
     }
@@ -482,7 +491,12 @@ class FlappyBoard {
   }
 
   async run() {
-    if (demoMode && demo) return this.runDemo();
+    // Demo mode replays the recorded reel — EXCEPT the modelless lane with
+    // a live flappy wasm head, which plays its own game right here (the
+    // reel stays the laya lane's replay and the head-less fallback).
+    if (demoMode && demo && !(this.lane === "modelless" && arenaFlappyHeadReady())) {
+      return this.runDemo();
+    }
     this.running = true;
     const rng = new Rng(this.seed);
     let y = rng.i32Range(3, F.GRID_H - 3);
@@ -519,6 +533,10 @@ class FlappyBoard {
         turn.question,
         this.lane === "laya" ? "laya" : null,
         2,
+        null,
+        null,
+        false,
+        turn.stateSentence,
       );
       if (!this.running) break;
       const ps = results.map((r) => r.p);
@@ -568,6 +586,7 @@ class FlappyBoard {
         rec[1],
         null,
         this.lane === "laya",
+        turn.stateSentence,
       );
       if (!this.running) break;
       const ps = results.map((r) => r.p);

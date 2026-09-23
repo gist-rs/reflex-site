@@ -3,16 +3,17 @@
 // in katgpt-rs tests/fixtures/ (the SAME fixtures the site's golden tests bind
 // and arena_protocol_check.mjs replays against the live lane).
 //
-//  flappy / lanes — [state_sentence, [p_clean...]] rows; the browser demo
-//    looks states up by the sentence its own renderers produce (golden-proven
-//    byte-identical to the fixture sentences).
+//  flappy / lanes — [state_sentence, [p_clean...], structured state] rows;
+//    the browser demo rebuilds each turn's option sentences with its own
+//    renderer (golden-proven byte-identical to the fixture sentences) and
+//    replays the recorded ps.
 //  tetris — archetype rows like the above (partial coverage, kept for
-//    seed-experiments) PLUS "tetris_walk": the recorded PLAY WALK in file
-//    order — [state_sentence, [p...], piece, board rows]. The walk is
-//    chain-verified HERE at generation time: placing the recorded argmax on
-//    record k's board must yield record k+1's board, every arity must match
-//    the site's own enumeration, and the walk must end in top-out. The
-//    browser demo replays exactly this walk.
+//    seed-experiments).
+//
+// MERGE SEMANTICS: `tetris_walk` + `tetris_head_walk` are OWNED by
+// scripts/record_demo_walks.mjs (the T12 engine-played games) — this script
+// PRESERVES them from the existing oracle and never overwrites. Regenerating
+// those requires a running engine (the recorder), not this script.
 //
 // Run from the reflex-site working copy (the default fixture path assumes the
 // katgpt-rs sibling checkout):
@@ -20,11 +21,10 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import assert from "node:assert/strict";
-import { Rng } from "../assets/games/rng.js";
-import * as T from "../assets/games/tetris.js";
 
 const FIXDIR =
   process.argv[2] ?? path.resolve(import.meta.dirname, "../../../tests/fixtures");
+const dest = path.resolve(import.meta.dirname, "../arena/demo_oracle.json");
 
 function argmax(ps) {
   let best = -1;
@@ -36,6 +36,7 @@ function argmax(ps) {
 }
 
 const out = { _meta: { sources: {} } };
+console.log(`destination: ${dest}`);
 
 // ── flappy + lanes: recorded decision reels (sentence, ps, state) ──────────
 // The fixture states come from enumerateStates (deduped + filtered), NOT the
@@ -43,7 +44,7 @@ const out = { _meta: { sources: {} } };
 // the oracle. The demo therefore replays the recorded states directly as a
 // decision reel; the structured state ships so the board can draw it.
 for (const [game, file, stateKey] of [
-  ["flappy", "flappy_oracle_laya_en_v2.jsonl", "state"],
+  ["flappy", "flappy_oracle_laya_en_v3.jsonl", "state"],
   ["lanes", "lanes_oracle_laya_en_v1.jsonl", "state"],
 ]) {
   const lines = readFileSync(path.join(FIXDIR, file), "utf8")
@@ -74,7 +75,7 @@ for (const [game, file, stateKey] of [
   console.log(`${game}_walk: ${rows.length} recorded decision states from ${file}`);
 }
 
-// ── tetris: archetype rows + the chain-verified play walk ──────────────────
+// ── tetris: archetype rows + the PRESERVED recorded walks ─────────────────
 {
   const file = "tetris_oracle_laya_en_v2.jsonl";
   const lines = readFileSync(path.join(FIXDIR, file), "utf8")
@@ -89,9 +90,7 @@ for (const [game, file, stateKey] of [
     checkpoint: meta.checkpoint,
   };
   const recs = lines.slice(1).map((l) => JSON.parse(l));
-
   const rows = [];
-  const playRecs = [];
   for (const rec of recs) {
     const ps = rec.options.map((o) => {
       assert.ok(o.p_clean != null, "tetris: option without p_clean");
@@ -99,78 +98,30 @@ for (const [game, file, stateKey] of [
     });
     assert.ok(rec.state_sentence, "tetris: record without state_sentence");
     rows.push([rec.state_sentence, ps]);
-    if (rec.state_id.startsWith("play")) playRecs.push({ rec, ps });
   }
   out.tetris = rows;
-  console.log(`tetris: ${rows.length} states (${playRecs.length} play-walk records)`);
+  console.log(`tetris: ${rows.length} states (archetype rows)`);
 
-  // Chain-verify the play walk with the site's OWN enumeration: the exact
-  // code the browser demo runs. The recorded play is a MIXED policy (it was
-  // a state-collection capture, not argmax play — 18/35 picks are argmax),
-  // so the replayed decision is the CHAIN pick: whichever option's placement
-  // reproduces the next recorded board (argmax when it agrees, else the
-  // first match). The demo discloses this in the banner.
-  assert.ok(playRecs.length >= 10, `tetris walk too short: ${playRecs.length}`);
-  const walk = [];
-  for (let k = 0; k < playRecs.length; k++) {
-    const { rec, ps } = playRecs[k];
-    const board = T.fromStrings(rec.board);
-    const opts = T.buildTurn(board, rec.piece);
-    assert.equal(
-      opts.length,
-      ps.length,
-      `walk[${k}]: arity ${ps.length} vs site enumeration ${opts.length}`,
-    );
-    // the recorded state sentence must be what the site renders for this board
-    assert.equal(
-      opts[0].stateSentence,
-      rec.state_sentence,
-      `walk[${k}]: state sentence drift`,
-    );
-    // the recorded play must be a legal index, and placing it must yield the
-    // NEXT record's board exactly (the last record ends the window)
-    let chainPick = -1;
-    if (k + 1 < playRecs.length) {
-      const next = playRecs[k + 1].rec.board;
-      const argmaxPick = argmax(ps);
-      for (let i = 0; i < opts.length && chainPick === -1; i++) {
-        const after = board.map((r) => [...r]);
-        T.commitPlacement(after, opts[i]);
-        let same = true;
-        for (let r = 0; r < T.HEIGHT && same; r++) {
-          for (let c = 0; c < T.WIDTH && same; c++) {
-            if (after[r][c] !== (next[r][c] === "#")) same = false;
-          }
-        }
-        if (same) chainPick = i;
-      }
-      assert.ok(chainPick !== -1, `walk[${k}]: no option reproduces the next recorded board`);
-      // deterministic preference: when argmax IS a chain match, take it so
-      // the demo highlights the highest-P spot wherever the records allow
-      if (chainPick !== argmaxPick) {
-        const after = board.map((r) => [...r]);
-        T.commitPlacement(after, opts[argmaxPick]);
-        let same = true;
-        for (let r = 0; r < T.HEIGHT && same; r++) {
-          for (let c = 0; c < T.WIDTH && same; c++) {
-            if (after[r][c] !== (next[r][c] === "#")) same = false;
-          }
-        }
-        if (same) chainPick = argmaxPick;
-      }
+  // the recorded engine-played walks are the RECORDER's output — preserve
+  // them from the existing oracle (a missing oracle means they must be
+  // re-recorded with record_demo_walks.mjs against a live engine)
+  const existing = (() => {
+    try {
+      return JSON.parse(readFileSync(dest, "utf8"));
+    } catch {
+      return null;
     }
-    walk.push([rec.state_sentence, ps, rec.piece, rec.board, chainPick]);
+  })();
+  for (const key of ["tetris_walk", "tetris_head_walk"]) {
+    if (existing?.[key]?.length) {
+      out[key] = existing[key];
+      console.log(`${key}: PRESERVED from the existing oracle (${out[key].length} turns — owned by record_demo_walks.mjs)`);
+    } else {
+      console.warn(`WARNING: ${key} missing — re-record with scripts/record_demo_walks.mjs against a live engine`);
+    }
   }
-  const nArgmax = walk.filter((w) => w[4] === argmax(w[1])).length;
-  out.tetris_walk = walk;
-  console.log(
-    `tetris_walk: ${walk.length} turns chain-verified ` +
-      `(${nArgmax} of ${walk.length - 1} recorded plays are argmax — mixed capture policy, ` +
-      `disclosed in the demo banner; last record ends the window)`,
-  );
 }
 
-const dest = path.resolve(import.meta.dirname, "../arena/demo_oracle.json");
 writeFileSync(dest, JSON.stringify(out));
 const kb = (readFileSync(dest).length / 1024).toFixed(0);
 console.log(`wrote ${dest} (${kb} KB raw)`);
