@@ -18,6 +18,7 @@
 .chip.err { border-color: var(--dark-red); color: var(--ember); }
 .status-text { color: var(--muted); }
 .launch p { font-size: 14.5px; color: var(--muted); margin: 8px 0; }
+.hint { color: var(--warn); font-size: 14px; }
 
 .tabs { display: flex; gap: 8px; margin: 18px 0 14px; }
 .tab {

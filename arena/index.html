@@ -42,8 +42,10 @@
         <p>The page talks to <b>YOUR</b> engine on <b>YOUR</b> machine — nothing is uploaded anywhere.
         Install, then start it with the door open for this page
         (add <code>RIIR_REFLEX_LAYA=1</code> to arm the laya board — first start downloads ~650&nbsp;MB of
-        Apache-2.0 open weights):</p>
+        Apache-2.0 open weights). Your browser may ask permission to connect to
+        local devices — that is this page reaching <code>127.0.0.1</code>; allow it.</p>
         <div class="cmd"><span class="os">run</span><code id="launch-cmd">RIIR_REFLEX_ALLOWED_ORIGIN=https://reflex.gist.rs RIIR_REFLEX_LAYA=1 riir-reflex</code><button data-copy="RIIR_REFLEX_ALLOWED_ORIGIN=https://reflex.gist.rs RIIR_REFLEX_LAYA=1 riir-reflex">copy</button></div>
+        <p class="hint" id="pna-hint" hidden>Chrome blocked the local call — allow the local-network permission for this site (the icon in the address bar), then refresh.</p>
       </div>
     </section>
 

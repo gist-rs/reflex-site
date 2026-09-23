@@ -60,6 +60,19 @@ function renderStatus(text) {
     ? (layaArmed ? "local engine detected — both boards armed" : "local engine detected — modelless board armed (laya off)")
     : "no local engine — start it, then refresh";
   $("launch-box").hidden = up;
+  // A public page reaching 127.0.0.1 may be blocked by the browser's
+  // local-network permission before CORS is even consulted — surface the
+  // allow path when the engine is actually up but the page cannot see it.
+  if (!up && window.isSecureContext) {
+    try {
+      await fetch(`${ENGINE}/healthz`, { mode: "no-cors", cache: "no-store" });
+      // A no-cors fetch that doesn't throw means the engine is reachable —
+      // the block was the local-network permission, not a missing engine.
+      $("pna-hint").hidden = false;
+    } catch (e) {
+      /* genuinely unreachable — keep the hint hidden */
+    }
+  }
 }
 
 async function decide(state, question, laneHeader) {
