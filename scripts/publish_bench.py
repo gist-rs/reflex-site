@@ -21,6 +21,27 @@ from pathlib import Path
 # meta keys that are machine-local or noise for the public page.
 DROP_META_KEYS = ("datasets_dir",)
 
+# Display-only lane spellings. The canonical results.json keeps the machine
+# fields ("laya-riir" / "laya-python" / "modelless") — the rename happens
+# HERE, the one place every published byte passes through, so a re-publish
+# can never drift from the page.
+LANE_DISPLAY = {
+    "laya-riir": "laya (rust)",
+    "laya-python": "laya (python)",
+    "modelless": "modelless",
+}
+
+
+def rename_lanes(d):
+    for s in d.get("suites", []):
+        lanes = ([s["modelless"]] if s.get("modelless") else []) + list(
+            (s.get("laya") or {}).values()
+        )
+        for l in lanes:
+            if l.get("lane") == "modelless":
+                l["model"] = "none"
+            l["lane"] = LANE_DISPLAY.get(l.get("lane"), l.get("lane"))
+
 
 def main() -> int:
     if len(sys.argv) != 3:
@@ -34,6 +55,7 @@ def main() -> int:
     meta = d.get("meta", {})
     for k in DROP_META_KEYS:
         meta.pop(k, None)
+    rename_lanes(d)
     # The sanitized file is the ONLY thing the site serves.
     out = site / "data" / "bench.json"
     out.parent.mkdir(parents=True, exist_ok=True)
