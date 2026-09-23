@@ -52,7 +52,7 @@
 .ctl.primary { background: var(--rust); border-color: var(--rust); color: #fff; font-weight: 600; }
 .ctl.primary:disabled { opacity: 0.5; cursor: wait; }
 
-.duo { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
+.boards { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
 .boardcard {
   background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
   padding: 14px;

@@ -73,6 +73,24 @@ try {
     console.log(`[arena-smoke] laya board: ${(await page.textContent("#tr-laya-a")).trim()}`);
   }
 
+  // The raw baseline board plays the honest abstain floor when the engine
+  // advertises the lane (v0.2.3+); otherwise it states why it is not playing.
+  const rawChip = (await page.textContent("#chip-raw")).trim();
+  const rawArmed = /ready/.test(rawChip);
+  console.log(`[arena-smoke] raw chip: ${rawChip}${rawArmed ? "" : " (conditional raw steps skipped)"}`);
+  if (rawArmed) {
+    await page.waitForFunction(
+      () => /abstain ×\d+|P\(clean\)/.test(document.getElementById("tr-raw-a").textContent),
+      { timeout: 30000 },
+    );
+    const rawSrc = (await page.textContent("#tr-raw-src")).trim();
+    if (!/heads skipped/.test(rawSrc)) fail(`raw board not labelled: ${rawSrc}`);
+    console.log(`[arena-smoke] raw board: ${(await page.textContent("#tr-raw-a")).trim()}`);
+  } else {
+    const rawA = (await page.textContent("#tr-raw-a")).trim();
+    if (!/lane unavailable/.test(rawA)) fail(`raw board must state why it is not playing: ${rawA}`);
+  }
+
   await page.screenshot({ path: path.join(outDir, "arena_tetris.png") });
 
   // ── Flappy: modelless decisions flow ──

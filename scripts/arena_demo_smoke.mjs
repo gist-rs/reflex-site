@@ -83,6 +83,14 @@ try {
     `[demo-smoke] modelless timing (${isWasm ? "LIVE wasm" : "recorded fallback"}): ${mlTiming.trim()}`,
   );
 
+  // The raw baseline board is a live-engine lane: in the demo it stays
+  // EMPTY and labelled — no recorded substitute exists, never invented data.
+  const rawDemoA = (await page.textContent("#tr-raw-a")).trim();
+  if (!/lane unavailable/.test(rawDemoA)) fail(`raw demo board must stay labelled-empty: ${rawDemoA}`);
+  const rawDemoStats = await page.textContent("#tst-raw");
+  if (/pieces [1-9]/.test(rawDemoStats)) fail(`raw demo board must not play: ${rawDemoStats}`);
+  console.log(`[demo-smoke] raw board (labelled empty): ${rawDemoA}`);
+
   await page.screenshot({ path: path.join(outDir, "arena_demo_tetris.png") });
 
   // ── flappy reel ──

@@ -1,5 +1,5 @@
-/* Reflex arena — the live games. Two lanes (laya | modelless) play side by
-   side from the same seeded stream; every decision is a real /decide call to
+/* Reflex arena — the live games. Three lanes (laya | modelless | raw) play
+   side by side from the same seeded stream; every decision is a real /decide call to
    the visitor's own engine. Game logic lives in ./games/* — the exact ports
    of the katgpt-rs Plan 607 sims + pinned sentence grammars, golden-checked
    against the committed oracle fixtures. Nothing is scripted. */
@@ -14,7 +14,7 @@ const ENGINE = "http://127.0.0.1:7331";
 
 // ── engine client ────────────────────────────────────────────────────────────
 
-const lanes = { modelless: "unknown", laya: "unknown" };
+const lanes = { modelless: "unknown", laya: "unknown", raw: "unknown" };
 
 // ── no-engine demo mode ─────────────────────────────────────────────────────
 // Without a local engine the boards replay the recorded Plan 607 oracle (the
@@ -49,7 +49,7 @@ async function loadDemo() {
 
 function demoStatusText() {
   if (arenaHeadReady()) {
-    return "no local engine — the modelless board PLAYS LIVE in-tab (fitted head · WebAssembly · zero engine); the laya board replays a recorded game";
+    return "no local engine — the modelless board PLAYS LIVE in-tab (fitted head · WebAssembly · zero engine); the laya board replays a recorded game; the raw baseline is a live-engine lane (v0.2.3+)";
   }
   return "no local engine — RECORDED DEMO playing (Plan 607 oracle) · start the engine, then press Start to go live";
 }
@@ -66,13 +66,19 @@ async function probe() {
     if (body && body.lanes) {
       lanes.modelless = body.lanes.modelless === "ready" ? "ready" : "unknown";
       lanes.laya = body.lanes.laya || "off";
+      // The raw lane advertises itself (engine v0.2.3+, the X-Reflex-Lane:
+      // raw knob); an older engine's lane map simply lacks the key — never
+      // guessed at, the board states the gap honestly.
+      lanes.raw = body.lanes.raw === "ready" ? "ready" : "absent";
     } else {
       lanes.modelless = "ready";
       lanes.laya = "off";
+      lanes.raw = "absent";
     }
   } catch (e) {
     lanes.modelless = "down";
     lanes.laya = "down";
+    lanes.raw = "down";
   }
   renderStatus(text);
 }
@@ -87,18 +93,22 @@ async function renderStatus(text) {
     else if (state === "loading") [cls, label] = ["warn", "loading…"];
     else if (state === "failed") [cls, label] = ["err", "failed"];
     else if (state === "off") [cls, label] = ["warn", "off (RIIR_REFLEX_LAYA=1)"];
+    else if (state === "absent") [cls, label] = ["warn", "needs engine v0.2.3+"];
     else if (state === "unknown") [cls, label] = ["ok", "ready"];
     el.classList.add(cls);
     el.innerHTML = el.innerHTML.replace(/—.*$/, `— ${label}`);
   };
   chip("chip-modelless", lanes.modelless);
   chip("chip-laya", lanes.laya);
+  chip("chip-raw", lanes.raw);
   const up = lanes.modelless !== "down";
   const layaArmed = lanes.laya === "ready" || lanes.laya === "loading";
+  const rawArmed = lanes.raw === "ready";
+  const armed = ["modelless", layaArmed && "laya", rawArmed && "raw"].filter(Boolean);
   text.textContent = demoMode && !up
     ? demoStatusText()
     : up
-      ? (layaArmed ? "local engine detected — both boards armed" : "local engine detected — modelless board armed (laya off)")
+      ? `local engine detected — ${armed.join(" + ")} armed`
       : "no local engine — start it, then refresh";
   $("launch-box").hidden = up;
   const banner = $("demo-banner");
@@ -203,6 +213,11 @@ function argmax(ps) {
   return best;
 }
 
+// The per-lane X-Reflex-Lane value: laya and raw are explicit engine lanes
+// (raw skips the fitted heads — the baseline board); the modelless lane is
+// the default head-first posture and sends no header.
+const LANE_HEADER = { laya: "laya", raw: "raw", modelless: null };
+
 // ── shared helpers ─────────────────────────────────────────────────────────
 
 const $ = (id) => document.getElementById(id);
@@ -242,6 +257,10 @@ function markSeedMode(isDemo) {
 }
 
 const FALLBACK_NOTE = " · abstain → random fallback";
+// The raw board's demo posture: it is a live-engine lane with no recorded
+// substitute — a replay would be invented data, so the board stays empty,
+// labelled.
+const RAW_DEMO_NOTE = "raw baseline is a live-engine lane — start the engine to play it";
 
 // ── Tetris board ───────────────────────────────────────────────────────────
 
@@ -276,6 +295,7 @@ class TetrisBoard {
   }
 
   srcLabel() {
+    if (this.lane === "raw") return "raw · baseline (heads skipped)";
     if (this.lane === "modelless" && demoMode && arenaHeadReady()) {
       return "modelless · wasm head (in-tab)";
     }
@@ -300,11 +320,14 @@ class TetrisBoard {
     // Boards without a head walk fall back to the old labelled abstain
     // behavior.
     const liveHead = demoMode && this.lane === "modelless" && arenaHeadReady();
-    const headWalk = this.lane === "modelless" && demo && demo.tetrisHeadWalk.length > 0;
-    const walkArr =
-      this.lane === "laya" || !headWalk
-        ? demo.tetrisWalk
-        : demo.tetrisHeadWalk;
+    // The walk locals are DEMO-ONLY — in live mode `demo` is null and the
+    // unguarded `demo.tetrisWalk` below was a live-path TypeError (the T12
+    // demo-walk refactor broke the live boards; the live smoke had not run
+    // since). Computed only when a demo is actually loaded.
+    const headWalk = demoMode && this.lane === "modelless" && demo && demo.tetrisHeadWalk.length > 0;
+    const walkArr = demo
+      ? (this.lane === "laya" || !headWalk ? demo.tetrisWalk : demo.tetrisHeadWalk)
+      : null;
     let demoRec = null;
     if (demoMode && demo && !liveHead) {
       demoRec = this.demoTurn < walkArr.length ? walkArr[this.demoTurn] : null;
@@ -349,7 +372,7 @@ class TetrisBoard {
     const results = await scoreOptions(
       sentences,
       T.SPOT_QUESTION,
-      this.lane === "laya" ? "laya" : null,
+      LANE_HEADER[this.lane],
       this.lane === "laya" ? 6 : 16,
       demoRec ? demoRec[1] : null,
       demoRec ? demoRec[5] : null,
@@ -536,7 +559,7 @@ class FlappyBoard {
       const results = await scoreOptions(
         turn.options.map((o) => o.sentence),
         turn.question,
-        this.lane === "laya" ? "laya" : null,
+        LANE_HEADER[this.lane],
         2,
         null,
         null,
@@ -586,7 +609,7 @@ class FlappyBoard {
       const results = await scoreOptions(
         turn.options.map((o) => o.sentence),
         turn.question,
-        this.lane === "laya" ? "laya" : null,
+        LANE_HEADER[this.lane],
         2,
         rec[1],
         null,
@@ -699,7 +722,7 @@ class LanesBoard {
       const results = await scoreOptions(
         turn.options.map((o) => o.sentence),
         turn.question,
-        this.lane === "laya" ? "laya" : null,
+        LANE_HEADER[this.lane],
         3,
       );
       if (!this.running) break;
@@ -739,7 +762,7 @@ class LanesBoard {
       const results = await scoreOptions(
         turn.options.map((o) => o.sentence),
         turn.question,
-        this.lane === "laya" ? "laya" : null,
+        LANE_HEADER[this.lane],
         3,
         rec[1],
         null,
@@ -804,6 +827,9 @@ const tetris = {
   modelless: new TetrisBoard("modelless", {
     canvas: "tb-modelless", score: "ts-modelless", lines: "tl-modelless", stats: "tst-modelless", readout: "tr-modelless",
   }),
+  raw: new TetrisBoard("raw", {
+    canvas: "tb-raw", score: "ts-raw", lines: "tl-raw", stats: "tst-raw", readout: "tr-raw",
+  }),
 };
 const flappy = {
   laya: new FlappyBoard("laya", {
@@ -812,6 +838,9 @@ const flappy = {
   modelless: new FlappyBoard("modelless", {
     canvas: "fb-modelless", pipes: "fp-modelless", crashes: "fx-modelless", readout: "fr-modelless",
   }),
+  raw: new FlappyBoard("raw", {
+    canvas: "fb-raw", pipes: "fp-raw", crashes: "fx-raw", readout: "fr-raw",
+  }),
 };
 const lanesGame = {
   laya: new LanesBoard("laya", {
@@ -819,6 +848,9 @@ const lanesGame = {
   }),
   modelless: new LanesBoard("modelless", {
     lanesEl: "lb-modelless", steps: "lp-modelless", crashes: "lx-modelless", readout: "lr-modelless",
+  }),
+  raw: new LanesBoard("raw", {
+    lanesEl: "lb-raw", steps: "lp-raw", crashes: "lx-raw", readout: "lr-raw",
   }),
 };
 
@@ -830,6 +862,7 @@ function stopAll() {
 
 function laneReady(lane) {
   if (lane === "modelless") return lanes.modelless === "ready" || lanes.modelless === "unknown";
+  if (lane === "raw") return lanes.raw === "ready";
   return lanes.laya === "ready";
 }
 
@@ -842,6 +875,10 @@ const LANE_HINT = {
         ? " — weights still loading, retry in a minute"
         : ""),
   modelless: () => "engine unreachable — start it with the door open for this origin",
+  raw: (state) =>
+    state === "down"
+      ? "engine unreachable — start it with the door open for this origin"
+      : "raw lane needs engine v0.2.3+ (the X-Reflex-Lane: raw knob)",
 };
 
 function bindRun(gameName, boards, runArg) {
@@ -874,7 +911,11 @@ function bindRun(gameName, boards, runArg) {
     $("demo-banner").hidden = !isDemo;
     const jobs = [];
     for (const [lane, b] of Object.entries(boards)) {
-      if (isDemo || laneReady(lane)) {
+      if (isDemo && lane === "raw") {
+        setReadout(b.ui.readout, {
+          state: RAW_DEMO_NOTE, a: "lane unavailable", act: "—",
+        });
+      } else if (isDemo || laneReady(lane)) {
         jobs.push(b.run(typeof runArg === "function" ? runArg() : undefined));
       } else {
         setReadout(b.ui.readout, {
@@ -924,7 +965,7 @@ document.querySelectorAll("button[data-copy]").forEach((b) => {
 });
 
 // First paint: probe the engine; with none running, auto-play the recorded
-// demo so the arena shows the two lanes immediately — and LOOP it (the games
+// demo so the arena shows the lanes immediately — and LOOP it (the games
 // end; a frozen dead board is not a demo). Any Start/Stop press ends the loop
 // via demoSession; Start then re-probes and goes live the moment the engine
 // is up.
@@ -947,8 +988,13 @@ let demoSession = 0;
   while (session === demoSession && demoMode) {
     const seed = Number($("tetris-seed").value) || 607;
     for (const b of Object.values(tetris)) b.reset(seed);
+    setReadout(tetris.raw.ui.readout, {
+      state: RAW_DEMO_NOTE, a: "lane unavailable", act: "—",
+    });
     btn.textContent = "Stop";
-    await Promise.all(Object.values(tetris).map((b) => b.run(delay())));
+    await Promise.all(
+      Object.values(tetris).filter((b) => b.lane !== "raw").map((b) => b.run(delay())),
+    );
     if (session !== demoSession || !demoMode) break;
     $("status-text").textContent = `${demoStatusText()} · replaying in 3 s`;
     await sleep(3000);
