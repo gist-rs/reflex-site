@@ -1,0 +1,33 @@
+# Own workspace root — this crate lives inside the reflex-site repo and
+# must never join the katgpt-rs workspace that happens to sit above it.
+[workspace]
+
+[package]
+name = "arena-head-wasm"
+version = "0.1.0"
+edition = "2021"
+publish = false
+description = "The arena's browser-live Tetris head — the engine's fitted game-head recipe as a zero-dep wasm module"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[[bin]]
+name = "gen_corpus"
+path = "src/bin/gen_corpus.rs"
+
+# Zero dependencies, by design: the whole pipeline (grammar decode,
+# standardizer, Cholesky ridge, LOO) is a faithful core-only port of the
+# katgpt-rs/riir-reflex recipe, so the artifact builds with a bare
+# `cargo build --target wasm32-unknown-unknown --release` and nothing about
+# the fit can drift via a dependency bump.
+
+[dev-dependencies]
+# host-side test only — verifies the fixture copy against the cross-repo
+# BLAKE3 pin; the wasm artifact itself carries zero dependencies
+blake3 = "1"
+
+[profile.release]
+opt-level = 3
+strip = true
+panic = "abort"

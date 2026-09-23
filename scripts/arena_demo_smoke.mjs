@@ -1,8 +1,9 @@
 // Arena DEMO smoke: the page boots with NO engine reachable (127.0.0.1:7331
 // is route-blocked, so this is deterministic even on a box where a real
-// engine is up) and the recorded demo must auto-play: banner visible, both
-// tetris boards advancing (laya = recorded plays, modelless = labelled
-// abstain fallbacks), then the flappy/lanes reels via their Start buttons.
+// engine is up) and the demo must auto-play: banner visible, both tetris
+// boards advancing — the modelless board LIVE on the wasm head when it
+// loads (the normal case; its probe must pass), else the recorded replay —
+// then the flappy/lanes reels via their Start buttons.
 // Headless Chromium via the sibling's playwright install.
 // Run: node scripts/arena_demo_smoke.mjs [site_dir]
 import { createRequire } from "node:module";
@@ -48,7 +49,7 @@ try {
 
   // ── the demo must announce itself and auto-play tetris ──
   await page.waitForFunction(
-    () => /RECORDED DEMO/.test(document.getElementById("status-text").textContent),
+    () => /RECORDED DEMO|PLAYS LIVE/.test(document.getElementById("status-text").textContent),
     { timeout: 10000 },
   );
   const bannerHidden = await page.$eval("#demo-banner", (el) => el.hidden);
@@ -63,7 +64,8 @@ try {
   console.log(`[demo-smoke] laya answer: ${(await page.textContent("#tr-laya-a")).trim()}`);
   if (!/pieces [1-9]/.test(layaStats)) fail(`laya demo board not advancing: ${layaStats}`);
 
-  // modelless board replays the fitted head's recorded play (ps + ms shown)
+  // modelless board: LIVE on the wasm head (the wasm · timing line) — or,
+  // if the artifact failed to load, the recorded replay (recorded · p50 …).
   await page.waitForFunction(
     () => /P\(clean\) [\d.]+ — spot \d+/.test(document.getElementById("tr-modelless-a").textContent),
     { timeout: 15000 },
@@ -72,8 +74,14 @@ try {
   const mlStats = await page.textContent("#tst-modelless");
   if (!/pieces [1-9]/.test(mlStats)) fail(`modelless demo board not advancing: ${mlStats}`);
   const mlTiming = await page.textContent("#tr-modelless-t");
-  if (!/recorded · p50 \d+(\.\d+)? ms/.test(mlTiming)) fail(`head board timing missing: ${mlTiming}`);
-  console.log(`[demo-smoke] modelless timing: ${mlTiming.trim()}`);
+  const isWasm = /wasm · \d+ spots in [\d.]+ ms/.test(mlTiming);
+  const isRecorded = /recorded · p50 \d+(\.\d+)? ms/.test(mlTiming);
+  if (!isWasm && !isRecorded) fail(`head board timing missing: ${mlTiming}`);
+  const mlSrc = await page.textContent("#tr-modelless-src");
+  if (isWasm && !/wasm head/.test(mlSrc)) fail(`live head not labelled in SOURCE: ${mlSrc}`);
+  console.log(
+    `[demo-smoke] modelless timing (${isWasm ? "LIVE wasm" : "recorded fallback"}): ${mlTiming.trim()}`,
+  );
 
   await page.screenshot({ path: path.join(outDir, "arena_demo_tetris.png") });
 

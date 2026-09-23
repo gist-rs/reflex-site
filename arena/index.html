@@ -48,13 +48,14 @@
         <p class="hint" id="pna-hint" hidden>Chrome blocked the local call — allow the local-network permission for this site (the icon in the address bar), then refresh.</p>
       </div>
       <div class="launch demo" id="demo-banner" hidden>
-        <p><b>Recorded demo — no local engine.</b> The boards below replay committed
-        recorded games (the same one-question-per-option wire the <a href="/bench/">benchmark
-        tables</a> measure): the <b>laya</b> board replays a full-argmax model-based game;
-        the <b>modelless</b> board replays the <b>fitted head playing</b> — the same fit
-        the v0.2.2+ engine serves live, at the recorded per-decision latency shown on
-        each board. Both replays loop. Start the engine, then press Start for the live
-        lanes.</p>
+        <p><b>No local engine — the modelless board plays LIVE in your tab.</b> The
+        fitted head ships compiled to WebAssembly on this page: it fits the published
+        head in-tab from the same pinned oracle corpus and answers every spot question
+        itself (proven bit-exact against the recorded engine play before it plays —
+        hundreds of decisions, zero mismatches). No engine, no server, no upload. The
+        <b>laya</b> board — too heavy for a browser at ~650&nbsp;MB of weights — replays
+        a recorded full-argmax game. Both loop. Start the engine, then press Start for
+        the live lanes.</p>
       </div>
     </section>
 
@@ -87,7 +88,7 @@
           </div>
         </div>
         <div class="boardcard" id="tc-modelless">
-          <div class="boardhead"><b>modelless lane · reflex core</b><span class="lane-note">corpus-fitted head plays Tetris (v0.2.2+) · flappy/lanes abstain → random</span><span class="scorebox"><span>SCORE</span><b id="ts-modelless">0000</b><span>LINES</span><b id="tl-modelless">000</b></span></div>
+          <div class="boardhead"><b>modelless lane · reflex core</b><span class="lane-note">corpus-fitted head plays Tetris — LIVE in-tab via WebAssembly with zero engine, or through your v0.2.2+ engine · flappy/lanes abstain → random</span><span class="scorebox"><span>SCORE</span><b id="ts-modelless">0000</b><span>LINES</span><b id="tl-modelless">000</b></span></div>
           <canvas id="tb-modelless" width="200" height="400"></canvas>
           <div class="stats" id="tst-modelless">pieces 0 · decisions 0 · p50 — ms · errors 0</div>
           <div class="readout">
@@ -114,11 +115,18 @@
         microsecond linear score over decoded board features — the published fit matches
         the model-based pick on 44/120 spot decisions (≈3.4× the 10.8% random floor).
         Engine <b>v0.2.2</b> serves exactly this fit: the out-of-the-box modelless board
-        now plays Tetris from the head (any grammar-valid sentence decodes — live boards
+        plays Tetris from the head (any grammar-valid sentence decodes — live boards
         included), and only grammar-invalid inputs fall back to a labelled random spot.
         Flappy and three-lanes still abstain honestly (their heads need the site's v3
         flappy render and cross-lane context — unblock paths recorded in the engine
         repo, issue 011).</p>
+        <p><b>And the head runs where the page runs.</b> With no engine connected, the
+        modelless board still plays — live — on a WebAssembly build of the same fit:
+        the page boots the head from the same pinned oracle corpus, re-verifies the
+        published anchors (λ=1, 44/120), then replays the recorded engine game through
+        it and requires bit-exact agreement on every decision before it plays. That is
+        the latent-first endgame: a game-playing decision head small enough to ship
+        inside a web page, ~1&nbsp;µs per decision, zero engine.</p>
       </details>
     </section>
 
@@ -199,8 +207,10 @@
     <section class="footnote">
       <p>With your engine connected, every number on this page is produced live by the two
       lanes on <b>your</b> machine — nothing is scripted or pre-recorded. Without an engine,
-      Start plays the <b>recorded demo</b>: committed games recorded through this same
-      wire, labelled as such, never mixed with live results. The laya lane runs our Rust
+      the modelless Tetris board plays live in-tab on the compiled WebAssembly head
+      (parity-proven against the recorded engine play before it moves a single piece),
+      while the other boards replay <b>recorded games</b> — committed runs through this
+      same wire, labelled as such, never mixed with live results. The laya lane runs our Rust
       port of the
       open-weights model — G5-parity-verified against its reference checkpoints (top-1
       agreement 1.000, probability drift ≤ 3e-6); there is no Python anywhere in the

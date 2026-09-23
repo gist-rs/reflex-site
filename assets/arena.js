@@ -8,6 +8,7 @@ import { Rng } from "./games/rng.js";
 import * as T from "./games/tetris.js";
 import * as F from "./games/flappy.js";
 import * as L from "./games/lanes.js";
+import { ensureArenaHead, arenaHeadReady, arenaHeadScore } from "./arena_head.js";
 
 const ENGINE = "http://127.0.0.1:7331";
 
@@ -26,7 +27,10 @@ let demoMode = false;
 let demo = null; // { tetrisWalk, tetrisHeadWalk, flappyWalk, lanesWalk }
 
 async function loadDemo() {
-  if (demo) return demo;
+  if (demo) {
+    await ensureArenaHead(demo.tetrisHeadWalk);
+    return demo;
+  }
   const r = await fetch("/arena/demo_oracle.json", { cache: "no-cache" });
   if (!r.ok) throw new Error(`demo oracle HTTP ${r.status}`);
   const j = await r.json();
@@ -36,10 +40,17 @@ async function loadDemo() {
     flappyWalk: j.flappy_walk || [],
     lanesWalk: j.lanes_walk || [],
   };
+  // Best-effort: boot the browser-live head and probe it against the
+  // recorded game BEFORE any board starts, so a board never switches
+  // posture mid-game. Resolves "ready" or "failed" — never throws.
+  await ensureArenaHead(demo.tetrisHeadWalk);
   return demo;
 }
 
 function demoStatusText() {
+  if (arenaHeadReady()) {
+    return "no local engine — the modelless board PLAYS LIVE in-tab (fitted head · WebAssembly · zero engine); the laya board replays a recorded game";
+  }
   return "no local engine — RECORDED DEMO playing (Plan 607 oracle) · start the engine, then press Start to go live";
 }
 
@@ -132,12 +143,20 @@ async function decide(state, question, laneHeader) {
 }
 
 // Fire noul questions for every option; resolves [{p, ms, error}] in order.
-// In demo mode there is no engine to ask: a board replays recorded ps only
-// when allowDemoPs — the tetris boards replay their OWN recorded games (the
-// laya walk, the fitted-head walk, with the recorded per-decision ms); the
-// flappy/lanes modelless boards have no head yet and keep the honest abstain.
+// In demo mode there is no engine to ask — the lanes replay recorded data
+// (tetris laya: the recorded game; flappy/lanes modelless: the honest
+// abstain), EXCEPT the tetris modelless lane with the browser-live wasm
+// head, which answers HERE, in-tab: grammar-gated (only the pinned spot
+// question), bit-parity-proven at load, real per-decision timing.
 async function scoreOptions(sentences, question, laneHeader, concurrency, demoPs, demoMs, allowDemoPs) {
   if (demoMode) {
+    if (!laneHeader && question === T.SPOT_QUESTION && arenaHeadReady()) {
+      return sentences.map((s) => {
+        const t1 = performance.now();
+        const p = arenaHeadScore(s);
+        return { p, ms: performance.now() - t1 };
+      });
+    }
     const rec = allowDemoPs && demoPs && demoPs.length === sentences.length ? demoPs : null;
     const recMs = allowDemoPs && demoMs && demoMs.length === sentences.length ? demoMs : null;
     return sentences.map((_, i) => ({ p: rec ? rec[i] : null, ms: recMs ? recMs[i] : null }));
@@ -176,7 +195,7 @@ const $ = (id) => document.getElementById(id);
 const pad = (n, w) => String(n).padStart(w, "0");
 const p50 = (xs) => {
   const v = xs.filter((x) => x != null).sort((a, b) => a - b);
-  return v.length ? Math.round(v[Math.floor(v.length / 2)]) : null;
+  return v.length ? Math.round(v[Math.floor(v.length / 2)] * 10) / 10 : null;
 };
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -192,16 +211,19 @@ function setReadout(prefix, fields) {
 // stream is fixed bytes and the seed only shuffles the modelless lane's random
 // abstain fallback. Relabel so a recording never looks seed-driven.
 function markSeedMode(isDemo) {
+  const liveHead = arenaHeadReady();
   for (const g of ["tetris", "flappy", "lanes"]) {
     const input = $(`${g}-seed`);
     const label = input?.closest("label");
     if (!label) continue;
     label.classList.toggle("demo-seed", isDemo);
     label.title = isDemo
-      ? "Recorded demo — the board stream is fixed; this seed only shuffles the random abstain fallback"
+      ? liveHead
+        ? "Seeds the modelless board's live in-tab game (wasm head); the laya board replays a fixed recorded game"
+        : "Recorded demo — the board stream is fixed; this seed only shuffles the random abstain fallback"
       : "Seeds the piece stream — the same seed plays the same game on both lanes";
     const word = label.querySelector(".seed-word");
-    if (word) word.textContent = isDemo ? "fallback seed" : "seed";
+    if (word) word.textContent = isDemo && !liveHead ? "fallback seed" : "seed";
   }
 }
 
@@ -240,6 +262,9 @@ class TetrisBoard {
   }
 
   srcLabel() {
+    if (this.lane === "modelless" && demoMode && arenaHeadReady()) {
+      return "modelless · wasm head (in-tab)";
+    }
     return demoMode ? `${this.lane} · demo` : this.lane;
   }
 
@@ -255,16 +280,19 @@ class TetrisBoard {
   async step() {
     // Demo: each lane replays ITS OWN recorded game — the laya board the
     // model-based walk (full-argmax play), the modelless board the fitted
-    // head's walk (the same fit the v0.2.2+ engine serves live, with the
-    // recorded per-decision ms). Boards without a head walk fall back to the
-    // old labelled abstain behavior.
+    // head's walk (with the recorded per-decision ms) — UNLESS the
+    // browser-live wasm head is up, in which case the modelless board
+    // PLAYS its own game right here: same grammar, same fit, zero engine.
+    // Boards without a head walk fall back to the old labelled abstain
+    // behavior.
+    const liveHead = demoMode && this.lane === "modelless" && arenaHeadReady();
     const headWalk = this.lane === "modelless" && demo && demo.tetrisHeadWalk.length > 0;
     const walkArr =
       this.lane === "laya" || !headWalk
         ? demo.tetrisWalk
         : demo.tetrisHeadWalk;
     let demoRec = null;
-    if (demoMode && demo) {
+    if (demoMode && demo && !liveHead) {
       demoRec = this.demoTurn < walkArr.length ? walkArr[this.demoTurn] : null;
       this.demoTurn += 1;
       if (!demoRec) {
@@ -294,7 +322,7 @@ class TetrisBoard {
       q: T.SPOT_QUESTION,
       a: `reading ${this.opts.length} spots…`,
       act: "…",
-      t: demoMode ? "recorded" : "…",
+      t: demoMode && !liveHead ? "recorded" : "…",
     });
     this.chosen = -1;
     this.ps = new Array(this.opts.length).fill(null);
@@ -313,7 +341,8 @@ class TetrisBoard {
       demoRec ? demoRec[5] : null,
       this.lane === "laya" || headWalk,
     );
-    const wall = Math.round(performance.now() - t0);
+    const wallMs = performance.now() - t0;
+    const wall = Math.round(wallMs);
     for (let i = 0; i < results.length; i++) {
       const r = results[i];
       if (r.error) this.errors += 1;
@@ -364,9 +393,11 @@ class TetrisBoard {
       act: `${piece} → rot ${opt.rot}, col ${opt.col}${
         forced != null && forced >= 0 ? " · recorded" : pick === -1 ? FALLBACK_NOTE : ""
       }`,
-      t: demoMode
-        ? `recorded · p50 ${p50(this.latencies) ?? "—"} ms · ${this.opts.length} spots`
-        : `p50 ${p50(this.latencies) ?? "—"} ms · ${this.opts.length} spots in ${wall} ms`,
+      t: liveHead
+        ? `wasm · ${this.opts.length} spots in ${wallMs.toFixed(2)} ms (~${Math.max(1, Math.round((wallMs / this.opts.length) * 1000))} µs/spot)`
+        : demoMode
+          ? `recorded · p50 ${p50(this.latencies) ?? "—"} ms · ${this.opts.length} spots`
+          : `p50 ${p50(this.latencies) ?? "—"} ms · ${this.opts.length} spots in ${wall} ms`,
     });
     this.render();
 
