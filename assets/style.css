@@ -97,12 +97,22 @@ section p.sub { color: var(--muted); margin: 0 0 22px; max-width: 760px; }
   background: rgba(224, 179, 76, 0.07); border: 1px solid rgba(224, 179, 76, 0.4);
   border-radius: 8px; padding: 14px 16px; margin-bottom: 18px; font-size: 14.5px;
 }
-.launch code {
+/* The boxed command block is a code that is a DIRECT child of .launch
+   (home page). Inline code inside launch prose (arena page) and the code in
+   a .cmd run row are NOT blocks — block-styling them shatters the sentence
+   around them (the "; allow it." render bug). */
+.launch > code {
   display: block; font-family: ui-monospace, Menlo, monospace; font-size: 13.5px;
   background: var(--panel); border: 1px solid var(--line); border-radius: 6px;
   padding: 9px 12px; margin-top: 8px; overflow-x: auto; white-space: nowrap;
   color: var(--ember);
 }
+.launch p code {
+  display: inline; font-family: ui-monospace, Menlo, monospace; font-size: 0.9em;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 4px;
+  padding: 1px 5px; white-space: nowrap; color: var(--ember);
+}
+.launch .cmd code { color: var(--ember); }
 
 .play { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 @media (max-width: 760px) { .play { grid-template-columns: 1fr; } }
