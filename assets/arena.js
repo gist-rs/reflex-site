@@ -184,6 +184,24 @@ function setReadout(prefix, fields) {
   }
 }
 
+// The seed control means different things per mode: live it seeds the shared
+// piece stream (same seed = same game on both lanes); in the recorded demo the
+// stream is fixed bytes and the seed only shuffles the modelless lane's random
+// abstain fallback. Relabel so a recording never looks seed-driven.
+function markSeedMode(isDemo) {
+  for (const g of ["tetris", "flappy", "lanes"]) {
+    const input = $(`${g}-seed`);
+    const label = input?.closest("label");
+    if (!label) continue;
+    label.classList.toggle("demo-seed", isDemo);
+    label.title = isDemo
+      ? "Recorded demo — the board stream is fixed; this seed only shuffles the random abstain fallback"
+      : "Seeds the piece stream — the same seed plays the same game on both lanes";
+    const word = label.querySelector(".seed-word");
+    if (word) word.textContent = isDemo ? "fallback seed" : "seed";
+  }
+}
+
 const FALLBACK_NOTE = " · abstain → random fallback";
 
 // ── Tetris board ───────────────────────────────────────────────────────────
@@ -779,6 +797,7 @@ function bindRun(gameName, boards, runArg) {
       }
     }
     demoMode = isDemo;
+    markSeedMode(isDemo);
     $("demo-banner").hidden = !isDemo;
     const jobs = [];
     for (const [lane, b] of Object.entries(boards)) {
@@ -843,6 +862,7 @@ document.querySelectorAll("button[data-copy]").forEach((b) => {
     return; // oracle unavailable — the launch box alone stays
   }
   demoMode = true;
+  markSeedMode(true);
   $("demo-banner").hidden = false;
   renderStatus($("status-text"));
   const seed = Number($("tetris-seed").value) || 607;

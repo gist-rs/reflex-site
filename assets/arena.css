@@ -39,6 +39,7 @@
   margin: 0 0 14px; font-size: 14px; color: var(--muted);
 }
 .controls label { display: flex; align-items: center; gap: 6px; }
+.controls label.demo-seed { opacity: 0.55; }
 .controls input[type="text"] {
   background: var(--bg2); border: 1px solid var(--line); color: var(--text);
   border-radius: 6px; padding: 4px 8px;
