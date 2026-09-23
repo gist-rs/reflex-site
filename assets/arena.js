@@ -38,7 +38,7 @@ async function probe() {
   renderStatus(text);
 }
 
-function renderStatus(text) {
+async function renderStatus(text) {
   const chip = (id, state) => {
     const el = $(id);
     el.classList.remove("ok", "warn", "err");
