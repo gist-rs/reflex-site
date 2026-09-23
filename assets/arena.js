@@ -11,9 +11,36 @@ import * as L from "./games/lanes.js";
 
 const ENGINE = "http://127.0.0.1:7331";
 
-// ── engine client ──────────────────────────────────────────────────────────
+// ── engine client ────────────────────────────────────────────────────────────
 
 const lanes = { modelless: "unknown", laya: "unknown" };
+
+// ── no-engine demo mode ─────────────────────────────────────────────────────
+// Without a local engine the boards replay the recorded Plan 607 oracle (the
+// same committed fixtures behind the benchmark tables and the golden tests):
+// the laya board shows the recorded probabilities, the modelless board plays
+// its real out-of-the-box behavior — abstain → labelled random fallback.
+// demoMode flips only in bindRun/auto-start after a failed probe; every demo
+// surface is labelled (banner, chips, SOURCE readout).
+let demoMode = false;
+let demo = null; // { tetrisWalk, flappyWalk, lanesWalk }
+
+async function loadDemo() {
+  if (demo) return demo;
+  const r = await fetch("/arena/demo_oracle.json", { cache: "no-cache" });
+  if (!r.ok) throw new Error(`demo oracle HTTP ${r.status}`);
+  const j = await r.json();
+  demo = {
+    tetrisWalk: j.tetris_walk || [],
+    flappyWalk: j.flappy_walk || [],
+    lanesWalk: j.lanes_walk || [],
+  };
+  return demo;
+}
+
+function demoStatusText() {
+  return "no local engine — RECORDED DEMO playing (Plan 607 oracle) · start the engine, then press Start to go live";
+}
 
 async function probe() {
   const text = $("status-text");
@@ -56,10 +83,14 @@ async function renderStatus(text) {
   chip("chip-laya", lanes.laya);
   const up = lanes.modelless !== "down";
   const layaArmed = lanes.laya === "ready" || lanes.laya === "loading";
-  text.textContent = up
-    ? (layaArmed ? "local engine detected — both boards armed" : "local engine detected — modelless board armed (laya off)")
-    : "no local engine — start it, then refresh";
+  text.textContent = demoMode && !up
+    ? demoStatusText()
+    : up
+      ? (layaArmed ? "local engine detected — both boards armed" : "local engine detected — modelless board armed (laya off)")
+      : "no local engine — start it, then refresh";
   $("launch-box").hidden = up;
+  const banner = $("demo-banner");
+  if (banner) banner.hidden = up || !demoMode;
   // A public page reaching 127.0.0.1 may be blocked by the browser's
   // local-network permission before CORS is even consulted — surface the
   // allow path when the engine is actually up but the page cannot see it.
@@ -100,7 +131,14 @@ async function decide(state, question, laneHeader) {
 }
 
 // Fire noul questions for every option; resolves [{p, ms, error}] in order.
-async function scoreOptions(sentences, question, laneHeader, concurrency) {
+// In demo mode there is no engine to ask: the laya board replays the recorded
+// probabilities for this turn, the modelless board abstains (p = null — the
+// games fall back to a labelled random spot).
+async function scoreOptions(sentences, question, laneHeader, concurrency, demoPs) {
+  if (demoMode) {
+    const rec = laneHeader === "laya" && demoPs && demoPs.length === sentences.length ? demoPs : null;
+    return sentences.map((_, i) => ({ p: rec ? rec[i] : null, ms: null }));
+  }
   const out = new Array(sentences.length);
   let next = 0;
   async function worker() {
@@ -172,11 +210,16 @@ class TetrisBoard {
     this.ps = [];
     this.chosen = -1;
     this.over = false;
+    this.demoTurn = 0;
     this.render();
     this.renderStats();
     setReadout(this.ui.readout, {
-      src: this.lane, state: "—", q: "—", a: "—", act: "—", t: "—",
+      src: this.srcLabel(), state: "—", q: "—", a: "—", act: "—", t: "—",
     });
+  }
+
+  srcLabel() {
+    return demoMode ? `${this.lane} · demo` : this.lane;
   }
 
   async run(delayMs) {
@@ -189,7 +232,27 @@ class TetrisBoard {
   }
 
   async step() {
-    const piece = T.PIECES[this.rng.u32Below(7)];
+    // Demo: the recorded walk supplies board, piece and probabilities. The
+    // laya board replays the RECORDED play (chainPick — the walk was a mixed
+    // capture policy, disclosed in the banner); the modelless board abstains
+    // and falls back to a labelled random spot, its real out-of-the-box
+    // behavior.
+    let demoRec = null;
+    if (demoMode && demo) {
+      demoRec = this.demoTurn < demo.tetrisWalk.length ? demo.tetrisWalk[this.demoTurn] : null;
+      this.demoTurn += 1;
+      if (!demoRec) {
+        this.over = true;
+        setReadout(this.ui.readout, {
+          src: this.srcLabel(),
+          a: `recorded demo ends here (${this.pieces} pieces) — start the engine for live play`,
+          act: "demo complete",
+        });
+        return;
+      }
+      this.board = T.fromStrings(demoRec[3]);
+    }
+    const piece = demoRec ? demoRec[2] : T.PIECES[this.rng.u32Below(7)];
     this.opts = T.buildTurn(this.board, piece);
     if (this.opts.length === 0) {
       this.over = true;
@@ -200,18 +263,19 @@ class TetrisBoard {
       return;
     }
     setReadout(this.ui.readout, {
-      src: this.lane,
+      src: this.srcLabel(),
       state: this.opts[0].stateSentence,
       q: T.SPOT_QUESTION,
       a: `reading ${this.opts.length} spots…`,
       act: "…",
-      t: "…",
+      t: demoMode ? "recorded" : "…",
     });
     this.chosen = -1;
     this.ps = new Array(this.opts.length).fill(null);
     this.render();
 
-    // Progressive scoring: the heatmap fills as answers arrive.
+    // Progressive scoring: the heatmap fills as answers arrive. (Demo: the
+    // recorded p's arrive at once.)
     const sentences = this.opts.map((o) => o.sentence);
     const t0 = performance.now();
     const results = await scoreOptions(
@@ -219,6 +283,7 @@ class TetrisBoard {
       T.SPOT_QUESTION,
       this.lane === "laya" ? "laya" : null,
       this.lane === "laya" ? 6 : 16,
+      demoRec ? demoRec[1] : null,
     );
     const wall = Math.round(performance.now() - t0);
     for (let i = 0; i < results.length; i++) {
@@ -229,7 +294,7 @@ class TetrisBoard {
     }
     this.render();
 
-    if (results.every((r) => r.error)) {
+    if (!demoMode && results.every((r) => r.error)) {
       // Every request failed — the engine is gone; stop instead of playing
       // an unlabelled random game.
       this.over = true;
@@ -241,9 +306,17 @@ class TetrisBoard {
       return;
     }
 
+    // Demo laya replays the recorded play, not argmax — the recorded walk was
+    // a mixed capture policy, so chainPick is the honest choice to show.
+    const forced = demoRec && this.lane === "laya" ? demoRec[4] : null;
     const pick = argmax(this.ps);
     this.decisions += 1;
-    if (pick === -1) {
+    if (forced != null && forced >= 0) {
+      this.chosen = forced;
+      setReadout(this.ui.readout, {
+        a: `P(clean) ${this.ps[forced].toFixed(3)} — recorded play, spot ${forced + 1}/${this.opts.length}`,
+      });
+    } else if (pick === -1) {
       // The honest abstain: no signal, so the game falls back to a random
       // legal spot (labelled — never presented as an engine answer).
       this.abstains += 1;
@@ -260,8 +333,12 @@ class TetrisBoard {
     }
     const opt = this.opts[this.chosen];
     setReadout(this.ui.readout, {
-      act: `${piece} → rot ${opt.rot}, col ${opt.col}${pick === -1 ? FALLBACK_NOTE : ""}`,
-      t: `p50 ${p50(this.latencies) ?? "—"} ms · ${this.opts.length} spots in ${wall} ms`,
+      act: `${piece} → rot ${opt.rot}, col ${opt.col}${
+        forced != null && forced >= 0 ? " · recorded" : pick === -1 ? FALLBACK_NOTE : ""
+      }`,
+      t: demoMode
+        ? `recorded · ${this.opts.length} spots`
+        : `p50 ${p50(this.latencies) ?? "—"} ms · ${this.opts.length} spots in ${wall} ms`,
     });
     this.render();
 
@@ -346,6 +423,7 @@ class FlappyBoard {
   }
 
   async run() {
+    if (demoMode && demo) return this.runDemo();
     this.running = true;
     const rng = new Rng(this.seed);
     let y = rng.i32Range(3, F.GRID_H - 3);
@@ -412,6 +490,57 @@ class FlappyBoard {
     this.running = false;
   }
 
+  // Demo reel: replay the recorded decision states (independent captures, not
+  // a chained flight — disclosed in the banner). laya shows the recorded
+  // probabilities; modelless abstains → labelled random action.
+  async runDemo() {
+    this.running = true;
+    const rng = new Rng(this.seed);
+    for (const rec of demo.flappyWalk) {
+      if (!this.running) break;
+      const s = rec[2];
+      const turn = F.buildTurn(s);
+      setReadout(this.ui.readout, { state: rec[0], a: "deciding…", act: "…" });
+      const results = await scoreOptions(
+        turn.options.map((o) => o.sentence),
+        turn.question,
+        this.lane === "laya" ? "laya" : null,
+        2,
+        rec[1],
+      );
+      if (!this.running) break;
+      const ps = results.map((r) => r.p);
+      const pick = argmax(ps);
+      const idx = pick === -1 ? rng.u32Below(turn.options.length) : pick;
+      const note = pick === -1 ? FALLBACK_NOTE : `P(clean) ${ps[idx].toFixed(3)}`;
+      setReadout(this.ui.readout, {
+        a: `flap ${ps[0]?.toFixed(3) ?? "—"} · coast ${ps[1]?.toFixed(3) ?? "—"} — ${note}`,
+        act: turn.options[idx].label,
+      });
+      const [y2] = F.result(s, turn.options[idx].label);
+      const crash = !F.inBounds(y2) || Math.abs(y2 - s.g) > s.h;
+      this.draw(s, ps, idx, crash);
+      if (crash) {
+        this.crashes += 1;
+        $(this.ui.crashes).textContent = pad(this.crashes, 3);
+      } else {
+        this.pipes += 1;
+        $(this.ui.pipes).textContent = pad(this.pipes, 3);
+      }
+      await sleep(crash ? 700 : 450);
+      this.draw({ y: s.y, v: s.v, g: null, h: 2 }, []);
+      await sleep(120);
+    }
+    if (this.running) {
+      setReadout(this.ui.readout, {
+        state: "recorded demo reel complete — start the engine for live play",
+        a: "—",
+        act: "demo complete",
+      });
+    }
+    this.running = false;
+  }
+
   draw(s, ps, chosen, crash) {
     const cv = $(this.ui.canvas);
     const ctx = cv.getContext("2d");
@@ -470,6 +599,7 @@ class LanesBoard {
   }
 
   async run() {
+    if (demoMode && demo) return this.runDemo();
     this.running = true;
     const rng = new Rng(this.seed);
     while (this.running) {
@@ -505,6 +635,53 @@ class LanesBoard {
         this.steps += 1;
         $(this.ui.steps).textContent = pad(this.steps, 3);
       }
+    }
+    this.running = false;
+  }
+
+  // Demo reel: the recorded decision states (see FlappyBoard.runDemo).
+  async runDemo() {
+    this.running = true;
+    const rng = new Rng(this.seed);
+    for (const rec of demo.lanesWalk) {
+      if (!this.running) break;
+      const s = rec[2];
+      const turn = L.buildTurn(s);
+      setReadout(this.ui.readout, { state: rec[0], a: "deciding…", act: "…" });
+      const results = await scoreOptions(
+        turn.options.map((o) => o.sentence),
+        turn.question,
+        this.lane === "laya" ? "laya" : null,
+        3,
+        rec[1],
+      );
+      if (!this.running) break;
+      const ps = results.map((r) => r.p);
+      const pick = argmax(ps);
+      const idx = pick === -1 ? rng.u32Below(3) : pick;
+      setReadout(this.ui.readout, {
+        a: ps.map((p, i) => `${L.LANE_NAMES[i]} ${p == null ? "—" : p.toFixed(3)}`).join(" · ") +
+          (pick === -1 ? FALLBACK_NOTE : ""),
+        act: `${L.LANE_NAMES[idx]} (lane${idx})`,
+      });
+      const l = s.lanes[idx];
+      if (l.kind !== "Clear" && l.dist === "Close") {
+        this.crashes += 1;
+        $(this.ui.crashes).textContent = pad(this.crashes, 3);
+        this.draw(s, ps, idx, true);
+      } else {
+        this.steps += 1;
+        $(this.ui.steps).textContent = pad(this.steps, 3);
+        this.draw(s, ps, idx);
+      }
+      await sleep(500);
+    }
+    if (this.running) {
+      setReadout(this.ui.readout, {
+        state: "recorded demo reel complete — start the engine for live play",
+        a: "—",
+        act: "demo complete",
+      });
     }
     this.running = false;
   }
@@ -591,9 +768,21 @@ function bindRun(gameName, boards, runArg) {
     const seed = Number(seedInput.value) || 607;
     for (const b of Object.values(boards)) b.reset(seed);
     await probe();
+    // Engine down? Replay the recorded demo (labelled) instead of idling.
+    let isDemo = false;
+    if (lanes.modelless === "down") {
+      try {
+        await loadDemo();
+        isDemo = true;
+      } catch (e) {
+        /* oracle unavailable — fall through to the lane hints */
+      }
+    }
+    demoMode = isDemo;
+    $("demo-banner").hidden = !isDemo;
     const jobs = [];
     for (const [lane, b] of Object.entries(boards)) {
-      if (laneReady(lane)) {
+      if (isDemo || laneReady(lane)) {
         jobs.push(b.run(typeof runArg === "function" ? runArg() : undefined));
       } else {
         setReadout(b.ui.readout, {
@@ -642,5 +831,27 @@ document.querySelectorAll("button[data-copy]").forEach((b) => {
   });
 });
 
-probe();
+// First paint: probe the engine; with none running, auto-play the recorded
+// tetris demo so the arena shows the two lanes immediately. A Start press
+// re-probes and goes live the moment the engine is up.
+(async () => {
+  await probe();
+  if (lanes.modelless !== "down") return;
+  try {
+    await loadDemo();
+  } catch (e) {
+    return; // oracle unavailable — the launch box alone stays
+  }
+  demoMode = true;
+  $("demo-banner").hidden = false;
+  renderStatus($("status-text"));
+  const seed = Number($("tetris-seed").value) || 607;
+  for (const b of Object.values(tetris)) b.reset(seed);
+  const delay = () => Number($("tetris-delay").value);
+  const btn = $("tetris-run");
+  btn.textContent = "Stop";
+  await Promise.all(Object.values(tetris).map((b) => b.run(delay())));
+  btn.textContent = "Start";
+})();
+
 setInterval(probe, 4000);

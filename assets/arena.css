@@ -19,6 +19,9 @@
 .status-text { color: var(--muted); }
 .launch p { font-size: 14.5px; color: var(--muted); margin: 8px 0; }
 .hint { color: var(--warn); font-size: 14px; }
+.launch.demo { border-color: var(--warn); }
+.launch.demo p b { color: var(--warn); }
+.launch.demo p a { color: var(--warn); }
 
 .tabs { display: flex; gap: 8px; margin: 18px 0 14px; }
 .tab {
