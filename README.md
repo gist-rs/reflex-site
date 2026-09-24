@@ -52,13 +52,27 @@ In `riir-reflex`:
 
 ```sh
 scripts/fetch_datasets.sh            # once
-cargo run --release --features laya-riir --bin harness
+REFLEX_BENCH_HOST=<host-label> \
+    cargo run --release --features laya-riir --bin harness
 python3 ../reflex-site/scripts/publish_bench.py \
-    .benchmarks/001_phase1_tables/results.json ../reflex-site
+    <results-primary.json> [results-extra.json ...] ../reflex-site
 ```
 
+`REFLEX_BENCH_HOST` names the host in results.json meta (the per-host merge
+key — use a self-describing label like `m3` or `4090-windows`, not a bare
+uname). The publish script MERGES per-host rows (Issue 018): the FIRST
+results doc is the primary (its suites shape the tables; run the superset
+run first), every further doc contributes `meta.hosts` rows + per-suite
+`extra_host_lanes`. It REFUSES on modelless accuracy drift between hosts
+(the cross-host determinism claim — stop and file, never publish) and
+EXCLUDES population-mismatched suites (code_fixtures is repo-tree-relative
+at runtime) with a note. The current per-host inputs live in reflex as
+`.benchmarks/001_phase1_tables/results.json` (the m3 primary) and
+`.benchmarks/018_4090windows_run/results.json` (the windows lane).
+
 Commit + deploy. The provenance (git sha, date, host, protocols) rides
-inside `bench.json` and renders on the page.
+inside `bench.json` and renders on the page — every host in `meta.hosts`
+is named in the provenance line.
 
 ## Deploy
 
