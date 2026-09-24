@@ -91,6 +91,16 @@ try {
     if (!/lane unavailable/.test(rawA)) fail(`raw board must state why it is not playing: ${rawA}`);
   }
 
+  // laya (Python) never runs live — even with an engine up its board
+  // replays the recorded torch-reference game, labelled as such.
+  await page.waitForFunction(
+    () => /recorded play, spot \d+/.test(document.getElementById("tr-python-a").textContent),
+    { timeout: 20000 },
+  );
+  const pySrc = (await page.textContent("#tr-python-src")).trim();
+  if (!/recorded torch reference/.test(pySrc)) fail(`python board not labelled recorded: ${pySrc}`);
+  console.log(`[arena-smoke] python board (recorded, live mode): ${(await page.textContent("#tr-python-a")).trim()}`);
+
   await page.screenshot({ path: path.join(outDir, "arena_tetris.png") });
 
   // ── Flappy: modelless decisions flow ──

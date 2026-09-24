@@ -1,7 +1,8 @@
 // Arena DEMO smoke: the page boots with NO engine reachable (127.0.0.1:7331
 // is route-blocked, so this is deterministic even on a box where a real
-// engine is up) and the demo must auto-play: banner visible, both tetris
-// boards advancing — the modelless board LIVE on the wasm head when it
+// engine is up) and the demo must auto-play: banner visible, all four tetris
+// boards advancing (laya (Python), laya (Rust) and raw replaying their
+// recorded games) — the modelless board LIVE on the wasm head when it
 // loads (the normal case; its probe must pass), else the recorded replay —
 // then the flappy/lanes reels via their Start buttons.
 // Headless Chromium via the sibling's playwright install.
@@ -74,8 +75,10 @@ try {
   const mlStats = await page.textContent("#tst-modelless");
   if (!/pieces [1-9]/.test(mlStats)) fail(`modelless demo board not advancing: ${mlStats}`);
   const mlTiming = await page.textContent("#tr-modelless-t");
-  const isWasm = /wasm · \d+ spots in [\d.]+ ms/.test(mlTiming);
+  const isWasm = /wasm · \d+ spots · ~[\d.]+ µs\/spot/.test(mlTiming);
   const isRecorded = /recorded · p50 \d+(\.\d+)? ms/.test(mlTiming);
+  // sub-millisecond lanes print µs precision, never a rounded "p50 0 ms"
+  if (/p50 0(\.0+)? ms/.test(await page.textContent("#tst-modelless"))) fail("modelless p50 reads zero (timer resolution, not a measurement)");
   if (!isWasm && !isRecorded) fail(`head board timing missing: ${mlTiming}`);
   const mlSrc = await page.textContent("#tr-modelless-src");
   if (isWasm && !/wasm head/.test(mlSrc)) fail(`live head not labelled in SOURCE: ${mlSrc}`);
@@ -83,13 +86,38 @@ try {
     `[demo-smoke] modelless timing (${isWasm ? "LIVE wasm" : "recorded fallback"}): ${mlTiming.trim()}`,
   );
 
-  // The raw baseline board is a live-engine lane: in the demo it stays
-  // EMPTY and labelled — no recorded substitute exists, never invented data.
-  const rawDemoA = (await page.textContent("#tr-raw-a")).trim();
-  if (!/lane unavailable/.test(rawDemoA)) fail(`raw demo board must stay labelled-empty: ${rawDemoA}`);
-  const rawDemoStats = await page.textContent("#tst-raw");
-  if (/pieces [1-9]/.test(rawDemoStats)) fail(`raw demo board must not play: ${rawDemoStats}`);
-  console.log(`[demo-smoke] raw board (labelled empty): ${rawDemoA}`);
+  // The raw baseline and laya (Python) boards replay their RECORDED games
+  // (engine X-Reflex-Lane: raw; the torch reference) — labelled recorded.
+  for (const lane of ["raw", "python"]) {
+    await page.waitForFunction(
+      (l) => /pieces [1-9]/.test(document.getElementById(`tst-${l}`).textContent),
+      lane,
+      { timeout: 15000 },
+    );
+    const src = (await page.textContent(`#tr-${lane}-src`)).trim();
+    if (!/recorded/.test(src)) fail(`${lane} board not labelled recorded: ${src}`);
+    console.log(`[demo-smoke] ${lane} board (recorded): ${(await page.textContent(`#tr-${lane}-a`)).trim()} · ${src}`);
+  }
+
+  // layout: 2 boards per row — python|laya, then modelless|raw — and the
+  // lane-note boxes of a row share one height
+  const box = await page.evaluate(() => Object.fromEntries(
+    ["python", "laya", "modelless", "raw"].map((l) => {
+      const c = document.getElementById(`tc-${l}`).getBoundingClientRect();
+      const n = document.querySelector(`#tc-${l} .lane-note`).getBoundingClientRect();
+      return [l, { top: Math.round(c.top), left: Math.round(c.left), note: Math.round(n.height) }];
+    }),
+  ));
+  if (box.python.top !== box.laya.top || box.modelless.top !== box.raw.top || box.modelless.top <= box.python.top) {
+    fail(`board grid is not 2 per row: ${JSON.stringify(box)}`);
+  }
+  if (box.python.note !== box.laya.note || box.modelless.note !== box.raw.note) {
+    fail(`lane-note heights differ within a row: ${JSON.stringify(box)}`);
+  }
+
+  // TL;DR renders from data/bench.json — four verdict rows
+  await page.waitForFunction(() => document.querySelectorAll("#tldr li").length === 4, { timeout: 10000 });
+  console.log(`[demo-smoke] TL;DR: ${(await page.textContent("#tldr")).replace(/\s+/g, " ").trim().slice(0, 240)}…`);
 
   await page.screenshot({ path: path.join(outDir, "arena_demo_tetris.png") });
 
@@ -125,6 +153,9 @@ try {
     fail("demo oracle walks missing");
   }
   if (!demoJson.tetris_head_walk?.length) fail("tetris_head_walk missing — the modelless demo has no head game to replay");
+  for (const k of ["tetris_raw_walk", "tetris_python_walk", "flappy_python", "lanes_python", "flappy_raw", "lanes_raw"]) {
+    if (!demoJson[k]?.length) fail(`${k} missing from the demo oracle`);
+  }
   console.log(
     `[demo-smoke] oracle: tetris_walk ${demoJson.tetris_walk.length}, tetris_head_walk ${demoJson.tetris_head_walk.length}, flappy_walk ${demoJson.flappy_walk.length}, lanes_walk ${demoJson.lanes_walk.length}`,
   );

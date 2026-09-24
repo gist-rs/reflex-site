@@ -9,3 +9,4 @@ scripts
 .wrangler
 wasm-head
 tests
+.issues

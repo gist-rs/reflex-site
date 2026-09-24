@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Arena · live games · Reflex</title>
-  <meta name="description" content="Watch the three Reflex lanes play Tetris, Flappy and three-lanes live — the modelless lane, the open-weights laya lane, and the raw baseline, same questions, honest losses published.">
+  <meta name="description" content="Watch the Reflex lanes play Tetris, Flappy and three-lanes — KatGPT modelless, laya (Rust), the laya (Python) reference, and the raw baseline, same questions, honest losses published.">
   <link rel="stylesheet" href="/assets/style.css">
   <link rel="stylesheet" href="/assets/arena.css">
 </head>
@@ -24,27 +24,34 @@
 
   <main class="wrap">
     <section class="hero slim">
+      <div class="tldr" id="tldr">
+        <b>TL;DR</b>
+        <span class="tldr-body" id="tldr-body">loading the measured results from <a href="/bench/">the benchmark</a>…</span>
+      </div>
       <h1>Fast enough to <em>play a game live.</em></h1>
       <p class="lead">
         The games write their situation as sentences and ask one typed question per
         option — the same protocol as the
-        <a href="/bench/">measured tables</a>. Three lanes play side by side from the
-        same seeded stream: the modelless lane answers in microseconds; the
-        open-weights <a href="https://www.brainfunctioncollapse.com/laya/">laya</a>
-        lane reads every sentence; the raw baseline runs the same engine with its
-        fitted heads skipped — the honest abstain floor. Nothing is scripted and bad
-        answers get played.
+        <a href="/bench/">measured tables</a>. Four lanes play side by side from the
+        same seeded stream: the <b>KatGPT modelless</b> lane answers in microseconds;
+        <b>laya (Rust)</b> — our riir port of the open-weights
+        <a href="https://www.brainfunctioncollapse.com/laya/">laya</a> model — reads every
+        sentence; <b>laya (Python)</b> is the original torch reference it is measured
+        against; the <b>raw baseline</b> runs the same engine with its fitted heads
+        skipped — the honest abstain floor. Nothing is scripted and bad answers get
+        played.
       </p>
       <div class="statusbar" id="status">
-        <span class="chip" id="chip-modelless"><b>modelless</b> —</span>
-        <span class="chip" id="chip-laya"><b>laya</b> —</span>
+        <span class="chip" id="chip-python"><b>laya (Python)</b> —</span>
+        <span class="chip" id="chip-laya"><b>laya (Rust)</b> —</span>
+        <span class="chip" id="chip-modelless"><b>KatGPT modelless</b> —</span>
         <span class="chip" id="chip-raw"><b>raw</b> —</span>
         <span class="status-text" id="status-text">checking for a local engine…</span>
       </div>
       <div class="launch" id="launch-box" hidden>
         <p>The page talks to <b>YOUR</b> engine on <b>YOUR</b> machine — nothing is uploaded anywhere.
         Install, then start it with the door open for this page
-        (add <code>RIIR_REFLEX_LAYA=1</code> to arm the laya board — first start downloads ~650&nbsp;MB of
+        (add <code>RIIR_REFLEX_LAYA=1</code> to arm the laya (Rust) board — first start downloads ~650&nbsp;MB of
         Apache-2.0 open weights). The raw baseline board needs engine
         <b>v0.2.3+</b> (the <code>X-Reflex-Lane: raw</code> lane). Your browser may ask permission to connect to
         local devices — that is this page reaching <code>127.0.0.1</code>; allow it.</p>
@@ -52,17 +59,19 @@
         <p class="hint" id="pna-hint" hidden>Chrome blocked the local call — allow the local-network permission for this site (the icon in the address bar), then refresh.</p>
       </div>
       <div class="launch demo" id="demo-banner" hidden>
-        <p><b>No local engine — the modelless boards play LIVE in your tab.</b> The fitted
+        <p><b>No local engine — the KatGPT modelless boards play LIVE in your tab.</b> The fitted
         heads ship compiled to WebAssembly on this page: each fits its published head
         in-tab from the same pinned oracle corpus and answers every spot question itself
         — Tetris proven bit-exact against the recorded engine play, Flappy reproducing
         its published 96/100 oracle agreement, Three-lanes reproducing its published
         84/100 through the joined-state protocol (its head reads all three lanes'
         sentences) — hundreds of decisions verified before
-        any board moves. No engine, no server, no upload. The <b>laya</b> board — too
+        any board moves. No engine, no server, no upload. The <b>laya (Rust)</b> board — too
         heavy for a browser at ~650&nbsp;MB of weights — replays recorded full-argmax
-        games. The <b>raw baseline</b> is a live-engine lane only — no recorded
-        substitute, so its board stays empty until an engine connects. Both loop. Start the engine, then press Start for the live lanes.</p>
+        games; the <b>laya (Python)</b> board replays the original torch reference's
+        games, recorded offline (Python never runs in the engine or this page); the
+        <b>raw baseline</b> replays the engine's recorded heads-skipped games. All loop.
+        Start the engine, then press Start for the live lanes.</p>
       </div>
     </section>
 
@@ -85,8 +94,21 @@
         <span class="key"><i class="ghostkey"></i> candidate spot — brighter = higher P(clean) · <i class="chosenkey"></i> chosen spot, in the piece's own color</span>
       </div>
       <div class="boards">
+        <div class="boardcard" id="tc-python">
+          <div class="boardhead"><b>laya lane (Python) · torch reference</b><span class="lane-note">the ORIGINAL open-weights torch reference the Rust port is measured against · recorded offline (MPS) — measurement only, never shipped, never run by this page</span><span class="scorebox"><span>SCORE</span><b id="ts-python">0000</b><span>LINES</span><b id="tl-python">000</b></span></div>
+          <canvas id="tb-python" width="200" height="400"></canvas>
+          <div class="stats" id="tst-python">pieces 0 · decisions 0 · p50 — ms · errors 0</div>
+          <div class="readout">
+            <div><span>SOURCE</span><em id="tr-python-src">—</em></div>
+            <div><span>STATE SENT</span><em id="tr-python-state">—</em></div>
+            <div><span>QUESTION</span><em id="tr-python-q">—</em></div>
+            <div><span>ANSWER</span><em id="tr-python-a">—</em></div>
+            <div><span>ACTION</span><em id="tr-python-act">—</em></div>
+            <div><span>TIMING</span><em id="tr-python-t">—</em></div>
+          </div>
+        </div>
         <div class="boardcard" id="tc-laya">
-          <div class="boardhead"><b>laya lane · model-based</b><span class="lane-note">reads every spot sentence · ~0.08 s per spot (Apple silicon default; ~0.16 s on CPU)</span><span class="scorebox"><span>SCORE</span><b id="ts-laya">0000</b><span>LINES</span><b id="tl-laya">000</b></span></div>
+          <div class="boardhead"><b>laya lane (Rust) · model-based</b><span class="lane-note">our riir port of the same open weights — reads every spot sentence · Metal on Apple silicon, CPU elsewhere · per-spot p50 on the stats line</span><span class="scorebox"><span>SCORE</span><b id="ts-laya">0000</b><span>LINES</span><b id="tl-laya">000</b></span></div>
           <canvas id="tb-laya" width="200" height="400"></canvas>
           <div class="stats" id="tst-laya">pieces 0 · decisions 0 · p50 — ms · errors 0</div>
           <div class="readout">
@@ -99,7 +121,7 @@
           </div>
         </div>
         <div class="boardcard" id="tc-modelless">
-          <div class="boardhead"><b>modelless lane · reflex core</b><span class="lane-note">corpus-fitted heads play Tetris + Flappy + three-lanes — LIVE in-tab via WebAssembly with zero engine, or through your v0.2.3+ engine</span><span class="scorebox"><span>SCORE</span><b id="ts-modelless">0000</b><span>LINES</span><b id="tl-modelless">000</b></span></div>
+          <div class="boardhead"><b>KatGPT modelless lane · reflex core</b><span class="lane-note">corpus-fitted heads play Tetris + Flappy + three-lanes — LIVE in-tab via WebAssembly with zero engine, or through your v0.2.3+ engine</span><span class="scorebox"><span>SCORE</span><b id="ts-modelless">0000</b><span>LINES</span><b id="tl-modelless">000</b></span></div>
           <canvas id="tb-modelless" width="200" height="400"></canvas>
           <div class="stats" id="tst-modelless">pieces 0 · decisions 0 · p50 — ms · errors 0</div>
           <div class="readout">
@@ -133,8 +155,11 @@
         yes/no question, <i>“Does the stack look clean?”</i>. The piece goes to the highest
         P(clean), lowest index on ties. This is the exact <code>laya-tetris-v2</code>
         grammar the <a href="/bench/">arena tables</a> were measured on.</p>
-        <p>Three tiers play the same protocol. The <b>model-based lane</b> reads every
-        spot sentence with the full open-weights model (~0.1&nbsp;s per spot on CPU).
+        <p>Four lanes play the same protocol. The <b>model-based lanes</b> read every
+        spot sentence with the full open-weights model — <b>laya (Rust)</b>, our riir
+        port the engine serves, and <b>laya (Python)</b>, the original torch reference
+        it is parity-checked against (same weights, same answers; the only intended
+        difference is speed).
         The <b>latent-first lane</b> is that model's recorded decisions distilled into a
         microsecond linear score over decoded board features — the published fit matches
         the model-based pick on 44/120 spot decisions (≈3.4× the 10.8% random floor).
@@ -151,11 +176,11 @@
         its head reads ALL THREE lanes' sentences per decision (the cross-lane feature
         columns count the other lanes' obstacles), and in-tab the page holds the whole
         turn — the published 84/100 head, reproduced exactly, beats the code-arithmetic
-        policy at imitating laya (84% vs clearest-lane 74%). The <b>raw baseline</b> is
+        policy at imitating laya (Rust) (84% vs clearest-lane 74%). The <b>raw baseline</b> is
         the third tier live: the same engine, its fitted heads skipped
         (<code>X-Reflex-Lane: raw</code>) — the corpus cosine abstains off-corpus and
         the abstain plays as a labelled random pick, the honest floor the head's 44/120
-        and laya's argmax play are measured against (engine v0.2.3+).</p>
+        and laya (Rust)'s argmax play are measured against (engine v0.2.3+).</p>
         <p><b>And the head runs where the page runs.</b> With no engine connected, the
         modelless board still plays — live — on a WebAssembly build of the same fit:
         the page boots the head from the same pinned oracle corpus, re-verifies the
@@ -174,8 +199,17 @@
         <label><span class="seed-word">seed</span> <input type="text" id="flappy-seed" value="607" size="6"></label>
       </div>
       <div class="boards">
+        <div class="boardcard" id="fc-python">
+          <div class="boardhead"><b>laya lane (Python) · torch reference</b><span class="scorebox"><span>PIPES</span><b id="fp-python">000</b><span>CRASHES</span><b id="fx-python">000</b></span></div>
+          <canvas id="fb-python" width="160" height="240"></canvas>
+          <div class="readout">
+            <div><span>STATE SENT</span><em id="fr-python-state">—</em></div>
+            <div><span>ANSWER</span><em id="fr-python-a">—</em></div>
+            <div><span>ACTION</span><em id="fr-python-act">—</em></div>
+          </div>
+        </div>
         <div class="boardcard" id="fc-laya">
-          <div class="boardhead"><b>laya lane · model-based</b><span class="scorebox"><span>PIPES</span><b id="fp-laya">000</b><span>CRASHES</span><b id="fx-laya">000</b></span></div>
+          <div class="boardhead"><b>laya lane (Rust) · model-based</b><span class="scorebox"><span>PIPES</span><b id="fp-laya">000</b><span>CRASHES</span><b id="fx-laya">000</b></span></div>
           <canvas id="fb-laya" width="160" height="240"></canvas>
           <div class="readout">
             <div><span>STATE SENT</span><em id="fr-laya-state">—</em></div>
@@ -184,7 +218,7 @@
           </div>
         </div>
         <div class="boardcard" id="fc-modelless">
-          <div class="boardhead"><b>modelless lane · reflex core</b><span class="scorebox"><span>PIPES</span><b id="fp-modelless">000</b><span>CRASHES</span><b id="fx-modelless">000</b></span></div>
+          <div class="boardhead"><b>KatGPT modelless lane · reflex core</b><span class="scorebox"><span>PIPES</span><b id="fp-modelless">000</b><span>CRASHES</span><b id="fx-modelless">000</b></span></div>
           <canvas id="fb-modelless" width="160" height="240"></canvas>
           <div class="readout">
             <div><span>STATE SENT</span><em id="fr-modelless-state">—</em></div>
@@ -221,8 +255,17 @@
         <label><span class="seed-word">seed</span> <input type="text" id="lanes-seed" value="607" size="6"></label>
       </div>
       <div class="boards">
+        <div class="boardcard" id="lc-python">
+          <div class="boardhead"><b>laya lane (Python) · torch reference</b><span class="scorebox"><span>STEPS</span><b id="lp-python">000</b><span>CRASHES</span><b id="lx-python">000</b></span></div>
+          <div class="lanes" id="lb-python"></div>
+          <div class="readout">
+            <div><span>STATE SENT</span><em id="lr-python-state">—</em></div>
+            <div><span>ANSWER</span><em id="lr-python-a">—</em></div>
+            <div><span>ACTION</span><em id="lr-python-act">—</em></div>
+          </div>
+        </div>
         <div class="boardcard" id="lc-laya">
-          <div class="boardhead"><b>laya lane · model-based</b><span class="scorebox"><span>STEPS</span><b id="lp-laya">000</b><span>CRASHES</span><b id="lx-laya">000</b></span></div>
+          <div class="boardhead"><b>laya lane (Rust) · model-based</b><span class="scorebox"><span>STEPS</span><b id="lp-laya">000</b><span>CRASHES</span><b id="lx-laya">000</b></span></div>
           <div class="lanes" id="lb-laya"></div>
           <div class="readout">
             <div><span>STATE SENT</span><em id="lr-laya-state">—</em></div>
@@ -231,7 +274,7 @@
           </div>
         </div>
         <div class="boardcard" id="lc-modelless">
-          <div class="boardhead"><b>modelless lane · reflex core</b><span class="scorebox"><span>STEPS</span><b id="lp-modelless">000</b><span>CRASHES</span><b id="lx-modelless">000</b></span></div>
+          <div class="boardhead"><b>KatGPT modelless lane · reflex core</b><span class="scorebox"><span>STEPS</span><b id="lp-modelless">000</b><span>CRASHES</span><b id="lx-modelless">000</b></span></div>
           <div class="lanes" id="lb-modelless"></div>
           <div class="readout">
             <div><span>STATE SENT</span><em id="lr-modelless-state">—</em></div>
@@ -271,11 +314,12 @@
       heads (tetris parity-proven against the recorded engine play; flappy and lanes
       reproducing their published agreements, before any board moves),
       while the other boards replay <b>recorded games</b> — committed runs through this
-      same wire, labelled as such, never mixed with live results. The laya lane runs our Rust
+      same wire, labelled as such, never mixed with live results. The laya (Rust) lane runs our Rust
       port of the
       open-weights model — G5-parity-verified against its reference checkpoints (top-1
       agreement 1.000, probability drift ≤ 3e-6); there is no Python anywhere in the
-      stack. Protocol and measurement tables:
+      shipped stack. The laya (Python) board is that reference itself, recorded offline
+      for comparison — it never runs in the engine or on this page. Protocol and measurement tables:
       <a href="/bench/">the benchmark</a>. The engine never phones home; the page reaches
       only <code>127.0.0.1:7331</code>.</p>
     </section>
@@ -288,6 +332,7 @@
     </div>
   </footer>
 
+  <script type="module" src="/assets/arena_tldr.js"></script>
   <script type="module" src="/assets/arena.js"></script>
 </body>
 </html>

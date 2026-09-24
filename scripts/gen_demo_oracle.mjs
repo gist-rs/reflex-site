@@ -10,9 +10,11 @@
 //  tetris — archetype rows like the above (partial coverage, kept for
 //    seed-experiments).
 //
-// MERGE SEMANTICS: `tetris_walk` + `tetris_head_walk` are OWNED by
-// scripts/record_demo_walks.mjs (the T12 engine-played games) — this script
-// PRESERVES them from the existing oracle and never overwrites. Regenerating
+// MERGE SEMANTICS: every recorded lane game (RECORDED_KEYS — the tetris
+// walks of all four lanes and the laya (Python) / raw reel rows, which are
+// aligned 1:1 with the flappy/lanes states below) is OWNED by
+// scripts/record_demo_walks.mjs — this script PRESERVES them from the
+// existing oracle and never overwrites. Regenerating
 // those requires a running engine (the recorder), not this script.
 //
 // Run from the reflex-site working copy (the default fixture path assumes the
@@ -102,7 +104,7 @@ for (const [game, file, stateKey] of [
   out.tetris = rows;
   console.log(`tetris: ${rows.length} states (archetype rows)`);
 
-  // the recorded engine-played walks are the RECORDER's output — preserve
+  // the recorded lane games are the RECORDER's output — preserve
   // them from the existing oracle (a missing oracle means they must be
   // re-recorded with record_demo_walks.mjs against a live engine)
   const existing = (() => {
@@ -112,7 +114,15 @@ for (const [game, file, stateKey] of [
       return null;
     }
   })();
-  for (const key of ["tetris_walk", "tetris_head_walk"]) {
+  const RECORDED_KEYS = [
+    "tetris_walk", "tetris_head_walk", "tetris_raw_walk", "tetris_python_walk",
+    "flappy_python", "flappy_raw", "lanes_python", "lanes_raw",
+  ];
+  // …and their provenance rows (recorder, host, timing transport, summary)
+  for (const [k, v] of Object.entries(existing?._meta?.sources ?? {})) {
+    if (!(k in out._meta.sources)) out._meta.sources[k] = v;
+  }
+  for (const key of RECORDED_KEYS) {
     if (existing?.[key]?.length) {
       out[key] = existing[key];
       console.log(`${key}: PRESERVED from the existing oracle (${out[key].length} turns — owned by record_demo_walks.mjs)`);

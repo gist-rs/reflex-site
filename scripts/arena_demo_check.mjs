@@ -90,6 +90,39 @@ function verifyTetrisWalk(walk, name) {
   assert.ok(headSummary.p50ms != null, "head walk carries no recorded per-decision ms");
 }
 
+// The two recorded-only lanes: the raw baseline (heads skipped — its picks
+// are recorded random spots on abstain) and laya (Python), the torch
+// reference. Python must be the SAME model as laya (Rust): while the two
+// games share a board its per-spot ps stay within 1e-3 of the Rust walk's.
+{
+  verifyTetrisWalk(oracle.tetris_raw_walk, "tetris_raw_walk");
+  verifyTetrisWalk(oracle.tetris_python_walk, "tetris_python_walk");
+  let shared = 0;
+  let worst = 0;
+  for (let k = 0; k < Math.min(oracle.tetris_walk.length, oracle.tetris_python_walk.length); k++) {
+    const rs = oracle.tetris_walk[k];
+    const py = oracle.tetris_python_walk[k];
+    if (rs[2] !== py[2] || rs[3].join("") !== py[3].join("")) break;
+    rs[1].forEach((p, i) => { worst = Math.max(worst, Math.abs(p - py[1][i])); });
+    shared += 1;
+  }
+  assert.ok(shared >= 10, `python walk diverges from the Rust walk after ${shared} turns`);
+  assert.ok(worst <= 1e-3, `laya (Python) vs laya (Rust) drift ${worst} > 1e-3`);
+  console.log(`tetris_python_walk: ${shared} turns share the Rust walk's board · max |Δp| ${worst.toExponential(1)}`);
+  for (const game of ["flappy", "lanes"]) {
+    for (const lane of ["python", "raw"]) {
+      const reel = oracle[`${game}_${lane}`];
+      const states = oracle[`${game}_walk`];
+      assert.equal(reel?.length, states.length, `${game}_${lane}: ${reel?.length} rows vs ${states.length} states`);
+      reel.forEach(([ps, ms], i) => {
+        assert.equal(ps.length, states[i][1].length, `${game}_${lane}[${i}]: arity`);
+        assert.equal(ms.length, ps.length, `${game}_${lane}[${i}]: ms arity`);
+      });
+    }
+  }
+  console.log("flappy/lanes python + raw reels: aligned 1:1 with the recorded states");
+}
+
 // replay the walk's placements to count cleared lines without a browser
 function walkLines(walk) {
   const board = T.fromStrings(walk[0][3]);

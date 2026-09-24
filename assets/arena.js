@@ -1,6 +1,8 @@
-/* Reflex arena — the live games. Three lanes (laya | modelless | raw) play
-   side by side from the same seeded stream; every decision is a real /decide call to
-   the visitor's own engine. Game logic lives in ./games/* — the exact ports
+/* Reflex arena — the live games. Four lanes play side by side from the same
+   seeded stream: laya (Python) — the original torch reference, ALWAYS a
+   recorded replay (Python never runs in the engine or this page) — laya
+   (Rust), KatGPT modelless and the raw baseline, whose every live decision is
+   a real /decide call to the visitor's own engine. Game logic lives in ./games/* — the exact ports
    of the katgpt-rs Plan 607 sims + pinned sentence grammars, golden-checked
    against the committed oracle fixtures. Nothing is scripted. */
 
@@ -18,7 +20,16 @@ const ENGINE = "http://127.0.0.1:7331";
 
 // ── engine client ────────────────────────────────────────────────────────────
 
-const lanes = { modelless: "unknown", laya: "unknown", raw: "unknown" };
+const lanes = { modelless: "unknown", laya: "unknown", raw: "unknown", python: "recorded" };
+
+// Display names — one source, so "laya" never appears without its runtime
+// (the Rust port vs the Python reference are different lanes).
+const LANE_NAME = {
+  python: "laya (Python)",
+  laya: "laya (Rust)",
+  modelless: "KatGPT modelless",
+  raw: "raw baseline",
+};
 
 // ── no-engine demo mode ─────────────────────────────────────────────────────
 // Without a local engine the boards replay the recorded Plan 607 oracle (the
@@ -28,22 +39,44 @@ const lanes = { modelless: "unknown", laya: "unknown", raw: "unknown" };
 // demoMode flips only in bindRun/auto-start after a failed probe; every demo
 // surface is labelled (banner, chips, SOURCE readout).
 let demoMode = false;
-let demo = null; // { tetrisWalk, tetrisHeadWalk, flappyWalk, lanesWalk }
+let demo = null; // the recorded games (arena/demo_oracle.json, see loadRecorded)
 
-async function loadDemo() {
-  if (demo) {
-    await ensureArenaHead(demo.tetrisHeadWalk, demo.flappyWalk, demo.lanesWalk);
-    return demo;
-  }
+// The recorded games — needed in demo mode AND live (the laya (Python)
+// board is a recorded replay in both). Tetris walks are per lane; the
+// flappy/lanes reels share one state list and carry per-lane [ps, ms] rows.
+async function loadRecorded() {
+  if (demo) return demo;
   const r = await fetch("/arena/demo_oracle.json", { cache: "no-cache" });
   if (!r.ok) throw new Error(`demo oracle HTTP ${r.status}`);
   const j = await r.json();
   demo = {
     tetrisWalk: j.tetris_walk || [],
     tetrisHeadWalk: j.tetris_head_walk || [],
+    tetrisRawWalk: j.tetris_raw_walk || [],
+    tetrisPythonWalk: j.tetris_python_walk || [],
     flappyWalk: j.flappy_walk || [],
     lanesWalk: j.lanes_walk || [],
+    reels: {
+      flappy: { python: j.flappy_python || [], raw: j.flappy_raw || [] },
+      lanes: { python: j.lanes_python || [], raw: j.lanes_raw || [] },
+    },
   };
+  return demo;
+}
+
+// The recorded tetris walk each lane replays.
+function tetrisWalkFor(lane) {
+  if (!demo) return [];
+  return {
+    laya: demo.tetrisWalk,
+    modelless: demo.tetrisHeadWalk,
+    raw: demo.tetrisRawWalk,
+    python: demo.tetrisPythonWalk,
+  }[lane] || [];
+}
+
+async function loadDemo() {
+  await loadRecorded();
   // Best-effort: boot the browser-live heads and probe them against the
   // recorded games BEFORE any board starts, so a board never switches
   // posture mid-game. Resolves "ready" or "failed" — never throws.
@@ -53,7 +86,7 @@ async function loadDemo() {
 
 function demoStatusText() {
   if (arenaHeadReady()) {
-    return "no local engine — the modelless board PLAYS LIVE in-tab (fitted head · WebAssembly · zero engine); the laya board replays a recorded game; the raw baseline is a live-engine lane (v0.2.3+)";
+    return "no local engine — the KatGPT modelless board PLAYS LIVE in-tab (fitted head · WebAssembly · zero engine); laya (Rust), laya (Python) and the raw baseline replay recorded games";
   }
   return "no local engine — RECORDED DEMO playing (Plan 607 oracle) · start the engine, then press Start to go live";
 }
@@ -99,16 +132,18 @@ async function renderStatus(text) {
     else if (state === "off") [cls, label] = ["warn", "off (RIIR_REFLEX_LAYA=1)"];
     else if (state === "absent") [cls, label] = ["warn", "needs engine v0.2.3+"];
     else if (state === "unknown") [cls, label] = ["ok", "ready"];
+    else if (state === "recorded") [cls, label] = ["warn", "recorded reference"];
     el.classList.add(cls);
     el.innerHTML = el.innerHTML.replace(/—.*$/, `— ${label}`);
   };
+  chip("chip-python", lanes.python);
   chip("chip-modelless", lanes.modelless);
   chip("chip-laya", lanes.laya);
   chip("chip-raw", lanes.raw);
   const up = lanes.modelless !== "down";
   const layaArmed = lanes.laya === "ready" || lanes.laya === "loading";
   const rawArmed = lanes.raw === "ready";
-  const armed = ["modelless", layaArmed && "laya", rawArmed && "raw"].filter(Boolean);
+  const armed = ["modelless", layaArmed && "laya", rawArmed && "raw"].filter(Boolean).map((l) => LANE_NAME[l]);
   text.textContent = demoMode && !up
     ? demoStatusText()
     : up
@@ -189,37 +224,28 @@ async function decideTurn(state, question, count, laneHeader) {
 }
 
 // Fire noul questions for every option; resolves [{p, ms, error}] in order.
-// In demo mode there is no engine to ask — the lanes replay recorded data
-// (tetris laya: the recorded game; flappy/lanes modelless: the honest
-// abstain), EXCEPT the lanes with a browser-live wasm head, which answer
-// HERE, in-tab: grammar-gated (tetris: the pinned spot question over the
+// In demo mode there is no engine to ask — recorded games replay in their
+// boards, never through here — so only the lanes with a browser-live wasm
+// head answer, HERE, in-tab: grammar-gated (tetris: the pinned spot question over the
 // option sentence; flappy: the pinned question over the (state, option)
 // pair; lanes: the joined-state protocol — the head reads ALL THREE option
 // sentences, its cross-lane feature columns count the other lanes), proven
-// at load, real per-decision timing.
-async function scoreOptions(sentences, question, laneHeader, concurrency, demoPs, demoMs, allowDemoPs, stateSentence) {
+// at load, batch-amortized per-decision timing.
+async function scoreOptions(sentences, question, laneHeader, concurrency, stateSentence) {
   if (demoMode) {
     if (!laneHeader && question === T.SPOT_QUESTION && arenaHeadReady()) {
-      return sentences.map((s) => {
-        const t1 = performance.now();
-        const p = arenaHeadScore(s);
-        return { p, ms: performance.now() - t1 };
-      });
+      return amortized(sentences, (s) => arenaHeadScore(s));
     }
     if (!laneHeader && stateSentence != null && arenaFlappyHeadReady()) {
-      return sentences.map((s) => {
-        const t1 = performance.now();
-        const p = arenaHeadScoreState(stateSentence, s);
-        return { p, ms: performance.now() - t1 };
-      });
+      return amortized(sentences, (s) => arenaHeadScoreState(stateSentence, s));
     }
     if (!laneHeader && stateSentence == null && question === L.QUESTION && arenaLanesHeadReady() && sentences.length === 3) {
       // the joined-state protocol — one call scores the whole turn
       return arenaHeadScoreLanes(sentences[0], sentences[1], sentences[2]);
     }
-    const rec = allowDemoPs && demoPs && demoPs.length === sentences.length ? demoPs : null;
-    const recMs = allowDemoPs && demoMs && demoMs.length === sentences.length ? demoMs : null;
-    return sentences.map((_, i) => ({ p: rec ? rec[i] : null, ms: recMs ? recMs[i] : null }));
+    // No head for this shape: the honest abstain (recorded games never come
+    // through here — replays read their own rows).
+    return sentences.map(() => ({ p: null, ms: null }));
   }
   // Live-engine protocol shapes (modelless lane only — the laya lane's
   // measured per-option shape NEVER moves, and raw skips the heads by
@@ -269,6 +295,27 @@ async function scoreOptions(sentences, question, laneHeader, concurrency, demoPs
   return out;
 }
 
+// The in-tab head answers in a few µs, below what performance.now()
+// resolves (browsers coarsen it to 5–100 µs), so a per-call timer — even a
+// whole ~17-spot batch — reads 0 and printed "p50 0 ms". Score the turn
+// once for the answers, then re-score the SAME (pure) batch until the timer
+// has run ≥ MIN_TIMED_MS, and give each decision its amortized share: the
+// honest per-decision cost, at a cost of ~0.5 ms per turn.
+const MIN_TIMED_MS = 0.5;
+const MAX_TIMED_REPS = 2000;
+function amortized(sentences, score) {
+  const n = Math.max(1, sentences.length);
+  const t0 = performance.now();
+  const ps = sentences.map(score);
+  let reps = 1;
+  while (performance.now() - t0 < MIN_TIMED_MS && reps < MAX_TIMED_REPS) {
+    for (const s of sentences) score(s);
+    reps += 1;
+  }
+  const each = (performance.now() - t0) / (reps * n);
+  return ps.map((p) => ({ p, ms: each }));
+}
+
 // First-argmax over the non-null p's (lowest index on ties).
 function argmax(ps) {
   let best = -1;
@@ -290,7 +337,18 @@ const $ = (id) => document.getElementById(id);
 const pad = (n, w) => String(n).padStart(w, "0");
 const p50 = (xs) => {
   const v = xs.filter((x) => x != null).sort((a, b) => a - b);
-  return v.length ? Math.round(v[Math.floor(v.length / 2)] * 10) / 10 : null;
+  return v.length ? v[Math.floor(v.length / 2)] : null;
+};
+// Milliseconds at a precision that keeps microsecond lanes visible: a 12 µs
+// decision reads "0.012 ms" (1.2 µs → "0.0012 ms"), never a rounded "0 ms".
+const fmtUs = (ms) => (ms == null ? "—" : (ms * 1000).toFixed(ms * 1000 < 10 ? 1 : 0));
+const fmtMs = (ms) => {
+  if (ms == null) return "—";
+  if (ms < 0.01) return ms.toFixed(4);
+  if (ms < 1) return ms.toFixed(3);
+  if (ms < 10) return ms.toFixed(2);
+  if (ms < 100) return ms.toFixed(1);
+  return String(Math.round(ms));
 };
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -314,25 +372,24 @@ function markSeedMode(isDemo) {
     label.classList.toggle("demo-seed", isDemo);
     label.title = isDemo
       ? liveHead
-        ? "Seeds the modelless board's live in-tab game (wasm head); the laya board replays a fixed recorded game"
+        ? "Seeds the KatGPT modelless board's live in-tab game (wasm head); laya (Rust), laya (Python) and raw replay fixed recorded games"
         : "Recorded demo — the board stream is fixed; this seed only shuffles the random abstain fallback"
-      : "Seeds the piece stream — the same seed plays the same game on both lanes";
+      : "Seeds the piece stream — the same seed plays the same game on every live lane (laya (Python) always replays its recorded seed-607 game)";
     const word = label.querySelector(".seed-word");
     if (word) word.textContent = isDemo && !liveHead ? "fallback seed" : "seed";
   }
 }
 
 const FALLBACK_NOTE = " · abstain → random fallback";
-// The raw board's demo posture: it is a live-engine lane with no recorded
-// substitute — a replay would be invented data, so the board stays empty,
-// labelled.
-const RAW_DEMO_NOTE = "raw baseline is a live-engine lane — start the engine to play it";
+// A lane whose recorded game is missing from the oracle stays empty,
+// labelled — a stand-in replay would be invented data.
+const NO_RECORDING_NOTE = "no recorded game for this lane — start the engine to play it live";
 
 // ── Tetris board ───────────────────────────────────────────────────────────
 
 class TetrisBoard {
   constructor(lane, ui) {
-    this.lane = lane; // "laya" | "modelless"
+    this.lane = lane; // "python" | "laya" | "modelless" | "raw"
     this.ui = ui; // {canvas, score, lines, stats, readout}
     this.running = false;
     this.reset(607);
@@ -364,11 +421,20 @@ class TetrisBoard {
   }
 
   srcLabel() {
-    if (this.lane === "raw") return "raw · baseline (heads skipped)";
+    const name = LANE_NAME[this.lane];
+    if (this.lane === "python") return `${name} · recorded torch reference (MPS)`;
     if (this.lane === "modelless" && demoMode && arenaHeadReady()) {
-      return "modelless · wasm head (in-tab)";
+      return `${name} · wasm head (in-tab)`;
     }
-    return demoMode ? `${this.lane} · demo` : this.lane;
+    const heads = this.lane === "raw" ? " (heads skipped)" : "";
+    return demoMode ? `${name}${heads} · recorded` : `${name}${heads} · your engine`;
+  }
+
+  // Replay a recorded game? laya (Python) always (it never runs live); in
+  // demo mode every lane except the in-tab wasm head.
+  replaying() {
+    if (this.lane === "python") return true;
+    return demoMode && !(this.lane === "modelless" && arenaHeadReady());
   }
 
   async run(delayMs) {
@@ -381,32 +447,29 @@ class TetrisBoard {
   }
 
   async step() {
-    // Demo: each lane replays ITS OWN recorded game — the laya board the
-    // model-based walk (full-argmax play), the modelless board the fitted
-    // head's walk (with the recorded per-decision ms) — UNLESS the
-    // browser-live wasm head is up, in which case the modelless board
-    // PLAYS its own game right here: same grammar, same fit, zero engine.
-    // Boards without a head walk fall back to the old labelled abstain
-    // behavior.
+    // A replaying board (see replaying()) re-traces ITS OWN recorded game —
+    // laya (Rust) / laya (Python) full-argmax play, the modelless head's walk,
+    // the raw baseline's heads-skipped walk — each with its recorded
+    // per-decision ms. The modelless board with the browser-live wasm head up
+    // PLAYS its own game right here instead: same grammar, same fit, zero
+    // engine.
     const liveHead = demoMode && this.lane === "modelless" && arenaHeadReady();
-    // The walk locals are DEMO-ONLY — in live mode `demo` is null and the
-    // unguarded `demo.tetrisWalk` below was a live-path TypeError (the T12
-    // demo-walk refactor broke the live boards; the live smoke had not run
-    // since). Computed only when a demo is actually loaded.
-    const headWalk = demoMode && this.lane === "modelless" && demo && demo.tetrisHeadWalk.length > 0;
-    const walkArr = demo
-      ? (this.lane === "laya" || !headWalk ? demo.tetrisWalk : demo.tetrisHeadWalk)
-      : null;
+    const replay = this.replaying();
+    // `demo` may be null live (the Python board loads it on its own) — the
+    // walk is looked up only when this board actually replays.
+    const walkArr = replay ? tetrisWalkFor(this.lane) : null;
     let demoRec = null;
-    if (demoMode && demo && !liveHead) {
+    if (replay) {
       demoRec = this.demoTurn < walkArr.length ? walkArr[this.demoTurn] : null;
       this.demoTurn += 1;
       if (!demoRec) {
         this.over = true;
         setReadout(this.ui.readout, {
           src: this.srcLabel(),
-          a: `recorded demo ends here (${this.pieces} pieces) — start the engine for live play`,
-          act: "demo complete",
+          a: walkArr.length
+            ? `recorded game ends here (${this.pieces} pieces)${this.lane === "python" ? "" : " — start the engine for live play"}`
+            : NO_RECORDING_NOTE,
+          act: walkArr.length ? "recorded game complete" : "—",
         });
         return;
       }
@@ -433,7 +496,7 @@ class TetrisBoard {
       q: T.SPOT_QUESTION,
       a: `reading ${this.opts.length} spots…`,
       act: "…",
-      t: demoMode && !liveHead ? "recorded" : "…",
+      t: replay ? "recorded" : "…",
     });
     this.chosen = -1;
     this.ps = new Array(this.opts.length).fill(null);
@@ -443,17 +506,15 @@ class TetrisBoard {
     // recorded p's arrive at once.)
     const sentences = this.opts.map((o) => o.sentence);
     const t0 = performance.now();
-    const results = await scoreOptions(
-      sentences,
-      T.SPOT_QUESTION,
-      LANE_HEADER[this.lane],
-      this.lane === "laya" ? 6 : 16,
-      demoRec ? demoRec[1] : null,
-      demoRec ? demoRec[5] : null,
-      this.lane === "laya" || headWalk,
-    );
+    const results = demoRec
+      ? demoRec[1].map((p, i) => ({ p, ms: demoRec[5] ? demoRec[5][i] : null }))
+      : await scoreOptions(
+        sentences,
+        T.SPOT_QUESTION,
+        LANE_HEADER[this.lane],
+        this.lane === "laya" ? 6 : 16,
+      );
     const wallMs = performance.now() - t0;
-    const wall = Math.round(wallMs);
     for (let i = 0; i < results.length; i++) {
       const r = results[i];
       if (r.error) this.errors += 1;
@@ -474,15 +535,19 @@ class TetrisBoard {
       return;
     }
 
-    // Demo laya replays the recorded argmax pick; the head board argmaxes its
-    // own recorded ps (identical to what the recorder placed).
-    const forced = demoRec && this.lane === "laya" && !headWalk ? demoRec[4] : null;
+    // A replay places the recorded pick — the argmax, or (raw) the recorded
+    // random spot when every option abstained — so the board re-traces the
+    // recorded game exactly.
+    const forced = demoRec ? demoRec[4] : null;
     const pick = argmax(this.ps);
     this.decisions += 1;
     if (forced != null && forced >= 0) {
       this.chosen = forced;
+      if (pick === -1) this.abstains += 1;
       setReadout(this.ui.readout, {
-        a: `P(clean) ${this.ps[forced].toFixed(3)} — recorded play, spot ${forced + 1}/${this.opts.length}`,
+        a: pick === -1
+          ? `abstain ×${this.opts.length}${FALLBACK_NOTE} — recorded, spot ${forced + 1}/${this.opts.length}`
+          : `P(clean) ${this.ps[forced].toFixed(3)} — recorded play, spot ${forced + 1}/${this.opts.length}`,
       });
     } else if (pick === -1) {
       // The honest abstain: no signal, so the game falls back to a random
@@ -505,10 +570,10 @@ class TetrisBoard {
         forced != null && forced >= 0 ? " · recorded" : pick === -1 ? FALLBACK_NOTE : ""
       }`,
       t: liveHead
-        ? `wasm · ${this.opts.length} spots in ${wallMs.toFixed(2)} ms (~${Math.max(1, Math.round((wallMs / this.opts.length) * 1000))} µs/spot)`
-        : demoMode
-          ? `recorded · p50 ${p50(this.latencies) ?? "—"} ms · ${this.opts.length} spots`
-          : `p50 ${p50(this.latencies) ?? "—"} ms · ${this.opts.length} spots in ${wall} ms`,
+        ? `wasm · ${this.opts.length} spots · ~${fmtUs(results[0]?.ms)} µs/spot (amortized, re-timed ≥ ${MIN_TIMED_MS} ms)`
+        : replay
+          ? `recorded · p50 ${fmtMs(p50(this.latencies))} ms/spot · ${this.opts.length} spots`
+          : `p50 ${fmtMs(p50(this.latencies))} ms/spot · ${this.opts.length} spots in ${fmtMs(wallMs)} ms`,
     });
     this.render();
 
@@ -588,8 +653,18 @@ class TetrisBoard {
     $(this.ui.stats).textContent =
       `pieces ${this.pieces} · decisions ${this.decisions}` +
       ` · abstains ${this.abstains} · errors ${this.errors}` +
-      ` · p50 ${p50(this.latencies) ?? "—"} ms`;
+      ` · p50 ${fmtMs(p50(this.latencies))} ms`;
   }
+}
+
+// The recorded probabilities a lane replays for reel row i: laya (Rust) is
+// the fixture's own ps (rec[1]); laya (Python) and raw carry their own
+// recorded [ps, ms] rows; modelless without its head (and any lane with no
+// recording) abstains — the honest labelled fallback, never invented data.
+function reelPs(game, lane, i, rec, n) {
+  if (lane === "laya") return rec[1];
+  const row = demo?.reels?.[game]?.[lane]?.[i];
+  return row && row[0].length === n ? row[0] : new Array(n).fill(null);
 }
 
 // ── Flappy board ───────────────────────────────────────────────────────────
@@ -616,7 +691,7 @@ class FlappyBoard {
     // Demo mode replays the recorded reel — EXCEPT the modelless lane with
     // a live flappy wasm head, which plays its own game right here (the
     // reel stays the laya lane's replay and the head-less fallback).
-    if (demoMode && demo && !(this.lane === "modelless" && arenaFlappyHeadReady())) {
+    if (this.lane === "python" || (demoMode && demo && !(this.lane === "modelless" && arenaFlappyHeadReady()))) {
       return this.runDemo();
     }
     this.running = true;
@@ -655,9 +730,6 @@ class FlappyBoard {
         turn.question,
         LANE_HEADER[this.lane],
         2,
-        null,
-        null,
-        false,
         turn.stateSentence,
       );
       if (!this.running) break;
@@ -690,28 +762,19 @@ class FlappyBoard {
   }
 
   // Demo reel: replay the recorded decision states (independent captures, not
-  // a chained flight — disclosed in the banner). laya shows the recorded
-  // probabilities; modelless abstains → labelled random action.
+  // a chained flight — disclosed in the banner). Each lane shows ITS recorded
+  // probabilities (reelPs); an abstain plays a labelled random action.
   async runDemo() {
     this.running = true;
     const rng = new Rng(this.seed);
-    for (const rec of demo.flappyWalk) {
+    for (const [i, rec] of demo.flappyWalk.entries()) {
       if (!this.running) break;
       const s = rec[2];
       const turn = F.buildTurn(s);
       setReadout(this.ui.readout, { state: rec[0], a: "deciding…", act: "…" });
-      const results = await scoreOptions(
-        turn.options.map((o) => o.sentence),
-        turn.question,
-        LANE_HEADER[this.lane],
-        2,
-        rec[1],
-        null,
-        this.lane === "laya",
-        turn.stateSentence,
-      );
+      await sleep(0);
       if (!this.running) break;
-      const ps = results.map((r) => r.p);
+      const ps = reelPs("flappy", this.lane, i, rec, turn.options.length);
       const pick = argmax(ps);
       const idx = pick === -1 ? rng.u32Below(turn.options.length) : pick;
       const note = pick === -1 ? FALLBACK_NOTE : `P(clean) ${ps[idx].toFixed(3)}`;
@@ -735,7 +798,7 @@ class FlappyBoard {
     }
     if (this.running) {
       setReadout(this.ui.readout, {
-        state: "recorded demo reel complete — start the engine for live play",
+        state: this.lane === "python" ? "recorded reel complete" : "recorded demo reel complete — start the engine for live play",
         a: "—",
         act: "demo complete",
       });
@@ -804,7 +867,7 @@ class LanesBoard {
     // Demo mode replays the recorded reel — EXCEPT the modelless lane with
     // a live lanes wasm head, which plays its own game right here (the
     // reel stays the laya lane's replay and the head-less fallback).
-    if (demoMode && demo && !(this.lane === "modelless" && arenaLanesHeadReady())) return this.runDemo();
+    if (this.lane === "python" || (demoMode && demo && !(this.lane === "modelless" && arenaLanesHeadReady()))) return this.runDemo();
     this.running = true;
     const rng = new Rng(this.seed);
     while (this.running) {
@@ -848,22 +911,14 @@ class LanesBoard {
   async runDemo() {
     this.running = true;
     const rng = new Rng(this.seed);
-    for (const rec of demo.lanesWalk) {
+    for (const [i, rec] of demo.lanesWalk.entries()) {
       if (!this.running) break;
       const s = rec[2];
       const turn = L.buildTurn(s);
       setReadout(this.ui.readout, { state: rec[0], a: "deciding…", act: "…" });
-      const results = await scoreOptions(
-        turn.options.map((o) => o.sentence),
-        turn.question,
-        LANE_HEADER[this.lane],
-        3,
-        rec[1],
-        null,
-        this.lane === "laya",
-      );
+      await sleep(0);
       if (!this.running) break;
-      const ps = results.map((r) => r.p);
+      const ps = reelPs("lanes", this.lane, i, rec, turn.options.length);
       const pick = argmax(ps);
       const idx = pick === -1 ? rng.u32Below(3) : pick;
       setReadout(this.ui.readout, {
@@ -885,7 +940,7 @@ class LanesBoard {
     }
     if (this.running) {
       setReadout(this.ui.readout, {
-        state: "recorded demo reel complete — start the engine for live play",
+        state: this.lane === "python" ? "recorded reel complete" : "recorded demo reel complete — start the engine for live play",
         a: "—",
         act: "demo complete",
       });
@@ -915,6 +970,9 @@ class LanesBoard {
 // ── wiring ─────────────────────────────────────────────────────────────────
 
 const tetris = {
+  python: new TetrisBoard("python", {
+    canvas: "tb-python", score: "ts-python", lines: "tl-python", stats: "tst-python", readout: "tr-python",
+  }),
   laya: new TetrisBoard("laya", {
     canvas: "tb-laya", score: "ts-laya", lines: "tl-laya", stats: "tst-laya", readout: "tr-laya",
   }),
@@ -940,6 +998,9 @@ const tetris = {
   }
 })();
 const flappy = {
+  python: new FlappyBoard("python", {
+    canvas: "fb-python", pipes: "fp-python", crashes: "fx-python", readout: "fr-python",
+  }),
   laya: new FlappyBoard("laya", {
     canvas: "fb-laya", pipes: "fp-laya", crashes: "fx-laya", readout: "fr-laya",
   }),
@@ -951,6 +1012,9 @@ const flappy = {
   }),
 };
 const lanesGame = {
+  python: new LanesBoard("python", {
+    lanesEl: "lb-python", steps: "lp-python", crashes: "lx-python", readout: "lr-python",
+  }),
   laya: new LanesBoard("laya", {
     lanesEl: "lb-laya", steps: "lp-laya", crashes: "lx-laya", readout: "lr-laya",
   }),
@@ -971,12 +1035,14 @@ function stopAll() {
 function laneReady(lane) {
   if (lane === "modelless") return lanes.modelless === "ready" || lanes.modelless === "unknown";
   if (lane === "raw") return lanes.raw === "ready";
+  if (lane === "python") return demo != null; // a recorded replay — needs only the oracle file
   return lanes.laya === "ready";
 }
 
 const LANE_HINT = {
+  python: () => "the recorded laya (Python) games could not be loaded (arena/demo_oracle.json)",
   laya: (state) =>
-    `laya lane is ${state}` +
+    `laya (Rust) lane is ${state}` +
     (state === "off" || state === "down"
       ? " — restart the engine with RIIR_REFLEX_LAYA=1"
       : state === "loading"
@@ -1015,15 +1081,13 @@ function bindRun(gameName, boards, runArg) {
       }
     }
     demoMode = isDemo;
+    // Live too: the laya (Python) board replays its recorded game.
+    if (!isDemo) await loadRecorded().catch(() => {});
     markSeedMode(isDemo);
     $("demo-banner").hidden = !isDemo;
     const jobs = [];
     for (const [lane, b] of Object.entries(boards)) {
-      if (isDemo && lane === "raw") {
-        setReadout(b.ui.readout, {
-          state: RAW_DEMO_NOTE, a: "lane unavailable", act: "—",
-        });
-      } else if (isDemo || laneReady(lane)) {
+      if (isDemo || laneReady(lane)) {
         jobs.push(b.run(typeof runArg === "function" ? runArg() : undefined));
       } else {
         setReadout(b.ui.readout, {
@@ -1096,13 +1160,8 @@ let demoSession = 0;
   while (session === demoSession && demoMode) {
     const seed = Number($("tetris-seed").value) || 607;
     for (const b of Object.values(tetris)) b.reset(seed);
-    setReadout(tetris.raw.ui.readout, {
-      state: RAW_DEMO_NOTE, a: "lane unavailable", act: "—",
-    });
     btn.textContent = "Stop";
-    await Promise.all(
-      Object.values(tetris).filter((b) => b.lane !== "raw").map((b) => b.run(delay())),
-    );
+    await Promise.all(Object.values(tetris).map((b) => b.run(delay())));
     if (session !== demoSession || !demoMode) break;
     $("status-text").textContent = `${demoStatusText()} · replaying in 3 s`;
     await sleep(3000);

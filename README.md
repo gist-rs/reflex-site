@@ -8,8 +8,12 @@ static assets.
   visitor's OWN engine on `127.0.0.1:7331`; nothing is uploaded).
 - `/bench/` — the per-task arena tables, rendered client-side from
   `data/bench.json`.
-- `/arena/` — the live games. With an engine connected, both lanes play on
-  the visitor's machine. Without one, the modelless Tetris, Flappy and
+- `/arena/` — the live games, four lanes, 2 per row: laya (Python) | laya
+  (Rust), KatGPT modelless | raw baseline, under a TL;DR rendered from
+  `data/bench.json`. With an engine connected, laya (Rust), KatGPT modelless
+  and raw play on the visitor's machine; laya (Python) — the original torch
+  reference, never shipped — always replays its recorded game. Without an
+  engine, the KatGPT modelless Tetris, Flappy and
   three-lanes boards still play LIVE in-tab: `assets/arena_head.wasm` is
   the engine's fitted game heads compiled to WebAssembly (`wasm-head/`
   builds them), parity-proven against the recorded engine play before they
@@ -42,9 +46,24 @@ the LOO λ selection); `cargo test` proves the committed blobs still match.
 ## Regenerate the demo oracle reels
 
 `scripts/gen_demo_oracle.mjs` rebuilds the flappy/lanes reels (and the
-tetris archetype rows) from the katgpt-rs fixtures — MERGE semantics: the
-`tetris_walk`/`tetris_head_walk` engine-played games are owned by
-`scripts/record_demo_walks.mjs` (needs a live engine) and are preserved.
+tetris archetype rows) from the katgpt-rs fixtures — MERGE semantics: every
+recorded lane game (the four tetris walks + the laya (Python) / raw reel
+rows) is owned by `scripts/record_demo_walks.mjs` and is preserved.
+
+Re-record the lane games — all four in ONE session so the laya (Rust) vs
+laya (Python) timing is same-box/same-hour (AC power; see riir-reflex
+`scripts/bench_preflight.sh`):
+
+```sh
+RIIR_REFLEX_LAYA=1 reflex &                       # engine v0.2.3+ (laya + raw lanes)
+node scripts/record_demo_walks.mjs http://127.0.0.1:7331 --python ../riir-reflex
+node scripts/arena_demo_check.mjs && node scripts/arena_head_parity.mjs && node scripts/arena_demo_smoke.mjs
+```
+
+`--python` points at a riir-reflex checkout: its `scripts/laya_python_lane.py`
+(the bench's own torch oracle, `.raw/laya` + the cached weights) scores the
+laya (Python) lane; its reels must match the laya (Rust) fixture within 1e-3
+or the recorder refuses to write.
 
 ## Regenerate the tables
 

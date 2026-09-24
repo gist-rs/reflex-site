@@ -71,14 +71,22 @@
 .ctl.primary { background: var(--rust); border-color: var(--rust); color: #fff; font-weight: 600; }
 .ctl.primary:disabled { opacity: 0.5; cursor: wait; }
 
-.boards { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+/* Two boards per row: laya (Python) | laya (Rust), then KatGPT modelless |
+   raw baseline — one column on narrow screens. */
+.boards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+@media (max-width: 720px) { .boards { grid-template-columns: 1fr; } }
 .boardcard {
   background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
   padding: 14px;
 }
 .boardhead { display: flex; align-items: baseline; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
 .boardhead > b { color: var(--ember); font-size: 16px; }
-.lane-note { color: var(--muted); font-size: 12.5px; }
+/* Fixed 4-line note box so side-by-side board heads line up whatever each
+   lane's note length (a 2-line note beside a 4-line one skewed the row). */
+.lane-note {
+  color: var(--muted); font-size: 12.5px; line-height: 1.45;
+  flex-basis: 100%; min-height: calc(4 * 1.45em);
+}
 .scorebox { margin-left: auto; display: flex; gap: 10px; align-items: baseline; }
 .scorebox span { color: var(--muted); font-size: 11px; letter-spacing: 1px; }
 .scorebox b {
@@ -130,3 +138,19 @@ canvas {
 footer.site-foot {
   border-top: 1px solid var(--line); padding: 18px 0; color: var(--muted); font-size: 13.5px;
 }
+
+/* TL;DR — the measured lane order, rendered from data/bench.json */
+.tldr {
+  border: 1px solid var(--line); border-left: 3px solid var(--ember);
+  background: var(--panel); border-radius: 10px;
+  padding: 12px 16px; margin: 0 0 18px; font-size: 14px; color: var(--muted);
+}
+.tldr > b { color: var(--ember); letter-spacing: 0.06em; margin-right: 6px; }
+.tldr p { margin: 0 0 6px; display: inline; }
+.tldr ul { list-style: none; margin: 8px 0 0; padding: 0; }
+.tldr li { margin: 4px 0; }
+.tldr li b { color: var(--text); }
+.tldr li i { font-style: normal; font-weight: 700; display: inline-block; width: 1.2em; }
+.tldr li.ok i { color: var(--ok); }
+.tldr li.gap i { color: var(--ember); }
+.tldr li.eq i { color: var(--muted); }
