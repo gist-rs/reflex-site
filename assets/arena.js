@@ -6,6 +6,10 @@
 
 import { Rng } from "./games/rng.js";
 import * as T from "./games/tetris.js";
+import {
+  PIECE_COLORS, UNKNOWN_COLOR, withAlpha,
+  PieceBag, newStampGrid, clearRowsGrid, replayStamps,
+} from "./games/tetris_view.js";
 import * as F from "./games/flappy.js";
 import * as L from "./games/lanes.js";
 import { ensureArenaHead, arenaHeadReady, arenaHeadScore, arenaFlappyHeadReady, arenaHeadScoreState, arenaLanesHeadReady, arenaHeadScoreLanes } from "./arena_head.js";
@@ -336,7 +340,10 @@ class TetrisBoard {
 
   reset(seed) {
     this.rng = new Rng(seed);
+    this.bag = new PieceBag(this.rng); // guideline 7-bag live stream
     this.board = T.emptyBoard();
+    this.stamps = newStampGrid(); // which piece occupies each landed cell
+    this.curPiece = null;
     this.score = 0;
     this.lines = 0;
     this.pieces = 0;
@@ -404,8 +411,13 @@ class TetrisBoard {
         return;
       }
       this.board = T.fromStrings(demoRec[3]);
+      // Recover which piece occupies each recorded cell (null → a fresh
+      // grid: old cells fall back to the uniform color, never a guessed
+      // stamp; the current turn's placement still gets its color).
+      this.stamps = replayStamps(walkArr, this.demoTurn - 1, this.board) ?? newStampGrid();
     }
-    const piece = demoRec ? demoRec[2] : T.PIECES[this.rng.u32Below(7)];
+    const piece = demoRec ? demoRec[2] : this.bag.next();
+    this.curPiece = piece;
     this.opts = T.buildTurn(this.board, piece);
     if (this.opts.length === 0) {
       this.over = true;
@@ -500,10 +512,25 @@ class TetrisBoard {
     });
     this.render();
 
-    const cleared = T.commitPlacement(this.board, opt);
+    // Stamp the placed piece BEFORE the clear (cells are pre-clear
+    // positions), then shift the stamp grid exactly like the board.
+    for (const [r, c] of opt.cells) this.stamps[r][c] = piece;
+    T.place(this.board, opt.cells);
+    const full = T.fullRows(this.board);
+    if (full.length) {
+      T.clearRows(this.board, full);
+      clearRowsGrid(this.stamps, full, null);
+    }
+    const cleared = full.length;
     this.lines += cleared;
     this.score += [0, 40, 100, 300, 1200][Math.min(cleared, 4)];
     this.pieces += 1;
+    // The decision is resolved — drop the heatmap so the board shows
+    // clean per-piece colors until the next turn's candidates arrive.
+    this.opts = [];
+    this.ps = [];
+    this.chosen = -1;
+    this.curPiece = null;
     this.render();
     this.renderStats();
   }
@@ -525,23 +552,28 @@ class TetrisBoard {
     for (let r = 0; r < T.HEIGHT; r++) {
       for (let c = 0; c < T.WIDTH; c++) {
         if (this.board[r][c]) {
-          ctx.fillStyle = "#8a5a3a";
+          const pc = this.stamps && this.stamps[r][c];
+          ctx.fillStyle = (pc && PIECE_COLORS[pc]) || UNKNOWN_COLOR;
           ctx.fillRect(c * CW + 1, r * CH + 1, CW - 2, CH - 2);
         }
       }
     }
-    // option heatmap
+    // candidate-spot heatmap: neutral white ghosts (alpha carries
+    // P(clean)); the CHOSEN spot renders in the current piece's own color
+    // with a white outline — "this piece lands here".
     for (let i = 0; i < this.opts.length; i++) {
       const opt = this.opts[i];
       const p = this.ps[i];
       const chosen = i === this.chosen;
-      const alpha = p == null ? 0.1 : 0.12 + 0.7 * p;
-      ctx.fillStyle = chosen ? "rgba(111,191,115,0.85)" : `rgba(224,92,27,${alpha.toFixed(2)})`;
+      const alpha = p == null ? 0.06 : 0.05 + 0.35 * p;
+      ctx.fillStyle = chosen
+        ? withAlpha(PIECE_COLORS[this.curPiece] ?? UNKNOWN_COLOR, 0.92)
+        : `rgba(255,255,255,${alpha.toFixed(2)})`;
       for (const [r, c] of opt.cells) {
         ctx.fillRect(c * CW + 1, r * CH + 1, CW - 2, CH - 2);
       }
       if (chosen) {
-        ctx.strokeStyle = "#6fbf73";
+        ctx.strokeStyle = "rgba(255,255,255,0.95)";
         ctx.lineWidth = 2;
         for (const [r, c] of opt.cells) {
           ctx.strokeRect(c * CW + 1, r * CH + 1, CW - 3, CH - 3);
@@ -893,6 +925,20 @@ const tetris = {
     canvas: "tb-raw", score: "ts-raw", lines: "tl-raw", stats: "tst-raw", readout: "tr-raw",
   }),
 };
+
+// Legend swatches: injected from PIECE_COLORS so the module stays the
+// single color source (the HTML carries no color copies).
+(function buildPieceLegend() {
+  const host = document.querySelector("#pielegend .swatches");
+  if (!host) return;
+  for (const p of T.PIECES) {
+    const s = document.createElement("span");
+    s.className = "swatch";
+    s.style.background = PIECE_COLORS[p];
+    s.textContent = p;
+    host.appendChild(s);
+  }
+})();
 const flappy = {
   laya: new FlappyBoard("laya", {
     canvas: "fb-laya", pipes: "fp-laya", crashes: "fx-laya", readout: "fr-laya",

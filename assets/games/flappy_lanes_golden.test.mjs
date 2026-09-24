@@ -19,6 +19,7 @@ import test from 'node:test';
 import { after } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -26,10 +27,15 @@ import * as flappy from './flappy.js';
 import * as lanes from './lanes.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
+// Fixtures ship IN THIS REPO (tests/fixtures/, verbatim copies of the
+// katgpt-rs canonicals) so the golden test is self-contained; sha256 pins
+// make any drift loud — re-copy the canonical, never hand-edit.
 const FLAPPY_FIXTURE = process.env.FLAPPY_FIXTURE
-  ?? path.resolve(here, '../../../../tests/fixtures/flappy_oracle_laya_en_v3.jsonl');
+  ?? path.resolve(here, '../../tests/fixtures/flappy_oracle_laya_en_v3.jsonl');
 const LANES_FIXTURE = process.env.LANES_FIXTURE
-  ?? path.resolve(here, '../../../../tests/fixtures/lanes_oracle_laya_en_v1.jsonl');
+  ?? path.resolve(here, '../../tests/fixtures/lanes_oracle_laya_en_v1.jsonl');
+const FLAPPY_SHA256 = '564c001e620bf1eff52a930c70452fe9097f6f90e0df3c97f8eb0ea3f2da7f09';
+const LANES_SHA256 = 'ca6655d1c3862ca9092312166503fa4812d62a360d8342ac3e21f0d397c7e36e';
 
 /** Parse a fixture JSONL, skipping the first-line `_meta` provenance
  * record. */
@@ -39,6 +45,16 @@ function loadStates(file) {
     .filter((line) => line.trim() !== '')
     .map((line) => JSON.parse(line))
     .filter((rec) => rec.state_id !== '_meta');
+}
+
+function sha256File(file) {
+  return createHash('sha256').update(readFileSync(file)).digest('hex');
+}
+if (sha256File(FLAPPY_FIXTURE) !== FLAPPY_SHA256) {
+  throw new Error(`flappy fixture sha256 drifted — re-copy the canonical, never hand-edit`);
+}
+if (sha256File(LANES_FIXTURE) !== LANES_SHA256) {
+  throw new Error(`lanes fixture sha256 drifted — re-copy the canonical, never hand-edit`);
 }
 
 const flappyRecords = loadStates(FLAPPY_FIXTURE);

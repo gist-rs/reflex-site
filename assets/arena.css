@@ -38,6 +38,25 @@
   display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
   margin: 0 0 14px; font-size: 14px; color: var(--muted);
 }
+
+/* original-tetris piece legend (swatches injected from PIECE_COLORS —
+   the single source; the HTML carries no color copies) */
+.pielegend {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  margin: -6px 0 12px; font-size: 12.5px; color: var(--muted);
+}
+.pielegend .swatches { display: inline-flex; gap: 6px; }
+.pielegend .swatch {
+  width: 24px; height: 15px; border-radius: 3px;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 9px; font-weight: 700; color: rgba(0, 0, 0, 0.6);
+}
+.pielegend .key i {
+  display: inline-block; width: 11px; height: 11px; border-radius: 2px;
+  vertical-align: -1px; margin-right: 4px;
+}
+.pielegend .ghostkey { background: rgba(255, 255, 255, 0.35); }
+.pielegend .chosenkey { background: #b98a5a; box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.9); }
 .controls label { display: flex; align-items: center; gap: 6px; }
 .controls label.demo-seed { opacity: 0.55; }
 .controls input[type="text"] {

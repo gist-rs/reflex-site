@@ -19,7 +19,7 @@ import * as F from "../assets/games/flappy.js";
 import * as L from "../assets/games/lanes.js";
 
 const FIXDIR =
-  process.argv[2] ?? path.resolve(import.meta.dirname, "../../../tests/fixtures");
+  process.argv[2] ?? path.resolve(import.meta.dirname, "../tests/fixtures");
 
 const oracle = JSON.parse(
   readFileSync(path.resolve(import.meta.dirname, "../arena/demo_oracle.json"), "utf8"),

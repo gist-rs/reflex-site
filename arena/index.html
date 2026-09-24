@@ -80,6 +80,10 @@
         <label><span class="seed-word">seed</span> <input type="text" id="tetris-seed" value="607" size="6"></label>
         <label>piece delay <input type="range" id="tetris-delay" min="0" max="3000" step="100" value="600"> <span id="tetris-delay-v">0.6s</span></label>
       </div>
+      <div class="pielegend" id="pielegend">
+        <span class="swatches"></span>
+        <span class="key"><i class="ghostkey"></i> candidate spot — brighter = higher P(clean) · <i class="chosenkey"></i> chosen spot, in the piece's own color</span>
+      </div>
       <div class="boards">
         <div class="boardcard" id="tc-laya">
           <div class="boardhead"><b>laya lane · model-based</b><span class="lane-note">reads every spot sentence · ~0.08 s per spot (Apple silicon default; ~0.16 s on CPU)</span><span class="scorebox"><span>SCORE</span><b id="ts-laya">0000</b><span>LINES</span><b id="tl-laya">000</b></span></div>

@@ -8,3 +8,4 @@ scripts
 .DS_Store
 .wrangler
 wasm-head
+tests

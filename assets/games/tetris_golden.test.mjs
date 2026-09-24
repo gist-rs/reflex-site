@@ -4,8 +4,15 @@
 // sentences must reproduce byte-identically — the fixture is what the oracle
 // answered, so any drift here invalidates the live arena's protocol claim.
 // Run: node assets/games/tetris_golden.test.mjs
+//
+// The fixture ships IN THIS REPO (tests/fixtures/, a verbatim copy of the
+// katgpt-rs canonical) so the test is self-contained; the copy is pinned by
+// sha256 — if the canonical ever moves, the pin reds and the copy must be
+// re-copied, never hand-edited. TETRIS_FIXTURE overrides for a sibling
+// checkout run.
 
 import { readFileSync } from "node:fs";
+import { createHash } from "node:crypto";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 import { test } from "node:test";
@@ -13,7 +20,8 @@ import { test } from "node:test";
 const here = path.dirname(fileURLToPath(import.meta.url));
 const FIXTURE =
   process.env.TETRIS_FIXTURE ??
-  path.resolve(here, "../../../../tests/fixtures/tetris_oracle_laya_en_v2.jsonl");
+  path.resolve(here, "../../tests/fixtures/tetris_oracle_laya_en_v2.jsonl");
+const FIXTURE_SHA256 = "12c46035a7f6b5416c4ce34c86bc9b0b890975aff57944739a24c5869b8fc259";
 
 const { fromStrings, landingOptions, outcomeFeatures, renderSpotSentence, renderStateSentence, PIECES } =
   await import("./tetris.js");
@@ -25,11 +33,19 @@ function cmpF(a, b) {
   return JSON.stringify(a) === JSON.stringify(b);
 }
 
-const lines = readFileSync(FIXTURE, "utf8").split("\n").filter(Boolean);
+const raw = readFileSync(FIXTURE, "utf8");
+const sha = createHash("sha256").update(raw).digest("hex");
+const lines = raw.split("\n").filter(Boolean);
+const failures = [];
 let states = 0;
 let optChecks = 0;
 let stateSentenceChecks = 0;
-const failures = [];
+
+if (sha !== FIXTURE_SHA256) {
+  failures.push(
+    `fixture sha256 drifted: ${sha} != ${FIXTURE_SHA256} — re-copy the canonical from katgpt-rs tests/fixtures, never hand-edit`,
+  );
+}
 
 for (const line of lines) {
   const rec = JSON.parse(line);
