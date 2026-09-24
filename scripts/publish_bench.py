@@ -72,13 +72,14 @@ HOST_META_KEYS = (
 LANE_SOURCE_KEYS = ("git_sha", "date_utc")
 
 # Display-only lane spellings. The canonical results.json keeps the machine
-# fields ("laya-riir" / "laya-python" / "modelless") — the rename happens
-# HERE, the one place every published byte passes through, so a re-publish
-# can never drift from the page.
+# fields ("laya-riir" / "laya-python" / "modelless" / "clm") — the rename
+# happens HERE, the one place every published byte passes through, so a
+# re-publish can never drift from the page.
 LANE_DISPLAY = {
     "laya-riir": "laya (rust)",
     "laya-python": "laya (python)",
     "modelless": "KatGPT",
+    "clm": "clm (reference)",
 }
 
 # Both spellings of the python lane: the machine field in a fresh harness
@@ -88,8 +89,10 @@ PYTHON_LANE_SPELLINGS = ("laya-python", LANE_DISPLAY["laya-python"])
 
 def rename_lanes(d):
     for s in d.get("suites", []):
-        lanes = ([s["modelless"]] if s.get("modelless") else []) + list(
-            (s.get("laya") or {}).values()
+        lanes = (
+            ([s["modelless"]] if s.get("modelless") else [])
+            + list((s.get("laya") or {}).values())
+            + ([s["clm"]] if s.get("clm") else [])
         )
         for l in lanes:
             # The model column renders the harness's own field — the modelless
@@ -203,6 +206,20 @@ def merge(primary, extras):
                 updated_lanes[f"laya:{lk}"] = True
                 if lv.get("lane") in PYTHON_LANE_SPELLINGS:
                     python_lanes = True
+            # The CLM comparison lane (reflex .issues/027): carried like
+            # any other lane an update declares — never merged silently
+            # away. No cross-host gate: it is an external reference
+            # measured per-host, no bit-identity claim applies.
+            ec = s.get("clm")
+            if ec:
+                entry["clm"] = ec
+                updated_lanes["clm"] = True
+            # The Issue-024 leak block (T4): a slice property of the
+            # DATASETS + registry caps, not of the host — the latest
+            # run's scan is the published one (a doc without it never
+            # erases a previous scan's block).
+            if s.get("leak"):
+                p["leak"] = s["leak"]
         if is_join:
             row = hosts_by_name[ehost]
             absent = [n for n in p_suites if n not in
@@ -304,8 +321,12 @@ def main() -> int:
     rename_lanes(d)
     for s in d.get("suites", []):
         for host_lanes in (s.get("extra_host_lanes") or {}).values():
-            lanes = ([host_lanes["modelless"]] if host_lanes.get("modelless")
-                     else []) + list((host_lanes.get("laya") or {}).values())
+            lanes = (
+                ([host_lanes["modelless"]] if host_lanes.get("modelless")
+                 else [])
+                + list((host_lanes.get("laya") or {}).values())
+                + ([host_lanes["clm"]] if host_lanes.get("clm") else [])
+            )
             for l in lanes:
                 l["lane"] = LANE_DISPLAY.get(l.get("lane"), l.get("lane"))
 

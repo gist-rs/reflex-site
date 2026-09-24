@@ -116,7 +116,8 @@
         fitted sigmoid gate, so it answers in micro-seconds and is bit-deterministic on a given build.
         <strong>laya (rust)</strong> — our Rust port running the open-weights laya checkpoints on the local GPU
         (device noted per run: Metal, or the Apple Neural Engine where the lane serves it).
-        <strong>laya (python)</strong> — the original torch reference, driven as a subprocess oracle on the same cases.</p>
+        <strong>laya (python)</strong> — the original torch reference, driven as a subprocess oracle on the same cases.
+        <strong>clm (reference)</strong> — the external Contrastive-LM reference (Apache-2.0, not affiliated): Qwen3-8B pooling + trained heads, served on its own stack and measured on ours — a comparison lane.</p>
 
       <h3>What is the ANE device row?</h3>
       <p>Some laya (rust) runs serve from the Apple Neural Engine — the encoder executes as one compiled whole-graph
@@ -244,6 +245,10 @@ function suiteSection(s) {
   const lanes = [];
   if (s.modelless) lanes.push(s.modelless);
   for (const k of Object.keys(s.laya || {})) lanes.push(s.laya[k]);
+  // The CLM comparison lane (reflex .issues/027): the external
+  // Contrastive-LM reference over /v1/systemone — same questions, their
+  // rendering law, an honest comparison row (never a product lane).
+  if (s.clm) lanes.push(s.clm);
   // Extra-host lanes (Issue 018 T5 — the fleet merge): the SAME questions
   // answered on other silicon. Same row renderer, host-tagged label; they
   // compete for the best-acc highlight honestly (identical questions).
@@ -251,6 +256,7 @@ function suiteSection(s) {
   for (const [host, hl] of Object.entries(s.extra_host_lanes || {})) {
     if (hl.modelless) extraRows.push([hl.modelless, host]);
     for (const k of Object.keys(hl.laya || {})) extraRows.push([hl.laya[k], host]);
+    if (hl.clm) extraRows.push([hl.clm, host]);
   }
   const bestAcc = Math.max(...lanes.concat(extraRows.map(([l]) => l)).map((l) => (l.hard || {}).accuracy ?? 0));
   const m = s.modelless;

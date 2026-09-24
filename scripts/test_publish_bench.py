@@ -296,6 +296,51 @@ def case_device_posture_refreshes_on_laya_update():
     assert "cuda" in row2["laya_device"], row2["laya_device"]
 
 
+def case_clm_lane_and_leak_block_ride_an_update():
+    # reflex .issues/027: the CLM comparison lane is carried like any other
+    # lane an update declares (extra_host_lanes on a join; the suite row on
+    # the primary host). .issues/024 T4: the suite-level leak block rides
+    # the latest scan — a doc WITHOUT one never erases a previous scan.
+    primary = doc("m3", "sha-m3", {"s1": {"modelless_acc": PRE_ACC}})
+    update = doc("4090-windows", "sha-clm", {"s1": {"modelless_acc": PRE_ACC}})
+    update["suites"][0]["clm"] = {
+        "lane": "clm", "model": "clm-latest",
+        "hard": {"accuracy": 0.55}, "latency_p50_ms": 42.0,
+    }
+    update["suites"][0]["leak"] = {
+        "threshold": 0.8, "n_reference": 560, "n_eval": 400,
+        "exact": 3, "near": 9,
+    }
+    merged, err = merge_refusing(primary, update)
+    assert merged is not None, f"merge must pass, got: {err}"
+    s1 = next(s for s in merged["suites"] if s["name"] == "s1")
+    e = s1["extra_host_lanes"]["4090-windows"]
+    assert e["clm"]["hard"]["accuracy"] == 0.55
+    assert e["clm"]["lane"] == "clm"  # machine field preserved pre-rename
+    assert s1["leak"] == update["suites"][0]["leak"]
+
+    # a LATER update without a leak block keeps the published scan; one
+    # WITH a clm lane REPLACES the lane and records its lane_source
+    # (updates are lane-scoped, 023 T5 — a join carries no lane_sources).
+    later = doc("4090-windows", "sha-later", {"s1": {"modelless_acc": PRE_ACC}})
+    later["suites"][0]["clm"] = {
+        "lane": "clm", "model": "clm-latest",
+        "hard": {"accuracy": 0.57}, "latency_p50_ms": 40.0,
+    }
+    merged2, err2 = merge_refusing(merged, later)
+    assert merged2 is not None, f"second merge must pass, got: {err2}"
+    s1b = next(s for s in merged2["suites"] if s["name"] == "s1")
+    assert s1b["leak"] is not None, "a doc without a leak block must not erase it"
+    assert s1b["extra_host_lanes"]["4090-windows"]["clm"]["hard"]["accuracy"] == 0.57
+    row = next(h for h in merged2["meta"]["hosts"] if h["host"] == "4090-windows")
+    assert row["lane_sources"]["clm"]["git_sha"] == "sha-later"
+
+    # the display rename reaches the clm lane (both spellings surfaces):
+    d = {"suites": [{"clm": {"lane": "clm"}}]}
+    pb.rename_lanes(d)
+    assert d["suites"][0]["clm"]["lane"] == "clm (reference)"
+
+
 CASES = [
     case_fleet_join_still_works,
     case_same_host_update_keeps_laya_and_row_facts,
@@ -305,6 +350,7 @@ CASES = [
     case_population_guard_excludes,
     case_code_fixtures_population_excluded_from_drift_gate,
     case_device_posture_refreshes_on_laya_update,
+    case_clm_lane_and_leak_block_ride_an_update,
     case_extra_suite_absent_in_primary_refuses,
     case_end_to_end_main,
 ]
