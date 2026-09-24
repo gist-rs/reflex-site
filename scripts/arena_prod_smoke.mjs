@@ -26,7 +26,7 @@ try {
   console.log(`[prod-smoke] chips: ${await page.textContent("#chip-modelless")} | ${(await page.textContent("#chip-laya")).trim()}`);
   await page.click("#tetris-run");
   await page.waitForFunction(
-    () => /\d+ spots in \d+ ms/.test(document.getElementById("tr-modelless-t").textContent),
+    () => /\d+ spots in [\d.]+ ms/.test(document.getElementById("tr-modelless-t").textContent),
     { timeout: 30000 },
   );
   console.log(`[prod-smoke] modelless: ${(await page.textContent("#tr-modelless-a")).trim()}`);
