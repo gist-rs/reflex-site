@@ -28,7 +28,7 @@ DROP_META_KEYS = ("datasets_dir",)
 LANE_DISPLAY = {
     "laya-riir": "laya (rust)",
     "laya-python": "laya (python)",
-    "modelless": "modelless",
+    "modelless": "KatGPT",
 }
 
 
@@ -38,8 +38,9 @@ def rename_lanes(d):
             (s.get("laya") or {}).values()
         )
         for l in lanes:
-            if l.get("lane") == "modelless":
-                l["model"] = "none"
+            # The model column renders the harness's own field — the modelless
+            # lane reports model: "modelless" (a mode, not a checkpoint), the
+            # honest cell. Never overwrite it here.
             l["lane"] = LANE_DISPLAY.get(l.get("lane"), l.get("lane"))
 
 

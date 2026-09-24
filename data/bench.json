@@ -25,8 +25,8 @@
    "n_cases": 400,
    "n_questions": 2000,
    "modelless": {
-    "lane": "modelless",
-    "model": "none",
+    "lane": "KatGPT",
+    "model": "modelless",
     "hard": {
      "n": 2000,
      "accuracy": 0.319,
@@ -597,8 +597,8 @@
    "n_cases": 400,
    "n_questions": 400,
    "modelless": {
-    "lane": "modelless",
-    "model": "none",
+    "lane": "KatGPT",
+    "model": "modelless",
     "hard": {
      "n": 400,
      "accuracy": 0.51,
@@ -754,8 +754,8 @@
    "n_cases": 400,
    "n_questions": 400,
    "modelless": {
-    "lane": "modelless",
-    "model": "none",
+    "lane": "KatGPT",
+    "model": "modelless",
     "hard": {
      "n": 400,
      "accuracy": 0.2825,
@@ -911,8 +911,8 @@
    "n_cases": 600,
    "n_questions": 600,
    "modelless": {
-    "lane": "modelless",
-    "model": "none",
+    "lane": "KatGPT",
+    "model": "modelless",
     "hard": {
      "n": 600,
      "accuracy": 0.21666666666666667,
@@ -1068,8 +1068,8 @@
    "n_cases": 116,
    "n_questions": 116,
    "modelless": {
-    "lane": "modelless",
-    "model": "none",
+    "lane": "KatGPT",
+    "model": "modelless",
     "hard": {
      "n": 116,
      "accuracy": 0.4396551724137931,
@@ -1225,8 +1225,8 @@
    "n_cases": 300,
    "n_questions": 300,
    "modelless": {
-    "lane": "modelless",
-    "model": "none",
+    "lane": "KatGPT",
+    "model": "modelless",
     "hard": {
      "n": 300,
      "accuracy": 0.3466666666666667,
@@ -1382,8 +1382,8 @@
    "n_cases": 300,
    "n_questions": 300,
    "modelless": {
-    "lane": "modelless",
-    "model": "none",
+    "lane": "KatGPT",
+    "model": "modelless",
     "hard": {
      "n": 300,
      "accuracy": 0.07666666666666666,
@@ -1539,8 +1539,8 @@
    "n_cases": 500,
    "n_questions": 500,
    "modelless": {
-    "lane": "modelless",
-    "model": "none",
+    "lane": "KatGPT",
+    "model": "modelless",
     "hard": {
      "n": 500,
      "accuracy": 0.446,
@@ -1696,8 +1696,8 @@
    "n_cases": 14,
    "n_questions": 28,
    "modelless": {
-    "lane": "modelless",
-    "model": "none",
+    "lane": "KatGPT",
+    "model": "modelless",
     "hard": {
      "n": 28,
      "accuracy": 0.21428571428571427,
@@ -1853,8 +1853,8 @@
    "n_cases": 16,
    "n_questions": 16,
    "modelless": {
-    "lane": "modelless",
-    "model": "none",
+    "lane": "KatGPT",
+    "model": "modelless",
     "hard": {
      "n": 16,
      "accuracy": 0.375,
@@ -2010,8 +2010,8 @@
    "n_cases": 12,
    "n_questions": 12,
    "modelless": {
-    "lane": "modelless",
-    "model": "none",
+    "lane": "KatGPT",
+    "model": "modelless",
     "hard": {
      "n": 12,
      "accuracy": 0.4166666666666667,
@@ -2167,8 +2167,8 @@
    "n_cases": 12,
    "n_questions": 12,
    "modelless": {
-    "lane": "modelless",
-    "model": "none",
+    "lane": "KatGPT",
+    "model": "modelless",
     "hard": {
      "n": 12,
      "accuracy": 0.5,
@@ -2324,8 +2324,8 @@
    "n_cases": 16,
    "n_questions": 16,
    "modelless": {
-    "lane": "modelless",
-    "model": "none",
+    "lane": "KatGPT",
+    "model": "modelless",
     "hard": {
      "n": 16,
      "accuracy": 0.4375,
@@ -2481,8 +2481,8 @@
    "n_cases": 15,
    "n_questions": 15,
    "modelless": {
-    "lane": "modelless",
-    "model": "none",
+    "lane": "KatGPT",
+    "model": "modelless",
     "hard": {
      "n": 15,
      "accuracy": 0.4,
