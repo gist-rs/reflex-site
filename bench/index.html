@@ -268,11 +268,17 @@ function suiteSection(s) {
   const g1 = g1Word
     ? `<p class="g1">G1 (modelless calibration): raw ${fmt(m.readout_ece_raw, 4)} · calibrated ${fmt(m.readout_ece_calibrated, 4)} · conformal-naive floor ${fmt(m.floor_ece, 4)} → <span class="${v === "pass" ? "pass" : v === "fail" ? "fail" : "noclaim"}">${g1Word}</span>${v === "no_claim" ? " <span class=\"cases\">— the calibrator never fitted (cal window below the occupancy floor); nothing to pass or fail</span>" : ""}</p>`
     : "";
+  // The Issue-024 leak scan (counts, never a rate): the corpus+cal to eval
+  // near-duplicate disclosure over the slices the published run served.
+  const leakLine = s.leak
+    ? `<p class="cases">leak scan (024): exact ${s.leak.exact} / near ${s.leak.near} over ${s.leak.n_eval} eval rows (${s.leak.n_reference} reference rows) — near-duplicate train/eval overlap disclosed per lane as acc_deleaked</p>`
+    : "";
+
   return `<h3 class="suite" id="suite-${s.name}">${s.name} <span class="cases">— ${s.n_cases} cases / ${s.n_questions} questions</span></h3>
   ${window.BenchCharts ? BenchCharts.suite(s) : ""}<div class="scroll"><table class="bench">
     <thead><tr><th>lane · model</th><th>acc</th><th>macro F1</th><th>ECE(maxp)</th><th>Brier</th><th>acc@50cov</th><th>rECE cal (raw)</th><th>abst / sel-acc</th><th>p50</th><th>p99</th><th>det</th></tr></thead>
     <tbody>${lanes.map((l) => laneRow(l, bestAcc)).join("")}${extraRows.map(([l, host]) => laneRow(l, bestAcc, host)).join("")}</tbody>
-  </table></div>${g1}${gateFit(s.modelless)}`;
+  </table></div>${leakLine}${g1}${gateFit(s.modelless)}`;
 }
 
 function render(d) {
