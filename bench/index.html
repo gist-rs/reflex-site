@@ -21,6 +21,50 @@
   .protocol { font-size: 13px; color: var(--muted); margin: 6px 0 0; }
   #bench-meta { color: var(--muted); font-size: 13.5px; }
   .scroll { overflow-x: auto; }
+  /* bench-charts.js — minimal bars (lane colors validated all-pairs on the dark surfaces) */
+  #bench-hero { background: var(--bg2); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px 10px; margin: 8px 0 26px; }
+  .bc-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+  .bc-legend { display: flex; flex-wrap: wrap; gap: 16px; font-size: 13px; color: var(--text); }
+  .bc-legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .bc-sw { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
+  .bc-legend .bc-sw { margin-right: 0; }
+  .bc-toggle { display: inline-flex; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+  .bc-toggle button { background: transparent; color: var(--muted); border: 0; padding: 4px 10px; font: inherit; font-size: 12.5px; cursor: pointer; }
+  .bc-toggle button + button { border-left: 1px solid var(--line); }
+  .bc-toggle button[aria-pressed="true"] { background: var(--dark-red); color: var(--text); }
+  .bc-hgrid { display: grid; grid-template-columns: 150px 1fr; column-gap: 12px; row-gap: 9px; align-items: center; }
+  .bc-hlabel { font-size: 12.5px; color: var(--muted); text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .bc-hlabel:hover { color: var(--ember); }
+  .bc-htrack { position: relative; display: flex; flex-direction: column; gap: 2px; }
+  .bc-hbar { position: relative; height: 6px; }
+  .bc-hbar i, .bc-cell i { display: block; height: 100%; border-radius: 0 4px 4px 0; }
+  .bc-hbar:hover i, .bc-hbar:focus i, .bc-cell:hover i, .bc-cell:focus i { filter: brightness(1.25); }
+  .bc-hbar, .bc-cell { outline: none; }
+  .bc-hbar.bc-none { height: 6px; font-size: 9.5px; line-height: 6px; color: var(--muted); opacity: .7; }
+  .bc-grid { position: absolute; top: -4px; bottom: -4px; width: 1px; background: var(--line); opacity: .7; }
+  .bc-axis { position: relative; height: 14px; font-size: 10.5px; color: var(--muted); }
+  .bc-axis span { position: absolute; transform: translateX(-50%); white-space: nowrap; }
+  .bc-axis span:first-child { transform: none; }
+  .bc-axis span:last-child { transform: translateX(-100%); }
+  .bc-note { font-size: 12px; color: var(--muted); margin: 10px 0 0; }
+  .bc-mut { color: var(--muted); font-weight: 400; }
+  .bc-suite { display: grid; grid-template-columns: minmax(150px, 210px) 1fr 1fr; column-gap: 14px; row-gap: 5px; align-items: center; margin: 8px 0 10px; font-size: 12px; }
+  .bc-sh { color: var(--muted); font-size: 11px; }
+  .bc-slabel { color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .bc-cell { display: flex; align-items: center; gap: 6px; height: 12px; }
+  .bc-cell i { height: 9px; flex: none; }
+  .bc-cell span { color: var(--muted); font-size: 11.5px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .bc-cell.bc-none { color: var(--muted); }
+  .bc-tip { position: fixed; display: none; z-index: 20; pointer-events: none; background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 7px 10px; font-size: 12px; line-height: 1.5; color: var(--text); box-shadow: 0 4px 18px rgba(0,0,0,.45); max-width: 320px; }
+  @media (max-width: 640px) {
+    .bc-hgrid { grid-template-columns: 96px 1fr; }
+    .bc-suite { grid-template-columns: 1fr 1fr; }
+    .bc-suite .bc-slabel { grid-column: 1 / -1; }
+    .bc-suite .bc-sh:first-child { display: none; }
+  }
+  .faq h3 { font-size: 15.5px; color: var(--text); margin: 18px 0 4px; }
+  .faq p, .notes li, .refs li { font-size: 14px; color: var(--muted); margin: 4px 0; }
+  .notes ul, .refs ul { padding-left: 20px; margin: 6px 0; }
   </style>
 </head>
 <body>
@@ -38,6 +82,10 @@
 
 <div class="wrap">
   <section style="border-top:0">
+    <h2>At a glance — every suite, three lanes</h2>
+    <p class="sub">Hover a bar for its numbers; click a suite name to jump to its table. Same questions for every lane.</p>
+    <div id="bench-hero" aria-live="polite"></div>
+
     <h2>Per-task tables — the losses are the point</h2>
     <p class="sub">
       Both lanes see byte-identical questions. The modelless lane is ns–µs tier and
@@ -59,6 +107,80 @@
     <h2 style="margin-top:40px">Protocol</h2>
     <div id="protocol"></div>
 
+    <h2 style="margin-top:40px">FAQ</h2>
+    <div class="faq">
+      <h3>What are the three lanes?</h3>
+      <p><strong>KatGPT · modelless</strong> — no neural weights: decisions come from a per-label corpus plus a
+        fitted sigmoid gate, so it answers in micro-seconds and is bit-deterministic on a given build.
+        <strong>laya (rust)</strong> — our Rust port running the open-weights laya checkpoints on the local GPU.
+        <strong>laya (python)</strong> — the original torch reference, driven as a subprocess oracle on the same cases.</p>
+
+      <h3>Why does the modelless lane lose on accuracy?</h3>
+      <p>It is corpus-bound by design: out-of-domain text lands near chance, and those rows are published rather than
+        trimmed. Its axes are latency and selective accuracy — how right it is on the questions it chooses to answer
+        (acc@50cov, abstain / sel-acc) — not raw accuracy against a neural model.</p>
+
+      <h3>Why are the rust and python bars the same length on accuracy?</h3>
+      <p>They should be: the rust lane is a port of the same checkpoints and is checked against the python oracle's
+        own outputs per suite. What differs is latency — and the python figure includes the subprocess round-trip (IPC).</p>
+
+      <h3>Why is latency on a log scale?</h3>
+      <p>The lanes are orders of magnitude apart. On a linear axis every modelless bar would be invisible; on the log
+        axis each gridline is 10×, so bar length compares ratios, not differences.</p>
+
+      <h3>What do acc@50cov and abstain / sel-acc mean?</h3>
+      <p><strong>acc@50cov</strong> is accuracy on the half of the questions the lane is most confident about.
+        <strong>abstain / sel-acc</strong> is the fraction the calibrated gate declined to answer, and the accuracy on
+        the rest.</p>
+
+      <h3>What does G1 PASS / FAIL / NO CLAIM mean?</h3>
+      <p>G1 gates calibration honesty only: does the fitted confidence beat both the raw readout and the
+        conformal-naive floor? It is not an accuracy gate. FAIL means the calibrator had nothing to improve;
+        NO CLAIM means it never fitted (the calibration window was too thin) — neither means the answers got worse.</p>
+
+      <h3>Why is a bar missing?</h3>
+      <p>That lane did not run on that suite (for example, a suite that only the LLM lane can answer). A missing bar
+        reads "not run", never zero.</p>
+
+      <h3>Are these numbers hand-typed?</h3>
+      <p>No. Charts and tables are both drawn in your browser from <a href="/data/bench.json">data/bench.json</a>,
+        which is generated from the harness output. Re-publishing that file re-draws everything.</p>
+    </div>
+
+    <h2 style="margin-top:40px">Notes</h2>
+    <div class="notes"><ul>
+      <li>Accuracy chance level differs per suite (a 3-way and a 77-way task are not comparable) — compare lanes within
+        a suite, never one suite's bar with another's.</li>
+      <li>The hero chart shows one checkpoint per laya lane: the best non-multilingual one for that suite, picked once
+        by accuracy so every metric toggle shows the same run. Every checkpoint (multilingual included) is in the
+        per-suite tables.</li>
+      <li>p99 on a small suite is effectively its maximum (under ~100 samples the 99th percentile lands on the last
+        one) — read p99 on the harness_* suites as "worst observed", not a tail estimate.</li>
+      <li>Bit-identity across runs is claimed for the modelless lane only; the laya lanes get the same repeat check,
+        reported under <em>det</em>, not claimed.</li>
+      <li>Latency is wall-clock on the host named in the provenance line above; it moves with the machine and its power
+        state. Modelless accuracy does not — the publisher refuses to merge a host whose modelless accuracy drifts.</li>
+    </ul></div>
+
+    <h2 style="margin-top:40px">References</h2>
+    <div class="refs"><ul>
+      <li>Engine: <a href="https://github.com/gist-rs/reflex">gist-rs/reflex</a> ·
+        <a href="https://github.com/gist-rs/reflex/releases">releases</a> · raw data
+        <a href="/data/bench.json">bench.json</a></li>
+      <li>laya checkpoints: <a href="https://huggingface.co/brainfunctioncollapse">brainfunctioncollapse on Hugging Face</a></li>
+      <li>Datasets:
+        <a href="https://huggingface.co/datasets/LocalLLaMA/typed-decisions">typed-decisions</a> ·
+        <a href="https://huggingface.co/datasets/fancyzhx/ag_news">ag_news</a> ·
+        <a href="https://huggingface.co/datasets/dair-ai/emotion">emotion</a> ·
+        <a href="https://huggingface.co/datasets/SetFit/sst5">sst5</a> ·
+        <a href="https://huggingface.co/datasets/deepset/prompt-injections">prompt-injections</a> ·
+        <a href="https://huggingface.co/datasets/facebook/xnli">xnli</a> ·
+        <a href="https://huggingface.co/datasets/mteb/amazon_massive_intent">MASSIVE intent</a> ·
+        <a href="https://huggingface.co/datasets/mteb/banking77">banking77</a></li>
+      <li>Calibration (ECE): Guo et al., <a href="https://arxiv.org/abs/1706.04599">On Calibration of Modern Neural Networks</a> (2017)</li>
+      <li>Conformal floor: Angelopoulos &amp; Bates, <a href="https://arxiv.org/abs/2107.07511">A Gentle Introduction to Conformal Prediction</a> (2021)</li>
+    </ul></div>
+
     <p class="sub" style="margin-top:26px">
       Not affiliated with, or endorsed by, TypeSafe AI; Jev is their product, named only to compare against.
       The laya lane loads Apache-2.0 checkpoints from the brainfunctioncollapse laya Hugging Face repositories
@@ -67,6 +189,7 @@
   </section>
 </div>
 
+<script src="/assets/bench-charts.js"></script>
 <script>
 const fmt = (v, d = 4) => (v === null || v === undefined) ? "—" : (typeof v === "number" ? v.toFixed(d) : String(v));
 const ms = (v) => (v === null || v === undefined) ? "—" : (v >= 1000 ? (v / 1000).toFixed(1) + " s" : v.toFixed(v < 10 ? 3 : 1) + " ms");
@@ -127,8 +250,8 @@ function suiteSection(s) {
   const g1 = g1Word
     ? `<p class="g1">G1 (modelless calibration): raw ${fmt(m.readout_ece_raw, 4)} · calibrated ${fmt(m.readout_ece_calibrated, 4)} · conformal-naive floor ${fmt(m.floor_ece, 4)} → <span class="${v === "pass" ? "pass" : v === "fail" ? "fail" : "noclaim"}">${g1Word}</span>${v === "no_claim" ? " <span class=\"cases\">— the calibrator never fitted (cal window below the occupancy floor); nothing to pass or fail</span>" : ""}</p>`
     : "";
-  return `<h3 class="suite">${s.name} <span class="cases">— ${s.n_cases} cases / ${s.n_questions} questions</span></h3>
-  <div class="scroll"><table class="bench">
+  return `<h3 class="suite" id="suite-${s.name}">${s.name} <span class="cases">— ${s.n_cases} cases / ${s.n_questions} questions</span></h3>
+  ${window.BenchCharts ? BenchCharts.suite(s) : ""}<div class="scroll"><table class="bench">
     <thead><tr><th>lane · model</th><th>acc</th><th>macro F1</th><th>ECE(maxp)</th><th>Brier</th><th>acc@50cov</th><th>rECE cal (raw)</th><th>abst / sel-acc</th><th>p50</th><th>p99</th><th>det</th></tr></thead>
     <tbody>${lanes.map((l) => laneRow(l, bestAcc)).join("")}${extraRows.map(([l, host]) => laneRow(l, bestAcc, host)).join("")}</tbody>
   </table></div>${g1}${gateFit(s.modelless)}`;
@@ -136,6 +259,7 @@ function suiteSection(s) {
 
 function render(d) {
   const meta = d.meta || {};
+  if (window.BenchCharts) BenchCharts.hero(d);
   const hosts = meta.hosts;
   let provenance;
   if (Array.isArray(hosts) && hosts.length) {
