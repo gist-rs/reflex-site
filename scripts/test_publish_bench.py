@@ -239,6 +239,63 @@ def case_end_to_end_main():
         assert e["laya"]["laya-riir"]["lane"] == "laya (rust)"
 
 
+def case_code_fixtures_population_excluded_from_drift_gate():
+    # The suite draws REAL fn spans from riir-reflex's own sources — its
+    # population is commit-dependent, so cross-host accuracy CANNOT be
+    # bit-identical by construction (the Issue 018 close-out's recorded
+    # "population-excluded"). The drift gate must skip it while still
+    # deciding every other suite.
+    primary = doc("m3", "sha-m3", {
+        "code_fixtures": {"modelless_acc": 0.2917},
+        "s1": {"modelless_acc": PRE_ACC},
+    })
+    join = doc("4090-windows", "sha-join", {
+        "code_fixtures": {"modelless_acc": 0.5417},  # drifted — by design
+        "s1": {"modelless_acc": PRE_ACC},
+    })
+    merged, err = merge_refusing(primary, join)
+    assert merged is not None, f"code_fixtures drift must not refuse, got: {err}"
+    # and the gate still walls the comparable suites:
+    bad = doc("m3", "sha-m3", {
+        "code_fixtures": {"modelless_acc": 0.2917},
+        "s1": {"modelless_acc": PRE_ACC},
+    })
+    bad_join = doc("4090-windows", "sha-join", {
+        "code_fixtures": {"modelless_acc": 0.2917},
+        "s1": {"modelless_acc": 0.5},  # a REAL drift — must refuse
+    })
+    merged2, err2 = merge_refusing(bad, bad_join)
+    assert merged2 is None, "s1 drift must still refuse"
+    assert "DRIFT" in err2 and "s1" in err2
+
+
+def case_device_posture_refreshes_on_laya_update():
+    # riir-reflex Issue 026: an update contributing laya lanes refreshes the
+    # host row's `laya_device` — the published file must not say "cpu"
+    # beside CUDA numbers (the Issue 025 T4 lane-fact class, one axis over).
+    primary = doc("m3", "sha-m3", {"s1": {"modelless_acc": PRE_ACC}})
+    join = doc("4090-windows", "sha-join", {
+        "s1": {"modelless_acc": PRE_ACC, "laya_p50": 8127.0},
+    })
+    join["meta"]["laya_device"] = "cpu (the join-era posture)"
+    update = doc("4090-windows", "sha-cuda", {
+        "s1": {"modelless_acc": PRE_ACC, "laya_p50": 17.0},
+    })
+    update["meta"]["laya_device"] = "cuda (LAYA_DEVICE or the default)"
+    merged, err = merge_refusing(primary, join, update)
+    assert merged is not None, f"merge must pass, got: {err}"
+    row = next(h for h in merged["meta"]["hosts"] if h["host"] == "4090-windows")
+    assert "cuda" in row["laya_device"], row["laya_device"]
+    # a modelless-only update must NOT touch the posture (no laya lanes):
+    later = doc("4090-windows", "sha-modelless", {"s1": {"modelless_acc": PRE_ACC}},
+                laya_feature=False)
+    later["meta"]["laya_device"] = "n/a (modelless-only doc)"
+    merged2, err2 = merge_refusing(merged, later)
+    assert merged2 is not None, f"second merge must pass, got: {err2}"
+    row2 = next(h for h in merged2["meta"]["hosts"] if h["host"] == "4090-windows")
+    assert "cuda" in row2["laya_device"], row2["laya_device"]
+
+
 CASES = [
     case_fleet_join_still_works,
     case_same_host_update_keeps_laya_and_row_facts,
@@ -246,6 +303,8 @@ CASES = [
     case_one_host_move_refuses,
     case_republished_bench_json_as_primary,
     case_population_guard_excludes,
+    case_code_fixtures_population_excluded_from_drift_gate,
+    case_device_posture_refreshes_on_laya_update,
     case_extra_suite_absent_in_primary_refuses,
     case_end_to_end_main,
 ]

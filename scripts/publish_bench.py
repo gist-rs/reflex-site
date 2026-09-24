@@ -232,13 +232,31 @@ def merge(primary, extras):
                 row["laya_python_lane"] = emeta["laya_python_lane"]
                 if ehost == phost:
                     pmeta["laya_python_lane"] = emeta["laya_python_lane"]
+            # The device posture is the same LANE-fact class (the 026 CUDA
+            # lane): an update contributing laya lanes must refresh
+            # `laya_device`, or the published file says "cpu" beside CUDA
+            # numbers — the T4 defect shape, one axis over.
+            if updated_lanes and any(k.startswith("laya:") for k in updated_lanes) \
+                    and "laya_device" in emeta:
+                row["laya_device"] = emeta["laya_device"]
 
     # FINAL-state cross-host drift gate (Issue 018 T7, mechanized on the
     # state that would be published): every host carrying the modelless
     # lane on a suite must agree on its accuracy — pairwise among ALL
     # hosts, not only against the primary (a suite the primary itself
     # lacks modelless on is still checked between the extras).
+    #
+    # POPULATION EXCLUSION — `code_fixtures`: that suite draws REAL fn
+    # spans from riir-reflex's own sources (`code_fn_slices()`), so its
+    # case population is COMMIT-DEPENDENT and cross-host bit-identity
+    # cannot hold by construction (the Issue 018 close-out's recorded
+    # "population-excluded" — the 14 dataset suites carry the claim;
+    # the drift the published data already shows on this suite is the
+    # population moving, not the engine). Excluded here so the gate
+    # stays a wall for the suites it can decide.
     for name, p in p_suites.items():
+        if name == "code_fixtures":
+            continue
         accs = {}
         pm = p.get("modelless")
         if pm:
