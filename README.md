@@ -83,11 +83,27 @@ uname). The publish script MERGES per-host rows (Issue 018): the FIRST
 results doc is the primary (its suites shape the tables; run the superset
 run first), every further doc contributes `meta.hosts` rows + per-suite
 `extra_host_lanes`. It REFUSES on modelless accuracy drift between hosts
-(the cross-host determinism claim — stop and file, never publish) and
-EXCLUDES population-mismatched suites (code_fixtures is repo-tree-relative
-at runtime) with a note. The current per-host inputs live in reflex as
-`.benchmarks/001_phase1_tables/results.json` (the m3 primary) and
-`.benchmarks/018_4090windows_run/results.json` (the windows lane).
+in the FINAL merged state (the cross-host determinism claim — stop and
+file, never publish) and EXCLUDES population-mismatched suites
+(code_fixtures is repo-tree-relative at runtime) with a note.
+
+Docs apply in argv order, and a doc whose host was already seen UPDATES
+only the lanes it declares (Issue 023 T5 — the lane-scoped re-run): a
+modelless-only re-run replaces that host's modelless lane and leaves its
+laya lanes untouched; the host row keeps the ORIGINAL run's facts and
+gains `lane_sources` (the update run's git sha + date per lane). A
+previously-published `data/bench.json` is a valid PRIMARY for a
+re-publish — its `meta.hosts` seed the seen-host set, so updates keep the
+original facts. Both hosts must move to a new engine TOGETHER: the
+final-state drift gate refuses a one-host move (a re-run of one host
+alone refuses until the other host's doc joins the same publish).
+
+The per-host inputs live in reflex as `.benchmarks/001_phase1_tables/
+results.json` (the m3 primary), `.benchmarks/018_4090windows_run/
+results.json` (the windows full lane) and
+`.benchmarks/023_t5_4090_modelless/results.json` (the windows
+modelless-only post-023 re-run). The self-test covers every merge law:
+`python3 scripts/test_publish_bench.py`.
 
 Commit + deploy. The provenance (git sha, date, host, protocols) rides
 inside `bench.json` and renders on the page — every host in `meta.hosts`

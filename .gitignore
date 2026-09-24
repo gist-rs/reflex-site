@@ -1,3 +1,4 @@
 scripts/out/
 .wrangler
 wasm-head/target
+__pycache__/

@@ -1,22 +1,37 @@
 #!/usr/bin/env python3
 """Publish the harness results to the arena site (Plan 606 T3.2; Issue 018 T5
-extends it to the per-host fleet merge).
+extends it to the per-host fleet merge; Issue 023 T5 extends it to ordered
+lane-updates).
 
-Copies riir-reflex's `.benchmarks/001_phase1_tables/results.json` into the
-site repo's `data/bench.json` after SANITIZING machine-local fields (the
-leak-scan discipline applied to the site: the raw file carries the local
-datasets path, e.g. /Users/<user>/... — that never leaves the box).
+Copies riir-reflex's results docs into the site repo's `data/bench.json`
+after SANITIZING machine-local fields (the leak-scan discipline applied to
+the site: the raw file carries the local datasets path, e.g.
+/Users/<user>/... — that never leaves the box).
 
 Issue 018 T5 — the multi-host merge (the healqual fleet-join precedent):
-bench data from additional hosts (e.g. the 4090-windows lane) is MERGED,
-never overwritten. The primary run (first input) keeps its exact published
-shape; every extra run contributes per-suite `extra_host_lanes` plus one
-`meta.hosts` row. The modelless lane's cross-host bit-identity claim is
-MECHANIZED here: any modelless accuracy drift between hosts is a REFUSAL
-(the stop-and-file gate of Issue 018 T7 — never a publish).
+bench data from additional hosts is MERGED, never overwritten. The primary
+run (first input) keeps its exact published shape; every extra run
+contributes per-suite `extra_host_lanes` plus one `meta.hosts` row. The
+modelless lane's cross-host bit-identity claim is MECHANIZED here: any
+modelless accuracy drift between hosts in the FINAL merged state is a
+REFUSAL (the stop-and-file gate of Issue 018 T7 — never publish).
+
+Issue 023 T5 — ordered lane-updates: the primary may itself be a
+previously-published `bench.json` (it carries meta.host + suites with
+extra_host_lanes already), and a later doc whose host was already seen
+UPDATES only the lanes it declares — a modelless-only post-fix re-run
+replaces the host's modelless lane and leaves its laya lanes untouched.
+The host's top-level row keeps the ORIGINAL run's facts (a modelless doc's
+`laya_feature: false` must not overwrite the full run's `true`) and gains
+`lane_sources` per updated lane (git_sha + date_utc of the update run) —
+per-lane provenance is disclosed, never blended.
 
 Usage:
     python3 publish_bench.py <results-primary.json> [results-extra.json ...] <site-repo-root>
+
+Docs apply in argv order. The first doc's suites shape the tables (run the
+superset run first). A previously-published data/bench.json is a valid
+primary for a re-publish (its meta.hosts seed the seen-host set).
 
 The bench page renders whatever bench.json carries — regenerating the site
 tables is: re-run the harness in riir-reflex, then run this script, commit,
@@ -51,6 +66,10 @@ HOST_META_KEYS = (
     "laya_max_questions",
     "corpus_cap_mode",
 )
+
+# meta keys recorded per UPDATED lane on a host row (lane_sources) — the
+# update run's provenance for exactly the lanes it contributed.
+LANE_SOURCE_KEYS = ("git_sha", "date_utc")
 
 # Display-only lane spellings. The canonical results.json keeps the machine
 # fields ("laya-riir" / "laya-python" / "modelless") — the rename happens
@@ -100,27 +119,60 @@ def load_run(path):
 
 
 def merge(primary, extras):
-    """Merge extra runs into the primary document (Issue 018 T5/T7).
+    """Merge extra docs into the primary document (Issue 018 T5/T7; 023 T5).
 
-    Returns the merged document. REFUSES on modelless accuracy drift — the
-    modelless lane's cross-host bit-identity is the determinism claim; drift
-    is a stop-and-file gate, never a publish.
+    Docs apply in order. A doc whose host is NEW joins the fleet (lanes +
+    one meta.hosts row, absent_suites disclosed). A doc whose host was
+    already seen (including the primary's own host, or a host carried by a
+    previously-merged primary) UPDATES only the lanes it declares; the
+    host's other lanes and its original row facts carry over, and each
+    updated lane's source run is recorded in the host row's lane_sources.
+
+    REFUSES on modelless accuracy drift in the FINAL merged state — the
+    cross-host bit-identity claim is checked on what would be PUBLISHED,
+    after every update has landed. A one-host engine move therefore refuses
+    (both hosts must move together — the Issue 023 T5 law).
     """
     pmeta = dict(primary.get("meta") or {})
-    hosts = [host_row(pmeta)]
+    phost = pmeta.get("host")
+
+    # Seed the seen-host set: a previously-merged primary (a published
+    # bench.json) carries its host rows already — reuse them so an update
+    # keeps the ORIGINAL run facts + disclosures instead of duplicating
+    # rows or recomputing absent_suites from a lane-scoped doc.
+    hosts_by_name = {}
+    hosts_order = []
+    for row in pmeta.get("hosts") or []:
+        h = row.get("host")
+        if h and h not in hosts_by_name:
+            hosts_by_name[h] = dict(row)
+            hosts_order.append(h)
+    if phost and phost not in hosts_by_name:
+        hosts_by_name[phost] = host_row(pmeta)
+        hosts_order.insert(0, phost)
+
     p_suites = {s["name"]: s for s in primary.get("suites", [])}
+
+    def host_lane_entry(suite, host):
+        """The writable lane container for `host` on this suite row."""
+        if host == phost:
+            return suite  # the primary's lanes live on the row itself
+        return suite.setdefault("extra_host_lanes", {}).setdefault(host, {})
 
     for extra in extras:
         emeta = extra.get("meta") or {}
         ehost = emeta["host"]
-        row = host_row(emeta)
-        absent = []
+        is_join = ehost not in hosts_by_name
+        if is_join:
+            hosts_by_name[ehost] = host_row(emeta)
+            hosts_order.append(ehost)
         excluded = []
+        updated_lanes = {}
         for s in extra.get("suites", []):
             name = s["name"]
             p = p_suites.get(name)
             if p is None:
-                print(f"error: extra host {ehost} has suite {name} which the "
+                print(f"error: host {ehost} has suite {name} which the "
                       f"primary run lacks — publish the superset run as the "
                       "primary (first argument)", file=sys.stderr)
                 sys.exit(1)
@@ -136,34 +188,66 @@ def merge(primary, extras):
                 excluded.append(f"{name} (nq {s.get('n_questions')} vs "
                                 f"primary {p.get('n_questions')})")
                 continue
-            pm, em = p.get("modelless"), s.get("modelless")
-            if pm and em:
-                pa, ea = (pm.get("hard") or {}).get("accuracy"), (
-                    em.get("hard") or {}
-                ).get("accuracy")
-                if pa is not None and ea is not None and pa != ea:
-                    print(
-                        f"⛔ modelless accuracy DRIFT on {name}: primary "
-                        f"{pa!r} vs {ehost} {ea!r} — the cross-host "
-                        "bit-identity claim FAILED (Issue 018 T7); stop and "
-                        "file, never publish",
-                        file=sys.stderr,
-                    )
-                    sys.exit(1)
-            entry = p.setdefault("extra_host_lanes", {}).setdefault(ehost, {})
+            entry = host_lane_entry(p, ehost)
+            em, el = s.get("modelless"), (s.get("laya") or {})
             if em:
                 entry["modelless"] = em
-            if s.get("laya"):
-                entry["laya"] = s["laya"]
-        absent = [n for n in p_suites if n not in
-                  {s["name"] for s in extra.get("suites", [])}]
-        if absent:
-            row["absent_suites"] = absent
-        if excluded:
-            row["excluded_suites"] = excluded
-        hosts.append(row)
+                updated_lanes["modelless"] = True
+            for lk, lv in el.items():
+                entry.setdefault("laya", {})[lk] = lv
+                updated_lanes[f"laya:{lk}"] = True
+        if is_join:
+            row = hosts_by_name[ehost]
+            absent = [n for n in p_suites if n not in
+                      {s["name"] for s in extra.get("suites", [])}]
+            if absent:
+                row["absent_suites"] = absent
+            if excluded:
+                row["excluded_suites"] = excluded
+        else:
+            row = hosts_by_name[ehost]
+            if excluded:
+                # An update doc's population mismatch is a per-suite
+                # exclusion: APPEND to (never overwrite) the standing
+                # disclosure — the join-time facts stay true.
+                row["excluded_suites"] = sorted(
+                    set(row.get("excluded_suites", [])) | set(excluded))
+            if updated_lanes:
+                src = row.setdefault("lane_sources", {})
+                for lane in updated_lanes:
+                    src[lane] = {k: emeta[k] for k in LANE_SOURCE_KEYS
+                                 if k in emeta}
 
-    pmeta["hosts"] = hosts
+    # FINAL-state cross-host drift gate (Issue 018 T7, mechanized on the
+    # state that would be published): every host carrying the modelless
+    # lane on a suite must agree on its accuracy — pairwise among ALL
+    # hosts, not only against the primary (a suite the primary itself
+    # lacks modelless on is still checked between the extras).
+    for name, p in p_suites.items():
+        accs = {}
+        pm = p.get("modelless")
+        if pm:
+            pa = (pm.get("hard") or {}).get("accuracy")
+            if pa is not None:
+                accs[pmeta.get("host") or "(primary)"] = pa
+        for host, entry in (p.get("extra_host_lanes") or {}).items():
+            em = entry.get("modelless")
+            if not em:
+                continue
+            ea = (em.get("hard") or {}).get("accuracy")
+            if ea is not None:
+                accs[host] = ea
+        if len(set(accs.values())) > 1:
+            detail = ", ".join(f"{h}={a!r}" for h, a in accs.items())
+            print(
+                f"⛔ modelless accuracy DRIFT on {name}: {detail} — the "
+                "cross-host bit-identity claim FAILED (Issue 018 T7); stop "
+                "and file, never publish",
+                file=sys.stderr,
+            )
+            sys.exit(1)
+
+    pmeta["hosts"] = [hosts_by_name[h] for h in hosts_order]
     primary["meta"] = pmeta
     return primary
 
@@ -175,15 +259,6 @@ def main() -> int:
     results_paths, site_root = sys.argv[1:-1], Path(sys.argv[-1])
     primary = load_run(results_paths[0])
     extras = [load_run(p) for p in results_paths[1:]]
-
-    seen = {(primary.get("meta") or {}).get("host")}
-    for d in extras:
-        h = (d.get("meta") or {}).get("host")
-        if h in seen:
-            print(f"error: host {h} appears twice — one run per host",
-                  file=sys.stderr)
-            return 1
-        seen.add(h)
 
     d = merge(primary, extras)
 
