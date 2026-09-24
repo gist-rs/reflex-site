@@ -186,3 +186,20 @@ footer.site .fine { font-size: 12.5px; margin-top: 10px; max-width: 860px; }
 .hint-inline code {
   color: inherit;
 }
+
+/* ── shared nav: focus + brand + narrow screens ────────────────────────── */
+/* The current page's nav row: aria-current="page" is set in each page's
+   static header (no JS), so the highlight holds on a no-JS load too. */
+nav a[aria-current="page"] { color: var(--rust-bright); font-weight: 700; }
+
+/* The brand links home on every page (the nav carries no Home row) — it
+   should read as the wordmark, not as a body link. */
+a.brand { color: var(--rust-bright); }
+a.brand:hover { text-decoration: underline; text-decoration-color: var(--line); }
+
+/* Five nav rows: stack under the wordmark on narrow screens. */
+@media (max-width: 700px) {
+  header.site .wrap { flex-direction: column; gap: 8px; }
+  nav { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 18px; }
+  nav a { margin-left: 0; }
+}

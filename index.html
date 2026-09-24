@@ -11,9 +11,9 @@
 
 <header class="site">
   <div class="wrap">
-    <div class="brand">Reflex <span>· KatGPT</span></div>
+    <a class="brand" href="/">Reflex <span>· KatGPT</span></a>
     <nav>
-      <a href="/#playground">Playground</a>
+      <a href="/#playground" aria-current="page">Playground</a>
       <a href="/arena/">Arena</a>
       <a href="/bench/">Benchmark</a>
       <a href="/#skill">For agents</a>
@@ -96,25 +96,26 @@ promote</textarea>
   <section id="bench-teaser">
     <h2>Measured, with the losses published</h2>
     <p class="sub">
-      The arena exists to make the trade visible: the modelless lane is ~10³–10⁴× faster and
+      The arena exists to make the trade visible: the modelless lane is ~10²–10³× faster per question and
       deterministic; the open-weights <strong>laya</strong> lane is the accuracy heavyweight.
       Same questions, both lanes, per-task tables —
       <a href="/bench/">full benchmark</a>.
     </p>
     <div class="teaser">
       <div class="cell">
-        <div class="big" id="t-ml-p50">0.475 ms</div>
-        <div class="lbl">modelless p50 per 2,000-question typed-decision set</div>
+        <div class="big" id="t-ml-p50">497 µs</div>
+        <div class="lbl" id="t-ml-lbl">modelless p50 per question — the typed-decision set (2,000 questions)</div>
       </div>
       <div class="cell">
         <table>
           <thead><tr><th>suite</th><th>modelless</th><th>laya·best</th><th>laya p50</th></tr></thead>
-          <tbody>
-            <tr><td>typed decisions</td><td>0.278</td><td><strong>0.744</strong></td><td>4493 ms</td></tr>
-            <tr><td>AG News</td><td>0.258</td><td><strong>0.950</strong></td><td>388 ms</td></tr>
-            <tr><td>emotion</td><td>0.295</td><td><strong>0.593</strong></td><td>170 ms</td></tr>
+          <tbody id="t-rows">
+            <tr><td>typed decisions</td><td>0.319</td><td><strong>0.745</strong></td><td>372 ms</td></tr>
+            <tr><td>AG News</td><td>0.510</td><td><strong>0.950</strong></td><td>38 ms</td></tr>
+            <tr><td>emotion</td><td>0.282</td><td><strong>0.593</strong></td><td>24 ms</td></tr>
           </tbody>
         </table>
+        <div class="lbl" id="t-prov" hidden></div>
       </div>
     </div>
   </section>

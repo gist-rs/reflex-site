@@ -121,3 +121,77 @@ document.querySelectorAll("button[data-copy]").forEach((b) => {
 });
 
 probe();
+
+// ── nav focus (home) ───────────────────────────────────────────────────────
+// "Playground" is the home page's nav row; arriving at /#skill (the For
+// agents link on another page) moves the highlight with it.
+function navFocus() {
+  const play = document.querySelector('nav a[href="/#playground"]');
+  const skill = document.querySelector('nav a[href="/#skill"]');
+  if (!play || !skill) return;
+  const target = location.hash === "#skill" ? skill : play;
+  for (const a of [play, skill]) {
+    if (a === target) a.setAttribute("aria-current", "page");
+    else a.removeAttribute("aria-current");
+  }
+}
+window.addEventListener("hashchange", navFocus);
+navFocus();
+
+// ── bench teaser — the same rule as /bench/ (a hand-typed number on the
+// site is a defect): every figure is read from data/bench.json at render
+// time; the static HTML above is only the no-JS fallback.
+async function teaser() {
+  const big = document.getElementById("t-ml-p50");
+  if (!big) return;
+  let d;
+  try {
+    const r = await fetch("/data/bench.json", { cache: "no-store" });
+    if (!r.ok) return;
+    d = await r.json();
+  } catch {
+    return; // fetch failed — the static fallback stays
+  }
+  const suites = d.suites || [];
+  const suite = (name) => suites.find((s) => s.name === name);
+  // The /bench/ hero pick (bench-charts.js): the best-accuracy
+  // non-multilingual laya checkpoint, first-max wins in lane order.
+  const pickLaya = (s) => {
+    let best = null;
+    for (const l of Object.values(s.laya || {})) {
+      if (l.lane !== "laya (rust)" && l.lane !== "laya (python)") continue;
+      if (l.model === "multilingual" || !l.hard) continue;
+      if (!best || (l.hard.accuracy ?? -1) > (best.hard.accuracy ?? -1)) best = l;
+    }
+    return best;
+  };
+  const lat = (v) => v < 1 ? +(v * 1000).toPrecision(3) + " µs" : v < 1000 ? +v.toPrecision(3) + " ms" : +(v / 1000).toPrecision(3) + " s";
+  const td = suite("typed_decisions");
+  if (td?.modelless?.latency_p50_ms != null) {
+    big.textContent = lat(td.modelless.latency_p50_ms);
+    const lbl = document.getElementById("t-ml-lbl");
+    if (lbl && td.n_questions) {
+      lbl.textContent = `modelless p50 per question — the typed-decision set (${td.n_questions.toLocaleString("en-US")} questions)`;
+    }
+  }
+  const rows = [];
+  for (const [name, label] of [["typed_decisions", "typed decisions"], ["ag_news", "AG News"], ["emotion", "emotion"]]) {
+    const s = suite(name);
+    if (!s) continue;
+    const acc = s.modelless?.hard?.accuracy;
+    const l = pickLaya(s);
+    rows.push(
+      `<tr><td>${label}</td><td>${typeof acc === "number" ? acc.toFixed(3) : "—"}</td>` +
+      `<td>${l ? `<strong>${l.hard.accuracy.toFixed(3)}</strong>` : "—"}</td>` +
+      `<td>${l && l.latency_p50_ms != null ? lat(l.latency_p50_ms) : "—"}</td></tr>`,
+    );
+  }
+  const tb = document.getElementById("t-rows");
+  if (tb && rows.length) tb.innerHTML = rows.join("");
+  const prov = document.getElementById("t-prov");
+  if (prov && d.meta?.date_utc) {
+    prov.hidden = false;
+    prov.textContent = `measured ${d.meta.date_utc.slice(0, 10)} · run ${d.meta.git_sha || "?"} on ${d.meta.host || "?"} — full tables on the benchmark page`;
+  }
+}
+teaser();
