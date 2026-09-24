@@ -117,6 +117,38 @@ def case_same_host_update_keeps_laya_and_row_facts():
     assert hosts["4090-windows"].get("absent_suites") is None
 
 
+def case_python_lane_update_flips_posture():
+    # riir-reflex Issue 025 T4: an update doc that contributes python lanes
+    # flips the host row's (and, for the primary host, the top-level)
+    # laya_python_lane from the original "off"; an update without python
+    # lanes must leave it alone.
+    primary = doc("m3", "sha-m3", {"s1": {"modelless_acc": POST_ACC, "laya_p50": 4.0}})
+    primary["meta"]["laya_python_lane"] = "off"
+    other = doc("4090-windows", "sha-w", {"s1": {"modelless_acc": POST_ACC}})
+    other["meta"]["laya_python_lane"] = "off"
+    upd = doc("m3", "sha-py", {"s1": {"modelless_acc": POST_ACC, "laya_p50": 5.0}})
+    upd["suites"][0]["laya"]["py/english"] = {"lane": "laya-python", "p50_ms": 3.0}
+    upd["meta"]["laya_python_lane"] = "on"
+    merged, err = merge_refusing(primary, other, upd)
+    assert merged is not None, err
+    hosts = {r["host"]: r for r in merged["meta"]["hosts"]}
+    assert hosts["m3"]["laya_python_lane"] == "on"
+    assert merged["meta"]["laya_python_lane"] == "on"
+    assert hosts["4090-windows"]["laya_python_lane"] == "off"
+    assert merged["suites"][0]["laya"]["py/english"]["p50_ms"] == 3.0
+    assert hosts["m3"]["lane_sources"]["laya:py/english"]["git_sha"] == "sha-py"
+
+    # no python lanes in the update -> posture untouched
+    primary2 = doc("m3", "sha-m3", {"s1": {"modelless_acc": POST_ACC, "laya_p50": 4.0}})
+    primary2["meta"]["laya_python_lane"] = "off"
+    upd2 = doc("m3", "sha-rs", {"s1": {"modelless_acc": POST_ACC, "laya_p50": 5.0}})
+    upd2["meta"]["laya_python_lane"] = "on"
+    merged2, err2 = merge_refusing(primary2, upd2)
+    assert merged2 is not None, err2
+    assert merged2["meta"]["hosts"][0]["laya_python_lane"] == "off"
+    assert merged2["meta"]["laya_python_lane"] == "off"
+
+
 def case_one_host_move_refuses():
     primary = doc("m3", "sha-m3", {"s1": {"modelless_acc": PRE_ACC}})
     join = doc("4090", "sha-join", {"s1": {"modelless_acc": PRE_ACC}})
@@ -210,6 +242,7 @@ def case_end_to_end_main():
 CASES = [
     case_fleet_join_still_works,
     case_same_host_update_keeps_laya_and_row_facts,
+    case_python_lane_update_flips_posture,
     case_one_host_move_refuses,
     case_republished_bench_json_as_primary,
     case_population_guard_excludes,

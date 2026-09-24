@@ -81,6 +81,10 @@ LANE_DISPLAY = {
     "modelless": "KatGPT",
 }
 
+# Both spellings of the python lane: the machine field in a fresh harness
+# doc, and the display name in a previously-published bench.json.
+PYTHON_LANE_SPELLINGS = ("laya-python", LANE_DISPLAY["laya-python"])
+
 
 def rename_lanes(d):
     for s in d.get("suites", []):
@@ -168,6 +172,7 @@ def merge(primary, extras):
             hosts_order.append(ehost)
         excluded = []
         updated_lanes = {}
+        python_lanes = False
         for s in extra.get("suites", []):
             name = s["name"]
             p = p_suites.get(name)
@@ -196,6 +201,8 @@ def merge(primary, extras):
             for lk, lv in el.items():
                 entry.setdefault("laya", {})[lk] = lv
                 updated_lanes[f"laya:{lk}"] = True
+                if lv.get("lane") in PYTHON_LANE_SPELLINGS:
+                    python_lanes = True
         if is_join:
             row = hosts_by_name[ehost]
             absent = [n for n in p_suites if n not in
@@ -217,6 +224,14 @@ def merge(primary, extras):
                 for lane in updated_lanes:
                     src[lane] = {k: emeta[k] for k in LANE_SOURCE_KEYS
                                  if k in emeta}
+            # riir-reflex Issue 025 T4: the python-lane posture is a LANE
+            # fact, not a run fact. An update that contributes python lanes
+            # must replace the row's "off", or the published file says "off"
+            # beside python numbers.
+            if python_lanes and "laya_python_lane" in emeta:
+                row["laya_python_lane"] = emeta["laya_python_lane"]
+                if ehost == phost:
+                    pmeta["laya_python_lane"] = emeta["laya_python_lane"]
 
     # FINAL-state cross-host drift gate (Issue 018 T7, mechanized on the
     # state that would be published): every host carrying the modelless
