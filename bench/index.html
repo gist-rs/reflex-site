@@ -109,11 +109,21 @@
 
     <h2 style="margin-top:40px">FAQ</h2>
     <div class="faq">
-      <h3>What are the three lanes?</h3>
+      <h3>What are the lanes?</h3>
       <p><strong>KatGPT · modelless</strong> — no neural weights: decisions come from a per-label corpus plus a
         fitted sigmoid gate, so it answers in micro-seconds and is bit-deterministic on a given build.
-        <strong>laya (rust)</strong> — our Rust port running the open-weights laya checkpoints on the local GPU.
+        <strong>laya (rust)</strong> — our Rust port running the open-weights laya checkpoints on the local GPU
+        (device noted per run: Metal, or the Apple Neural Engine where the lane serves it).
         <strong>laya (python)</strong> — the original torch reference, driven as a subprocess oracle on the same cases.</p>
+
+      <h3>What is the ANE device row?</h3>
+      <p>Some laya (rust) runs serve from the Apple Neural Engine — the encoder executes as one compiled whole-graph
+        Core ML model per length bucket (BC1S, FP16), while the gather and the decision head stay host-side. FP16
+        math fails a bit-level drift bar by nature, so the ANE rows are gated the way every device row should be:
+        <strong>decision-level</strong> — top-1 agreement against the frozen reference captures (gate ≥ 99.9%), and
+        every argmax flip must sit inside the near-tie band (the reference's own top-2 margin &lt; 0.04). Every flip,
+        near-tie or not, is listed — never hidden. Probability drift is published as observation, never as a gate.
+        Sequences longer than the largest bucket are served by the other devices and named as skips on the ANE row.</p>
 
       <h3>Why does the modelless lane lose on accuracy?</h3>
       <p>It is corpus-bound by design: out-of-domain text lands near chance, and those rows are published rather than
