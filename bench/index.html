@@ -71,11 +71,11 @@
 const fmt = (v, d = 4) => (v === null || v === undefined) ? "—" : (typeof v === "number" ? v.toFixed(d) : String(v));
 const ms = (v) => (v === null || v === undefined) ? "—" : (v >= 1000 ? (v / 1000).toFixed(1) + " s" : v.toFixed(v < 10 ? 3 : 1) + " ms");
 
-function laneRow(l, bestAcc) {
+function laneRow(l, bestAcc, hostTag) {
   const h = l.hard || {};
   const tds = [];
   const accCell = h.accuracy === bestAcc ? "best" : "";
-  tds.push(`<td>${fmt(l.lane)} · ${fmt(l.model)}</td>`);
+  tds.push(`<td>${fmt(l.lane)} · ${fmt(l.model)}${hostTag ? ` <span class="cases">@${hostTag}</span>` : ""}</td>`);
   tds.push(`<td class="${accCell}">${fmt(h.accuracy)}</td>`);
   tds.push(`<td>${fmt(h.macro_f1)}</td>`);
   tds.push(`<td>${fmt(h.ece, 3)}</td>`);
@@ -102,11 +102,22 @@ function gateFit(m) {
   return `<p class="g1">Gate fit (ρ=${tr.posture.rho}): score ${axis(tr.score)} · distance ${axis(tr.distance)}</p>`;
 }
 
+// The short device word for a host row ("metal (LAYA_DEVICE …)" → "metal").
+const deviceWord = (d) => (d || "").split(" ")[0] || "?";
+
 function suiteSection(s) {
   const lanes = [];
   if (s.modelless) lanes.push(s.modelless);
   for (const k of Object.keys(s.laya || {})) lanes.push(s.laya[k]);
-  const bestAcc = Math.max(...lanes.map((l) => (l.hard || {}).accuracy ?? 0));
+  // Extra-host lanes (Issue 018 T5 — the fleet merge): the SAME questions
+  // answered on other silicon. Same row renderer, host-tagged label; they
+  // compete for the best-acc highlight honestly (identical questions).
+  const extraRows = [];
+  for (const [host, hl] of Object.entries(s.extra_host_lanes || {})) {
+    if (hl.modelless) extraRows.push([hl.modelless, host]);
+    for (const k of Object.keys(hl.laya || {})) extraRows.push([hl.laya[k], host]);
+  }
+  const bestAcc = Math.max(...lanes.concat(extraRows.map(([l]) => l)).map((l) => (l.hard || {}).accuracy ?? 0));
   const m = s.modelless;
   // The G1 verdict: g1_verdict (pass/fail/no_claim) when the run carries it;
   // the g1_pass boolean is the pre-no-claim fallback. no_claim = the
@@ -119,18 +130,31 @@ function suiteSection(s) {
   return `<h3 class="suite">${s.name} <span class="cases">— ${s.n_cases} cases / ${s.n_questions} questions</span></h3>
   <div class="scroll"><table class="bench">
     <thead><tr><th>lane · model</th><th>acc</th><th>macro F1</th><th>ECE(maxp)</th><th>Brier</th><th>acc@50cov</th><th>rECE cal (raw)</th><th>abst / sel-acc</th><th>p50</th><th>p99</th><th>det</th></tr></thead>
-    <tbody>${lanes.map((l) => laneRow(l, bestAcc)).join("")}</tbody>
+    <tbody>${lanes.map((l) => laneRow(l, bestAcc)).join("")}${extraRows.map(([l, host]) => laneRow(l, bestAcc, host)).join("")}</tbody>
   </table></div>${g1}${gateFit(s.modelless)}`;
 }
 
 function render(d) {
   const meta = d.meta || {};
-  document.getElementById("bench-meta").innerHTML =
-    `Run <code>${meta.git_sha || "?"}</code> on <code>${meta.host || "?"}</code> · ${meta.date_utc || "?"} · profile <code>${meta.profile || "?"}</code> · laya feature: ${meta.laya_feature ? "on" : "off"} · generated from the harness, never hand-typed.`;
+  const hosts = meta.hosts;
+  let provenance;
+  if (Array.isArray(hosts) && hosts.length) {
+    // Issue 018 T6: the provenance row names EVERY host. The modelless
+    // accuracy columns are bit-identical across these runs (the merge
+    // script refuses to publish drift); latency rows are per-host.
+    provenance = hosts.map((h) =>
+      `Run <code>${h.git_sha || "?"}</code> on <code>${h.host || "?"}</code>` +
+      ` (${deviceWord(h.laya_device)}${h.laya_feature ? "" : ", no laya"}) · ${h.date_utc || "?"}`
+    ).join(" — ") + " · generated from the harness, never hand-typed.";
+  } else {
+    provenance =
+      `Run <code>${meta.git_sha || "?"}</code> on <code>${meta.host || "?"}</code> · ${meta.date_utc || "?"} · profile <code>${meta.profile || "?"}</code> · laya feature: ${meta.laya_feature ? "on" : "off"} · generated from the harness, never hand-typed.`;
+  }
+  document.getElementById("bench-meta").innerHTML = provenance;
   document.getElementById("tables").innerHTML = (d.suites || []).map(suiteSection).join("");
   const proto = [];
   for (const [k, v] of Object.entries(meta)) {
-    if (["date_utc", "git_sha", "host", "profile", "laya_feature", "datasets_dir"].includes(k)) continue;
+    if (["date_utc", "git_sha", "host", "profile", "laya_feature", "datasets_dir", "hosts"].includes(k)) continue;
     if (Array.isArray(v)) { proto.push(`<p class="protocol"><strong>${k}:</strong> ${v.map(String).join(" · ")}</p>`); }
     else if (typeof v === "string") { proto.push(`<p class="protocol"><strong>${k}:</strong> ${v}</p>`); }
   }
