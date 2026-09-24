@@ -146,6 +146,17 @@ function render(d) {
       `Run <code>${h.git_sha || "?"}</code> on <code>${h.host || "?"}</code>` +
       ` (${deviceWord(h.laya_device)}${h.laya_feature ? "" : ", no laya"}) · ${h.date_utc || "?"}`
     ).join(" — ") + " · generated from the harness, never hand-typed.";
+    // Population-guard disclosure (the merge script's excluded/absent
+    // notes): a suite missing on one host is a fact about the MERGE, not a
+    // silent hole in the table — name it under the provenance row.
+    const notes = [];
+    for (const h of hosts) {
+      if (Array.isArray(h.excluded_suites) && h.excluded_suites.length)
+        notes.push(`<span class="cases">not merged on ${h.host || "?"}: ${h.excluded_suites.map(String).join(" · ")} — population differs across hosts, never compared</span>`);
+      if (Array.isArray(h.absent_suites) && h.absent_suites.length)
+        notes.push(`<span class="cases">absent on ${h.host || "?"}: ${h.absent_suites.map(String).join(", ")}</span>`);
+    }
+    if (notes.length) provenance += "<br>" + notes.join("<br>");
   } else {
     provenance =
       `Run <code>${meta.git_sha || "?"}</code> on <code>${meta.host || "?"}</code> · ${meta.date_utc || "?"} · profile <code>${meta.profile || "?"}</code> · laya feature: ${meta.laya_feature ? "on" : "off"} · generated from the harness, never hand-typed.`;
