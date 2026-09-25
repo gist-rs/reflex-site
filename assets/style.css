@@ -197,7 +197,7 @@ nav a[aria-current="page"] { color: var(--rust-bright); font-weight: 700; }
 a.brand { color: var(--rust-bright); }
 a.brand:hover { text-decoration: underline; text-decoration-color: var(--line); }
 
-/* Five nav rows: stack under the wordmark on narrow screens. */
+/* Six nav rows: stack under the wordmark on narrow screens. */
 @media (max-width: 700px) {
   header.site .wrap { flex-direction: column; gap: 8px; }
   nav { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 18px; }
@@ -222,7 +222,7 @@ a.brand:hover { text-decoration: underline; text-decoration-color: var(--line); 
 .bc-legend span { display: inline-flex; align-items: center; gap: 6px; }
 .bc-legend a { color: var(--ember); }
 .bc-sw { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
-.bc-legend .bc-sw, .bc-hlabel .bc-sw { margin-right: 0; }
+.bc-legend .bc-sw { margin-right: 0; }
 .bc-toggle { display: inline-flex; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
 .bc-toggle button { background: transparent; color: var(--muted); border: 0; padding: 4px 10px; font: inherit; font-size: 12.5px; cursor: pointer; }
 .bc-toggle button + button { border-left: 1px solid var(--line); }

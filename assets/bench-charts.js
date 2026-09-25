@@ -22,12 +22,15 @@
     { key: "katgpt", label: "KatGPT · modelless", color: "#d95926", match: (l) => l.lane === "KatGPT" || l.model === "modelless" },
     { key: "rust", label: "laya (rust)", color: "#3987e5", match: (l) => l.lane === "laya (rust)" },
     { key: "python", label: "laya (python)", color: "#199e70", match: (l) => l.lane === "laya (python)" },
-    { key: "clm", label: "clm (reference)", color: "#b39ddb", match: (l) => l.lane === "clm (reference)" },
-    { key: "gliner", label: "gliner (reference)", color: "#4dd0c4", match: (l) => l.lane === "gliner (reference)" },
-    { key: "agentjev", label: "agentjev (reference)", color: "#d9a62e", match: (l) => l.lane === "agentjev (reference)" },
+    { key: "clm", label: "clm", color: "#b39ddb", match: (l) => l.lane === "clm (reference)" },
+    { key: "gliner", label: "gliner", color: "#4dd0c4", match: (l) => l.lane === "gliner (reference)" },
+    { key: "agentjev", label: "agentjev", color: "#d9a62e", match: (l) => l.lane === "agentjev (reference)" },
   ];
   const OTHER = { key: "other", label: "other", color: "#8a7468" };
   const laneOf = (l) => LANES.find((x) => x.match(l)) || OTHER;
+  // display form of the data's lane name — the "(reference)" qualifier
+  // stays in the data (it drives laneOf matching) but never renders
+  const shortLane = (l) => String(l.lane).replace(/ \(reference\)$/, "");
 
   // ── lane filter (one checkbox bar, governs EVERY section of the page) ────
   // The filter keys on the CANONICAL lane key (laneOf(l).key — "katgpt",
@@ -201,7 +204,7 @@
   const tipHtml = (l, extra) => {
     const h = l.hard || {};
     const lane = laneOf(l);
-    return `<span class="bc-sw" style="background:${lane.color}"></span><b>${esc(l.lane)} · ${esc(l.model)}</b>${extra ? ` <span class="bc-mut">${esc(extra)}</span>` : ""}<br>` +
+    return `<span class="bc-sw" style="background:${lane.color}"></span><b>${esc(shortLane(l))} · ${esc(l.model)}</b>${extra ? ` <span class="bc-mut">${esc(extra)}</span>` : ""}<br>` +
       `accuracy ${num(h.accuracy) ? pct(h.accuracy) : "—"} · acc@50cov ${num(h.acc_at_50_coverage) ? pct(h.acc_at_50_coverage) : "—"}<br>` +
       `p50 ${num(l.latency_p50_ms) ? lat(l.latency_p50_ms) : "—"} · p99 ${num(l.latency_p99_ms) ? lat(l.latency_p99_ms) : "—"}` +
       (num(h.n) ? ` · n=${h.n}` : "");
@@ -282,7 +285,7 @@
     return `<div class="bc-suite" aria-label="${esc(s.name)} lanes compared">` +
       `<div class="bc-sh"></div><div class="bc-sh">accuracy</div><div class="bc-sh">p50 latency · log · shorter is faster</div>` +
       rows.map(([l, host]) =>
-        `<div class="bc-slabel"><i class="bc-sw" style="background:${laneOf(l).color}"></i>${esc(l.lane)} · ${esc(l.model)}${host ? ` <span class="bc-mut">@${esc(host)}</span>` : ""}</div>` +
+        `<div class="bc-slabel"><i class="bc-sw" style="background:${laneOf(l).color}"></i>${esc(shortLane(l))} · ${esc(l.model)}${host ? ` <span class="bc-mut">@${esc(host)}</span>` : ""}</div>` +
         cell("acc", l, host ? "@" + host : "") + cell("p50", l, host ? "@" + host : "")).join("") +
       `</div>`;
   }

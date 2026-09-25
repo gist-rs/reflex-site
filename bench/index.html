@@ -52,6 +52,7 @@
   <div class="wrap">
     <a class="brand" href="/">Reflex <span>· bench</span></a>
     <nav>
+      <a href="/">Home</a>
       <a href="/playground/">Playground</a>
       <a href="/arena/">Arena</a>
       <a href="/bench/" aria-current="page">Benchmark</a>
@@ -98,14 +99,14 @@
         <strong>laya (rust)</strong> — our Rust port running the open-weights laya checkpoints on the local GPU
         (device noted per run: Metal, or the Apple Neural Engine where the lane serves it).
         <strong>laya (python)</strong> — the original torch reference, driven as a subprocess oracle on the same cases.
-        <strong>clm (reference)</strong> — the external Contrastive-LM reference (Apache-2.0, not affiliated): Qwen3-8B pooling + trained heads, served on its own stack and measured on ours — a comparison lane
+        <strong>clm</strong> — the external Contrastive-LM reference (Apache-2.0, not affiliated): Qwen3-8B pooling + trained heads, served on its own stack and measured on ours — a comparison lane
         (full detail in the clm entry below).
-        <strong>gliner (reference)</strong> — the external GLiNER2.5-Decide zero-shot classifier (Apache-2.0, not affiliated, 340M DeBERTa-v3 encoder):
+        <strong>gliner</strong> — the external GLiNER2.5-Decide zero-shot classifier (Apache-2.0, not affiliated, 340M DeBERTa-v3 encoder):
         their gliner2 package answers the same candidate-label questions — a comparison lane, never a product lane.
-        <strong>agentjev (reference)</strong> — the external AgentJev-0.6B typed-decision specialist (Apache-2.0, not affiliated, Qwen3-0.6B backbone):
+        <strong>agentjev</strong> — the external AgentJev-0.6B typed-decision specialist (Apache-2.0, not affiliated, Qwen3-0.6B backbone):
         their service answers over HTTP, measured gold-label on our split — a comparison lane, never a product lane.</p>
 
-      <h3>Tell me more about the clm (reference) lane</h3>
+      <h3>Tell me more about the clm lane</h3>
       <p>CLM (Contrastive Language Models) is an external, unaffiliated research project — an Apache-2.0
         "System One" decision model (Kwok, Kang, Suresh, Saad-Falcon, Pavone, Ré, Mirhoseini —
         <a href="https://github.com/Contrastive-LM/CLM">github.com/Contrastive-LM/CLM</a> ·
@@ -238,7 +239,7 @@ function laneRow(l, bestAcc, hostTag) {
   const h = l.hard || {};
   const tds = [];
   const accCell = h.accuracy === bestAcc ? "best" : "";
-  tds.push(`<td>${fmt(l.lane)} · ${fmt(l.model)}${hostTag ? ` <span class="cases">@${hostTag}</span>` : ""}</td>`);
+  tds.push(`<td>${fmt(String(l.lane).replace(/ \(reference\)$/, ""))} · ${fmt(l.model)}${hostTag ? ` <span class="cases">@${hostTag}</span>` : ""}</td>`);
   tds.push(`<td class="${accCell}">${fmt(h.accuracy)}</td>`);
   tds.push(`<td>${fmt(h.macro_f1)}</td>`);
   tds.push(`<td>${fmt(h.ece, 3)}</td>`);
