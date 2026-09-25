@@ -54,34 +54,35 @@
     "corpus_cap_mode": "registry defaults",
     "lane_sources": {
      "modelless": {
-      "git_sha": "0b6a7c4",
-      "date_utc": "2026-09-25T13:04:08Z"
+      "git_sha": "6939420",
+      "date_utc": "2026-09-25T21:36:01Z"
      },
      "laya:english": {
-      "git_sha": "0b6a7c4",
-      "date_utc": "2026-09-25T13:04:08Z"
+      "git_sha": "6939420",
+      "date_utc": "2026-09-25T21:36:01Z"
      },
      "laya:multilingual": {
-      "git_sha": "0b6a7c4",
-      "date_utc": "2026-09-25T13:04:08Z"
+      "git_sha": "6939420",
+      "date_utc": "2026-09-25T21:36:01Z"
      },
      "laya:py/english": {
-      "git_sha": "0b6a7c4",
-      "date_utc": "2026-09-25T13:04:08Z"
+      "git_sha": "6939420",
+      "date_utc": "2026-09-25T21:36:01Z"
      },
      "laya:py/multilingual": {
-      "git_sha": "0b6a7c4",
-      "date_utc": "2026-09-25T13:04:08Z"
+      "git_sha": "6939420",
+      "date_utc": "2026-09-25T21:36:01Z"
      },
      "laya:py/typed": {
-      "git_sha": "0b6a7c4",
-      "date_utc": "2026-09-25T13:04:08Z"
+      "git_sha": "6939420",
+      "date_utc": "2026-09-25T21:36:01Z"
      },
      "laya:typed": {
-      "git_sha": "0b6a7c4",
-      "date_utc": "2026-09-25T13:04:08Z"
+      "git_sha": "6939420",
+      "date_utc": "2026-09-25T21:36:01Z"
      }
-    }
+    },
+    "head_posture": "ON \u2014 cal-selected per suite (ladder 0/0.25/0.5/1, forced cal-slice accuracy, ties \u2192 0 = off; issue 030 lever 4; per-row candidates in the results)"
    },
    {
     "host": "m3-max-ane",
@@ -106,20 +107,20 @@
     "corpus_cap_mode": "registry defaults",
     "lane_sources": {
      "modelless": {
-      "git_sha": "0b6a7c4",
-      "date_utc": "2026-09-25T13:00:35Z"
+      "git_sha": "d727196",
+      "date_utc": "2026-09-25T22:59:51Z"
      },
      "laya:english": {
-      "git_sha": "d69f0c7",
-      "date_utc": "2026-09-25T01:53:35Z"
+      "git_sha": "d727196",
+      "date_utc": "2026-09-25T22:59:51Z"
      },
      "laya:multilingual": {
-      "git_sha": "d69f0c7",
-      "date_utc": "2026-09-25T01:53:35Z"
+      "git_sha": "d727196",
+      "date_utc": "2026-09-25T22:59:51Z"
      },
      "laya:typed": {
-      "git_sha": "d69f0c7",
-      "date_utc": "2026-09-25T01:53:35Z"
+      "git_sha": "d727196",
+      "date_utc": "2026-09-25T22:59:51Z"
      },
      "clm": {
       "git_sha": "967415c",
@@ -133,9 +134,11 @@
       "git_sha": "a2c03aa",
       "date_utc": "2026-09-25T03:09:08Z"
      }
-    }
+    },
+    "head_posture": "ON \u2014 cal-selected per suite (ladder 0/0.25/0.5/1, forced cal-slice accuracy, ties \u2192 0 = off; issue 030 lever 4; per-row candidates in the results)"
    }
-  ]
+  ],
+  "head_posture": "ON \u2014 cal-selected per suite (ladder 0/0.25/0.5/1, forced cal-slice accuracy, ties \u2192 0 = off; issue 030 lever 4; per-row candidates in the results)"
  },
  "suites": [
   {
@@ -260,7 +263,27 @@
      "source": "registry",
      "selection": null
     },
-    "head_selection": null,
+    "head_selection": {
+     "selected": 0.0,
+     "candidates": [
+      {
+       "scale": 0.0,
+       "cal_acc": 0.338
+      },
+      {
+       "scale": 0.25,
+       "cal_acc": 0.338
+      },
+      {
+       "scale": 0.5,
+       "cal_acc": 0.338
+      },
+      {
+       "scale": 1.0,
+       "cal_acc": 0.338
+      }
+     ]
+    },
     "confusion": [
      {
       "gold": "Critical; requires action within the same day.",
@@ -335,7 +358,10 @@
       "share_of_errors": 0.03330249768732655
      }
     ],
-    "pair_head_ab": null
+    "pair_head_ab": null,
+    "latency_provenance": {
+     "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
+    }
    },
    "laya": {
     "english": {
@@ -403,16 +429,16 @@
      "brier_soft": 0.3348088366904328,
      "score_mae": 0.6937235449999997,
      "within_1": 0.7525,
-     "latency_p50_ms": 367.0,
-     "latency_p99_ms": 683.0,
+     "latency_p50_ms": 309.0,
+     "latency_p99_ms": 484.0,
      "latency_tail_support": 5,
      "latency_extremes": {
-      "first_ms": 140.0,
-      "max_ms": 729.0,
-      "argmax_case": 127
+      "first_ms": 139.0,
+      "max_ms": 492.0,
+      "argmax_case": 144
      },
      "determinism_ok": true,
-     "seconds": 155.991199375,
+     "seconds": 119.475097666,
      "n_cases": 400,
      "n_questions": 2000,
      "score_threshold": null,
@@ -488,16 +514,16 @@
      "brier_soft": 0.4737295325604735,
      "score_mae": 0.7603941325000002,
      "within_1": 0.7,
-     "latency_p50_ms": 143.0,
-     "latency_p99_ms": 258.0,
+     "latency_p50_ms": 132.0,
+     "latency_p99_ms": 233.0,
      "latency_tail_support": 5,
      "latency_extremes": {
-      "first_ms": 63.0,
-      "max_ms": 278.0,
+      "first_ms": 61.0,
+      "max_ms": 250.0,
       "argmax_case": 119
      },
      "determinism_ok": true,
-     "seconds": 57.705247959,
+     "seconds": 53.936169917,
      "n_cases": 400,
      "n_questions": 2000,
      "score_threshold": null,
@@ -573,16 +599,16 @@
      "brier_soft": 0.06772113657369036,
      "score_mae": 0.24240826250000005,
      "within_1": 0.995,
-     "latency_p50_ms": 288.0,
-     "latency_p99_ms": 543.0,
+     "latency_p50_ms": 283.0,
+     "latency_p99_ms": 530.0,
      "latency_tail_support": 5,
      "latency_extremes": {
-      "first_ms": 143.0,
-      "max_ms": 571.0,
-      "argmax_case": 183
+      "first_ms": 141.0,
+      "max_ms": 544.0,
+      "argmax_case": 151
      },
      "determinism_ok": true,
-     "seconds": 115.939202375,
+     "seconds": 112.988312375,
      "n_cases": 400,
      "n_questions": 2000,
      "score_threshold": null,
@@ -658,16 +684,16 @@
      "brier_soft": 0.334808769875873,
      "score_mae": 0.6937230449999998,
      "within_1": 0.7525,
-     "latency_p50_ms": 281.0,
-     "latency_p99_ms": 572.0,
+     "latency_p50_ms": 256.0,
+     "latency_p99_ms": 415.0,
      "latency_tail_support": 5,
      "latency_extremes": {
-      "first_ms": 157.0,
-      "max_ms": 658.0,
+      "first_ms": 112.0,
+      "max_ms": 427.0,
       "argmax_case": 119
      },
      "determinism_ok": true,
-     "seconds": 124.084860333,
+     "seconds": 102.549222,
      "n_cases": 400,
      "n_questions": 2000,
      "score_threshold": null,
@@ -743,16 +769,16 @@
      "brier_soft": 0.47372954021453173,
      "score_mae": 0.7603942575000003,
      "within_1": 0.7,
-     "latency_p50_ms": 142.0,
-     "latency_p99_ms": 285.0,
+     "latency_p50_ms": 121.0,
+     "latency_p99_ms": 238.0,
      "latency_tail_support": 5,
      "latency_extremes": {
-      "first_ms": 51.0,
-      "max_ms": 338.0,
-      "argmax_case": 187
+      "first_ms": 49.0,
+      "max_ms": 251.0,
+      "argmax_case": 119
      },
      "determinism_ok": true,
-     "seconds": 61.810631666,
+     "seconds": 52.77471775,
      "n_cases": 400,
      "n_questions": 2000,
      "score_threshold": null,
@@ -828,16 +854,16 @@
      "brier_soft": 0.06772116115371934,
      "score_mae": 0.2424075125000001,
      "within_1": 0.995,
-     "latency_p50_ms": 363.0,
-     "latency_p99_ms": 691.0,
+     "latency_p50_ms": 263.0,
+     "latency_p99_ms": 530.0,
      "latency_tail_support": 5,
      "latency_extremes": {
-      "first_ms": 152.0,
-      "max_ms": 766.0,
-      "argmax_case": 120
+      "first_ms": 109.0,
+      "max_ms": 594.0,
+      "argmax_case": 119
      },
      "determinism_ok": true,
-     "seconds": 146.801694042,
+     "seconds": 107.957388958,
      "n_cases": 400,
      "n_questions": 2000,
      "score_threshold": null,
@@ -970,7 +996,27 @@
        "source": "registry",
        "selection": null
       },
-      "head_selection": null,
+      "head_selection": {
+       "selected": 0.0,
+       "candidates": [
+        {
+         "scale": 0.0,
+         "cal_acc": 0.338
+        },
+        {
+         "scale": 0.25,
+         "cal_acc": 0.338
+        },
+        {
+         "scale": 0.5,
+         "cal_acc": 0.338
+        },
+        {
+         "scale": 1.0,
+         "cal_acc": 0.338
+        }
+       ]
+      },
       "confusion": [
        {
         "gold": "Critical; requires action within the same day.",
@@ -1045,7 +1091,10 @@
         "share_of_errors": 0.03330249768732655
        }
       ],
-      "pair_head_ab": null
+      "pair_head_ab": null,
+      "latency_provenance": {
+       "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
+      }
      },
      "laya": {
       "english": {
@@ -1113,22 +1162,23 @@
        "brier_soft": 0.33480864483416156,
        "score_mae": 0.6937211699999999,
        "within_1": 0.7525,
-       "latency_p50_ms": 107.0,
-       "latency_p99_ms": 170.0,
+       "latency_p50_ms": 105.0,
+       "latency_p99_ms": 173.0,
        "latency_tail_support": 5,
        "latency_extremes": {
-        "first_ms": 59.0,
-        "max_ms": 174.0,
-        "argmax_case": 127
+        "first_ms": 61.0,
+        "max_ms": 188.0,
+        "argmax_case": 152
        },
        "determinism_ok": false,
-       "seconds": 43.6585432,
+       "seconds": 81.2740191,
        "n_cases": 400,
        "n_questions": 2000,
        "score_threshold": null,
        "distance_threshold": null,
        "threshold_recommendation": null,
        "corpus_cap": null,
+       "head_selection": null,
        "confusion": null,
        "pair_head_ab": null
       },
@@ -1198,21 +1248,22 @@
        "score_mae": 0.7603950075000003,
        "within_1": 0.7,
        "latency_p50_ms": 59.0,
-       "latency_p99_ms": 107.0,
+       "latency_p99_ms": 108.0,
        "latency_tail_support": 5,
        "latency_extremes": {
-        "first_ms": 34.0,
+        "first_ms": 33.0,
         "max_ms": 114.0,
         "argmax_case": 151
        },
        "determinism_ok": true,
-       "seconds": 25.5527977,
+       "seconds": 52.8506628,
        "n_cases": 400,
        "n_questions": 2000,
        "score_threshold": null,
        "distance_threshold": null,
        "threshold_recommendation": null,
        "corpus_cap": null,
+       "head_selection": null,
        "confusion": null,
        "pair_head_ab": null
       },
@@ -1281,22 +1332,23 @@
        "brier_soft": 0.06772116157482795,
        "score_mae": 0.2424063875000001,
        "within_1": 0.995,
-       "latency_p50_ms": 108.0,
-       "latency_p99_ms": 205.0,
+       "latency_p50_ms": 107.0,
+       "latency_p99_ms": 194.0,
        "latency_tail_support": 5,
        "latency_extremes": {
         "first_ms": 60.0,
-        "max_ms": 208.0,
-        "argmax_case": 151
+        "max_ms": 204.0,
+        "argmax_case": 183
        },
        "determinism_ok": false,
-       "seconds": 44.4984015,
+       "seconds": 76.0502163,
        "n_cases": 400,
        "n_questions": 2000,
        "score_threshold": null,
        "distance_threshold": null,
        "threshold_recommendation": null,
        "corpus_cap": null,
+       "head_selection": null,
        "confusion": null,
        "pair_head_ab": null
       }
@@ -1641,7 +1693,27 @@
      "source": "registry",
      "selection": null
     },
-    "head_selection": null,
+    "head_selection": {
+     "selected": 0.0,
+     "candidates": [
+      {
+       "scale": 0.0,
+       "cal_acc": 0.48
+      },
+      {
+       "scale": 0.25,
+       "cal_acc": 0.495
+      },
+      {
+       "scale": 0.5,
+       "cal_acc": 0.5
+      },
+      {
+       "scale": 1.0,
+       "cal_acc": 0.505
+      }
+     ]
+    },
     "confusion": [
      {
       "gold": "sci_tech",
@@ -1716,7 +1788,11 @@
       "share_of_errors": 0.015306122448979591
      }
     ],
-    "pair_head_ab": null
+    "pair_head_ab": null,
+    "acc_deleaked": 0.5067024128686327,
+    "latency_provenance": {
+     "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
+    }
    },
    "laya": {
     "english": {
@@ -1747,16 +1823,16 @@
      "brier_soft": null,
      "score_mae": null,
      "within_1": null,
-     "latency_p50_ms": 31.0,
-     "latency_p99_ms": 55.0,
+     "latency_p50_ms": 28.0,
+     "latency_p99_ms": 50.0,
      "latency_tail_support": 5,
      "latency_extremes": {
-      "first_ms": 24.0,
-      "max_ms": 78.0,
-      "argmax_case": 5
+      "first_ms": 19.0,
+      "max_ms": 67.0,
+      "argmax_case": 6
      },
      "determinism_ok": true,
-     "seconds": 16.870040709,
+     "seconds": 14.652276875,
      "n_cases": 400,
      "n_questions": 400,
      "score_threshold": null,
@@ -1765,7 +1841,8 @@
      "corpus_cap": null,
      "head_selection": null,
      "confusion": null,
-     "pair_head_ab": null
+     "pair_head_ab": null,
+     "acc_deleaked": 0.9490616621983914
     },
     "py/english": {
      "lane": "laya (python)",
@@ -1795,16 +1872,16 @@
      "brier_soft": null,
      "score_mae": null,
      "within_1": null,
-     "latency_p50_ms": 32.0,
-     "latency_p99_ms": 75.0,
+     "latency_p50_ms": 27.0,
+     "latency_p99_ms": 59.0,
      "latency_tail_support": 5,
      "latency_extremes": {
       "first_ms": 22.0,
-      "max_ms": 88.0,
-      "argmax_case": 198
+      "max_ms": 80.0,
+      "argmax_case": 232
      },
      "determinism_ok": true,
-     "seconds": 20.215619958,
+     "seconds": 17.087047041,
      "n_cases": 400,
      "n_questions": 400,
      "score_threshold": null,
@@ -1813,7 +1890,8 @@
      "corpus_cap": null,
      "head_selection": null,
      "confusion": null,
-     "pair_head_ab": null
+     "pair_head_ab": null,
+     "acc_deleaked": 0.9490616621983914
     }
    },
    "extra_host_lanes": {
@@ -1950,7 +2028,27 @@
        "source": "registry",
        "selection": null
       },
-      "head_selection": null,
+      "head_selection": {
+       "selected": 0.0,
+       "candidates": [
+        {
+         "scale": 0.0,
+         "cal_acc": 0.48
+        },
+        {
+         "scale": 0.25,
+         "cal_acc": 0.495
+        },
+        {
+         "scale": 0.5,
+         "cal_acc": 0.5
+        },
+        {
+         "scale": 1.0,
+         "cal_acc": 0.505
+        }
+       ]
+      },
       "confusion": [
        {
         "gold": "sci_tech",
@@ -2025,7 +2123,11 @@
         "share_of_errors": 0.015306122448979591
        }
       ],
-      "pair_head_ab": null
+      "pair_head_ab": null,
+      "acc_deleaked": 0.5067024128686327,
+      "latency_provenance": {
+       "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
+      }
      },
      "laya": {
       "english": {
@@ -2061,19 +2163,21 @@
        "latency_tail_support": 5,
        "latency_extremes": {
         "first_ms": 12.0,
-        "max_ms": 17.0,
+        "max_ms": 18.0,
         "argmax_case": 5
        },
        "determinism_ok": true,
-       "seconds": 6.9927738999999995,
+       "seconds": 6.9198351,
        "n_cases": 400,
        "n_questions": 400,
        "score_threshold": null,
        "distance_threshold": null,
        "threshold_recommendation": null,
        "corpus_cap": null,
+       "head_selection": null,
        "confusion": null,
-       "pair_head_ab": null
+       "pair_head_ab": null,
+       "acc_deleaked": 0.9490616621983914
       }
      },
      "clm": {
@@ -2313,7 +2417,27 @@
      "source": "registry",
      "selection": null
     },
-    "head_selection": null,
+    "head_selection": {
+     "selected": 0.0,
+     "candidates": [
+      {
+       "scale": 0.0,
+       "cal_acc": 0.185
+      },
+      {
+       "scale": 0.25,
+       "cal_acc": 0.205
+      },
+      {
+       "scale": 0.5,
+       "cal_acc": 0.205
+      },
+      {
+       "scale": 1.0,
+       "cal_acc": 0.21
+      }
+     ]
+    },
     "confusion": [
      {
       "gold": "sadness",
@@ -2388,7 +2512,11 @@
       "share_of_errors": 0.013937282229965157
      }
     ],
-    "pair_head_ab": null
+    "pair_head_ab": null,
+    "acc_deleaked": 0.2825,
+    "latency_provenance": {
+     "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
+    }
    },
    "laya": {
     "english": {
@@ -2419,16 +2547,16 @@
      "brier_soft": null,
      "score_mae": null,
      "within_1": null,
-     "latency_p50_ms": 18.0,
-     "latency_p99_ms": 28.0,
+     "latency_p50_ms": 16.0,
+     "latency_p99_ms": 23.0,
      "latency_tail_support": 5,
      "latency_extremes": {
-      "first_ms": 15.0,
-      "max_ms": 32.0,
+      "first_ms": 13.0,
+      "max_ms": 28.0,
       "argmax_case": 119
      },
      "determinism_ok": true,
-     "seconds": 11.660707958,
+     "seconds": 10.260003,
      "n_cases": 400,
      "n_questions": 400,
      "score_threshold": null,
@@ -2437,7 +2565,8 @@
      "corpus_cap": null,
      "head_selection": null,
      "confusion": null,
-     "pair_head_ab": null
+     "pair_head_ab": null,
+     "acc_deleaked": 0.5925
     },
     "py/english": {
      "lane": "laya (python)",
@@ -2467,16 +2596,16 @@
      "brier_soft": null,
      "score_mae": null,
      "within_1": null,
-     "latency_p50_ms": 21.0,
-     "latency_p99_ms": 49.0,
+     "latency_p50_ms": 18.0,
+     "latency_p99_ms": 39.0,
      "latency_tail_support": 5,
      "latency_extremes": {
-      "first_ms": 16.0,
-      "max_ms": 73.0,
-      "argmax_case": 122
+      "first_ms": 15.0,
+      "max_ms": 58.0,
+      "argmax_case": 143
      },
      "determinism_ok": true,
-     "seconds": 14.565094334,
+     "seconds": 13.017989791,
      "n_cases": 400,
      "n_questions": 400,
      "score_threshold": null,
@@ -2485,7 +2614,8 @@
      "corpus_cap": null,
      "head_selection": null,
      "confusion": null,
-     "pair_head_ab": null
+     "pair_head_ab": null,
+     "acc_deleaked": 0.5925
     }
    },
    "extra_host_lanes": {
@@ -2622,7 +2752,27 @@
        "source": "registry",
        "selection": null
       },
-      "head_selection": null,
+      "head_selection": {
+       "selected": 0.0,
+       "candidates": [
+        {
+         "scale": 0.0,
+         "cal_acc": 0.185
+        },
+        {
+         "scale": 0.25,
+         "cal_acc": 0.205
+        },
+        {
+         "scale": 0.5,
+         "cal_acc": 0.205
+        },
+        {
+         "scale": 1.0,
+         "cal_acc": 0.21
+        }
+       ]
+      },
       "confusion": [
        {
         "gold": "sadness",
@@ -2697,7 +2847,11 @@
         "share_of_errors": 0.013937282229965157
        }
       ],
-      "pair_head_ab": null
+      "pair_head_ab": null,
+      "acc_deleaked": 0.2825,
+      "latency_provenance": {
+       "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
+      }
      },
      "laya": {
       "english": {
@@ -2732,20 +2886,22 @@
        "latency_p99_ms": 12.0,
        "latency_tail_support": 5,
        "latency_extremes": {
-        "first_ms": 11.0,
+        "first_ms": 10.0,
         "max_ms": 13.0,
-        "argmax_case": 22
+        "argmax_case": 7
        },
        "determinism_ok": true,
-       "seconds": 6.0333309,
+       "seconds": 5.8914037,
        "n_cases": 400,
        "n_questions": 400,
        "score_threshold": null,
        "distance_threshold": null,
        "threshold_recommendation": null,
        "corpus_cap": null,
+       "head_selection": null,
        "confusion": null,
-       "pair_head_ab": null
+       "pair_head_ab": null,
+       "acc_deleaked": 0.5925
       }
      },
      "clm": {
@@ -2910,36 +3066,36 @@
     "hard": {
      "n": 600,
      "accuracy": 0.21666666666666667,
-     "macro_f1": 0.20435678340021904,
-     "ece": 0.006458489596843725,
-     "brier": 0.7987621951665289,
-     "nll": 1.6062599833429725,
-     "aurc": 0.7848771082839169,
-     "mean_confidence": 0.21020817706982295,
-     "acc_at_50_coverage": 0.20666666666666667,
-     "acc_at_80_coverage": 0.21666666666666667
+     "macro_f1": 0.21644209435416006,
+     "ece": 0.0019752679516871798,
+     "brier": 0.7991945661583396,
+     "nll": 1.607280233965262,
+     "aurc": 0.7984710138714025,
+     "mean_confidence": 0.2156042873611053,
+     "acc_at_50_coverage": 0.17666666666666667,
+     "acc_at_80_coverage": 0.2125
     },
-    "readout_ece": 0.016502360676725704,
+    "readout_ece": 0.02148964275916418,
     "raw_abstain": {
-     "abstain_rate": 0.5716666666666667,
-     "selective_accuracy": 0.20622568093385213,
-     "selective_n": 257
+     "abstain_rate": 0.54,
+     "selective_accuracy": 0.18478260869565216,
+     "selective_n": 276
     },
     "calibrated_abstain": {
      "abstain_rate": 0.315,
-     "selective_accuracy": 0.20681265206812652,
+     "selective_accuracy": 0.20437956204379562,
      "selective_n": 411
     },
-    "readout_ece_raw": 0.21590353677670163,
-    "readout_ece_calibrated": 0.016502360676725704,
-    "floor_ece": 0.330016583747927,
+    "readout_ece_raw": 0.2155029884974162,
+    "readout_ece_calibrated": 0.02148964275916418,
+    "floor_ece": 0.3461691542288557,
     "g1_pass": true,
     "g1_verdict": "pass",
     "by_question_type": null,
     "soft_acc": null,
     "brier_soft": null,
-    "score_mae": 1.1774115174263715,
-    "within_1": 0.445,
+    "score_mae": 1.178447996104757,
+    "within_1": 0.43166666666666664,
     "latency_p50_ms": 0.097,
     "latency_p99_ms": 0.122,
     "latency_tail_support": 7,
@@ -2952,7 +3108,7 @@
     "seconds": 0.161600834,
     "n_cases": 600,
     "n_questions": 600,
-    "score_threshold": 0.00017118454,
+    "score_threshold": 0.0004144907,
     "distance_threshold": 0.39729577,
     "threshold_recommendation": {
      "posture": {
@@ -2960,7 +3116,7 @@
       "rho": 0.3
      },
      "score": {
-      "threshold": 0.00017118454,
+      "threshold": 0.0004144907,
       "status": "fitted",
       "targetAccuracy": 0.22857143,
       "support": {
@@ -2985,82 +3141,106 @@
      "source": "registry",
      "selection": null
     },
-    "head_selection": null,
+    "head_selection": {
+     "selected": 0.5,
+     "candidates": [
+      {
+       "scale": 0.0,
+       "cal_acc": 0.205
+      },
+      {
+       "scale": 0.25,
+       "cal_acc": 0.245
+      },
+      {
+       "scale": 0.5,
+       "cal_acc": 0.255
+      },
+      {
+       "scale": 1.0,
+       "cal_acc": 0.25
+      }
+     ]
+    },
     "confusion": [
      {
       "gold": "negative",
       "pred": "neutral",
-      "count": 58,
-      "share_of_errors": 0.12340425531914893
-     },
-     {
-      "gold": "very positive",
-      "pred": "neutral",
-      "count": 52,
-      "share_of_errors": 0.11063829787234042
-     },
-     {
-      "gold": "positive",
-      "pred": "neutral",
-      "count": 42,
-      "share_of_errors": 0.08936170212765958
-     },
-     {
-      "gold": "negative",
-      "pred": "very negative",
-      "count": 33,
-      "share_of_errors": 0.07021276595744681
+      "count": 57,
+      "share_of_errors": 0.12127659574468085
      },
      {
       "gold": "positive",
       "pred": "very negative",
-      "count": 33,
-      "share_of_errors": 0.07021276595744681
+      "count": 44,
+      "share_of_errors": 0.09361702127659574
+     },
+     {
+      "gold": "very positive",
+      "pred": "neutral",
+      "count": 40,
+      "share_of_errors": 0.0851063829787234
+     },
+     {
+      "gold": "negative",
+      "pred": "very negative",
+      "count": 39,
+      "share_of_errors": 0.08297872340425531
      },
      {
       "gold": "negative",
       "pred": "positive",
-      "count": 32,
-      "share_of_errors": 0.06808510638297872
+      "count": 36,
+      "share_of_errors": 0.07659574468085106
+     },
+     {
+      "gold": "positive",
+      "pred": "neutral",
+      "count": 34,
+      "share_of_errors": 0.07234042553191489
+     },
+     {
+      "gold": "very positive",
+      "pred": "very negative",
+      "count": 26,
+      "share_of_errors": 0.05531914893617021
      },
      {
       "gold": "very positive",
       "pred": "positive",
-      "count": 27,
-      "share_of_errors": 0.0574468085106383
-     },
-     {
-      "gold": "very negative",
-      "pred": "neutral",
       "count": 25,
       "share_of_errors": 0.05319148936170213
      },
      {
+      "gold": "very negative",
+      "pred": "neutral",
+      "count": 24,
+      "share_of_errors": 0.05106382978723404
+     },
+     {
       "gold": "neutral",
-      "pred": "negative",
-      "count": 20,
-      "share_of_errors": 0.0425531914893617
+      "pred": "positive",
+      "count": 23,
+      "share_of_errors": 0.04893617021276596
+     },
+     {
+      "gold": "neutral",
+      "pred": "very negative",
+      "count": 18,
+      "share_of_errors": 0.03829787234042553
      },
      {
       "gold": "positive",
       "pred": "negative",
-      "count": 20,
-      "share_of_errors": 0.0425531914893617
-     },
-     {
-      "gold": "very positive",
-      "pred": "very negative",
-      "count": 19,
-      "share_of_errors": 0.04042553191489362
-     },
-     {
-      "gold": "very negative",
-      "pred": "negative",
-      "count": 17,
-      "share_of_errors": 0.036170212765957444
+      "count": 16,
+      "share_of_errors": 0.03404255319148936
      }
     ],
-    "pair_head_ab": null
+    "pair_head_ab": null,
+    "acc_deleaked": 0.21702838063439064,
+    "latency_provenance": {
+     "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
+    }
    },
    "laya": {
     "english": {
@@ -3091,16 +3271,16 @@
      "brier_soft": null,
      "score_mae": null,
      "within_1": null,
-     "latency_p50_ms": 28.0,
-     "latency_p99_ms": 36.0,
+     "latency_p50_ms": 21.0,
+     "latency_p99_ms": 28.0,
      "latency_tail_support": 7,
      "latency_extremes": {
-      "first_ms": 16.0,
-      "max_ms": 45.0,
-      "argmax_case": 53
+      "first_ms": 14.0,
+      "max_ms": 29.0,
+      "argmax_case": 436
      },
      "determinism_ok": true,
-     "seconds": 19.734093083,
+     "seconds": 15.94373825,
      "n_cases": 600,
      "n_questions": 600,
      "score_threshold": null,
@@ -3109,7 +3289,8 @@
      "corpus_cap": null,
      "head_selection": null,
      "confusion": null,
-     "pair_head_ab": null
+     "pair_head_ab": null,
+     "acc_deleaked": 0.3722871452420701
     },
     "py/english": {
      "lane": "laya (python)",
@@ -3139,16 +3320,16 @@
      "brier_soft": null,
      "score_mae": null,
      "within_1": null,
-     "latency_p50_ms": 26.0,
-     "latency_p99_ms": 56.0,
+     "latency_p50_ms": 21.0,
+     "latency_p99_ms": 43.0,
      "latency_tail_support": 7,
      "latency_extremes": {
-      "first_ms": 16.0,
-      "max_ms": 63.0,
-      "argmax_case": 358
+      "first_ms": 15.0,
+      "max_ms": 62.0,
+      "argmax_case": 146
      },
      "determinism_ok": true,
-     "seconds": 22.479265875,
+     "seconds": 18.567671875,
      "n_cases": 600,
      "n_questions": 600,
      "score_threshold": null,
@@ -3157,7 +3338,8 @@
      "corpus_cap": null,
      "head_selection": null,
      "confusion": null,
-     "pair_head_ab": null
+     "pair_head_ab": null,
+     "acc_deleaked": 0.3722871452420701
     }
    },
    "extra_host_lanes": {
@@ -3219,36 +3401,36 @@
       "hard": {
        "n": 600,
        "accuracy": 0.21666666666666667,
-       "macro_f1": 0.20435678340021904,
-       "ece": 0.006458489596843725,
-       "brier": 0.7987621951665289,
-       "nll": 1.6062599833429725,
-       "aurc": 0.7848771082839169,
-       "mean_confidence": 0.21020817706982295,
-       "acc_at_50_coverage": 0.20666666666666667,
-       "acc_at_80_coverage": 0.21666666666666667
+       "macro_f1": 0.21644209435416006,
+       "ece": 0.0019752681752046018,
+       "brier": 0.7991945659009354,
+       "nll": 1.60728023286355,
+       "aurc": 0.7984710138714025,
+       "mean_confidence": 0.21560428713758786,
+       "acc_at_50_coverage": 0.17666666666666667,
+       "acc_at_80_coverage": 0.2125
       },
-      "readout_ece": 0.016502360676725704,
+      "readout_ece": 0.021489642808834725,
       "raw_abstain": {
-       "abstain_rate": 0.5716666666666667,
-       "selective_accuracy": 0.20622568093385213,
-       "selective_n": 257
+       "abstain_rate": 0.54,
+       "selective_accuracy": 0.18478260869565216,
+       "selective_n": 276
       },
       "calibrated_abstain": {
        "abstain_rate": 0.315,
-       "selective_accuracy": 0.20681265206812652,
+       "selective_accuracy": 0.20437956204379562,
        "selective_n": 411
       },
-      "readout_ece_raw": 0.21590353677670163,
-      "readout_ece_calibrated": 0.016502360676725704,
-      "floor_ece": 0.330016583747927,
+      "readout_ece_raw": 0.21550298869609832,
+      "readout_ece_calibrated": 0.021489642808834725,
+      "floor_ece": 0.34616086235489213,
       "g1_pass": true,
       "g1_verdict": "pass",
       "by_question_type": null,
       "soft_acc": null,
       "brier_soft": null,
-      "score_mae": 1.1774115174263715,
-      "within_1": 0.445,
+      "score_mae": 1.1784479945401352,
+      "within_1": 0.43166666666666664,
       "latency_p50_ms": 0.087,
       "latency_p99_ms": 0.157,
       "latency_tail_support": 7,
@@ -3261,7 +3443,7 @@
       "seconds": 0.1531139,
       "n_cases": 600,
       "n_questions": 600,
-      "score_threshold": 0.00017118454,
+      "score_threshold": 0.0004144907,
       "distance_threshold": 0.39729577,
       "threshold_recommendation": {
        "posture": {
@@ -3269,7 +3451,7 @@
         "rho": 0.3
        },
        "score": {
-        "threshold": 0.00017118454,
+        "threshold": 0.0004144907,
         "status": "fitted",
         "targetAccuracy": 0.22857143,
         "support": {
@@ -3294,82 +3476,106 @@
        "source": "registry",
        "selection": null
       },
-      "head_selection": null,
+      "head_selection": {
+       "selected": 0.5,
+       "candidates": [
+        {
+         "scale": 0.0,
+         "cal_acc": 0.205
+        },
+        {
+         "scale": 0.25,
+         "cal_acc": 0.245
+        },
+        {
+         "scale": 0.5,
+         "cal_acc": 0.255
+        },
+        {
+         "scale": 1.0,
+         "cal_acc": 0.25
+        }
+       ]
+      },
       "confusion": [
        {
         "gold": "negative",
         "pred": "neutral",
-        "count": 58,
-        "share_of_errors": 0.12340425531914893
-       },
-       {
-        "gold": "very positive",
-        "pred": "neutral",
-        "count": 52,
-        "share_of_errors": 0.11063829787234042
-       },
-       {
-        "gold": "positive",
-        "pred": "neutral",
-        "count": 42,
-        "share_of_errors": 0.08936170212765958
-       },
-       {
-        "gold": "negative",
-        "pred": "very negative",
-        "count": 33,
-        "share_of_errors": 0.07021276595744681
+        "count": 57,
+        "share_of_errors": 0.12127659574468085
        },
        {
         "gold": "positive",
         "pred": "very negative",
-        "count": 33,
-        "share_of_errors": 0.07021276595744681
+        "count": 44,
+        "share_of_errors": 0.09361702127659574
+       },
+       {
+        "gold": "very positive",
+        "pred": "neutral",
+        "count": 40,
+        "share_of_errors": 0.0851063829787234
+       },
+       {
+        "gold": "negative",
+        "pred": "very negative",
+        "count": 39,
+        "share_of_errors": 0.08297872340425531
        },
        {
         "gold": "negative",
         "pred": "positive",
-        "count": 32,
-        "share_of_errors": 0.06808510638297872
+        "count": 36,
+        "share_of_errors": 0.07659574468085106
+       },
+       {
+        "gold": "positive",
+        "pred": "neutral",
+        "count": 34,
+        "share_of_errors": 0.07234042553191489
+       },
+       {
+        "gold": "very positive",
+        "pred": "very negative",
+        "count": 26,
+        "share_of_errors": 0.05531914893617021
        },
        {
         "gold": "very positive",
         "pred": "positive",
-        "count": 27,
-        "share_of_errors": 0.0574468085106383
-       },
-       {
-        "gold": "very negative",
-        "pred": "neutral",
         "count": 25,
         "share_of_errors": 0.05319148936170213
        },
        {
+        "gold": "very negative",
+        "pred": "neutral",
+        "count": 24,
+        "share_of_errors": 0.05106382978723404
+       },
+       {
         "gold": "neutral",
-        "pred": "negative",
-        "count": 20,
-        "share_of_errors": 0.0425531914893617
+        "pred": "positive",
+        "count": 23,
+        "share_of_errors": 0.04893617021276596
+       },
+       {
+        "gold": "neutral",
+        "pred": "very negative",
+        "count": 18,
+        "share_of_errors": 0.03829787234042553
        },
        {
         "gold": "positive",
         "pred": "negative",
-        "count": 20,
-        "share_of_errors": 0.0425531914893617
-       },
-       {
-        "gold": "very positive",
-        "pred": "very negative",
-        "count": 19,
-        "share_of_errors": 0.04042553191489362
-       },
-       {
-        "gold": "very negative",
-        "pred": "negative",
-        "count": 17,
-        "share_of_errors": 0.036170212765957444
+        "count": 16,
+        "share_of_errors": 0.03404255319148936
        }
       ],
-      "pair_head_ab": null
+      "pair_head_ab": null,
+      "acc_deleaked": 0.21702838063439064,
+      "latency_provenance": {
+       "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
+      }
      },
      "laya": {
       "english": {
@@ -3404,20 +3610,22 @@
        "latency_p99_ms": 13.0,
        "latency_tail_support": 7,
        "latency_extremes": {
-        "first_ms": 11.0,
+        "first_ms": 10.0,
         "max_ms": 13.0,
-        "argmax_case": 1
+        "argmax_case": 39
        },
        "determinism_ok": true,
-       "seconds": 8.7481975,
+       "seconds": 8.5622309,
        "n_cases": 600,
        "n_questions": 600,
        "score_threshold": null,
        "distance_threshold": null,
        "threshold_recommendation": null,
        "corpus_cap": null,
+       "head_selection": null,
        "confusion": null,
-       "pair_head_ab": null
+       "pair_head_ab": null,
+       "acc_deleaked": 0.3722871452420701
       }
      },
      "clm": {
@@ -3657,9 +3865,33 @@
      "source": "registry",
      "selection": null
     },
-    "head_selection": null,
+    "head_selection": {
+     "selected": 0.0,
+     "candidates": [
+      {
+       "scale": 0.0,
+       "cal_acc": 0.5
+      },
+      {
+       "scale": 0.25,
+       "cal_acc": 0.5
+      },
+      {
+       "scale": 0.5,
+       "cal_acc": 0.5
+      },
+      {
+       "scale": 1.0,
+       "cal_acc": 0.5
+      }
+     ]
+    },
     "confusion": [],
-    "pair_head_ab": null
+    "pair_head_ab": null,
+    "acc_deleaked": 0.47368421052631576,
+    "latency_provenance": {
+     "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
+    }
    },
    "laya": {
     "english": {
@@ -3690,16 +3922,16 @@
      "brier_soft": null,
      "score_mae": null,
      "within_1": null,
-     "latency_p50_ms": 27.0,
-     "latency_p99_ms": 71.0,
+     "latency_p50_ms": 20.0,
+     "latency_p99_ms": 53.0,
      "latency_tail_support": 2,
      "latency_extremes": {
-      "first_ms": 32.0,
-      "max_ms": 73.0,
+      "first_ms": 31.0,
+      "max_ms": 54.0,
       "argmax_case": 45
      },
      "determinism_ok": true,
-     "seconds": 6.993714208,
+     "seconds": 6.135116958,
      "n_cases": 116,
      "n_questions": 116,
      "score_threshold": null,
@@ -3708,7 +3940,8 @@
      "corpus_cap": null,
      "head_selection": null,
      "confusion": null,
-     "pair_head_ab": null
+     "pair_head_ab": null,
+     "acc_deleaked": 0.6929824561403509
     },
     "py/english": {
      "lane": "laya (python)",
@@ -3738,16 +3971,16 @@
      "brier_soft": null,
      "score_mae": null,
      "within_1": null,
-     "latency_p50_ms": 30.0,
-     "latency_p99_ms": 69.0,
+     "latency_p50_ms": 23.0,
+     "latency_p99_ms": 57.0,
      "latency_tail_support": 2,
      "latency_extremes": {
-      "first_ms": 30.0,
-      "max_ms": 74.0,
-      "argmax_case": 69
+      "first_ms": 29.0,
+      "max_ms": 60.0,
+      "argmax_case": 45
      },
      "determinism_ok": true,
-     "seconds": 10.537429583,
+     "seconds": 8.187326167,
      "n_cases": 116,
      "n_questions": 116,
      "score_threshold": null,
@@ -3756,7 +3989,8 @@
      "corpus_cap": null,
      "head_selection": null,
      "confusion": null,
-     "pair_head_ab": null
+     "pair_head_ab": null,
+     "acc_deleaked": 0.6929824561403509
     }
    },
    "extra_host_lanes": {
@@ -3893,9 +4127,33 @@
        "source": "registry",
        "selection": null
       },
-      "head_selection": null,
+      "head_selection": {
+       "selected": 0.0,
+       "candidates": [
+        {
+         "scale": 0.0,
+         "cal_acc": 0.5
+        },
+        {
+         "scale": 0.25,
+         "cal_acc": 0.5
+        },
+        {
+         "scale": 0.5,
+         "cal_acc": 0.5
+        },
+        {
+         "scale": 1.0,
+         "cal_acc": 0.5
+        }
+       ]
+      },
       "confusion": [],
-      "pair_head_ab": null
+      "pair_head_ab": null,
+      "acc_deleaked": 0.47368421052631576,
+      "latency_provenance": {
+       "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
+      }
      },
      "laya": {
       "english": {
@@ -3927,23 +4185,25 @@
        "score_mae": null,
        "within_1": null,
        "latency_p50_ms": 11.0,
-       "latency_p99_ms": 17.0,
+       "latency_p99_ms": 16.0,
        "latency_tail_support": 2,
        "latency_extremes": {
-        "first_ms": 15.0,
-        "max_ms": 18.0,
+        "first_ms": 14.0,
+        "max_ms": 17.0,
         "argmax_case": 45
        },
        "determinism_ok": true,
-       "seconds": 3.0756659,
+       "seconds": 3.1234341,
        "n_cases": 116,
        "n_questions": 116,
        "score_threshold": null,
        "distance_threshold": null,
        "threshold_recommendation": null,
        "corpus_cap": null,
+       "head_selection": null,
        "confusion": null,
-       "pair_head_ab": null
+       "pair_head_ab": null,
+       "acc_deleaked": 0.6929824561403509
       }
      },
      "clm": {
@@ -4183,7 +4443,27 @@
      "source": "registry",
      "selection": null
     },
-    "head_selection": null,
+    "head_selection": {
+     "selected": 0.0,
+     "candidates": [
+      {
+       "scale": 0.0,
+       "cal_acc": 0.34
+      },
+      {
+       "scale": 0.25,
+       "cal_acc": 0.355
+      },
+      {
+       "scale": 0.5,
+       "cal_acc": 0.33
+      },
+      {
+       "scale": 1.0,
+       "cal_acc": 0.36
+      }
+     ]
+    },
     "confusion": [
      {
       "gold": "entailment",
@@ -4210,7 +4490,11 @@
       "share_of_errors": 0.02040816326530612
      }
     ],
-    "pair_head_ab": null
+    "pair_head_ab": null,
+    "acc_deleaked": 0.3466666666666667,
+    "latency_provenance": {
+     "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
+    }
    },
    "laya": {
     "english": {
@@ -4241,16 +4525,16 @@
      "brier_soft": null,
      "score_mae": null,
      "within_1": null,
-     "latency_p50_ms": 31.0,
-     "latency_p99_ms": 39.0,
+     "latency_p50_ms": 22.0,
+     "latency_p99_ms": 31.0,
      "latency_tail_support": 4,
      "latency_extremes": {
-      "first_ms": 25.0,
-      "max_ms": 47.0,
-      "argmax_case": 5
+      "first_ms": 24.0,
+      "max_ms": 34.0,
+      "argmax_case": 8
      },
      "determinism_ok": true,
-     "seconds": 13.655407375,
+     "seconds": 11.158917834,
      "n_cases": 300,
      "n_questions": 300,
      "score_threshold": null,
@@ -4259,7 +4543,8 @@
      "corpus_cap": null,
      "head_selection": null,
      "confusion": null,
-     "pair_head_ab": null
+     "pair_head_ab": null,
+     "acc_deleaked": 0.86
     },
     "py/english": {
      "lane": "laya (python)",
@@ -4289,16 +4574,16 @@
      "brier_soft": null,
      "score_mae": null,
      "within_1": null,
-     "latency_p50_ms": 29.0,
-     "latency_p99_ms": 57.0,
+     "latency_p50_ms": 25.0,
+     "latency_p99_ms": 44.0,
      "latency_tail_support": 4,
      "latency_extremes": {
-      "first_ms": 23.0,
-      "max_ms": 65.0,
-      "argmax_case": 52
+      "first_ms": 22.0,
+      "max_ms": 54.0,
+      "argmax_case": 4
      },
      "determinism_ok": true,
-     "seconds": 15.517839208,
+     "seconds": 13.273529667,
      "n_cases": 300,
      "n_questions": 300,
      "score_threshold": null,
@@ -4307,7 +4592,8 @@
      "corpus_cap": null,
      "head_selection": null,
      "confusion": null,
-     "pair_head_ab": null
+     "pair_head_ab": null,
+     "acc_deleaked": 0.86
     }
    },
    "extra_host_lanes": {
@@ -4444,7 +4730,27 @@
        "source": "registry",
        "selection": null
       },
-      "head_selection": null,
+      "head_selection": {
+       "selected": 0.0,
+       "candidates": [
+        {
+         "scale": 0.0,
+         "cal_acc": 0.34
+        },
+        {
+         "scale": 0.25,
+         "cal_acc": 0.355
+        },
+        {
+         "scale": 0.5,
+         "cal_acc": 0.33
+        },
+        {
+         "scale": 1.0,
+         "cal_acc": 0.36
+        }
+       ]
+      },
       "confusion": [
        {
         "gold": "entailment",
@@ -4471,7 +4777,11 @@
         "share_of_errors": 0.02040816326530612
        }
       ],
-      "pair_head_ab": null
+      "pair_head_ab": null,
+      "acc_deleaked": 0.3466666666666667,
+      "latency_provenance": {
+       "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
+      }
      },
      "laya": {
       "english": {
@@ -4503,23 +4813,25 @@
        "score_mae": null,
        "within_1": null,
        "latency_p50_ms": 12.0,
-       "latency_p99_ms": 14.0,
+       "latency_p99_ms": 13.0,
        "latency_tail_support": 4,
        "latency_extremes": {
-        "first_ms": 13.0,
-        "max_ms": 15.0,
+        "first_ms": 11.0,
+        "max_ms": 14.0,
         "argmax_case": 4
        },
        "determinism_ok": true,
-       "seconds": 5.4717173,
+       "seconds": 5.4592038,
        "n_cases": 300,
        "n_questions": 300,
        "score_threshold": null,
        "distance_threshold": null,
        "threshold_recommendation": null,
        "corpus_cap": null,
+       "head_selection": null,
        "confusion": null,
-       "pair_head_ab": null
+       "pair_head_ab": null,
+       "acc_deleaked": 0.86
       }
      },
      "clm": {
@@ -4683,30 +4995,30 @@
     "model": "modelless",
     "hard": {
      "n": 300,
-     "accuracy": 0.69,
-     "macro_f1": 0.6907651667234015,
-     "ece": 0.6226952530816198,
-     "brier": 0.9195874588105162,
-     "nll": 2.725972547540125,
-     "aurc": 0.15604446735028304,
-     "mean_confidence": 0.06730474691838026,
-     "acc_at_50_coverage": 0.8666666666666667,
-     "acc_at_80_coverage": 0.7791666666666667
+     "accuracy": 0.7933333333333333,
+     "macro_f1": 0.795499941016598,
+     "ece": 0.7111246477564175,
+     "brier": 0.8910463899088185,
+     "nll": 2.541328861795765,
+     "aurc": 0.051872561486197136,
+     "mean_confidence": 0.08220868557691574,
+     "acc_at_50_coverage": 0.9666666666666667,
+     "acc_at_80_coverage": 0.9166666666666666
     },
-    "readout_ece": 0.07503953019777931,
+    "readout_ece": 0.11340246617794036,
     "raw_abstain": {
-     "abstain_rate": 0.41333333333333333,
-     "selective_accuracy": 0.75,
-     "selective_n": 176
+     "abstain_rate": 0.44666666666666666,
+     "selective_accuracy": 0.9337349397590361,
+     "selective_n": 166
     },
     "calibrated_abstain": {
      "abstain_rate": 0.35333333333333333,
-     "selective_accuracy": 0.7268041237113402,
+     "selective_accuracy": 0.8505154639175257,
      "selective_n": 194
     },
-    "readout_ece_raw": 0.6226952530816198,
-    "readout_ece_calibrated": 0.07503953019777931,
-    "floor_ece": 0.08537313432835825,
+    "readout_ece_raw": 0.7111246477564175,
+    "readout_ece_calibrated": 0.11340246617794036,
+    "floor_ece": 0.21772802653399667,
     "g1_pass": true,
     "g1_verdict": "pass",
     "by_question_type": null,
@@ -4726,7 +5038,7 @@
     "seconds": 0.080707083,
     "n_cases": 300,
     "n_questions": 300,
-    "score_threshold": 0.06210917,
+    "score_threshold": 0.067937486,
     "distance_threshold": 0.63190293,
     "threshold_recommendation": {
      "posture": {
@@ -4734,9 +5046,9 @@
       "rho": 0.3
      },
      "score": {
-      "threshold": 0.06210917,
+      "threshold": 0.067937486,
       "status": "fitted",
-      "targetAccuracy": 0.7,
+      "targetAccuracy": 0.8357143,
       "support": {
        "n": 200,
        "nPass": 140,
@@ -4746,7 +5058,7 @@
      "distance": {
       "threshold": 0.63190293,
       "status": "fitted",
-      "targetAccuracy": 0.62142855,
+      "targetAccuracy": 0.70714283,
       "support": {
        "n": 200,
        "nPass": 140,
@@ -4759,82 +5071,106 @@
      "source": "registry",
      "selection": null
     },
-    "head_selection": null,
+    "head_selection": {
+     "selected": 1.0,
+     "candidates": [
+      {
+       "scale": 0.0,
+       "cal_acc": 0.515
+      },
+      {
+       "scale": 0.25,
+       "cal_acc": 0.585
+      },
+      {
+       "scale": 0.5,
+       "cal_acc": 0.595
+      },
+      {
+       "scale": 1.0,
+       "cal_acc": 0.61
+      }
+     ]
+    },
     "confusion": [
-     {
-      "gold": "iot_hue_lightoff",
-      "pred": "iot_wemo_off",
-      "count": 5,
-      "share_of_errors": 0.053763440860215055
-     },
      {
       "gold": "datetime_query",
       "pred": "news_query",
-      "count": 4,
-      "share_of_errors": 0.043010752688172046
-     },
-     {
-      "gold": "iot_hue_lightchange",
-      "pred": "iot_hue_lightdim",
-      "count": 3,
+      "count": 2,
       "share_of_errors": 0.03225806451612903
      },
      {
       "gold": "news_query",
       "pred": "play_music",
-      "count": 3,
+      "count": 2,
       "share_of_errors": 0.03225806451612903
-     },
-     {
-      "gold": "alarm_remove",
-      "pred": "alarm_set",
-      "count": 2,
-      "share_of_errors": 0.021505376344086023
-     },
-     {
-      "gold": "audio_volume_up",
-      "pred": "play_radio",
-      "count": 2,
-      "share_of_errors": 0.021505376344086023
-     },
-     {
-      "gold": "general_joke",
-      "pred": "general_greet",
-      "count": 2,
-      "share_of_errors": 0.021505376344086023
-     },
-     {
-      "gold": "news_query",
-      "pred": "qa_factoid",
-      "count": 2,
-      "share_of_errors": 0.021505376344086023
      },
      {
       "gold": "takeaway_order",
       "pred": "iot_wemo_off",
       "count": 2,
-      "share_of_errors": 0.021505376344086023
+      "share_of_errors": 0.03225806451612903
      },
      {
-      "gold": "weather_query",
-      "pred": "alarm_set",
+      "gold": "takeaway_query",
+      "pred": "audio_volume_mute",
       "count": 2,
-      "share_of_errors": 0.021505376344086023
+      "share_of_errors": 0.03225806451612903
      },
      {
-      "gold": "weather_query",
-      "pred": "datetime_query",
-      "count": 2,
-      "share_of_errors": 0.021505376344086023
+      "gold": "alarm_query",
+      "pred": "iot_wemo_off",
+      "count": 1,
+      "share_of_errors": 0.016129032258064516
      },
      {
-      "gold": "weather_query",
+      "gold": "alarm_query",
+      "pred": "play_music",
+      "count": 1,
+      "share_of_errors": 0.016129032258064516
+     },
+     {
+      "gold": "audio_volume_mute",
+      "pred": "music_query",
+      "count": 1,
+      "share_of_errors": 0.016129032258064516
+     },
+     {
+      "gold": "audio_volume_other",
+      "pred": "audio_volume_down",
+      "count": 1,
+      "share_of_errors": 0.016129032258064516
+     },
+     {
+      "gold": "audio_volume_up",
+      "pred": "audio_volume_down",
+      "count": 1,
+      "share_of_errors": 0.016129032258064516
+     },
+     {
+      "gold": "audio_volume_up",
+      "pred": "iot_hue_lighton",
+      "count": 1,
+      "share_of_errors": 0.016129032258064516
+     },
+     {
+      "gold": "audio_volume_up",
+      "pred": "iot_hue_lightup",
+      "count": 1,
+      "share_of_errors": 0.016129032258064516
+     },
+     {
+      "gold": "audio_volume_up",
       "pred": "play_radio",
-      "count": 2,
-      "share_of_errors": 0.021505376344086023
+      "count": 1,
+      "share_of_errors": 0.016129032258064516
      }
     ],
-    "pair_head_ab": null
+    "pair_head_ab": null,
+    "acc_deleaked": 0.7813620071684588,
+    "latency_provenance": {
+     "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
+    }
    },
    "laya": {
     "english": {
@@ -4865,16 +5201,16 @@
      "brier_soft": null,
      "score_mae": null,
      "within_1": null,
-     "latency_p50_ms": 46.0,
-     "latency_p99_ms": 59.0,
+     "latency_p50_ms": 40.0,
+     "latency_p99_ms": 49.0,
      "latency_tail_support": 4,
      "latency_extremes": {
-      "first_ms": 37.0,
-      "max_ms": 69.0,
-      "argmax_case": 294
+      "first_ms": 36.0,
+      "max_ms": 56.0,
+      "argmax_case": 6
      },
      "determinism_ok": true,
-     "seconds": 18.60431175,
+     "seconds": 16.152534042,
      "n_cases": 300,
      "n_questions": 300,
      "score_threshold": null,
@@ -4883,7 +5219,8 @@
      "corpus_cap": null,
      "head_selection": null,
      "confusion": null,
-     "pair_head_ab": null
+     "pair_head_ab": null,
+     "acc_deleaked": 0.7634408602150538
     },
     "py/english": {
      "lane": "laya (python)",
@@ -4913,16 +5250,16 @@
      "brier_soft": null,
      "score_mae": null,
      "within_1": null,
-     "latency_p50_ms": 49.0,
-     "latency_p99_ms": 104.0,
+     "latency_p50_ms": 37.0,
+     "latency_p99_ms": 57.0,
      "latency_tail_support": 4,
      "latency_extremes": {
-      "first_ms": 36.0,
-      "max_ms": 109.0,
-      "argmax_case": 267
+      "first_ms": 33.0,
+      "max_ms": 82.0,
+      "argmax_case": 261
      },
      "determinism_ok": true,
-     "seconds": 23.182372625,
+     "seconds": 17.290288291,
      "n_cases": 300,
      "n_questions": 300,
      "score_threshold": null,
@@ -4931,7 +5268,8 @@
      "corpus_cap": null,
      "head_selection": null,
      "confusion": null,
-     "pair_head_ab": null
+     "pair_head_ab": null,
+     "acc_deleaked": 0.7634408602150538
     }
    },
    "extra_host_lanes": {
@@ -4942,30 +5280,30 @@
       "model": "modelless",
       "hard": {
        "n": 300,
-       "accuracy": 0.69,
-       "macro_f1": 0.6907651667234015,
-       "ece": 0.6226952530816198,
-       "brier": 0.9195874588125477,
-       "nll": 2.725972547540125,
-       "aurc": 0.15604446735028304,
-       "mean_confidence": 0.06730474691838026,
-       "acc_at_50_coverage": 0.8666666666666667,
-       "acc_at_80_coverage": 0.7791666666666667
+       "accuracy": 0.7933333333333333,
+       "macro_f1": 0.795499941016598,
+       "ece": 0.7111246477564175,
+       "brier": 0.8910463899289719,
+       "nll": 2.5413288621806918,
+       "aurc": 0.051872561486197136,
+       "mean_confidence": 0.08220868557691574,
+       "acc_at_50_coverage": 0.9666666666666667,
+       "acc_at_80_coverage": 0.9166666666666666
       },
-      "readout_ece": 0.07503953019777931,
+      "readout_ece": 0.11340246617794036,
       "raw_abstain": {
-       "abstain_rate": 0.41333333333333333,
-       "selective_accuracy": 0.75,
-       "selective_n": 176
+       "abstain_rate": 0.44666666666666666,
+       "selective_accuracy": 0.9337349397590361,
+       "selective_n": 166
       },
       "calibrated_abstain": {
        "abstain_rate": 0.35333333333333333,
-       "selective_accuracy": 0.7268041237113402,
+       "selective_accuracy": 0.8505154639175257,
        "selective_n": 194
       },
-      "readout_ece_raw": 0.6226952530816198,
-      "readout_ece_calibrated": 0.07503953019777931,
-      "floor_ece": 0.08537313432835825,
+      "readout_ece_raw": 0.7111246477564175,
+      "readout_ece_calibrated": 0.11340246617794036,
+      "floor_ece": 0.21772802653399667,
       "g1_pass": true,
       "g1_verdict": "pass",
       "by_question_type": null,
@@ -4985,7 +5323,7 @@
       "seconds": 0.0700753,
       "n_cases": 300,
       "n_questions": 300,
-      "score_threshold": 0.06210917,
+      "score_threshold": 0.067937486,
       "distance_threshold": 0.63190293,
       "threshold_recommendation": {
        "posture": {
@@ -4993,9 +5331,9 @@
         "rho": 0.3
        },
        "score": {
-        "threshold": 0.06210917,
+        "threshold": 0.067937486,
         "status": "fitted",
-        "targetAccuracy": 0.7,
+        "targetAccuracy": 0.8357143,
         "support": {
          "n": 200,
          "nPass": 140,
@@ -5005,7 +5343,7 @@
        "distance": {
         "threshold": 0.63190293,
         "status": "fitted",
-        "targetAccuracy": 0.62142855,
+        "targetAccuracy": 0.70714283,
         "support": {
          "n": 200,
          "nPass": 140,
@@ -5018,82 +5356,106 @@
        "source": "registry",
        "selection": null
       },
-      "head_selection": null,
+      "head_selection": {
+       "selected": 1.0,
+       "candidates": [
+        {
+         "scale": 0.0,
+         "cal_acc": 0.515
+        },
+        {
+         "scale": 0.25,
+         "cal_acc": 0.585
+        },
+        {
+         "scale": 0.5,
+         "cal_acc": 0.595
+        },
+        {
+         "scale": 1.0,
+         "cal_acc": 0.61
+        }
+       ]
+      },
       "confusion": [
-       {
-        "gold": "iot_hue_lightoff",
-        "pred": "iot_wemo_off",
-        "count": 5,
-        "share_of_errors": 0.053763440860215055
-       },
        {
         "gold": "datetime_query",
         "pred": "news_query",
-        "count": 4,
-        "share_of_errors": 0.043010752688172046
-       },
-       {
-        "gold": "iot_hue_lightchange",
-        "pred": "iot_hue_lightdim",
-        "count": 3,
+        "count": 2,
         "share_of_errors": 0.03225806451612903
        },
        {
         "gold": "news_query",
         "pred": "play_music",
-        "count": 3,
+        "count": 2,
         "share_of_errors": 0.03225806451612903
-       },
-       {
-        "gold": "alarm_remove",
-        "pred": "alarm_set",
-        "count": 2,
-        "share_of_errors": 0.021505376344086023
-       },
-       {
-        "gold": "audio_volume_up",
-        "pred": "play_radio",
-        "count": 2,
-        "share_of_errors": 0.021505376344086023
-       },
-       {
-        "gold": "general_joke",
-        "pred": "general_greet",
-        "count": 2,
-        "share_of_errors": 0.021505376344086023
-       },
-       {
-        "gold": "news_query",
-        "pred": "qa_factoid",
-        "count": 2,
-        "share_of_errors": 0.021505376344086023
        },
        {
         "gold": "takeaway_order",
         "pred": "iot_wemo_off",
         "count": 2,
-        "share_of_errors": 0.021505376344086023
+        "share_of_errors": 0.03225806451612903
        },
        {
-        "gold": "weather_query",
-        "pred": "alarm_set",
+        "gold": "takeaway_query",
+        "pred": "audio_volume_mute",
         "count": 2,
-        "share_of_errors": 0.021505376344086023
+        "share_of_errors": 0.03225806451612903
        },
        {
-        "gold": "weather_query",
-        "pred": "datetime_query",
-        "count": 2,
-        "share_of_errors": 0.021505376344086023
+        "gold": "alarm_query",
+        "pred": "iot_wemo_off",
+        "count": 1,
+        "share_of_errors": 0.016129032258064516
        },
        {
-        "gold": "weather_query",
+        "gold": "alarm_query",
+        "pred": "play_music",
+        "count": 1,
+        "share_of_errors": 0.016129032258064516
+       },
+       {
+        "gold": "audio_volume_mute",
+        "pred": "music_query",
+        "count": 1,
+        "share_of_errors": 0.016129032258064516
+       },
+       {
+        "gold": "audio_volume_other",
+        "pred": "audio_volume_down",
+        "count": 1,
+        "share_of_errors": 0.016129032258064516
+       },
+       {
+        "gold": "audio_volume_up",
+        "pred": "audio_volume_down",
+        "count": 1,
+        "share_of_errors": 0.016129032258064516
+       },
+       {
+        "gold": "audio_volume_up",
+        "pred": "iot_hue_lighton",
+        "count": 1,
+        "share_of_errors": 0.016129032258064516
+       },
+       {
+        "gold": "audio_volume_up",
+        "pred": "iot_hue_lightup",
+        "count": 1,
+        "share_of_errors": 0.016129032258064516
+       },
+       {
+        "gold": "audio_volume_up",
         "pred": "play_radio",
-        "count": 2,
-        "share_of_errors": 0.021505376344086023
+        "count": 1,
+        "share_of_errors": 0.016129032258064516
        }
       ],
-      "pair_head_ab": null
+      "pair_head_ab": null,
+      "acc_deleaked": 0.7813620071684588,
+      "latency_provenance": {
+       "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
+      }
      },
      "laya": {
       "english": {
@@ -5128,20 +5490,22 @@
        "latency_p99_ms": 17.0,
        "latency_tail_support": 4,
        "latency_extremes": {
-        "first_ms": 16.0,
+        "first_ms": 15.0,
         "max_ms": 17.0,
-        "argmax_case": 9
+        "argmax_case": 6
        },
        "determinism_ok": true,
-       "seconds": 6.4921303,
+       "seconds": 6.4571006,
        "n_cases": 300,
        "n_questions": 300,
        "score_threshold": null,
        "distance_threshold": null,
        "threshold_recommendation": null,
        "corpus_cap": null,
+       "head_selection": null,
        "confusion": null,
-       "pair_head_ab": null
+       "pair_head_ab": null,
+       "acc_deleaked": 0.7634408602150538
       }
      },
      "clm": {
@@ -5305,30 +5669,30 @@
     "model": "modelless",
     "hard": {
      "n": 500,
-     "accuracy": 0.446,
-     "macro_f1": 0.15148625136268878,
-     "ece": 0.4274835483469069,
-     "brier": 0.9777866627008501,
-     "nll": 4.027861981157648,
-     "aurc": 0.42526179602863307,
-     "mean_confidence": 0.0185164516530931,
-     "acc_at_50_coverage": 0.568,
-     "acc_at_80_coverage": 0.515
+     "accuracy": 0.684,
+     "macro_f1": 0.2773170680623192,
+     "ece": 0.6612268979549408,
+     "brier": 0.9696575875155456,
+     "nll": 3.8373395460537285,
+     "aurc": 0.10498252682398163,
+     "mean_confidence": 0.022773102045059203,
+     "acc_at_50_coverage": 0.94,
+     "acc_at_80_coverage": 0.795
     },
-    "readout_ece": 0.1810258904695511,
+    "readout_ece": 0.0,
     "raw_abstain": {
      "abstain_rate": 1.0,
      "selective_accuracy": 0.0,
      "selective_n": 0
     },
     "calibrated_abstain": {
-     "abstain_rate": 0.23,
-     "selective_accuracy": 0.5324675324675324,
-     "selective_n": 385
+     "abstain_rate": 1.0,
+     "selective_accuracy": 0.0,
+     "selective_n": 0
     },
-    "readout_ece_raw": 0.4274835483469069,
-    "readout_ece_calibrated": 0.1810258904695511,
-    "floor_ece": 0.4410248756218905,
+    "readout_ece_raw": 0.6612268979549408,
+    "readout_ece_calibrated": 0.0,
+    "floor_ece": 0.6790248756218905,
     "g1_pass": true,
     "g1_verdict": "pass",
     "by_question_type": null,
@@ -5348,7 +5712,7 @@
     "seconds": 0.454356042,
     "n_cases": 500,
     "n_questions": 500,
-    "score_threshold": 0.03604986,
+    "score_threshold": 0.03900293,
     "distance_threshold": 0.473041,
     "threshold_recommendation": {
      "posture": {
@@ -5356,9 +5720,9 @@
       "rho": 0.3
      },
      "score": {
-      "threshold": 0.03604986,
+      "threshold": 0.03900293,
       "status": "fitted",
-      "targetAccuracy": 0.24285714,
+      "targetAccuracy": 0.27142859,
       "support": {
        "n": 200,
        "nPass": 140,
@@ -5368,7 +5732,7 @@
      "distance": {
       "threshold": 0.473041,
       "status": "fitted",
-      "targetAccuracy": 0.3,
+      "targetAccuracy": 0.27142859,
       "support": {
        "n": 200,
        "nPass": 140,
@@ -5381,82 +5745,106 @@
      "source": "registry",
      "selection": null
     },
-    "head_selection": null,
+    "head_selection": {
+     "selected": 1.0,
+     "candidates": [
+      {
+       "scale": 0.0,
+       "cal_acc": 0.49
+      },
+      {
+       "scale": 0.25,
+       "cal_acc": 0.625
+      },
+      {
+       "scale": 0.5,
+       "cal_acc": 0.65
+      },
+      {
+       "scale": 1.0,
+       "cal_acc": 0.68
+      }
+     ]
+    },
     "confusion": [
-     {
-      "gold": "lost or stolen card",
-      "pred": "card linking",
-      "count": 25,
-      "share_of_errors": 0.09025270758122744
-     },
      {
       "gold": "card arrival",
       "pred": "card linking",
-      "count": 20,
-      "share_of_errors": 0.07220216606498195
-     },
-     {
-      "gold": "card not working",
-      "pred": "card linking",
-      "count": 20,
-      "share_of_errors": 0.07220216606498195
+      "count": 9,
+      "share_of_errors": 0.056962025316455694
      },
      {
       "gold": "card delivery estimate",
-      "pred": "card linking",
-      "count": 19,
-      "share_of_errors": 0.06859205776173286
+      "pred": "card not working",
+      "count": 8,
+      "share_of_errors": 0.05063291139240506
      },
      {
-      "gold": "pending cash withdrawal",
-      "pred": "pending top up",
-      "count": 15,
-      "share_of_errors": 0.05415162454873646
-     },
-     {
-      "gold": "automatic top up",
-      "pred": "top up limits",
-      "count": 14,
-      "share_of_errors": 0.05054151624548736
-     },
-     {
-      "gold": "card payment wrong exchange rate",
-      "pred": "exchange rate",
-      "count": 14,
-      "share_of_errors": 0.05054151624548736
+      "gold": "exchange via app",
+      "pred": "fiat currency support",
+      "count": 6,
+      "share_of_errors": 0.0379746835443038
      },
      {
       "gold": "fiat currency support",
       "pred": "exchange via app",
-      "count": 10,
-      "share_of_errors": 0.036101083032490974
-     },
-     {
-      "gold": "automatic top up",
-      "pred": "card linking",
       "count": 6,
-      "share_of_errors": 0.021660649819494584
+      "share_of_errors": 0.0379746835443038
      },
      {
-      "gold": "card not working",
-      "pred": "card acceptance",
+      "gold": "lost or stolen card",
+      "pred": "card not working",
       "count": 6,
-      "share_of_errors": 0.021660649819494584
-     },
-     {
-      "gold": "automatic top up",
-      "pred": "card arrival",
-      "count": 4,
-      "share_of_errors": 0.01444043321299639
+      "share_of_errors": 0.0379746835443038
      },
      {
       "gold": "card arrival",
-      "pred": "activate my card",
+      "pred": "card delivery estimate",
+      "count": 5,
+      "share_of_errors": 0.03164556962025317
+     },
+     {
+      "gold": "card arrival",
+      "pred": "card not working",
+      "count": 5,
+      "share_of_errors": 0.03164556962025317
+     },
+     {
+      "gold": "card delivery estimate",
+      "pred": "card linking",
+      "count": 5,
+      "share_of_errors": 0.03164556962025317
+     },
+     {
+      "gold": "card not working",
+      "pred": "lost or stolen card",
+      "count": 5,
+      "share_of_errors": 0.03164556962025317
+     },
+     {
+      "gold": "card arrival",
+      "pred": "lost or stolen card",
       "count": 4,
-      "share_of_errors": 0.01444043321299639
+      "share_of_errors": 0.02531645569620253
+     },
+     {
+      "gold": "pending cash withdrawal",
+      "pred": "pending top up",
+      "count": 4,
+      "share_of_errors": 0.02531645569620253
+     },
+     {
+      "gold": "automatic top up",
+      "pred": "top up limits",
+      "count": 3,
+      "share_of_errors": 0.0189873417721519
      }
     ],
-    "pair_head_ab": null
+    "pair_head_ab": null,
+    "acc_deleaked": 0.6832298136645962,
+    "latency_provenance": {
+     "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
+    }
    },
    "laya": {
     "english": {
@@ -5487,16 +5875,16 @@
      "brier_soft": null,
      "score_mae": null,
      "within_1": null,
-     "latency_p50_ms": 69.0,
-     "latency_p99_ms": 95.0,
+     "latency_p50_ms": 61.0,
+     "latency_p99_ms": 70.0,
      "latency_tail_support": 6,
      "latency_extremes": {
-      "first_ms": 59.0,
-      "max_ms": 106.0,
-      "argmax_case": 412
+      "first_ms": 55.0,
+      "max_ms": 76.0,
+      "argmax_case": 192
      },
      "determinism_ok": true,
-     "seconds": 40.67459275,
+     "seconds": 35.07386475,
      "n_cases": 500,
      "n_questions": 500,
      "score_threshold": null,
@@ -5505,7 +5893,8 @@
      "corpus_cap": null,
      "head_selection": null,
      "confusion": null,
-     "pair_head_ab": null
+     "pair_head_ab": null,
+     "acc_deleaked": 0.494824016563147
     },
     "py/english": {
      "lane": "laya (python)",
@@ -5535,16 +5924,16 @@
      "brier_soft": null,
      "score_mae": null,
      "within_1": null,
-     "latency_p50_ms": 83.0,
-     "latency_p99_ms": 162.0,
+     "latency_p50_ms": 58.0,
+     "latency_p99_ms": 79.0,
      "latency_tail_support": 6,
      "latency_extremes": {
-      "first_ms": 52.0,
-      "max_ms": 189.0,
-      "argmax_case": 439
+      "first_ms": 51.0,
+      "max_ms": 82.0,
+      "argmax_case": 189
      },
      "determinism_ok": true,
-     "seconds": 49.887331125,
+     "seconds": 35.635359625,
      "n_cases": 500,
      "n_questions": 500,
      "score_threshold": null,
@@ -5553,7 +5942,8 @@
      "corpus_cap": null,
      "head_selection": null,
      "confusion": null,
-     "pair_head_ab": null
+     "pair_head_ab": null,
+     "acc_deleaked": 0.494824016563147
     }
    },
    "extra_host_lanes": {
@@ -5564,17 +5954,17 @@
       "model": "modelless",
       "hard": {
        "n": 500,
-       "accuracy": 0.446,
-       "macro_f1": 0.15148625136268878,
-       "ece": 0.4274835483543575,
-       "brier": 0.9777866627049098,
-       "nll": 4.027861981539416,
-       "aurc": 0.42526179602863307,
-       "mean_confidence": 0.01851645164564252,
-       "acc_at_50_coverage": 0.568,
-       "acc_at_80_coverage": 0.515
+       "accuracy": 0.684,
+       "macro_f1": 0.2773170680623192,
+       "ece": 0.6612268979288638,
+       "brier": 0.9696575875089886,
+       "nll": 3.8373395456862016,
+       "aurc": 0.10498252682398163,
+       "mean_confidence": 0.022773102071136236,
+       "acc_at_50_coverage": 0.94,
+       "acc_at_80_coverage": 0.795
       },
-      "readout_ece": 0.1810258904695511,
+      "readout_ece": 0.4689453021287919,
       "raw_abstain": {
        "abstain_rate": 1.0,
        "selective_accuracy": 0.0,
@@ -5582,12 +5972,12 @@
       },
       "calibrated_abstain": {
        "abstain_rate": 0.23,
-       "selective_accuracy": 0.5324675324675324,
+       "selective_accuracy": 0.7766233766233767,
        "selective_n": 385
       },
-      "readout_ece_raw": 0.4274835483543575,
-      "readout_ece_calibrated": 0.1810258904695511,
-      "floor_ece": 0.4410248756218905,
+      "readout_ece_raw": 0.6612268979288638,
+      "readout_ece_calibrated": 0.4689453021287919,
+      "floor_ece": 0.6790248756218905,
       "g1_pass": true,
       "g1_verdict": "pass",
       "by_question_type": null,
@@ -5607,7 +5997,7 @@
       "seconds": 0.3643084,
       "n_cases": 500,
       "n_questions": 500,
-      "score_threshold": 0.03604986,
+      "score_threshold": 0.03900293,
       "distance_threshold": 0.473041,
       "threshold_recommendation": {
        "posture": {
@@ -5615,9 +6005,9 @@
         "rho": 0.3
        },
        "score": {
-        "threshold": 0.03604986,
+        "threshold": 0.03900293,
         "status": "fitted",
-        "targetAccuracy": 0.24285714,
+        "targetAccuracy": 0.27142859,
         "support": {
          "n": 200,
          "nPass": 140,
@@ -5627,7 +6017,7 @@
        "distance": {
         "threshold": 0.473041,
         "status": "fitted",
-        "targetAccuracy": 0.3,
+        "targetAccuracy": 0.27142859,
         "support": {
          "n": 200,
          "nPass": 140,
@@ -5640,82 +6030,106 @@
        "source": "registry",
        "selection": null
       },
-      "head_selection": null,
+      "head_selection": {
+       "selected": 1.0,
+       "candidates": [
+        {
+         "scale": 0.0,
+         "cal_acc": 0.49
+        },
+        {
+         "scale": 0.25,
+         "cal_acc": 0.625
+        },
+        {
+         "scale": 0.5,
+         "cal_acc": 0.65
+        },
+        {
+         "scale": 1.0,
+         "cal_acc": 0.68
+        }
+       ]
+      },
       "confusion": [
-       {
-        "gold": "lost or stolen card",
-        "pred": "card linking",
-        "count": 25,
-        "share_of_errors": 0.09025270758122744
-       },
        {
         "gold": "card arrival",
         "pred": "card linking",
-        "count": 20,
-        "share_of_errors": 0.07220216606498195
-       },
-       {
-        "gold": "card not working",
-        "pred": "card linking",
-        "count": 20,
-        "share_of_errors": 0.07220216606498195
+        "count": 9,
+        "share_of_errors": 0.056962025316455694
        },
        {
         "gold": "card delivery estimate",
-        "pred": "card linking",
-        "count": 19,
-        "share_of_errors": 0.06859205776173286
+        "pred": "card not working",
+        "count": 8,
+        "share_of_errors": 0.05063291139240506
        },
        {
-        "gold": "pending cash withdrawal",
-        "pred": "pending top up",
-        "count": 15,
-        "share_of_errors": 0.05415162454873646
-       },
-       {
-        "gold": "automatic top up",
-        "pred": "top up limits",
-        "count": 14,
-        "share_of_errors": 0.05054151624548736
-       },
-       {
-        "gold": "card payment wrong exchange rate",
-        "pred": "exchange rate",
-        "count": 14,
-        "share_of_errors": 0.05054151624548736
+        "gold": "exchange via app",
+        "pred": "fiat currency support",
+        "count": 6,
+        "share_of_errors": 0.0379746835443038
        },
        {
         "gold": "fiat currency support",
         "pred": "exchange via app",
-        "count": 10,
-        "share_of_errors": 0.036101083032490974
-       },
-       {
-        "gold": "automatic top up",
-        "pred": "card linking",
         "count": 6,
-        "share_of_errors": 0.021660649819494584
+        "share_of_errors": 0.0379746835443038
        },
        {
-        "gold": "card not working",
-        "pred": "card acceptance",
+        "gold": "lost or stolen card",
+        "pred": "card not working",
         "count": 6,
-        "share_of_errors": 0.021660649819494584
-       },
-       {
-        "gold": "automatic top up",
-        "pred": "card arrival",
-        "count": 4,
-        "share_of_errors": 0.01444043321299639
+        "share_of_errors": 0.0379746835443038
        },
        {
         "gold": "card arrival",
-        "pred": "activate my card",
+        "pred": "card delivery estimate",
+        "count": 5,
+        "share_of_errors": 0.03164556962025317
+       },
+       {
+        "gold": "card arrival",
+        "pred": "card not working",
+        "count": 5,
+        "share_of_errors": 0.03164556962025317
+       },
+       {
+        "gold": "card delivery estimate",
+        "pred": "card linking",
+        "count": 5,
+        "share_of_errors": 0.03164556962025317
+       },
+       {
+        "gold": "card not working",
+        "pred": "lost or stolen card",
+        "count": 5,
+        "share_of_errors": 0.03164556962025317
+       },
+       {
+        "gold": "card arrival",
+        "pred": "lost or stolen card",
         "count": 4,
-        "share_of_errors": 0.01444043321299639
+        "share_of_errors": 0.02531645569620253
+       },
+       {
+        "gold": "pending cash withdrawal",
+        "pred": "pending top up",
+        "count": 4,
+        "share_of_errors": 0.02531645569620253
+       },
+       {
+        "gold": "automatic top up",
+        "pred": "top up limits",
+        "count": 3,
+        "share_of_errors": 0.0189873417721519
        }
       ],
-      "pair_head_ab": null
+      "pair_head_ab": null,
+      "acc_deleaked": 0.6832298136645962,
+      "latency_provenance": {
+       "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
+      }
      },
      "laya": {
       "english": {
@@ -5755,15 +6169,17 @@
         "argmax_case": 0
        },
        "determinism_ok": true,
-       "seconds": 14.3353916,
+       "seconds": 14.0631711,
        "n_cases": 500,
        "n_questions": 500,
        "score_threshold": null,
        "distance_threshold": null,
        "threshold_recommendation": null,
        "corpus_cap": null,
+       "head_selection": null,
        "confusion": null,
-       "pair_head_ab": null
+       "pair_head_ab": null,
+       "acc_deleaked": 0.494824016563147
       }
      },
      "clm": {
@@ -6054,7 +6470,10 @@
       "share_of_errors": 0.1111111111111111
      }
     ],
-    "pair_head_ab": null
+    "pair_head_ab": null,
+    "latency_provenance": {
+     "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
+    }
    },
    "laya": {
     "english": {
@@ -6085,16 +6504,16 @@
      "brier_soft": null,
      "score_mae": null,
      "within_1": null,
-     "latency_p50_ms": 88.0,
-     "latency_p99_ms": 272.0,
+     "latency_p50_ms": 62.0,
+     "latency_p99_ms": 239.0,
      "latency_tail_support": 1,
      "latency_extremes": {
-      "first_ms": 88.0,
-      "max_ms": 272.0,
+      "first_ms": 62.0,
+      "max_ms": 239.0,
       "argmax_case": 3
      },
      "determinism_ok": true,
-     "seconds": 7.404939042,
+     "seconds": 5.569187208,
      "n_cases": 12,
      "n_questions": 24,
      "score_threshold": null,
@@ -6133,16 +6552,16 @@
      "brier_soft": null,
      "score_mae": null,
      "within_1": null,
-     "latency_p50_ms": 63.0,
-     "latency_p99_ms": 208.0,
+     "latency_p50_ms": 58.0,
+     "latency_p99_ms": 157.0,
      "latency_tail_support": 1,
      "latency_extremes": {
-      "first_ms": 48.0,
-      "max_ms": 208.0,
+      "first_ms": 49.0,
+      "max_ms": 157.0,
       "argmax_case": 3
      },
      "determinism_ok": true,
-     "seconds": 7.13418325,
+     "seconds": 6.569457666,
      "n_cases": 12,
      "n_questions": 24,
      "score_threshold": null,
@@ -6339,7 +6758,10 @@
         "share_of_errors": 0.1111111111111111
        }
       ],
-      "pair_head_ab": null
+      "pair_head_ab": null,
+      "latency_provenance": {
+       "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
+      }
      },
      "laya": {
       "english": {
@@ -6349,15 +6771,15 @@
         "n": 24,
         "accuracy": 0.5833333333333334,
         "macro_f1": 0.48744588744588746,
-        "ece": 0.24399166666666666,
-        "brier": 0.5717888591666662,
-        "nll": 1.3758108307282877,
-        "aurc": 0.3160532659186583,
-        "mean_confidence": 0.67785,
+        "ece": 0.26657499999999995,
+        "brier": 0.6111463304166662,
+        "nll": 1.503424034170794,
+        "aurc": 0.4046804543620232,
+        "mean_confidence": 0.7004333333333334,
         "acc_at_50_coverage": 0.75,
         "acc_at_80_coverage": 0.6842105263157895
        },
-       "readout_ece": 0.21747499999999997,
+       "readout_ece": 0.26294583333333327,
        "raw_abstain": null,
        "calibrated_abstain": null,
        "readout_ece_raw": null,
@@ -6370,22 +6792,23 @@
        "brier_soft": null,
        "score_mae": null,
        "within_1": null,
-       "latency_p50_ms": 27.0,
+       "latency_p50_ms": 26.0,
        "latency_p99_ms": 67.0,
        "latency_tail_support": 1,
        "latency_extremes": {
-        "first_ms": 27.0,
+        "first_ms": 26.0,
         "max_ms": 67.0,
         "argmax_case": 3
        },
-       "determinism_ok": true,
-       "seconds": 2.3490594,
+       "determinism_ok": false,
+       "seconds": 2.3887262,
        "n_cases": 12,
        "n_questions": 24,
        "score_threshold": null,
        "distance_threshold": null,
        "threshold_recommendation": null,
        "corpus_cap": null,
+       "head_selection": null,
        "confusion": null,
        "pair_head_ab": null
       }
@@ -6652,7 +7075,10 @@
       "share_of_errors": 0.1
      }
     ],
-    "pair_head_ab": null
+    "pair_head_ab": null,
+    "latency_provenance": {
+     "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
+    }
    },
    "laya": {
     "english": {
@@ -6683,16 +7109,16 @@
      "brier_soft": null,
      "score_mae": null,
      "within_1": null,
-     "latency_p50_ms": 22.0,
-     "latency_p99_ms": 28.0,
+     "latency_p50_ms": 18.0,
+     "latency_p99_ms": 24.0,
      "latency_tail_support": 1,
      "latency_extremes": {
-      "first_ms": 19.0,
-      "max_ms": 28.0,
-      "argmax_case": 11
+      "first_ms": 18.0,
+      "max_ms": 24.0,
+      "argmax_case": 14
      },
      "determinism_ok": true,
-     "seconds": 4.001453209,
+     "seconds": 3.898992125,
      "n_cases": 16,
      "n_questions": 16,
      "score_threshold": null,
@@ -6731,16 +7157,16 @@
      "brier_soft": null,
      "score_mae": null,
      "within_1": null,
-     "latency_p50_ms": 20.0,
-     "latency_p99_ms": 37.0,
+     "latency_p50_ms": 18.0,
+     "latency_p99_ms": 35.0,
      "latency_tail_support": 1,
      "latency_extremes": {
       "first_ms": 18.0,
-      "max_ms": 37.0,
-      "argmax_case": 8
+      "max_ms": 35.0,
+      "argmax_case": 3
      },
      "determinism_ok": true,
-     "seconds": 5.858505709,
+     "seconds": 5.370089458,
      "n_cases": 16,
      "n_questions": 16,
      "score_threshold": null,
@@ -6919,7 +7345,10 @@
         "share_of_errors": 0.1
        }
       ],
-      "pair_head_ab": null
+      "pair_head_ab": null,
+      "latency_provenance": {
+       "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
+      }
      },
      "laya": {
       "english": {
@@ -6951,21 +7380,22 @@
        "score_mae": null,
        "within_1": null,
        "latency_p50_ms": 11.0,
-       "latency_p99_ms": 13.0,
+       "latency_p99_ms": 12.0,
        "latency_tail_support": 1,
        "latency_extremes": {
-        "first_ms": 13.0,
-        "max_ms": 13.0,
-        "argmax_case": 0
+        "first_ms": 10.0,
+        "max_ms": 12.0,
+        "argmax_case": 1
        },
        "determinism_ok": true,
-       "seconds": 1.8535899,
+       "seconds": 1.8779518,
        "n_cases": 16,
        "n_questions": 16,
        "score_threshold": null,
        "distance_threshold": null,
        "threshold_recommendation": null,
        "corpus_cap": null,
+       "head_selection": null,
        "confusion": null,
        "pair_head_ab": null
       }
@@ -7220,7 +7650,10 @@
       "share_of_errors": 0.14285714285714285
      }
     ],
-    "pair_head_ab": null
+    "pair_head_ab": null,
+    "latency_provenance": {
+     "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
+    }
    },
    "laya": {
     "english": {
@@ -7251,16 +7684,16 @@
      "brier_soft": null,
      "score_mae": null,
      "within_1": null,
-     "latency_p50_ms": 21.0,
-     "latency_p99_ms": 27.0,
+     "latency_p50_ms": 18.0,
+     "latency_p99_ms": 23.0,
      "latency_tail_support": 1,
      "latency_extremes": {
-      "first_ms": 20.0,
-      "max_ms": 27.0,
-      "argmax_case": 10
+      "first_ms": 18.0,
+      "max_ms": 23.0,
+      "argmax_case": 11
      },
      "determinism_ok": true,
-     "seconds": 3.901135667,
+     "seconds": 3.66651575,
      "n_cases": 12,
      "n_questions": 12,
      "score_threshold": null,
@@ -7299,16 +7732,16 @@
      "brier_soft": null,
      "score_mae": null,
      "within_1": null,
-     "latency_p50_ms": 20.0,
-     "latency_p99_ms": 37.0,
+     "latency_p50_ms": 18.0,
+     "latency_p99_ms": 35.0,
      "latency_tail_support": 1,
      "latency_extremes": {
       "first_ms": 18.0,
-      "max_ms": 37.0,
+      "max_ms": 35.0,
       "argmax_case": 1
      },
      "determinism_ok": true,
-     "seconds": 5.689927291,
+     "seconds": 5.281364375,
      "n_cases": 12,
      "n_questions": 12,
      "score_threshold": null,
@@ -7475,7 +7908,10 @@
         "share_of_errors": 0.14285714285714285
        }
       ],
-      "pair_head_ab": null
+      "pair_head_ab": null,
+      "latency_provenance": {
+       "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
+      }
      },
      "laya": {
       "english": {
@@ -7506,22 +7942,23 @@
        "brier_soft": null,
        "score_mae": null,
        "within_1": null,
-       "latency_p50_ms": 12.0,
-       "latency_p99_ms": 13.0,
+       "latency_p50_ms": 11.0,
+       "latency_p99_ms": 12.0,
        "latency_tail_support": 1,
        "latency_extremes": {
-        "first_ms": 13.0,
-        "max_ms": 13.0,
-        "argmax_case": 0
+        "first_ms": 11.0,
+        "max_ms": 12.0,
+        "argmax_case": 3
        },
        "determinism_ok": true,
-       "seconds": 1.8183563999999999,
+       "seconds": 1.8182464,
        "n_cases": 12,
        "n_questions": 12,
        "score_threshold": null,
        "distance_threshold": null,
        "threshold_recommendation": null,
        "corpus_cap": null,
+       "head_selection": null,
        "confusion": null,
        "pair_head_ab": null
       }
@@ -7794,7 +8231,10 @@
       "share_of_errors": 0.16666666666666666
      }
     ],
-    "pair_head_ab": null
+    "pair_head_ab": null,
+    "latency_provenance": {
+     "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
+    }
    },
    "laya": {
     "english": {
@@ -7825,16 +8265,16 @@
      "brier_soft": null,
      "score_mae": null,
      "within_1": null,
-     "latency_p50_ms": 14.0,
-     "latency_p99_ms": 17.0,
+     "latency_p50_ms": 13.0,
+     "latency_p99_ms": 14.0,
      "latency_tail_support": 1,
      "latency_extremes": {
-      "first_ms": 14.0,
-      "max_ms": 17.0,
-      "argmax_case": 11
+      "first_ms": 13.0,
+      "max_ms": 14.0,
+      "argmax_case": 2
      },
      "determinism_ok": true,
-     "seconds": 3.579095,
+     "seconds": 3.701888792,
      "n_cases": 12,
      "n_questions": 12,
      "score_threshold": null,
@@ -7873,16 +8313,16 @@
      "brier_soft": null,
      "score_mae": null,
      "within_1": null,
-     "latency_p50_ms": 18.0,
-     "latency_p99_ms": 208.0,
+     "latency_p50_ms": 15.0,
+     "latency_p99_ms": 27.0,
      "latency_tail_support": 1,
      "latency_extremes": {
       "first_ms": 15.0,
-      "max_ms": 208.0,
-      "argmax_case": 5
+      "max_ms": 27.0,
+      "argmax_case": 1
      },
      "determinism_ok": true,
-     "seconds": 5.619376292,
+     "seconds": 5.181241084,
      "n_cases": 12,
      "n_questions": 12,
      "score_threshold": null,
@@ -8067,7 +8507,10 @@
         "share_of_errors": 0.16666666666666666
        }
       ],
-      "pair_head_ab": null
+      "pair_head_ab": null,
+      "latency_provenance": {
+       "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
+      }
      },
      "laya": {
       "english": {
@@ -8098,22 +8541,23 @@
        "brier_soft": null,
        "score_mae": null,
        "within_1": null,
-       "latency_p50_ms": 10.0,
-       "latency_p99_ms": 12.0,
+       "latency_p50_ms": 9.0,
+       "latency_p99_ms": 10.0,
        "latency_tail_support": 1,
        "latency_extremes": {
-        "first_ms": 10.0,
-        "max_ms": 12.0,
-        "argmax_case": 5
+        "first_ms": 9.0,
+        "max_ms": 10.0,
+        "argmax_case": 1
        },
        "determinism_ok": true,
-       "seconds": 1.7626427,
+       "seconds": 1.7537558,
        "n_cases": 12,
        "n_questions": 12,
        "score_threshold": null,
        "distance_threshold": null,
        "threshold_recommendation": null,
        "corpus_cap": null,
+       "head_selection": null,
        "confusion": null,
        "pair_head_ab": null
       }
@@ -8380,7 +8824,10 @@
       "share_of_errors": 0.1111111111111111
      }
     ],
-    "pair_head_ab": null
+    "pair_head_ab": null,
+    "latency_provenance": {
+     "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
+    }
    },
    "laya": {
     "english": {
@@ -8411,16 +8858,16 @@
      "brier_soft": null,
      "score_mae": null,
      "within_1": null,
-     "latency_p50_ms": 30.0,
-     "latency_p99_ms": 45.0,
+     "latency_p50_ms": 22.0,
+     "latency_p99_ms": 25.0,
      "latency_tail_support": 1,
      "latency_extremes": {
-      "first_ms": 21.0,
-      "max_ms": 45.0,
-      "argmax_case": 9
+      "first_ms": 19.0,
+      "max_ms": 25.0,
+      "argmax_case": 11
      },
      "determinism_ok": true,
-     "seconds": 4.179670042,
+     "seconds": 3.79669525,
      "n_cases": 16,
      "n_questions": 16,
      "score_threshold": null,
@@ -8459,16 +8906,16 @@
      "brier_soft": null,
      "score_mae": null,
      "within_1": null,
-     "latency_p50_ms": 28.0,
-     "latency_p99_ms": 55.0,
+     "latency_p50_ms": 20.0,
+     "latency_p99_ms": 38.0,
      "latency_tail_support": 1,
      "latency_extremes": {
-      "first_ms": 21.0,
-      "max_ms": 55.0,
-      "argmax_case": 3
+      "first_ms": 20.0,
+      "max_ms": 38.0,
+      "argmax_case": 4
      },
      "determinism_ok": true,
-     "seconds": 6.125436666,
+     "seconds": 5.470940167,
      "n_cases": 16,
      "n_questions": 16,
      "score_threshold": null,
@@ -8647,7 +9094,10 @@
         "share_of_errors": 0.1111111111111111
        }
       ],
-      "pair_head_ab": null
+      "pair_head_ab": null,
+      "latency_provenance": {
+       "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
+      }
      },
      "laya": {
       "english": {
@@ -8679,21 +9129,22 @@
        "score_mae": null,
        "within_1": null,
        "latency_p50_ms": 12.0,
-       "latency_p99_ms": 14.0,
+       "latency_p99_ms": 12.0,
        "latency_tail_support": 1,
        "latency_extremes": {
-        "first_ms": 13.0,
-        "max_ms": 14.0,
-        "argmax_case": 1
+        "first_ms": 11.0,
+        "max_ms": 12.0,
+        "argmax_case": 2
        },
        "determinism_ok": true,
-       "seconds": 1.8748262,
+       "seconds": 1.8758131,
        "n_cases": 16,
        "n_questions": 16,
        "score_threshold": null,
        "distance_threshold": null,
        "threshold_recommendation": null,
        "corpus_cap": null,
+       "head_selection": null,
        "confusion": null,
        "pair_head_ab": null
       }
@@ -8972,7 +9423,10 @@
       "share_of_errors": 0.1111111111111111
      }
     ],
-    "pair_head_ab": null
+    "pair_head_ab": null,
+    "latency_provenance": {
+     "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
+    }
    },
    "laya": {
     "english": {
@@ -9003,16 +9457,16 @@
      "brier_soft": null,
      "score_mae": null,
      "within_1": null,
-     "latency_p50_ms": 31.0,
-     "latency_p99_ms": 39.0,
+     "latency_p50_ms": 19.0,
+     "latency_p99_ms": 24.0,
      "latency_tail_support": 1,
      "latency_extremes": {
-      "first_ms": 21.0,
-      "max_ms": 39.0,
-      "argmax_case": 8
+      "first_ms": 19.0,
+      "max_ms": 24.0,
+      "argmax_case": 11
      },
      "determinism_ok": true,
-     "seconds": 4.151461125,
+     "seconds": 3.763791,
      "n_cases": 15,
      "n_questions": 15,
      "score_threshold": null,
@@ -9051,16 +9505,16 @@
      "brier_soft": null,
      "score_mae": null,
      "within_1": null,
-     "latency_p50_ms": 31.0,
-     "latency_p99_ms": 57.0,
+     "latency_p50_ms": 21.0,
+     "latency_p99_ms": 39.0,
      "latency_tail_support": 1,
      "latency_extremes": {
-      "first_ms": 22.0,
-      "max_ms": 57.0,
+      "first_ms": 20.0,
+      "max_ms": 39.0,
       "argmax_case": 12
      },
      "determinism_ok": true,
-     "seconds": 6.300980333,
+     "seconds": 5.431410875,
      "n_cases": 15,
      "n_questions": 15,
      "score_threshold": null,
@@ -9251,7 +9705,10 @@
         "share_of_errors": 0.1111111111111111
        }
       ],
-      "pair_head_ab": null
+      "pair_head_ab": null,
+      "latency_provenance": {
+       "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
+      }
      },
      "laya": {
       "english": {
@@ -9282,22 +9739,23 @@
        "brier_soft": null,
        "score_mae": null,
        "within_1": null,
-       "latency_p50_ms": 12.0,
-       "latency_p99_ms": 13.0,
+       "latency_p50_ms": 11.0,
+       "latency_p99_ms": 12.0,
        "latency_tail_support": 1,
        "latency_extremes": {
-        "first_ms": 13.0,
-        "max_ms": 13.0,
+        "first_ms": 12.0,
+        "max_ms": 12.0,
         "argmax_case": 0
        },
        "determinism_ok": true,
-       "seconds": 1.8437236000000001,
+       "seconds": 1.8169478,
        "n_cases": 15,
        "n_questions": 15,
        "score_threshold": null,
        "distance_threshold": null,
        "threshold_recommendation": null,
        "corpus_cap": null,
+       "head_selection": null,
        "confusion": null,
        "pair_head_ab": null
       }
@@ -9480,16 +9938,16 @@
      "brier_soft": null,
      "score_mae": null,
      "within_1": null,
-     "latency_p50_ms": 29.0,
-     "latency_p99_ms": 36.0,
+     "latency_p50_ms": 19.0,
+     "latency_p99_ms": 24.0,
      "latency_tail_support": 1,
      "latency_extremes": {
-      "first_ms": 21.0,
-      "max_ms": 36.0,
-      "argmax_case": 8
+      "first_ms": 19.0,
+      "max_ms": 24.0,
+      "argmax_case": 10
      },
      "determinism_ok": true,
-     "seconds": 4.041994667,
+     "seconds": 3.856387667,
      "n_cases": 12,
      "n_questions": 12,
      "score_threshold": null,
@@ -9528,16 +9986,16 @@
      "brier_soft": null,
      "score_mae": null,
      "within_1": null,
-     "latency_p50_ms": 46.0,
-     "latency_p99_ms": 49.0,
+     "latency_p50_ms": 36.0,
+     "latency_p99_ms": 38.0,
      "latency_tail_support": 1,
      "latency_extremes": {
-      "first_ms": 21.0,
-      "max_ms": 49.0,
-      "argmax_case": 6
+      "first_ms": 20.0,
+      "max_ms": 38.0,
+      "argmax_case": 9
      },
      "determinism_ok": true,
-     "seconds": 5.910523209,
+     "seconds": 5.359250917,
      "n_cases": 12,
      "n_questions": 12,
      "score_threshold": null,
@@ -9631,22 +10089,23 @@
        "brier_soft": null,
        "score_mae": null,
        "within_1": null,
-       "latency_p50_ms": 12.0,
-       "latency_p99_ms": 13.0,
+       "latency_p50_ms": 11.0,
+       "latency_p99_ms": 12.0,
        "latency_tail_support": 1,
        "latency_extremes": {
-        "first_ms": 13.0,
-        "max_ms": 13.0,
+        "first_ms": 12.0,
+        "max_ms": 12.0,
         "argmax_case": 0
        },
        "determinism_ok": true,
-       "seconds": 1.8313065,
+       "seconds": 1.7870596,
        "n_cases": 12,
        "n_questions": 12,
        "score_threshold": null,
        "distance_threshold": null,
        "threshold_recommendation": null,
        "corpus_cap": null,
+       "head_selection": null,
        "confusion": null,
        "pair_head_ab": null
       }
