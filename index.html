@@ -38,10 +38,6 @@
       path, no AI service, no telemetry. Loopback-only, microsecond-tier, bit-deterministic.
     </p>
 
-    <div class="cmd"><span class="os">macOS / Linux</span><code>curl -fsSL https://raw.githubusercontent.com/gist-rs/reflex/main/install.sh | sh</code><button data-copy="curl -fsSL https://raw.githubusercontent.com/gist-rs/reflex/main/install.sh | sh">copy</button></div>
-    <div class="cmd"><span class="os">Windows</span><code>iwr -useb https://raw.githubusercontent.com/gist-rs/reflex/main/install.ps1 | iex</code><button data-copy="iwr -useb https://raw.githubusercontent.com/gist-rs/reflex/main/install.ps1 | iex">copy</button></div>
-    <div class="cmd"><span class="os">Homebrew</span><code>brew tap gist-rs/tap &amp;&amp; brew install riir-reflex</code> <span class="hint-inline">— the command it installs is <code>reflex</code></span><button data-copy="brew tap gist-rs/tap && brew install riir-reflex">copy</button></div>
-
     <div class="badges">
       <span class="badge">G1 calibration beats the conformal-naive floor — 8/9 suites</span>
       <span class="badge">G2 p99 0.06 ms / decision set</span>
@@ -109,7 +105,7 @@
         <h3>Download</h3>
         <p>One static binary, checksum-verified, for macOS (arm64 + x86_64), Linux (musl, both arches) and
           Windows — via curl, Homebrew or Scoop. <code>reflex --version</code> prints its own feature set.</p>
-        <a class="cta" href="https://github.com/gist-rs/reflex/releases">Get the binary</a>
+        <a class="cta" href="#install">Jump to install</a>
       </div>
     </div>
   </section>
@@ -140,6 +136,17 @@
     <p class="fine">Section pattern borrowed with thanks from the
       <a href="https://www.brainfunctioncollapse.com/laya/#skill">laya page's skill section</a>;
       the file itself is written fresh against Reflex, traps and all.</p>
+  </section>
+
+  <section id="install">
+    <h2>Install</h2>
+    <p class="sub">
+      One static binary, checksum-verified — <code>reflex --version</code> prints its compiled
+      feature set and warns if the build is incomplete.
+    </p>
+    <div class="cmd"><span class="os">macOS / Linux</span><code>curl -fsSL https://raw.githubusercontent.com/gist-rs/reflex/main/install.sh | sh</code><button data-copy="curl -fsSL https://raw.githubusercontent.com/gist-rs/reflex/main/install.sh | sh">copy</button></div>
+    <div class="cmd"><span class="os">Windows</span><code>iwr -useb https://raw.githubusercontent.com/gist-rs/reflex/main/install.ps1 | iex</code><button data-copy="iwr -useb https://raw.githubusercontent.com/gist-rs/reflex/main/install.ps1 | iex">copy</button></div>
+    <div class="cmd"><span class="os">Homebrew</span><code>brew tap gist-rs/tap &amp;&amp; brew install riir-reflex</code> <span class="hint-inline">— the command it installs is <code>reflex</code></span><button data-copy="brew tap gist-rs/tap && brew install riir-reflex">copy</button></div>
   </section>
 
 </div>
