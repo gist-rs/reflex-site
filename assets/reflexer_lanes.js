@@ -14,7 +14,7 @@
 
 import { Reflexer, placePick, placeRequest } from "./reflexer_host.js";
 
-export const REFLEXER_CLOUD = "https://reflexer.foxfox.workers.dev";
+export const REFLEXER_CLOUD = "https://reflexer.gist.rs";
 const GENOME = "68cae9d382014662";
 const PROBE_TIMEOUT_MS = 4000;
 const DECIDE_TIMEOUT_MS = 8000;

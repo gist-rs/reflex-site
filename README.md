@@ -45,7 +45,7 @@ Cloudflare** (beside the raw baseline). One engine, two hosts: the
 reflexer engine (gist-rs/riir-reflexer `crates/reflexer-wasm`,
 `wasm32-wasip1`) runs in the tab from `assets/reflexer.wasm`, and the SAME
 bytes answer `POST /v1/decide` on the reflexer Worker
-(`https://reflexer.foxfox.workers.dev`, riir-reflexer
+(`https://reflexer.gist.rs`, riir-reflexer
 `cloudflare/reflexer-worker`). Both boards play the identical seeded game;
 the Cloudflare board's capsule (`assets/latcap.css`, `.latcap.live`) is the
 measured browser round trip per decision, live. The four classic lanes carry
@@ -58,7 +58,7 @@ the source git + sha256):
 ```sh
 ../riir-reflexer/cloudflare/reflexer-worker/build.sh --site .
 node scripts/reflexer_parity.mjs                                  # wasm in-process: 300/300 picks = the recorded walk
-node scripts/reflexer_parity.mjs --url https://reflexer.foxfox.workers.dev   # the Worker, same check + latency
+node scripts/reflexer_parity.mjs --url https://reflexer.gist.rs   # the Worker, same check + latency
 ```
 
 Deploy is manual from the M3 through the riir-deployer manifest (both
