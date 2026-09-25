@@ -240,9 +240,9 @@ a.brand:hover { text-decoration: underline; text-decoration-color: var(--line); 
 .bc-grid { position: absolute; top: -4px; bottom: -4px; width: 1px; background: var(--line); opacity: .7; }
 .bc-hbar .bc-range { position: absolute; top: 0; bottom: 0; border: 1px solid; border-radius: 3px; }
 .bc-hbar .bc-mark { position: absolute; top: -3px; bottom: -3px; width: 2px; transform: translateX(-1px); border-radius: 1px; }
-.bc-summary-body .bc-hbar { height: 14px; }
-.bc-summary-body .bc-hbar .bc-mark { top: -4px; bottom: -4px; width: 3px; }
-.bc-summary-body .bc-val { background: rgba(20, 11, 8, 0.82); padding: 1px 6px; border-radius: 4px; }
+.bc-summary-body .bc-hbar { height: 18px; }
+.bc-summary-body .bc-hbar .bc-mark { top: 0; bottom: 0; width: 3px; transform: translateX(-50%); border-radius: 0; }
+.bc-summary-body .bc-val { background: rgba(20, 11, 8, 0.82); padding: 1px 3px; border-radius: 3px; }
 .bc-axis { position: relative; height: 14px; font-size: 10.5px; color: var(--muted); }
 .bc-axis span { position: absolute; transform: translateX(-50%); white-space: nowrap; }
 .bc-axis span:first-child { transform: none; }
