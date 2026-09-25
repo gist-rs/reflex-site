@@ -459,5 +459,5 @@
     if (ctrl) for (const b of ctrl.querySelectorAll("button[data-sort]")) b.setAttribute("aria-pressed", b.dataset.sort === suiteSort);
   }
 
-  window.BenchCharts = { hero, suite, setLogDomain, summary, suiteSortControl, setSuiteSort, setPrimaryHost };
+  window.BenchCharts = { hero, suite, setLogDomain, summary, suiteSortControl, setSuiteSort, setPrimaryHost, lat };
 })();
