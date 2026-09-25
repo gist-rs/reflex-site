@@ -139,6 +139,16 @@ python3 ../reflex-site/scripts/publish_bench.py \
     <results-primary.json> [results-extra.json ...] ../reflex-site
 ```
 
+**The safe default for every re-publish (riir-reflex .issues/034)**: pass
+the CURRENT `data/bench.json` as the PRIMARY (first argument) and the fresh
+run docs as the extras — the docs then land as lane-scoped updates and every
+lane they do not carry (the comparison lanes, other hosts' rows) survives in
+place. A fresh-docs publish over an existing table replaces it wholesale and
+now REFUSES naming what would be dropped;
+`PUBLISH_BENCH_FULL_REPLACE=1` acknowledges a deliberate wholesale
+replacement. Both hosts' modelless lanes must still move TOGETHER in one
+publish — the cross-host drift gate refuses a one-host engine move.
+
 One wrapper mechanises the whole flow (self-test -> publish -> docs-mirror
 parity -> the bench-page smoke when playwright is installed):
 
