@@ -397,14 +397,14 @@
       const band = a.n > 1
         ? `<i class="bc-range" style="left:${(fLo * 100).toFixed(2)}%;width:${Math.max((fHi - fLo) * 100, 0.6).toFixed(2)}%;background:${lane.color}40;border-color:${lane.color}"></i>`
         : "";
-      // the value label rides just past the band's right edge (band end or
-      // the mean tick, whichever is further); once the band reaches past
-      // ~84% there IS no room outside, so the label tucks INSIDE the right
-      // end (absolute + chip-backed via CSS) instead of sitting mid-band
-      const maxEnd = Math.max(fHi, fAv);
-      const valStyle = maxEnd <= 0.84
-        ? `margin-left:${((maxEnd + 0.01) * 100).toFixed(2)}%`
-        : "margin-left:0;position:absolute;right:0.4%;top:50%;transform:translateY(-50%);";
+      // the value label belongs to the MEAN pipe, not the band end — a label
+      // at the band's right edge reads as the max. It rides right BESIDE the
+      // tick (to its left once the mean sits past ~78%, so the chip never
+      // runs off the track's right edge); the chip backdrop keeps it legible
+      // mid-band
+      const valStyle = fAv <= 0.78
+        ? `left:calc(${(fAv * 100).toFixed(2)}% + 5px);transform:translate(0,-50%);`
+        : `left:${(fAv * 100).toFixed(2)}%;transform:translate(calc(-100% - 5px),-50%);`;
       return `<div class="bc-hlabel"><i class="bc-sw" style="background:${lane.color}"></i>${esc(lane.label)}</div>` +
         `<div class="bc-htrack">${grid(m)}` +
         `<div class="bc-hbar" tabindex="0" data-tip="${esc(tip)}" aria-label="${esc(`${lane.label} averaged: ${f(a.value)} over ${a.n} suites (min ${f(a.min)}, max ${f(a.max)})`)}">` +
