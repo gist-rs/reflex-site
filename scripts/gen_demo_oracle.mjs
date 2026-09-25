@@ -17,15 +17,16 @@
 // existing oracle and never overwrites. Regenerating
 // those requires a running engine (the recorder), not this script.
 //
-// Run from the reflex-site working copy (the default fixture path assumes the
-// katgpt-rs sibling checkout):
+// Run from the reflex-site working copy (the default fixture dir is this
+// repo's own sha256-pinned copies, tests/fixtures/):
 //   node scripts/gen_demo_oracle.mjs [fixtures_dir]
 import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import assert from "node:assert/strict";
+import { GRAMMAR_ID as TETRIS_GRAMMAR } from "../assets/games/tetris.js";
 
 const FIXDIR =
-  process.argv[2] ?? path.resolve(import.meta.dirname, "../../../tests/fixtures");
+  process.argv[2] ?? path.resolve(import.meta.dirname, "../tests/fixtures");
 const dest = path.resolve(import.meta.dirname, "../arena/demo_oracle.json");
 
 function argmax(ps) {
@@ -79,11 +80,13 @@ for (const [game, file, stateKey] of [
 
 // ── tetris: archetype rows + the PRESERVED recorded walks ─────────────────
 {
-  const file = "tetris_oracle_laya_en_v2.jsonl";
+  // the fixture of the grammar the site serves (laya-tetris-v3 → _v3)
+  const file = `tetris_oracle_laya_en_${TETRIS_GRAMMAR.split("-").pop()}.jsonl`;
   const lines = readFileSync(path.join(FIXDIR, file), "utf8")
     .split("\n")
     .filter(Boolean);
   const meta = JSON.parse(lines[0]);
+  assert.equal(meta.grammar, TETRIS_GRAMMAR, "tetris: fixture grammar != the site's served grammar");
   out._meta.sources.tetris = {
     fixture: file,
     generator: meta.generator ?? meta.dump_command,

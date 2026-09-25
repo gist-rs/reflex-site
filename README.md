@@ -53,6 +53,16 @@ tetris archetype rows) from the katgpt-rs fixtures — MERGE semantics: every
 recorded lane game (the four tetris walks + the laya (Python) / raw reel
 rows) is owned by `scripts/record_demo_walks.mjs` and is preserved.
 
+> **The four tetris walks are v2-era artifacts.** They were recorded under
+> the `laya-tetris-v2` grammar (deepest-fit drop); the site now serves v3
+> (from-top, katgpt-rs Issue 884). The no-engine demo keeps replaying them
+> under the grammar they were recorded with — `arena_demo_check.mjs` pins
+> that — because under v3 enumeration their boards diverge from the first
+> covered-column turn (measured: laya 6/70 turns affected, head 10/46, raw
+> 24/38 with 9 out-of-range picks). Re-record all four in one session (below)
+> to move the demo to v3; until then the DEMO board is v2-labelled while the
+> LIVE boards enumerate v3.
+
 Re-record the lane games — all four in ONE session so the laya (Rust) vs
 laya (Python) timing is same-box/same-hour (AC power; see riir-reflex
 `scripts/bench_preflight.sh`):

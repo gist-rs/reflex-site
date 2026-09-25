@@ -40,12 +40,22 @@ function argmax(ps) {
 // A window-ended walk carries chainPick -1 on its final record; a naturally
 // topped-out walk ends on a real pick — both are accepted, the chain simply
 // stops at the last record.
+// The four committed walks were RECORDED under the v2 grammar (deepest-fit
+// drop). The site now serves v3 (from-top), so the demo's v3 enumeration no
+// longer reproduces a v2-era walk from its first covered-column turn:
+// option positions shift, arity can shrink, and a recorded chainPick can
+// index OUT of the v3 option set (measured: raw walk 24/38 turns affected,
+// 9 OOB picks). This check therefore chains the walks under the grammar
+// they were recorded with (explicit DEEPEST_FIT) — the walks stay
+// v2-labelled artifacts until scripts/record_demo_walks.mjs re-records
+// them against a v3-serving engine (README runbook). The LIVE boards use
+// the site's default (v3) enumeration — pinned by the goldens instead.
 function verifyTetrisWalk(walk, name) {
   assert.ok(walk.length >= 10, `${name} too short: ${walk.length}`);
   for (let k = 0; k < walk.length; k++) {
     const [sentence, ps, piece, boardRows, chainPick, ms] = walk[k];
     const board = T.fromStrings(boardRows);
-    const opts = T.buildTurn(board, piece);
+    const opts = T.buildTurn(board, piece, T.DropRule.DEEPEST_FIT);
     assert.equal(opts.length, ps.length, `${name}[${k}]: arity ${ps.length} vs ${opts.length}`);
     assert.equal(opts[0].stateSentence, sentence, `${name}[${k}]: sentence drift`);
     if (ms != null) {
@@ -135,7 +145,7 @@ function walkLines(walk) {
         }
       }
     }
-    const opts = T.buildTurn(board, piece);
+    const opts = T.buildTurn(board, piece, T.DropRule.DEEPEST_FIT);
     lines += T.commitPlacement(board, opts[pick]);
   }
   return lines;

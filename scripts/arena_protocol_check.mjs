@@ -9,10 +9,10 @@ import path from "node:path";
 
 const FIXTURE =
   process.argv[2] ||
-  "/Users/katopz/git/katgpt-rs/tests/fixtures/tetris_oracle_laya_en_v2.jsonl";
+  path.resolve(import.meta.dirname, "../tests/fixtures/tetris_oracle_laya_en_v3.jsonl");
 const N = Number(process.argv[3] ?? 8); // states to replay (2s/spot on a loaded box)
 
-const ENGINE = "http://127.0.0.1:7331";
+const ENGINE = process.env.REFLEX_ENGINE ?? "http://127.0.0.1:7331";
 const QUESTION = "Does the stack look clean?";
 
 async function pClean(sentence) {

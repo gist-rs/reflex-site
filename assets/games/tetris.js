@@ -1,9 +1,12 @@
-// Tetris sim + the pinned `laya-tetris-v2` sentence grammar — the exact JS
-// port of katgpt-rs `examples/common/tetris_sim.rs` (Plan 607 T4a). The
-// oracle fixture (`tests/fixtures/tetris_oracle_laya_en_v2.jsonl` in
-// katgpt-rs) was generated THROUGH this grammar, so every clause, band
+// Tetris sim + the pinned `laya-tetris-v2` / `-v3` sentence grammar — the
+// exact JS port of katgpt-rs `examples/common/tetris_sim.rs` (Plan 607 T4a).
+// The oracle fixtures (`tests/fixtures/tetris_oracle_laya_en_v{2,3}.jsonl`
+// in katgpt-rs) were generated THROUGH this grammar, so every clause, band
 // boundary, tie-break and enumeration order here must match the Rust
-// byte-for-byte; `tetris_golden.test.mjs` asserts that against the fixture.
+// byte-for-byte; `tetris_golden.test.mjs` asserts that against both
+// fixtures. v2 and v3 differ ONLY in the drop rule (katgpt-rs Issue 884).
+// The site serves v3, so the rule defaults to FROM_TOP here (the Rust sim
+// defaults to v2's DEEPEST_FIT so its pinned dump digest reproduces).
 
 export const WIDTH = 10;
 export const HEIGHT = 20;
@@ -192,15 +195,26 @@ function fits(b, cells, row, col) {
   });
 }
 
-// Hard drop down column `col`: rest at the deepest valid row. null when the
-// piece does not fit at any row (top-out).
-export function hardDrop(b, cells, col) {
+// How a piece comes to rest — the one axis v2 and v3 differ on (Rust
+// `DropRule`). DEEPEST_FIT (v2, pinned): the deepest collision-free row,
+// scanning bottom-up, so a piece tunnels through a roof into the cave below.
+// FROM_TOP (v3): a real hard drop — spawn at row 0, descend while the next
+// row is free; a column whose top is blocked has no landing.
+export const DropRule = Object.freeze({ DEEPEST_FIT: "deepest_fit", FROM_TOP: "from_top" });
+
+// Hard drop down column `col` under `rule`. null when there is no landing.
+export function hardDrop(b, cells, col, rule = DropRule.FROM_TOP) {
   let rest = null;
-  for (let row = HEIGHT - 1; row >= 0; row--) {
-    if (fits(b, cells, row, col)) {
-      rest = row;
-      break;
+  if (rule === DropRule.DEEPEST_FIT) {
+    for (let row = HEIGHT - 1; row >= 0; row--) {
+      if (fits(b, cells, row, col)) {
+        rest = row;
+        break;
+      }
     }
+  } else if (fits(b, cells, 0, col)) {
+    rest = 0;
+    while (rest + 1 < HEIGHT && fits(b, cells, rest + 1, col)) rest += 1;
   }
   if (rest === null) return null;
   const cellsAbs = cells.map(([dy, dx]) => [rest + dy, col + dx]);
@@ -211,14 +225,14 @@ export function hardDrop(b, cells, col) {
 // Every distinct hard-drop landing for `piece` on `board`, pinned order:
 // rotation ascending, then column ascending — the option ORDER the fixture
 // freezes (argmax indexes refer to it).
-export function landingOptions(b, piece) {
+export function landingOptions(b, piece, rule = DropRule.FROM_TOP) {
   const out = [];
   const rots = rotations(piece);
   for (let ri = 0; ri < rots.length; ri++) {
     const cells = rots[ri];
     const width = Math.max(...cells.map((c) => c[1])) + 1;
     for (let col = 0; col <= WIDTH - width; col++) {
-      const p = hardDrop(b, cells, col);
+      const p = hardDrop(b, cells, col, rule);
       if (p) {
         p.rot = ri;
         out.push(p);
@@ -342,7 +356,17 @@ export function dellacherieScore(f) {
 
 // ── The pinned sentence grammar (`laya-tetris-v2`) ───────────────────────
 
-export const GRAMMAR_ID = "laya-tetris-v2";
+export const GRAMMAR_ID_V2 = "laya-tetris-v2";
+export const GRAMMAR_ID_V3 = "laya-tetris-v3";
+// The grammar this site serves (recorded walks, the wasm head, live play).
+export const GRAMMAR_ID = GRAMMAR_ID_V3;
+
+// Grammar id → drop rule (null for an unknown id).
+export function dropRuleOf(grammarId) {
+  if (grammarId === GRAMMAR_ID_V2) return DropRule.DEEPEST_FIT;
+  if (grammarId === GRAMMAR_ID_V3) return DropRule.FROM_TOP;
+  return null;
+}
 
 // The per-spot question, world-anchored (never "what should I do"). P(clean)
 // is the decision signal.
@@ -496,8 +520,8 @@ export function renderStateSentence(b, piece) {
 // Enumerate the piece's options and build the laya request set: one noul
 // question per spot (the spot sentence IS the state), exactly the T0b
 // oracle protocol.
-export function buildTurn(board, piece) {
-  const opts = landingOptions(board, piece);
+export function buildTurn(board, piece, rule = DropRule.FROM_TOP) {
+  const opts = landingOptions(board, piece, rule);
   return opts.map((p, i) => {
     const f = outcomeFeatures(board, p);
     return {
