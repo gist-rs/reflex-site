@@ -99,19 +99,21 @@ try {
     console.log(`[demo-smoke] ${lane} board (recorded): ${(await page.textContent(`#tr-${lane}-a`)).trim()} · ${src}`);
   }
 
-  // layout: 2 boards per row — python|laya, then modelless|raw — and the
-  // lane-note boxes of a row share one height
+  // layout: 2 boards per row — python|laya, modelless|rulebook, then raw
+  // (owner call 2026-09-25: the rulebook board sits beside modelless) — and
+  // the lane-note boxes of a row share one height
   const box = await page.evaluate(() => Object.fromEntries(
-    ["python", "laya", "modelless", "raw"].map((l) => {
+    ["python", "laya", "modelless", "rulebook", "raw"].map((l) => {
       const c = document.getElementById(`tc-${l}`).getBoundingClientRect();
       const n = document.querySelector(`#tc-${l} .lane-note`).getBoundingClientRect();
       return [l, { top: Math.round(c.top), left: Math.round(c.left), note: Math.round(n.height) }];
     }),
   ));
-  if (box.python.top !== box.laya.top || box.modelless.top !== box.raw.top || box.modelless.top <= box.python.top) {
+  if (box.python.top !== box.laya.top || box.modelless.top !== box.rulebook.top || box.modelless.top <= box.python.top
+    || box.raw.top <= box.modelless.top || box.raw.left !== box.python.left) {
     fail(`board grid is not 2 per row: ${JSON.stringify(box)}`);
   }
-  if (box.python.note !== box.laya.note || box.modelless.note !== box.raw.note) {
+  if (box.python.note !== box.laya.note || box.modelless.note !== box.rulebook.note) {
     fail(`lane-note heights differ within a row: ${JSON.stringify(box)}`);
   }
 
