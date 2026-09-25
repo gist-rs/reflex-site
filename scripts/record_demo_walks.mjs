@@ -27,7 +27,7 @@
 //
 // Run with the engine up (RIIR_REFLEX_LAYA=1 arms laya; a lane that is not
 // ready is skipped and its existing walk kept):
-//   node scripts/record_demo_walks.mjs [engine_url] [--python <riir-reflex dir>]
+//   node scripts/record_demo_walks.mjs [engine_url] [--python <riir-reflex dir>] [--only=<walk,…>]
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { spawn } from "node:child_process";
 import { createInterface } from "node:readline";
@@ -42,6 +42,9 @@ import * as L from "../assets/games/lanes.js";
 const args = process.argv.slice(2);
 const pyIdx = args.indexOf("--python");
 const PY_REPO = pyIdx >= 0 ? path.resolve(args[pyIdx + 1]) : null;
+// --only=tetris_walk,tetris_python_walk re-records just those lanes (every
+// other walk is kept byte-for-byte).
+const ONLY = args.find((a) => a.startsWith("--only="))?.slice(7).split(",").filter(Boolean) ?? null;
 const ENGINE = args.find((a, i) => !a.startsWith("--") && i !== pyIdx + 1) ?? "http://127.0.0.1:7331";
 const ORACLE = path.resolve(import.meta.dirname, "../arena/demo_oracle.json");
 const SEED = 607;
@@ -66,7 +69,7 @@ function boardRows(board) {
 // ── scorers: (state, question) → {p | null, ms} ─────────────────────────────
 
 function engineScorer(lane) {
-  return async (state, question) => {
+  const score = async (state, question) => {
     const headers = { "Content-Type": "application/json" };
     if (lane) headers["X-Reflex-Lane"] = lane;
     const t0 = performance.now();
@@ -83,9 +86,15 @@ function engineScorer(lane) {
     if (!r.ok) throw new Error(json.error || `HTTP ${r.status}`);
     const a = (json.answers || [])[0];
     if (!a) throw new Error("no answer");
+    // The engine names its device in routing.reason ("… (device metal)");
+    // record it so a CPU-posture engine can never publish as the laya lane
+    // unlabelled (the 2026-09-25 708 ms walk: CPU engine, loaded box).
+    const dev = /\(device ([a-z0-9-]+)\)/.exec(json.routing?.reason ?? "")?.[1];
+    if (dev) score.device = dev;
     const abstain = a.outcome == null || a.outcome.noul == null;
     return { p: abstain ? null : a.probabilities[0], ms };
   };
+  return score;
 }
 
 // The bench's own laya-python oracle, one long-lived process (load once,
@@ -243,6 +252,10 @@ const LANES = [
 ];
 
 for (const lane of LANES) {
+  if (ONLY && !ONLY.includes(lane.key)) {
+    console.log(`${lane.key}: SKIPPED — not in --only (existing walk kept)`);
+    continue;
+  }
   if (!lane.ok) {
     console.log(`${lane.key}: SKIPPED — lane not available (existing walk kept)`);
     continue;
@@ -251,13 +264,18 @@ for (const lane of LANES) {
   console.log(`recording ${lane.key} (seed ${SEED})…`);
   const { walk, summary } = await recordWalk(lane.key, score, { allowAbstain: lane.allowAbstain });
   verifyWalk(walk, lane.key);
+  if (lane.key === "tetris_walk" && os.platform() === "darwin" && score.device !== "metal" && !process.env.ALLOW_CPU_LAYA) {
+    throw new Error(`tetris_walk: engine laya device is ${score.device ?? "unknown"}, not metal — build with --features laya-riir-metal (ALLOW_CPU_LAYA=1 to publish anyway)`);
+  }
   console.log(`  ${lane.key}: ${JSON.stringify(summary)}`);
   oracle[lane.key] = walk;
   // own provenance key per lane (the fixture generator owns `tetris`)
   oracle._meta.sources[lane.meta] = {
     recorder: "scripts/record_demo_walks.mjs",
     lane: lane.label,
-    transport: lane.reels === "python" ? `stdin/stdout JSONL round-trip (device ${score.device})` : "HTTP /decide round-trip",
+    transport: lane.reels === "python"
+      ? `stdin/stdout JSONL round-trip (device ${score.device})`
+      : `HTTP /decide round-trip${score.device ? ` (device ${score.device})` : ""}`,
     policy: lane.allowAbstain ? "argmax, abstain → Rng(seed+1) random spot" : "argmax",
     seed: SEED,
     recorded_at: recordedAt,

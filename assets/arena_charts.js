@@ -171,6 +171,13 @@ function scoreChart(host, games) {
 }
 
 // ── chart 2: time to judge one spot (log scale) ──────────────────────────
+// The device a model lane ran on, read from the recorder's transport line
+// ("… (device metal)") — a latency bar without its device is not comparable.
+const DEVICE_NAME = { metal: "Metal", mps: "MPS", cpu: "CPU", cuda: "CUDA", ane: "ANE" };
+const deviceOf = (meta) => /\(device ([a-z0-9-]+)\)/.exec(meta?.transport ?? "")?.[1] ?? null;
+const rowLabel = (g) => (g.device && (g.lane.key === "laya" || g.lane.key === "python")
+  ? `${g.lane.label} · ${DEVICE_NAME[g.device] ?? g.device}` : g.lane.label);
+
 function latencyChart(host, games) {
   // Fastest first (owner call) — the bars read as a ranking; color still
   // follows the lane, never the rank.
@@ -181,19 +188,19 @@ function latencyChart(host, games) {
   const lo = 1e-3, hi = 1e4; // 1 µs … 10 s
   const X = (ms) => L + ((Math.log10(Math.max(ms, lo)) - Math.log10(lo)) / (Math.log10(hi) - Math.log10(lo))) * pw;
   const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, class: "ac-svg", role: "img",
-    "aria-label": "Time to judge one landing spot, p50, log scale: " + rows.map((g) => `${g.lane.label} ${fmtMs(g.p50)}`).join("; ") });
+    "aria-label": "Time to judge one landing spot, p50, log scale: " + rows.map((g) => `${rowLabel(g)} ${fmtMs(g.p50)}`).join("; ") });
   for (const [ms, lab] of [[1e-3, "1 µs"], [1e-2, "10 µs"], [1e-1, "100 µs"], [1, "1 ms"], [10, "10 ms"], [100, "100 ms"], [1e3, "1 s"], [1e4, "10 s"]]) {
     svg.append(el("line", { x1: X(ms), x2: X(ms), y1: TOP, y2: TOP + rows.length * rowH, class: "ac-grid" }));
     svg.append(el("text", { x: X(ms), y: H - 8, class: "ac-tick", "text-anchor": "middle" }, lab));
   }
   rows.forEach((g, k) => {
     const y = TOP + k * rowH + rowH / 2;
-    svg.append(el("text", { x: L - 10, y: y + 4, class: "ac-rowlabel", "text-anchor": "end" }, g.lane.label));
+    svg.append(el("text", { x: L - 10, y: y + 4, class: "ac-rowlabel", "text-anchor": "end" }, rowLabel(g)));
     const x0 = X(lo), x1 = X(g.p50);
     const bar = el("rect", { x: x0, y: y - 5, width: Math.max(2, x1 - x0), height: 10, rx: 4, fill: g.lane.color, class: "ac-bar", tabindex: 0 });
     svg.append(bar);
     svg.append(el("text", { x: x1 + 8, y: y + 4, class: "ac-label ac-strong" }, fmtMs(g.p50)));
-    const tipHtml = `<span class="bc-sw" style="background:${g.lane.color}"></span><b>${esc(g.lane.label)}</b><br>` +
+    const tipHtml = `<span class="bc-sw" style="background:${g.lane.color}"></span><b>${esc(rowLabel(g))}</b><br>` +
       `p50 ${esc(fmtMs(g.p50))} per spot · ${esc(g.note)}`;
     bar.addEventListener("mousemove", (ev) => showTip(tipHtml, ev.clientX, ev.clientY));
     bar.addEventListener("mouseleave", hideTip);
@@ -231,9 +238,10 @@ export function renderTetrisResults(j) {
     // Topped out = the recorder says so, or the game ended before a cap it
     // declares; a walk that stops at its declared cap is "still alive".
     const toppedOut = sum.topped_out != null ? !!sum.topped_out : lane.key !== "rulebook";
+    const device = deviceOf(meta);
     const note = lane.key === "laya"
-      ? "HTTP round-trip, 6 spots in flight on a serialized engine — includes queueing"
-      : lane.key === "python" ? "stdin/stdout, torch on MPS, sequential"
+      ? `HTTP round-trip, one spot at a time — riir port on ${DEVICE_NAME[device] ?? device ?? "an unrecorded device"}`
+      : lane.key === "python" ? `stdin/stdout, torch on ${DEVICE_NAME[device] ?? device ?? "an unrecorded device"}, one spot at a time`
         : lane.key === "rulebook" ? "one 3-piece search per piece, divided evenly over its spots — no model"
           : lane.key === "modelless" ? "HTTP round-trip to the engine (the in-tab wasm head is ~1 µs)"
             : "HTTP round-trip, heads skipped";
@@ -247,7 +255,7 @@ export function renderTetrisResults(j) {
       notes.push(`${lane.label}: walk p50 ${fmtMs(p50)} ≠ recorded ${fmtMs(sum.p50_ms)}`);
     }
     const perPiece = lane.key === "rulebook" && sum.p50_ms != null ? ` · ${fmtMs(sum.p50_ms)} per piece` : "";
-    games.push({ lane, game, toppedOut, p50, note: note + perPiece });
+    games.push({ lane, game, toppedOut, p50, device, note: note + perPiece });
   }
   if (!games.length) {
     host.textContent = "recorded games unavailable";
