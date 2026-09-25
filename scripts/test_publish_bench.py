@@ -366,7 +366,7 @@ def case_host_display_rename_at_load_boundary():
         loaded = pb.load_run(str(p))
     assert loaded["meta"]["host"] == "4090-win"
     assert [h["host"] for h in loaded["meta"]["hosts"]] == \
-        ["m3", "m3-max-ane", "4090-win"]
+        ["m3-max-metal", "m3-max-ane", "4090-win"]
     keys = set(loaded["suites"][0]["extra_host_lanes"])
     assert keys == {"m3-max-ane", "4090-win"}, keys
     # idempotent: the display spellings load back unchanged

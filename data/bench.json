@@ -2,7 +2,7 @@
  "meta": {
   "date_utc": "2026-09-24T07:42:28Z",
   "git_sha": "8028a10",
-  "host": "m3",
+  "host": "m3-max-metal",
   "profile": "release",
   "laya_feature": true,
   "laya_max_questions": 0,
@@ -43,7 +43,7 @@
   ],
   "hosts": [
    {
-    "host": "m3",
+    "host": "m3-max-metal",
     "date_utc": "2026-09-24T07:42:28Z",
     "git_sha": "8028a10",
     "profile": "release",

@@ -46,14 +46,17 @@ const server = http.createServer((req, res) => {
   }
   if (chips.length >= 5) console.log("ok: filter chips present");
 
-  // 3) gliner rows in the tables (the 4090 extra-host rows)
-  const glinerRows = await page.$$eval("#tables tr", (trs) => trs.filter((t) => t.textContent.includes("gliner (reference)")).length);
+  // 3) gliner rows in the tables (the 4090 extra-host rows) — matched on the
+  //    lane-label cell ("gliner · <model>"): laneRow strips " (reference)",
+  //    and the old "gliner (reference)" substring matched ZERO rows, so the
+  //    vanish / persist steps below passed on an empty set.
+  const glinerRows = await page.$$eval("#tables tr", (trs) => trs.filter((t) => { const c = t.querySelector("td"); return c && /^gliner · /.test(c.textContent); }).length);
   if (glinerRows < 10) fail(`expected >=10 gliner table rows, got ${glinerRows}`);
   else console.log(`ok: ${glinerRows} gliner table rows`);
 
   // 3b) agentjev rows (reflex .issues/025 amendment 4 — the same 4090
   // extra-host law; 14 suites carry the lane)
-  const ajRows = await page.$$eval("#tables tr", (trs) => trs.filter((t) => t.textContent.includes("agentjev (reference)")).length);
+  const ajRows = await page.$$eval("#tables tr", (trs) => trs.filter((t) => { const c = t.querySelector("td"); return c && /^agentjev · /.test(c.textContent); }).length);
   if (ajRows < 10) fail(`expected >=10 agentjev table rows, got ${ajRows}`);
   else console.log(`ok: ${ajRows} agentjev table rows`);
 
@@ -66,7 +69,7 @@ const server = http.createServer((req, res) => {
   await page.check('#lane-filter input[data-key="gliner"]').catch(() => {});
   await page.uncheck('#lane-filter input[data-key="gliner"]');
   await page.waitForTimeout(300);
-  const glinerAfter = await page.$$eval("#tables tr", (trs) => trs.filter((t) => t.textContent.includes("gliner (reference)")).length);
+  const glinerAfter = await page.$$eval("#tables tr", (trs) => trs.filter((t) => { const c = t.querySelector("td"); return c && /^gliner · /.test(c.textContent); }).length);
   if (glinerAfter !== 0) fail(`gliner rows must vanish when filtered off, got ${glinerAfter}`);
   else console.log("ok: gliner filtered out of tables");
   const suiteBars = await page.$$eval(".bc-slabel", (xs) => xs.filter((x) => x.textContent.includes("gliner")).length);
@@ -76,14 +79,14 @@ const server = http.createServer((req, res) => {
   // 6) reload: the filter persists
   await page.reload({ waitUntil: "networkidle" });
   await page.waitForTimeout(400);
-  const glinerReload = await page.$$eval("#tables tr", (trs) => trs.filter((t) => t.textContent.includes("gliner (reference)")).length);
+  const glinerReload = await page.$$eval("#tables tr", (trs) => trs.filter((t) => { const c = t.querySelector("td"); return c && /^gliner · /.test(c.textContent); }).length);
   if (glinerReload !== 0) fail("filter state must survive reload");
   else console.log("ok: filter persists across reload");
 
   // 7) restore: check gliner back on
   await page.check('#lane-filter input[data-key="gliner"]');
   await page.waitForTimeout(300);
-  const glinerBack = await page.$$eval("#tables tr", (trs) => trs.filter((t) => t.textContent.includes("gliner (reference)")).length);
+  const glinerBack = await page.$$eval("#tables tr", (trs) => trs.filter((t) => { const c = t.querySelector("td"); return c && /^gliner · /.test(c.textContent); }).length);
   if (glinerBack < 10) fail(`gliner rows must return when re-checked, got ${glinerBack}`);
   else console.log("ok: gliner rows restored");
 

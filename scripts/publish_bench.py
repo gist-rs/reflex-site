@@ -34,7 +34,8 @@ superset run first). A previously-published data/bench.json is a valid
 primary for a re-publish (its meta.hosts seed the seen-host set).
 
 Display host spellings (2026-09-25): HOST_DISPLAY renames machine labels at
-the LOAD boundary — `m3-ane` → `m3-max-ane`, `4090-windows` → `4090-win` —
+the LOAD boundary — `m3` → `m3-max-metal`, `m3-ane` → `m3-max-ane`,
+`4090-windows` → `4090-win` —
 the same law as LANE_DISPLAY (raw results keep their REFLEX_BENCH_HOST
 names; the rename happens here, the one place every published byte passes
 through, so a re-publish can never drift from the page).
@@ -115,6 +116,11 @@ PYTHON_LANE_SPELLINGS = ("laya-python", LANE_DISPLAY["laya-python"])
 # the drift gate and the output all see one spelling, and re-publishing a
 # renamed bench.json as primary is a no-op (idempotent by construction).
 HOST_DISPLAY = {
+    # The Metal baseline box carries its chip + device like every other row
+    # (2026-09-25, owner call): with an M5 Ultra due, a bare "m3" would read
+    # as THE Mac rather than one Mac, and its lanes were the only untagged
+    # rows on the page.
+    "m3": "m3-max-metal",
     "m3-ane": "m3-max-ane",
     "4090-windows": "4090-win",
 }
@@ -135,7 +141,7 @@ HOST_DISPLAY = {
 # top-level lanes at carry time, and a previously-published bench.json's
 # already-merged extra_host_lanes (a re-publish cleans the old rows).
 DEVICE_VARIANT_HOSTS = {
-    "m3-max-ane": "m3",
+    "m3-max-ane": "m3-max-metal",
 }
 DEVICE_VARIANT_KEEP = ("laya",)
 

@@ -232,6 +232,14 @@
   };
   let heroSort = "data", suiteSort = "data";
   const suiteStore = new Map();
+  // The primary run's host (meta.host) — its lanes carry "@host" like every
+  // extra host's, so no row on the page is an unlabelled "the machine".
+  // pick() keeps returning null for a primary-host cell (laneStats reads
+  // non-null as "includes extra-host cells"); only the LABELS use this.
+  let primaryHost = null;
+  function setPrimaryHost(h) {
+    primaryHost = h || null;
+  }
 
   function sortKeyOf(l, kind) {
     if (!l) return null;
@@ -273,7 +281,7 @@
       const bars = shown.map((lane) => {
         const picked = pick(s, lane);
         const l = picked ? picked[0] : null;
-        const host = picked ? picked[1] : null;
+        const host = picked ? picked[1] || primaryHost : null;
         const v = l ? M.get(l) : null;
         const fr = frac(m, v);
         if (fr === null) return `<div class="bc-hbar bc-none">${esc(lane.label)} — not run</div>`;
@@ -301,6 +309,7 @@
     const el = document.getElementById("bench-hero");
     if (!el || !d || !d.suites) return;
     heroData = d;
+    setPrimaryHost(d.meta && d.meta.host);
     setLogDomain(d);
     const q = new URLSearchParams(location.search).get("m"); // shareable view: /bench/?m=p50
     if (METRICS[q]) heroMetric = q;
@@ -332,7 +341,7 @@
 
   function suite(s) {
     suiteStore.set(s.name, s);
-    const rows = sortPairs(allLanes(s).map((l) => [l, null]).concat(extraLanes(s))
+    const rows = sortPairs(allLanes(s).map((l) => [l, primaryHost]).concat(extraLanes(s))
       .filter(([l]) => visible(l)), suiteSort, ([l]) => sortKeyOf(l, suiteSort));
     if (!rows.length) return "";
     return `<div class="bc-suite" data-bc-suite="${esc(s.name)}" aria-label="${esc(s.name)} lanes compared">` +
@@ -420,6 +429,7 @@
   function summary(d, el) {
     if (!el || !d || !d.suites) return;
     summaryData = d;
+    setPrimaryHost(d.meta && d.meta.host);
     tooltip();
     const btns = Object.entries(METRICS).map(([k, M]) =>
       `<button type="button" data-metric="${k}" aria-pressed="${k === summaryMetric}">${esc(M.label)}${M.log ? " (log)" : ""}</button>`).join("");
@@ -449,5 +459,5 @@
     if (ctrl) for (const b of ctrl.querySelectorAll("button[data-sort]")) b.setAttribute("aria-pressed", b.dataset.sort === suiteSort);
   }
 
-  window.BenchCharts = { hero, suite, setLogDomain, summary, suiteSortControl, setSuiteSort };
+  window.BenchCharts = { hero, suite, setLogDomain, summary, suiteSortControl, setSuiteSort, setPrimaryHost };
 })();

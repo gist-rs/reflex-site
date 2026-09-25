@@ -172,12 +172,12 @@
 
     <h2 style="margin-top:40px">Notes</h2>
     <div class="notes"><ul>
-      <li><strong>No <code>@box</code> tag means the M3 by default</strong> — the primary host
-        <code>m3</code> is this page's baseline machine, so its lanes are untagged. A <code>@host</code> tag
-        marks a cell measured elsewhere: <code>@4090-win</code> is a different box, while
-        <code>@m3-max-ane</code> is this same M3 serving the <em>laya</em> lane from the Apple Neural
-        Engine — a device row (laya lanes only; the modelless lane uses no neural device and always
-        reads from the untagged M3 row). Hardware for every box: <a href="#machines">Machines</a> below.</li>
+      <li><strong>Every row names its machine</strong> with an <code>@host</code> tag (chip + device):
+        <code>@m3-max-metal</code> is this page's baseline machine serving the <em>laya</em> lane from
+        Metal, <code>@4090-win</code> is a different box, and <code>@m3-max-ane</code> is the same M3 serving
+        the <em>laya</em> lane from the Apple Neural Engine — a device row (laya lanes only; the modelless
+        lane uses no neural device and always reads from the <code>@m3-max-metal</code> row). Hardware for
+        every box: <a href="#machines">Machines</a> below.</li>
       <li>Accuracy chance level differs per suite (a 3-way and a 77-way task are not comparable) — compare lanes within
         a suite, never one suite's bar with another's.</li>
       <li>The hero chart shows one checkpoint per laya lane: the best non-multilingual one for that suite, picked once
@@ -216,9 +216,9 @@
 
     <h2 id="machines" style="margin-top:40px">Machines</h2>
     <div class="notes"><ul>
-      <li><strong><code>m3</code> / <code>@m3-max-ane</code> — MacBook Pro (Mac15,8)</strong>: Apple M3 Max —
+      <li><strong><code>@m3-max-metal</code> / <code>@m3-max-ane</code> — MacBook Pro (Mac15,8)</strong>: Apple M3 Max —
         16-core CPU (12 performance + 4 efficiency), 40-core integrated GPU (Metal 4), 64 GB unified
-        memory, macOS 26.6.2. One machine, two device rows: <code>m3</code> serves the laya lane from
+        memory, macOS 26.6.2. One machine, two device rows: <code>@m3-max-metal</code> serves the laya lane from
         Metal; <code>@m3-max-ane</code> is the same box with the encoder compiled as a whole-graph Core ML
         model on the Apple Neural Engine (FP16, decision-level gated — see the ANE entry above).</li>
       <li><strong><code>@4090-win</code> — desktop, Windows 11 Pro</strong>: Intel Core i7-13700K (16 cores /
@@ -274,6 +274,10 @@ function gateFit(m) {
 // The short device word for a host row ("metal (LAYA_DEVICE …)" → "metal").
 const deviceWord = (d) => (d || "").split(" ")[0] || "?";
 
+// The primary run's host (meta.host), set once per render: its rows carry
+// "@host" exactly like the extra hosts', so every row names its machine.
+let PRIMARY_HOST = null;
+
 function suiteSection(s) {
   const lanes = [];
   if (s.modelless) lanes.push(s.modelless);
@@ -325,12 +329,14 @@ function suiteSection(s) {
   return `<h3 class="suite" id="suite-${s.name}">${s.name} <span class="cases">— ${s.n_cases} cases / ${s.n_questions} questions</span></h3>
   ${window.BenchCharts ? BenchCharts.suite(s) : ""}<div class="scroll"><table class="bench">
     <thead><tr><th>lane · model</th><th>acc</th><th>macro F1</th><th>ECE(maxp)</th><th>Brier</th><th>acc@50cov</th><th>rECE cal (raw)</th><th>abst / sel-acc</th><th>p50</th><th>p99</th><th>det</th></tr></thead>
-    <tbody>${shown.map((l) => laneRow(l, bestAcc)).join("")}${shownExtra.map(([l, host]) => laneRow(l, bestAcc, host)).join("")}</tbody>
+    <tbody>${shown.map((l) => laneRow(l, bestAcc, PRIMARY_HOST)).join("")}${shownExtra.map(([l, host]) => laneRow(l, bestAcc, host)).join("")}</tbody>
   </table></div>${leakLine}${g1}${gateFit(s.modelless)}`;
 }
 
 function render(d) {
   const meta = d.meta || {};
+  PRIMARY_HOST = meta.host || null;
+  if (window.BenchCharts && BenchCharts.setPrimaryHost) BenchCharts.setPrimaryHost(PRIMARY_HOST);
   // The lane filter FIRST (it governs the hero and every table below):
   // derive the key set from the data, render the checkbox bar, and re-render
   // the whole page on change (data is closed over — no refetch).
