@@ -142,6 +142,19 @@ canvas {
   font-size: 12px; overflow-wrap: anywhere;
 }
 
+/* Tetris readout: fixed-height rows so the card never reflows per piece —
+   STATE SENT 6 lines, QUESTION 4, ANSWER 4 (owner call); longer text clamps
+   with an ellipsis, full text on hover (setReadout sets the title). */
+#game-tetris .readout div { line-height: 1.55; }
+#game-tetris .readout div:nth-child(2),
+#game-tetris .readout div:nth-child(3),
+#game-tetris .readout div:nth-child(4) {
+  display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden;
+}
+#game-tetris .readout div:nth-child(2) { height: calc(6 * 1.55em); -webkit-line-clamp: 6; line-clamp: 6; }
+#game-tetris .readout div:nth-child(3),
+#game-tetris .readout div:nth-child(4) { height: calc(4 * 1.55em); -webkit-line-clamp: 4; line-clamp: 4; }
+
 /* readout under the board: the lanes cards, and every card once the card is
    too narrow for a side-by-side board + readout */
 #game-lanes .readout { margin-top: 8px; border-top: 1px solid var(--line); padding-top: 8px; }

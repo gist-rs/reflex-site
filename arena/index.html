@@ -187,11 +187,6 @@
           <img src="/assets/tetris_flow_modelless.svg" alt="KatGPT modelless lane: the same spot sentence is decoded back into board features, scored by a small linear head fitted on laya's recorded answers, and the highest score is played, in microseconds inside WebAssembly" loading="lazy">
         </figure>
         <figure class="figure lanefig">
-          <figcaption><b>raw baseline</b> — the engine with its heads removed. It abstains, and the
-          abstain plays a labelled random spot: the honest floor.</figcaption>
-          <img src="/assets/tetris_flow_raw.svg" alt="raw baseline lane: the corpus engine without fitted heads finds the spot sentence off-corpus, abstains, and the abstain plays as a labelled random spot, the honest floor" loading="lazy">
-        </figure>
-        <figure class="figure lanefig">
           <figcaption><b>KatGPT rulebook search</b> — no model, no sentence. It plans three pieces
           ahead; the unknown third piece is <i>averaged</i> over what is left in the bag, so a plan
           that needs a lucky I-piece scores low.</figcaption>
@@ -201,6 +196,11 @@
           <figcaption><b>The rulebook's modes</b> — go for tetrises only while it is safe. The 9-1
           stack was found by self-evolution, not hand-coded.</figcaption>
           <img src="/assets/tetris_flow_modes.svg" alt="the rulebook's play modes: on a clean low stack it builds a nine-one stack and waits for tetrises; three or more covered holes switch it to downstack, a tall stack to survive, both using safe survival weights; a clean board returns it to build" loading="lazy">
+        </figure>
+        <figure class="figure lanefig">
+          <figcaption><b>raw baseline</b> — the engine with its heads removed. It abstains, and the
+          abstain plays a labelled random spot: the honest floor.</figcaption>
+          <img src="/assets/tetris_flow_raw.svg" alt="raw baseline lane: the corpus engine without fitted heads finds the spot sentence off-corpus, abstains, and the abstain plays as a labelled random spot, the honest floor" loading="lazy">
         </figure>
       </section>
     </section>

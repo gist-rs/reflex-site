@@ -363,7 +363,12 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 function setReadout(prefix, fields) {
   for (const [k, v] of Object.entries(fields)) {
     const el = $(`${prefix}-${k}`);
-    if (el) el.textContent = v;
+    if (el) {
+      el.textContent = v;
+      // Tetris readout rows are clamped to a fixed line count (no layout
+      // jump per piece) — the full text stays one hover away.
+      el.title = typeof v === "string" && v.length > 40 ? v : "";
+    }
   }
 }
 
