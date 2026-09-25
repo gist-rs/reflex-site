@@ -28,7 +28,7 @@ const { walk, summary, info } = rec;
 const meta = {
   recorder: "katgpt-rs examples/tetris_09_site_walk.rs",
   lane: "KatGPT rulebook search — hybrid FSM champion (katgpt-rs Issue 892), depth-3 expectimax, recorded",
-  transport: "in-process (no engine, no sentence question) — per-decision wall time of the depth-3 search, split evenly over the options (per_option_ms = decision_ms / options)",
+  transport: "in-process (no engine, no sentence question) — per-decision WALL time of the depth-3 search (root options searched in parallel on rayon since katgpt-rs 6e02c72b9, so wall < CPU), split evenly over the options (per_option_ms = decision_ms / options)",
   policy: "argmax",
   seed: info.seed,
   stream: info.stream,

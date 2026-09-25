@@ -242,7 +242,7 @@ export function renderTetrisResults(j) {
     const note = lane.key === "laya"
       ? `HTTP round-trip, one spot at a time — riir port on ${DEVICE_NAME[device] ?? device ?? "an unrecorded device"}`
       : lane.key === "python" ? `stdin/stdout, torch on ${DEVICE_NAME[device] ?? device ?? "an unrecorded device"}, one spot at a time`
-        : lane.key === "rulebook" ? "one 3-piece search per piece, divided evenly over its spots — no model"
+        : lane.key === "rulebook" ? "one 3-piece search per piece (root spots in parallel, wall time), divided evenly over its spots — no model"
           : lane.key === "modelless" ? "HTTP round-trip to the engine (the in-tab wasm head is ~1 µs)"
             : "HTTP round-trip, heads skipped";
     // p50 per SPOT from the walk's own per-spot rows — one quantity for
