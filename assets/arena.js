@@ -14,13 +14,14 @@ import {
 } from "./games/tetris_view.js";
 import * as F from "./games/flappy.js";
 import * as L from "./games/lanes.js";
+import { renderTetrisResults } from "./arena_charts.js";
 import { ensureArenaHead, arenaHeadReady, arenaHeadScore, arenaFlappyHeadReady, arenaHeadScoreState, arenaLanesHeadReady, arenaHeadScoreLanes } from "./arena_head.js";
 
 const ENGINE = "http://127.0.0.1:7331";
 
 // ── engine client ────────────────────────────────────────────────────────────
 
-const lanes = { modelless: "unknown", laya: "unknown", raw: "unknown", python: "recorded" };
+const lanes = { modelless: "unknown", laya: "unknown", raw: "unknown", python: "recorded", rulebook: "recorded" };
 
 // Display names — one source, so "laya" never appears without its runtime
 // (the Rust port vs the Python reference are different lanes).
@@ -29,6 +30,7 @@ const LANE_NAME = {
   laya: "laya (Rust)",
   modelless: "KatGPT modelless",
   raw: "raw baseline",
+  rulebook: "KatGPT rulebook search",
 };
 
 // ── no-engine demo mode ─────────────────────────────────────────────────────
@@ -54,6 +56,7 @@ async function loadRecorded() {
     tetrisHeadWalk: j.tetris_head_walk || [],
     tetrisRawWalk: j.tetris_raw_walk || [],
     tetrisPythonWalk: j.tetris_python_walk || [],
+    tetrisRulebookWalk: j.tetris_rulebook_walk || [],
     flappyWalk: j.flappy_walk || [],
     lanesWalk: j.lanes_walk || [],
     reels: {
@@ -61,6 +64,9 @@ async function loadRecorded() {
       lanes: { python: j.lanes_python || [], raw: j.lanes_raw || [] },
     },
   };
+  // The final-result charts render from the same file, once, at load — the
+  // outcome is readable before any replay finishes.
+  try { renderTetrisResults(j); } catch (e) { console.warn("result charts failed", e); }
   return demo;
 }
 
@@ -72,6 +78,7 @@ function tetrisWalkFor(lane) {
     modelless: demo.tetrisHeadWalk,
     raw: demo.tetrisRawWalk,
     python: demo.tetrisPythonWalk,
+    rulebook: demo.tetrisRulebookWalk,
   }[lane] || [];
 }
 
@@ -132,7 +139,7 @@ async function renderStatus(text) {
     else if (state === "off") [cls, label] = ["warn", "off (RIIR_REFLEX_LAYA=1)"];
     else if (state === "absent") [cls, label] = ["warn", "needs engine v0.2.3+"];
     else if (state === "unknown") [cls, label] = ["ok", "ready"];
-    else if (state === "recorded") [cls, label] = ["warn", "recorded reference"];
+    else if (state === "recorded") [cls, label] = ["warn", id === "chip-rulebook" ? "recorded game" : "recorded reference"];
     el.classList.add(cls);
     el.innerHTML = el.innerHTML.replace(/—.*$/, `— ${label}`);
   };
@@ -140,6 +147,7 @@ async function renderStatus(text) {
   chip("chip-modelless", lanes.modelless);
   chip("chip-laya", lanes.laya);
   chip("chip-raw", lanes.raw);
+  chip("chip-rulebook", lanes.rulebook);
   const up = lanes.modelless !== "down";
   const layaArmed = lanes.laya === "ready" || lanes.laya === "loading";
   const rawArmed = lanes.raw === "ready";
@@ -389,7 +397,7 @@ const NO_RECORDING_NOTE = "no recorded game for this lane — start the engine t
 
 class TetrisBoard {
   constructor(lane, ui) {
-    this.lane = lane; // "python" | "laya" | "modelless" | "raw"
+    this.lane = lane; // "python" | "laya" | "modelless" | "raw" | "rulebook"
     this.ui = ui; // {canvas, score, lines, stats, readout}
     this.running = false;
     this.reset(607);
@@ -423,6 +431,7 @@ class TetrisBoard {
   srcLabel() {
     const name = LANE_NAME[this.lane];
     if (this.lane === "python") return `${name} · recorded torch reference (MPS)`;
+    if (this.lane === "rulebook") return `${name} · recorded · depth-3 search, no model (genome 68cae9d3)`;
     if (this.lane === "modelless" && demoMode && arenaHeadReady()) {
       return `${name} · wasm head (in-tab)`;
     }
@@ -433,7 +442,7 @@ class TetrisBoard {
   // Replay a recorded game? laya (Python) always (it never runs live); in
   // demo mode every lane except the in-tab wasm head.
   replaying() {
-    if (this.lane === "python") return true;
+    if (this.lane === "python" || this.lane === "rulebook") return true;
     return demoMode && !(this.lane === "modelless" && arenaHeadReady());
   }
 
@@ -467,7 +476,9 @@ class TetrisBoard {
         setReadout(this.ui.readout, {
           src: this.srcLabel(),
           a: walkArr.length
-            ? `recorded game ends here (${this.pieces} pieces)${this.lane === "python" ? "" : " — start the engine for live play"}`
+            ? this.lane === "rulebook"
+              ? `recording stops here (${this.pieces} pieces) — still alive, never topped out`
+              : `recorded game ends here (${this.pieces} pieces)${this.lane === "python" ? "" : " — start the engine for live play"}`
             : NO_RECORDING_NOTE,
           act: walkArr.length ? "recorded game complete" : "—",
         });
@@ -495,8 +506,8 @@ class TetrisBoard {
     setReadout(this.ui.readout, {
       src: this.srcLabel(),
       state: this.opts[0].stateSentence,
-      q: T.SPOT_QUESTION,
-      a: `reading ${this.opts.length} spots…`,
+      q: this.lane === "rulebook" ? "(none — searches placements, scores boards with the rulebook)" : T.SPOT_QUESTION,
+      a: this.lane === "rulebook" ? `searching ${this.opts.length} spots × the preview × the bag…` : `reading ${this.opts.length} spots…`,
       act: "…",
       t: replay ? "recorded" : "…",
     });
@@ -549,7 +560,9 @@ class TetrisBoard {
       setReadout(this.ui.readout, {
         a: pick === -1
           ? `abstain ×${this.opts.length}${FALLBACK_NOTE} — recorded, spot ${forced + 1}/${this.opts.length}`
-          : `P(clean) ${this.ps[forced].toFixed(3)} — recorded play, spot ${forced + 1}/${this.opts.length}`,
+          : this.lane === "rulebook"
+            ? `best 3-piece plan starts at spot ${forced + 1}/${this.opts.length} (brighter ghost = better plan)`
+            : `P(clean) ${this.ps[forced].toFixed(3)} — recorded play, spot ${forced + 1}/${this.opts.length}`,
       });
     } else if (pick === -1) {
       // The honest abstain: no signal, so the game falls back to a random
@@ -574,7 +587,9 @@ class TetrisBoard {
       t: liveHead
         ? `wasm · ${this.opts.length} spots · ~${fmtUs(results[0]?.ms)} µs/spot (amortized, re-timed ≥ ${MIN_TIMED_MS} ms)`
         : replay
-          ? `recorded · p50 ${fmtMs(p50(this.latencies))} ms/spot · ${this.opts.length} spots`
+          ? this.lane === "rulebook"
+            ? `recorded · ${fmtMs(results.reduce((a, r) => a + (r.ms ?? 0), 0))} ms to plan this piece (${this.opts.length} spots × preview × bag)`
+            : `recorded · p50 ${fmtMs(p50(this.latencies))} ms/spot · ${this.opts.length} spots`
           : `p50 ${fmtMs(p50(this.latencies))} ms/spot · ${this.opts.length} spots in ${fmtMs(wallMs)} ms`,
     });
     this.render();
@@ -984,6 +999,9 @@ const tetris = {
   raw: new TetrisBoard("raw", {
     canvas: "tb-raw", score: "ts-raw", lines: "tl-raw", stats: "tst-raw", readout: "tr-raw",
   }),
+  rulebook: new TetrisBoard("rulebook", {
+    canvas: "tb-rulebook", score: "ts-rulebook", lines: "tl-rulebook", stats: "tst-rulebook", readout: "tr-rulebook",
+  }),
 };
 
 // Legend swatches: injected from PIECE_COLORS so the module stays the
@@ -1037,12 +1055,13 @@ function stopAll() {
 function laneReady(lane) {
   if (lane === "modelless") return lanes.modelless === "ready" || lanes.modelless === "unknown";
   if (lane === "raw") return lanes.raw === "ready";
-  if (lane === "python") return demo != null; // a recorded replay — needs only the oracle file
+  if (lane === "python" || lane === "rulebook") return demo != null; // a recorded replay — needs only the oracle file
   return lanes.laya === "ready";
 }
 
 const LANE_HINT = {
   python: () => "the recorded laya (Python) games could not be loaded (arena/demo_oracle.json)",
+  rulebook: () => "the recorded rulebook-search game could not be loaded (arena/demo_oracle.json)",
   laya: (state) =>
     `laya (Rust) lane is ${state}` +
     (state === "off" || state === "down"
@@ -1146,7 +1165,11 @@ document.querySelectorAll("button[data-copy]").forEach((b) => {
 let demoSession = 0;
 (async () => {
   await probe();
-  if (lanes.modelless !== "down") return;
+  if (lanes.modelless !== "down") {
+    // Live engine: the charts + the recorded boards still need the file.
+    await loadRecorded().catch(() => {});
+    return;
+  }
   try {
     await loadDemo();
   } catch (e) {

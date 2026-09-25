@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Arena · live games · Reflex</title>
-  <meta name="description" content="Watch the Reflex lanes play Tetris, Flappy and three-lanes — KatGPT modelless, laya (Rust), the laya (Python) reference, and the raw baseline, same questions, honest losses published.">
+  <meta name="description" content="Watch the Reflex lanes play Tetris, Flappy and three-lanes — KatGPT modelless, the KatGPT rulebook search, laya (Rust), the laya (Python) reference, and the raw baseline, same seeded game, honest losses published.">
   <link rel="stylesheet" href="/assets/style.css">
   <link rel="stylesheet" href="/assets/arena.css">
 </head>
@@ -39,14 +39,16 @@
         <a href="https://www.brainfunctioncollapse.com/laya/">laya</a> model — reads every
         sentence; <b>laya (Python)</b> is the original torch reference it is measured
         against; the <b>raw baseline</b> runs the same engine with its fitted heads
-        skipped — the honest abstain floor. Nothing is scripted and bad answers get
-        played.
+        skipped — the honest abstain floor. A fifth board, <b>KatGPT rulebook search</b>,
+        asks no question at all: it plans three pieces ahead and scores boards with a
+        strategy rulebook. Nothing is scripted and bad answers get played.
       </p>
       <div class="statusbar" id="status">
         <span class="chip" id="chip-python"><b>laya (Python)</b> —</span>
         <span class="chip" id="chip-laya"><b>laya (Rust)</b> —</span>
         <span class="chip" id="chip-modelless"><b>KatGPT modelless</b> —</span>
         <span class="chip" id="chip-raw"><b>raw</b> —</span>
+        <span class="chip" id="chip-rulebook"><b>KatGPT rulebook</b> —</span>
         <span class="status-text" id="status-text">checking for a local engine…</span>
       </div>
       <div class="launch" id="launch-box" hidden>
@@ -84,6 +86,14 @@
 
     <!-- ══════════════════════════ TETRIS ══════════════════════════ -->
     <section class="game on" id="game-tetris">
+      <div class="results" id="tetris-results">
+        <h3>The final result — no need to wait for the replays</h3>
+        <div id="tetris-results-charts"><p class="sub">loading the recorded games…</p></div>
+        <p class="results-note">Every lane's recorded game on seed 607, re-scored here from its own
+        recorded moves. <b>First chart:</b> the lines stop where a game ended — ✕ means it topped
+        out, ● means it was still alive when the recording stopped. <b>Second chart:</b> time to judge
+        one landing spot, on a log scale — each grid step is 10× slower.</p>
+      </div>
       <div class="controls">
         <button class="ctl primary" id="tetris-run">Start</button>
         <button class="ctl" id="tetris-reset">Reset</button>
@@ -147,51 +157,52 @@
             <div><span>TIMING</span><em id="tr-raw-t">—</em></div>
           </div>
         </div>
+        <div class="boardcard" id="tc-rulebook">
+          <div class="boardhead"><b>KatGPT rulebook search · no model</b><span class="lane-note">plans 3 pieces ahead (falling + preview + every piece left in the bag) and scores boards with a self-evolved strategy rulebook — no sentence, no question · recorded game (katgpt-rs Issue 892)</span><span class="scorebox"><span>SCORE</span><b id="ts-rulebook">0000</b><span>LINES</span><b id="tl-rulebook">000</b></span></div>
+          <canvas id="tb-rulebook" width="200" height="400"></canvas>
+          <div class="stats" id="tst-rulebook">pieces 0 · decisions 0 · p50 — ms · errors 0</div>
+          <div class="readout">
+            <div><span>SOURCE</span><em id="tr-rulebook-src">—</em></div>
+            <div><span>STATE SENT</span><em id="tr-rulebook-state">—</em></div>
+            <div><span>QUESTION</span><em id="tr-rulebook-q">—</em></div>
+            <div><span>ANSWER</span><em id="tr-rulebook-a">—</em></div>
+            <div><span>ACTION</span><em id="tr-rulebook-act">—</em></div>
+            <div><span>TIMING</span><em id="tr-rulebook-t">—</em></div>
+          </div>
+        </div>
       </div>
-      <details class="explain">
-        <summary>How does a decision engine play Tetris?</summary>
-        <p>Code lists every landing spot and does the counting. Each spot is described in
-        plain English — <i>“The piece leaves no holes under it in the middle, sits flat on
-        the surface, and the stack stays low.”</i> — and the engine answers one typed
-        yes/no question, <i>“Does the stack look clean?”</i>. The piece goes to the highest
-        P(clean), lowest index on ties. This is the exact <code>laya-tetris-v2</code>
-        grammar the <a href="/bench/">arena tables</a> were measured on.</p>
-        <p>Four lanes play the same protocol. The <b>model-based lanes</b> read every
-        spot sentence with the full open-weights model — <b>laya (Rust)</b>, our riir
-        port the engine serves, and <b>laya (Python)</b>, the original torch reference
-        it is parity-checked against (same weights, same answers; the only intended
-        difference is speed).
-        The <b>latent-first lane</b> is that model's recorded decisions distilled into a
-        microsecond linear score over decoded board features — the published fit matches
-        the model-based pick on 44/120 spot decisions (≈3.4× the 10.8% random floor).
-        Read that number as agreement on the pinned 120-state corpus: the live boards
-        deal pieces from a guideline 7-bag stream, a different distribution — it is not
-        a live-game win rate. Live boards also offer only spots a real hard drop
-        can reach from the top; the pinned corpus and the recorded replays keep the
-        v2 enumeration, where 3 of 2660 spots sit in a cave under a roof.
-        Engine <b>v0.2.3</b> serves exactly this fit: the out-of-the-box modelless board
-        plays Tetris from the head (any grammar-valid sentence decodes — live boards
-        included), and only grammar-invalid inputs fall back to a labelled random spot.
-        Flappy joins it on the <b>v3 render</b> (band + quantized offset + neutral
-        post-motion — v2's band alone was the measured-degenerate arm) with its head
-        served the same way; its decision reads the (state, option) sentence pair, the
-        joined-state protocol issue 011 records. Three-lanes joins them the same way:
-        its head reads ALL THREE lanes' sentences per decision (the cross-lane feature
-        columns count the other lanes' obstacles), and in-tab the page holds the whole
-        turn — the published 84/100 head, reproduced exactly, beats the code-arithmetic
-        policy at imitating laya (Rust) (84% vs clearest-lane 74%). The <b>raw baseline</b> is
-        the third tier live: the same engine, its fitted heads skipped
-        (<code>X-Reflex-Lane: raw</code>) — the corpus cosine abstains off-corpus and
-        the abstain plays as a labelled random pick, the honest floor the head's 44/120
-        and laya (Rust)'s argmax play are measured against (engine v0.2.3+).</p>
-        <p><b>And the head runs where the page runs.</b> With no engine connected, the
-        modelless board still plays — live — on a WebAssembly build of the same fit:
-        the page boots the head from the same pinned oracle corpus, re-verifies the
-        published anchors (λ=1, 44/120), then replays the recorded engine game through
-        it and requires bit-exact agreement on every decision before it plays. That is
-        the latent-first endgame: a game-playing decision head small enough to ship
-        inside a web page, ~1&nbsp;µs per decision, zero engine.</p>
-      </details>
+      <section class="lanes-how" id="tetris-how">
+        <h3>How each lane picks a spot</h3>
+        <p class="sub">Same game for everyone — seeded 7-bag, a real hard drop, guideline scoring.
+        Only the way a landing spot is chosen differs. Figures rendered from
+        <a href="https://github.com/katopz/katgpt-rs/blob/HEAD/.docs/06_game_arenas/tetris_lane_flows.md">.docs/06_game_arenas/tetris_lane_flows.md</a>.</p>
+        <figure class="figure lanefig">
+          <figcaption><b>laya (Rust) · laya (Python)</b> — the model reads a sentence per spot. One
+          forward per spot; it sees only the falling piece.</figcaption>
+          <img src="/assets/tetris_flow_laya.svg" alt="laya lanes: code lists every landing spot, writes each as an English sentence, the laya model answers Does the stack look clean for each, and the piece goes to the highest probability" loading="lazy">
+        </figure>
+        <figure class="figure lanefig">
+          <figcaption><b>KatGPT modelless</b> — laya's recorded answers distilled into a tiny head.
+          Plays like laya, ~10⁵× faster, and runs in this tab.</figcaption>
+          <img src="/assets/tetris_flow_modelless.svg" alt="KatGPT modelless lane: the same spot sentence is decoded back into board features, scored by a small linear head fitted on laya's recorded answers, and the highest score is played, in microseconds inside WebAssembly" loading="lazy">
+        </figure>
+        <figure class="figure lanefig">
+          <figcaption><b>raw baseline</b> — the engine with its heads removed. It abstains, and the
+          abstain plays a labelled random spot: the honest floor.</figcaption>
+          <img src="/assets/tetris_flow_raw.svg" alt="raw baseline lane: the corpus engine without fitted heads finds the spot sentence off-corpus, abstains, and the abstain plays as a labelled random spot, the honest floor" loading="lazy">
+        </figure>
+        <figure class="figure lanefig">
+          <figcaption><b>KatGPT rulebook search</b> — no model, no sentence. It plans three pieces
+          ahead; the unknown third piece is <i>averaged</i> over what is left in the bag, so a plan
+          that needs a lucky I-piece scores low.</figcaption>
+          <img src="/assets/tetris_flow_rulebook.svg" alt="KatGPT rulebook search: try every spot for the falling piece, every spot for the preview piece keeping the best six, then every piece still left in the bag; score each end board with the strategy rulebook, average over the unknown piece, take the best plan, and play its first move, in about six to nine milliseconds" loading="lazy">
+        </figure>
+        <figure class="figure lanefig">
+          <figcaption><b>The rulebook's modes</b> — go for tetrises only while it is safe. The 9-1
+          stack was found by self-evolution, not hand-coded.</figcaption>
+          <img src="/assets/tetris_flow_modes.svg" alt="the rulebook's play modes: on a clean low stack it builds a nine-one stack and waits for tetrises; three or more covered holes switch it to downstack, a tall stack to survive, both using safe survival weights; a clean board returns it to build" loading="lazy">
+        </figure>
+      </section>
     </section>
 
     <!-- ══════════════════════════ FLAPPY ══════════════════════════ -->

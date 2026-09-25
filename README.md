@@ -13,7 +13,14 @@ static assets.
   `data/bench.json`.
 - `/arena/` — the live games, four lanes, 2 per row: laya (Python) | laya
   (Rust), KatGPT modelless | raw baseline, under a TL;DR rendered from
-  `data/bench.json`. With an engine connected, laya (Rust), KatGPT modelless
+  `data/bench.json`. Tetris adds a fifth, replay-only board — **KatGPT
+  rulebook search** (katgpt-rs Issue 892, `tetris_rulebook_walk`) — a
+  final-result panel on top (`assets/arena_charts.js`: score-as-the-game-goes
+  + p50-per-spot latency, re-derived from every recorded walk at load, so the
+  outcome reads before any replay ends), and the "How each lane picks a spot"
+  figures at the bottom — mermaid sources in katgpt-rs
+  `.docs/06_game_arenas/tetris_lane_flows.md`, rendered to `assets/` by
+  `scripts/render_tetris_flows.py` (`--check` verifies the two mirrors). With an engine connected, laya (Rust), KatGPT modelless
   and raw play on the visitor's machine; laya (Python) — the original torch
   reference, never shipped — always replays its recorded game. Without an
   engine, the KatGPT modelless Tetris, Flappy and

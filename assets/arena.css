@@ -180,3 +180,44 @@ footer.site-foot {
 .tldr li.ok i { color: var(--ok); }
 .tldr li.gap i { color: var(--ember); }
 .tldr li.eq i { color: var(--muted); }
+
+/* ── Tetris: the final-result charts (arena_charts.js) + the lane figures ── */
+.results {
+  background: var(--bg2); border: 1px solid var(--line); border-radius: 12px;
+  padding: 14px 16px 10px; margin: 0 0 16px;
+}
+.results h3, .lanes-how h3 { margin: 0 0 8px; font-size: 16px; color: var(--text); }
+.results-note { color: var(--muted); font-size: 13px; margin: 8px 0 2px; }
+.ac-legend { margin: 2px 0 8px; }
+.bc-mut { color: var(--muted); }
+.ac-fig { margin: 6px 0 10px; }
+.ac-fig figcaption { font-size: 13.5px; color: var(--text); margin-bottom: 4px; }
+.ac-svg { width: 100%; height: auto; display: block; overflow: visible; }
+.ac-grid { stroke: var(--line); stroke-width: 1; }
+.ac-tick { fill: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+.ac-axis { fill: var(--muted); font-size: 11.5px; }
+.ac-line { fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.ac-dot { stroke: var(--bg2); stroke-width: 2; }
+.ac-x { stroke-width: 2.5; stroke-linecap: round; }
+.ac-leader { stroke: var(--line); stroke-width: 1; }
+.ac-label { fill: var(--muted); font-size: 12px; }
+.ac-strong { fill: var(--text); font-weight: 600; font-variant-numeric: tabular-nums; }
+.ac-rowlabel { fill: var(--text); font-size: 12.5px; }
+.ac-bar { outline: none; }
+.ac-bar:hover, .ac-bar:focus { filter: brightness(1.25); }
+.ac-cross { stroke: var(--muted); stroke-width: 1; stroke-dasharray: 3 3; }
+.ac-table { font-size: 13px; color: var(--muted); margin: 4px 0; overflow-x: auto; }
+.ac-table summary { cursor: pointer; color: var(--ember); }
+.ac-table table { border-collapse: collapse; margin-top: 6px; width: 100%; }
+.ac-table th, .ac-table td { text-align: left; padding: 3px 8px; border-bottom: 1px solid var(--line); font-variant-numeric: tabular-nums; }
+.ac-table th { color: var(--text); font-weight: 600; }
+.ac-warn { color: var(--warn); font-size: 13px; }
+.lanes-how { margin: 22px 0 8px; }
+.lanes-how .sub { color: var(--muted); font-size: 14px; margin: 0 0 10px; }
+.lanefig {
+  margin: 0 0 14px; background: var(--bg2); border: 1px solid var(--line);
+  border-radius: 10px; padding: 10px 14px 12px;
+}
+.lanefig figcaption { font-size: 14px; color: var(--muted); margin: 0 0 8px; }
+.lanefig figcaption b { color: var(--text); }
+.lanefig img { width: 100%; max-width: 760px; height: auto; display: block; margin: 0 auto; }

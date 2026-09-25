@@ -55,7 +55,7 @@ try {
   // ── Tetris: the modelless board must reach a real decision quickly ──
   await page.click("#tetris-run");
   await page.waitForFunction(
-    () => /\d+ spots in \d+ ms/.test(document.getElementById("tr-modelless-t").textContent),
+    () => /\d+ spots in [\d.]+ ms/.test(document.getElementById("tr-modelless-t").textContent),
     { timeout: 30000 },
   );
   const modellessA = await page.textContent("#tr-modelless-a");
