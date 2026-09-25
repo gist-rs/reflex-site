@@ -217,13 +217,59 @@
     `<span style="left:${(f * 100).toFixed(2)}%">${esc(t)}</span>`).join("")}</div>`;
   const grid = (m) => ticks(m).map(([f]) => `<i class="bc-grid" style="left:${(f * 100).toFixed(2)}%"></i>`).join("");
 
+  // ── sort: a minimal order toggle for the charts ──────────────────────────
+  // "data" is the harness's own suite order / the lane order as published.
+  // "acc" sorts best-first (descending); "lat" sorts fastest-first
+  // (ascending — on the latency axis shorter is better, so both sorts put
+  // the best row on top). Key for suite rows: the KatGPT · modelless lane —
+  // the product lane this site exists for; the note says so when a sort is
+  // active. Key for lane rows inside a suite table: that lane's own value.
+  // Missing cells sort last, never first.
+  const SORTS = {
+    data: { label: "data order" },
+    acc: { label: "by accuracy", dir: "desc" },
+    lat: { label: "by latency", dir: "asc" },
+  };
+  let heroSort = "data", suiteSort = "data";
+  const suiteStore = new Map();
+
+  function sortKeyOf(l, kind) {
+    if (!l) return null;
+    const v = kind === "acc" ? (l.hard || {}).accuracy : l.latency_p50_ms;
+    return typeof v === "number" && isFinite(v) ? v : null;
+  }
+  function sortPairs(pairs, kind, keyOf) {
+    if (kind === "data") return pairs;
+    const dir = SORTS[kind].dir === "desc" ? -1 : 1;
+    return pairs.slice().sort((a, b) => {
+      const av = keyOf(a), bv = keyOf(b);
+      if (av == null && bv == null) return 0;
+      if (av == null) return 1;
+      if (bv == null) return -1;
+      return (av - bv) * dir;
+    });
+  }
+  function sortToggleHtml(kind, current) {
+    const btns = Object.entries(SORTS).map(([k, S]) =>
+      `<button type="button" data-sort="${k}" aria-pressed="${k === current}">${esc(S.label)}</button>`).join("");
+    return `<div class="bc-toggle" role="group" aria-label="sort ${esc(kind)}">${btns}</div>`;
+  }
+  function sortNote(kind) {
+    if (kind === "data") return "";
+    return SORTS[kind].dir === "desc"
+      ? " Rows sorted best-accuracy-first on the KatGPT · modelless lane; not-run sorts last."
+      : " Rows sorted fastest-first on the KatGPT · modelless lane; not-run sorts last.";
+  }
+
   // ── hero: every suite × three lanes ──────────────────────────────────────
   let heroData = null, heroMetric = "acc";
 
   function heroBody() {
     const d = heroData, m = heroMetric, M = METRICS[m], f = fmtOf(m);
     const shown = LANES.filter((lane) => visibleKey(lane.key));
-    const rows = (d.suites || []).map((s) => {
+    const sorted = sortPairs((d.suites || []).map((s) => [s, null]), heroSort,
+      ([s]) => { const p = pick(s, LANES[0]); return sortKeyOf(p ? p[0] : null, heroSort); });
+    const rows = sorted.map(([s]) => {
       const bars = shown.map((lane) => {
         const picked = pick(s, lane);
         const l = picked ? picked[0] : null;
@@ -247,7 +293,7 @@
     const extraHosts = d.suites.some((s) => s.extra_host_lanes);
     const note = `laya bars use each suite's best non-multilingual checkpoint${picks.size ? ` (${[...picks].join(", ")}; english elsewhere)` : " (english)"}. ` +
       `Comparison-lane bars (clm, gliner, agentjev) carry the host they ran on in the tooltip${extraHosts ? " — other hosts' rows stay in the tables below" : ""}.` +
-      (M.log ? " Latency is log-scale (each gridline = 10×) — shorter is faster." : " Chance level differs per suite — compare lanes within a row, not rows with each other.");
+      (M.log ? " Latency is log-scale (each gridline = 10×) — shorter is faster." : " Chance level differs per suite — compare lanes within a row, not rows with each other.") + sortNote(heroSort);
     return `<div class="bc-hgrid"><div></div>${axis(m)}${rows}<div></div>${axis(m)}</div><p class="bc-note">${esc(note)}</p>`;
   }
 
@@ -261,13 +307,19 @@
     tooltip();
     const btns = Object.entries(METRICS).map(([k, M]) =>
       `<button type="button" data-metric="${k}" aria-pressed="${k === heroMetric}">${esc(M.label)}${M.log ? " (log)" : ""}</button>`).join("");
-    el.innerHTML = `<div class="bc-bar">${legend()}<div class="bc-toggle" role="group" aria-label="metric">${btns}</div></div><div id="bench-hero-body">${heroBody()}</div>`;
-    el.querySelector(".bc-toggle").addEventListener("click", (e) => {
-      const b = e.target.closest("button[data-metric]");
-      if (!b) return;
-      heroMetric = b.dataset.metric;
-      for (const x of el.querySelectorAll("button[data-metric]")) x.setAttribute("aria-pressed", x === b);
-      document.getElementById("bench-hero-body").innerHTML = heroBody();
+    el.innerHTML = `<div class="bc-bar">${legend()}<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><span class="bc-mut">sort</span>${sortToggleHtml("suites", heroSort)}<div class="bc-toggle" role="group" aria-label="metric">${btns}</div></div></div><div id="bench-hero-body">${heroBody()}</div>`;
+    el.querySelector(".bc-bar").addEventListener("click", (e) => {
+      const m = e.target.closest("button[data-metric]");
+      const so = e.target.closest("button[data-sort]");
+      if (m) {
+        heroMetric = m.dataset.metric;
+        for (const x of el.querySelectorAll("button[data-metric]")) x.setAttribute("aria-pressed", x === m);
+        document.getElementById("bench-hero-body").innerHTML = heroBody();
+      } else if (so) {
+        heroSort = so.dataset.sort;
+        for (const x of el.querySelectorAll("button[data-sort]")) x.setAttribute("aria-pressed", x === so);
+        document.getElementById("bench-hero-body").innerHTML = heroBody();
+      }
     });
   }
 
@@ -279,10 +331,11 @@
   }
 
   function suite(s) {
-    const rows = allLanes(s).map((l) => [l, null]).concat(extraLanes(s))
-      .filter(([l]) => visible(l));
+    suiteStore.set(s.name, s);
+    const rows = sortPairs(allLanes(s).map((l) => [l, null]).concat(extraLanes(s))
+      .filter(([l]) => visible(l)), suiteSort, ([l]) => sortKeyOf(l, suiteSort));
     if (!rows.length) return "";
-    return `<div class="bc-suite" aria-label="${esc(s.name)} lanes compared">` +
+    return `<div class="bc-suite" data-bc-suite="${esc(s.name)}" aria-label="${esc(s.name)} lanes compared">` +
       `<div class="bc-sh"></div><div class="bc-sh">accuracy</div><div class="bc-sh">p50 latency · log · shorter is faster</div>` +
       rows.map(([l, host]) =>
         `<div class="bc-slabel"><i class="bc-sw" style="background:${laneOf(l).color}"></i>${esc(shortLane(l))} · ${esc(l.model)}${host ? ` <span class="bc-mut">@${esc(host)}</span>` : ""}</div>` +
@@ -367,5 +420,20 @@
     });
   }
 
-  window.BenchCharts = { hero, suite, setLogDomain, summary };
+  // ── suite-table sort control (rendered once above the tables) ────────────
+  function suiteSortControl() {
+    return sortToggleHtml("lanes within each suite", suiteSort);
+  }
+  function setSuiteSort(kind) {
+    if (!SORTS[kind]) return;
+    suiteSort = kind;
+    for (const [name, s] of suiteStore) {
+      const el = document.querySelector(`[data-bc-suite="${CSS.escape(name)}"]`);
+      if (el) el.outerHTML = suite(s);
+    }
+    const ctrl = document.getElementById("suite-sort");
+    if (ctrl) for (const b of ctrl.querySelectorAll("button[data-sort]")) b.setAttribute("aria-pressed", b.dataset.sort === suiteSort);
+  }
+
+  window.BenchCharts = { hero, suite, setLogDomain, summary, suiteSortControl, setSuiteSort };
 })();

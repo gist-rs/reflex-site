@@ -36,6 +36,8 @@
   .lf-chip input { accent-color: var(--accent, #d95926); margin: 0; }
   .lf-chip .bc-sw { width: 9px; height: 9px; border-radius: 2px; flex: none; }
   .lf-hint { font-size: 12px; color: var(--muted); margin: 2px 0 8px; }
+  #suite-sort { display: flex; align-items: center; gap: 8px; margin: 2px 0 10px; }
+  #suite-sort .bc-mut { font-size: 12px; }
   @media (max-width: 640px) {
     .bc-suite { grid-template-columns: 1fr 1fr; }
     .bc-suite .bc-slabel { grid-column: 1 / -1; }
@@ -86,6 +88,7 @@
       answers got worse.
     </p>
     <p id="bench-meta">loading data/bench.json …</p>
+    <div id="suite-sort" hidden><span class="bc-mut">sort</span></div>
     <div id="tables"></div>
 
     <h2 style="margin-top:40px">Protocol</h2>
@@ -365,6 +368,13 @@ function render(d) {
   }
   document.getElementById("bench-meta").innerHTML = provenance;
   document.getElementById("tables").innerHTML = (d.suites || []).map(suiteSection).join("");
+  const sortEl = document.getElementById("suite-sort");
+  sortEl.innerHTML = "<span class='bc-mut'>sort lanes</span>" + BenchCharts.suiteSortControl();
+  sortEl.hidden = false;
+  sortEl.addEventListener("click", (e) => {
+    const b = e.target.closest("button[data-sort]");
+    if (b) BenchCharts.setSuiteSort(b.dataset.sort);
+  });
   const proto = [];
   for (const [k, v] of Object.entries(meta)) {
     if (["date_utc", "git_sha", "host", "profile", "laya_feature", "datasets_dir", "hosts"].includes(k)) continue;
