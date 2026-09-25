@@ -1,4 +1,4 @@
-// The KatGPT rulebook walk (katgpt-rs Issue 892 — the hybrid FSM champion,
+// The Reflexer (rulebook search) walk (katgpt-rs Issue 892 — the hybrid FSM champion,
 // recorded by katgpt-rs examples/tetris_09_site_walk.rs) is checked here
 // against the site's OWN pieces, shared by scripts/merge_rulebook_walk.mjs
 // (before writing) and scripts/arena_demo_check.mjs (every run):

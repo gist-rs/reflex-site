@@ -20,7 +20,7 @@
 import * as T from "./games/tetris.js";
 
 export const CHART_LANES = [
-  { key: "rulebook", label: "KatGPT rulebook search", walk: "tetris_rulebook_walk", meta: "tetris_rulebook", color: "#c4579e" },
+  { key: "rulebook", label: "Reflexer", walk: "tetris_rulebook_walk", meta: "tetris_rulebook", color: "#c4579e" },
   { key: "laya", label: "laya (Rust)", walk: "tetris_walk", meta: "tetris_laya", color: "#3987e5" },
   { key: "python", label: "laya (Python)", walk: "tetris_python_walk", meta: "tetris_python", color: "#199e70" },
   { key: "modelless", label: "KatGPT modelless", walk: "tetris_head_walk", meta: "tetris_head", color: "#d95926" },

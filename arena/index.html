@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Arena · live games · Reflex</title>
-  <meta name="description" content="Watch the Reflex lanes play Tetris, Flappy and three-lanes — KatGPT modelless, the KatGPT rulebook search, laya (Rust), the laya (Python) reference, and the raw baseline, same seeded game, honest losses published.">
+  <meta name="description" content="Watch the Reflex lanes play Tetris, Flappy and three-lanes — KatGPT modelless, Reflexer (the rulebook search), laya (Rust), the laya (Python) reference, and the raw baseline, same seeded game, honest losses published.">
   <link rel="stylesheet" href="/assets/style.css">
   <link rel="stylesheet" href="/assets/arena.css">
 </head>
@@ -39,7 +39,7 @@
         <a href="https://www.brainfunctioncollapse.com/laya/">laya</a> model — reads every
         sentence; <b>laya (Python)</b> is the original torch reference it is measured
         against; the <b>raw baseline</b> runs the same engine with its fitted heads
-        skipped — the honest abstain floor. A fifth board, <b>KatGPT rulebook search</b>,
+        skipped — the honest abstain floor. A fifth board, <b>Reflexer</b> (the rulebook search engine),
         asks no question at all: it plans three pieces ahead and scores boards with a
         strategy rulebook. Nothing is scripted and bad answers get played.
       </p>
@@ -48,7 +48,7 @@
         <span class="chip" id="chip-laya"><b>laya (Rust)</b> —</span>
         <span class="chip" id="chip-modelless"><b>KatGPT modelless</b> —</span>
         <span class="chip" id="chip-raw"><b>raw</b> —</span>
-        <span class="chip" id="chip-rulebook"><b>KatGPT rulebook</b> —</span>
+        <span class="chip" id="chip-rulebook"><b>Reflexer</b> —</span>
         <span class="status-text" id="status-text">checking for a local engine…</span>
       </div>
       <div class="launch" id="launch-box" hidden>
@@ -145,7 +145,7 @@
           </div>
         </div>
         <div class="boardcard" id="tc-rulebook">
-          <div class="boardhead"><b>KatGPT rulebook search · no model</b><span class="lane-note">plans 3 pieces ahead (falling + preview + every piece left in the bag) and scores boards with a self-evolved strategy rulebook — no sentence, no question · recorded game (katgpt-rs Issue 892)</span><span class="scorebox"><span>SCORE</span><b id="ts-rulebook">0000</b><span>LINES</span><b id="tl-rulebook">000</b></span></div>
+          <div class="boardhead"><b>Reflexer · rulebook search, no model</b><span class="lane-note">plans 3 pieces ahead (falling + preview + every piece left in the bag) and scores boards with a self-evolved strategy rulebook — no sentence, no question · recorded game (katgpt-rs Issue 892)</span><span class="scorebox"><span>SCORE</span><b id="ts-rulebook">0000</b><span>LINES</span><b id="tl-rulebook">000</b></span></div>
           <canvas id="tb-rulebook" width="200" height="400"></canvas>
           <div class="stats" id="tst-rulebook">pieces 0 · decisions 0 · p50 — ms · errors 0</div>
           <div class="readout">
@@ -187,10 +187,10 @@
           <img src="/assets/tetris_flow_modelless.svg" alt="KatGPT modelless lane: the same spot sentence is decoded back into board features, scored by a small linear head fitted on laya's recorded answers, and the highest score is played, in microseconds inside WebAssembly" loading="lazy">
         </figure>
         <figure class="figure lanefig">
-          <figcaption><b>KatGPT rulebook search</b> — no model, no sentence. It plans three pieces
+          <figcaption><b>Reflexer</b> — the rulebook search: no model, no sentence. It plans three pieces
           ahead; the unknown third piece is <i>averaged</i> over what is left in the bag, so a plan
           that needs a lucky I-piece scores low.</figcaption>
-          <img src="/assets/tetris_flow_rulebook.svg" alt="KatGPT rulebook search: try every spot for the falling piece, every spot for the preview piece keeping the best six, then every piece still left in the bag; score each end board with the strategy rulebook, average over the unknown piece, take the best plan, and play its first move, in about six to nine milliseconds" loading="lazy">
+          <img src="/assets/tetris_flow_rulebook.svg" alt="Reflexer, the rulebook search: try every spot for the falling piece, every spot for the preview piece keeping the best six, then every piece still left in the bag; score each end board with the strategy rulebook, average over the unknown piece, take the best plan, and play its first move, in about six to nine milliseconds" loading="lazy">
         </figure>
         <figure class="figure lanefig">
           <figcaption><b>The rulebook's modes</b> — go for tetrises only while it is safe. The 9-1

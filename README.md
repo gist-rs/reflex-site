@@ -13,8 +13,8 @@ static assets.
   `data/bench.json`.
 - `/arena/` — the live games, four lanes, 2 per row: laya (Python) | laya
   (Rust), KatGPT modelless | raw baseline, under a TL;DR rendered from
-  `data/bench.json`. Tetris adds a fifth, replay-only board — **KatGPT
-  rulebook search** (katgpt-rs Issue 892, `tetris_rulebook_walk`) — a
+  `data/bench.json`. Tetris adds a fifth, replay-only board — **Reflexer**,
+  the rulebook search (katgpt-rs Issue 892, `tetris_rulebook_walk`) — a
   final-result panel on top (`assets/arena_charts.js`: score-as-the-game-goes
   + p50-per-spot latency, re-derived from every recorded walk at load, so the
   outcome reads before any replay ends), and the "How each lane picks a spot"
@@ -80,7 +80,7 @@ node scripts/record_demo_walks.mjs http://127.0.0.1:7331 --python ../riir-reflex
 node scripts/arena_demo_check.mjs && node scripts/arena_head_parity.mjs && node scripts/arena_demo_smoke.mjs
 ```
 
-The KatGPT rulebook walk (`tetris_rulebook_walk`, the katgpt-rs Issue 892
+The Reflexer (rulebook search) walk (`tetris_rulebook_walk`, the katgpt-rs Issue 892
 hybrid FSM champion) is recorded in katgpt-rs, not against the engine, and
 merged after a stream + chain-replay check (`arena_demo_check.mjs` re-checks
 it; `gen_demo_oracle.mjs` preserves it):

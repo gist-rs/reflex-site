@@ -30,7 +30,7 @@ const LANE_NAME = {
   laya: "laya (Rust)",
   modelless: "KatGPT modelless",
   raw: "raw baseline",
-  rulebook: "KatGPT rulebook search",
+  rulebook: "Reflexer",
 };
 
 // ── no-engine demo mode ─────────────────────────────────────────────────────
@@ -93,7 +93,7 @@ async function loadDemo() {
 
 function demoStatusText() {
   if (arenaHeadReady()) {
-    return "no local engine — the KatGPT modelless board PLAYS LIVE in-tab (fitted head · WebAssembly · zero engine); laya (Rust), laya (Python), the raw baseline and the rulebook search replay recorded games";
+    return "no local engine — the KatGPT modelless board PLAYS LIVE in-tab (fitted head · WebAssembly · zero engine); laya (Rust), laya (Python), the raw baseline and Reflexer (the rulebook search) replay recorded games";
   }
   return "no local engine — RECORDED DEMO playing (Plan 607 oracle) · start the engine, then press Start to go live";
 }
@@ -1066,7 +1066,7 @@ function laneReady(lane) {
 
 const LANE_HINT = {
   python: () => "the recorded laya (Python) games could not be loaded (arena/demo_oracle.json)",
-  rulebook: () => "the recorded rulebook-search game could not be loaded (arena/demo_oracle.json)",
+  rulebook: () => "the recorded Reflexer (rulebook search) game could not be loaded (arena/demo_oracle.json)",
   laya: (state) =>
     `laya (Rust) lane is ${state}` +
     (state === "off" || state === "down"
