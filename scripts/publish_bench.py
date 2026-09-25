@@ -26,12 +26,26 @@ The host's top-level row keeps the ORIGINAL run's facts (a modelless doc's
 `lane_sources` per updated lane (git_sha + date_utc of the update run) —
 per-lane provenance is disclosed, never blended.
 
+Issue 034 (2026-09-26, MEASURED both paths): the lane WIPE this script can
+inflict lives on the FRESH-DOCS path — `publish_bench.py <doc1> <doc2> <site>`
+replaces the published table wholesale, so lanes the docs do not carry (the
+comparison lanes, the ANE rows, laya checkpoints) vanish silently. The UPDATE
+path — the CURRENT data/bench.json passed as the PRIMARY — preserves every
+host container in place (host_lane_entry's setdefault returns the existing
+dict for a known host); only a NEW host gets a fresh container. The wipe is
+walled in main(): a fresh-docs publish whose output would DROP published lane
+slots refuses (exit 1) naming the dropped slots; PUBLISH_BENCH_FULL_REPLACE=1
+acknowledges a deliberate wholesale replacement with a loud disclosure. The
+update path is never walled — it cannot drop lanes by construction.
+
 Usage:
     python3 publish_bench.py <results-primary.json> [results-extra.json ...] <site-repo-root>
 
 Docs apply in argv order. The first doc's suites shape the tables (run the
 superset run first). A previously-published data/bench.json is a valid
-primary for a re-publish (its meta.hosts seed the seen-host set).
+primary for a re-publish (its meta.hosts seed the seen-host set) — and since
+Issue 034 it is the SAFE default for every re-publish: the docs land as
+lane-scoped updates and nothing not carried by them can disappear.
 
 Display host spellings (2026-09-25): HOST_DISPLAY renames machine labels at
 the LOAD boundary — `m3` → `m3-max-metal`, `m3-ane` → `m3-max-ane`,
@@ -59,6 +73,7 @@ deploy. A hand-typed number on the site is a defect by definition.
 
 import copy
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -281,7 +296,15 @@ def merge(primary, extras):
                 del hl[key]
 
     def host_lane_entry(suite, host):
-        """The writable lane container for `host` on this suite row."""
+        """The writable lane container for `host` on this suite row.
+
+        For a host the primary already knows this is the EXISTING container
+        (setdefault returns the dict in place) — an update writes its lane
+        slots into it and every lane the update does not declare SURVIVES
+        (measured, reflex .issues/034: the update path cannot wipe). Only a
+        NEW host gets a freshly created container, whose content is exactly
+        the update doc's lanes. The wholesale-wipe risk therefore lives one
+        level up, on the fresh-docs path, and is walled in main()."""
         if host == phost:
             return suite  # the primary's lanes live on the row itself
         return suite.setdefault("extra_host_lanes", {}).setdefault(host, {})
@@ -524,6 +547,86 @@ def _carry_into(lane, incumbent):
         "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)",
     }
 
+
+# The lane classes a doc can carry. `laya` is a CLASS of checkpoint slots —
+# the inventory expands it per checkpoint key, because a publish that drops
+# one checkpoint drops published cells even though the class survives.
+LANE_CLASSES = ("modelless", "laya", "clm", "gliner", "agentjev")
+
+
+def lane_inventory(d):
+    """The published lane surface as (suite, host, lane-class) triples —
+    the set a wholesale replacement must not silently shrink (Issue 034).
+    The primary host's lanes live on the suite rows; every other host's in
+    its extra_host_lanes. The laya class expands per checkpoint key, and
+    every meta.hosts row is part of the surface (a host row that vanishes
+    takes its disclosures — absent_suites, lane_sources — with it)."""
+    phost = display_host((d.get("meta") or {}).get("host") or "(primary)")
+    inv = set()
+    for row in (d.get("meta") or {}).get("hosts") or []:
+        if row.get("host"):
+            inv.add(("(host-row)", row["host"], "host"))
+    for s in d.get("suites", []):
+        name = s["name"]
+        for k in LANE_CLASSES:
+            if k == "laya":
+                continue
+            if s.get(k):
+                inv.add((name, phost, k))
+        for ck in (s.get("laya") or {}):
+            inv.add((name, phost, f"laya:{ck}"))
+        for h, hl in (s.get("extra_host_lanes") or {}).items():
+            for k in LANE_CLASSES:
+                if k == "laya":
+                    continue
+                if hl.get(k):
+                    inv.add((name, h, k))
+            for ck in (hl.get("laya") or {}):
+                inv.add((name, h, f"laya:{ck}"))
+    return inv
+
+
+def guard_wholesale_replace(d, out_path, primary_path):
+    """The Issue 034 wall: a FRESH-DOCS publish (primary is not the
+    destination file) over an EXISTING data/bench.json replaces the table
+    wholesale, so any published lane slot the incoming docs do not carry
+    would vanish silently. Refuse naming the dropped slots; the env
+    PUBLISH_BENCH_FULL_REPLACE=1 acknowledges a deliberate replacement
+    with a loud disclosure. The UPDATE path (primary IS the destination)
+    never reaches this wall — merge() updates known host containers in
+    place and cannot drop lanes by construction. Returns the process exit
+    code for main() (0 = proceed)."""
+    if not out_path.is_file():
+        return 0  # first publish — nothing to drop
+    if primary_path.resolve() == out_path.resolve():
+        return 0  # the update path: the merge preserves by construction
+    existing = json.loads(out_path.read_text(encoding="utf-8"))
+    dropped = lane_inventory(existing) - lane_inventory(d)
+    if not dropped:
+        return 0
+    names = sorted("/".join(t) for t in dropped)
+    sample = ", ".join(names[:8])
+    if os.environ.get("PUBLISH_BENCH_FULL_REPLACE") == "1":
+        print(
+            f"note: PUBLISH_BENCH_FULL_REPLACE=1 — wholesale replacement "
+            f"acknowledged: {len(dropped)} published lane slots are being "
+            f"dropped (sample: {sample})",
+            file=sys.stderr,
+        )
+        return 0
+    print(
+        f"⛔ refusing: this publish would silently DROP {len(dropped)} "
+        "published lane slots the incoming docs do not carry — the "
+        "fresh-docs path replaces the table wholesale (reflex "
+        ".issues/034). Publish with the CURRENT data/bench.json as the "
+        "PRIMARY (first argument) so these docs land as lane-scoped "
+        "updates, or set PUBLISH_BENCH_FULL_REPLACE=1 to acknowledge a "
+        f"wholesale replacement. Dropped (sample): {sample}",
+        file=sys.stderr,
+    )
+    return 1
+
+
 def main() -> int:
     if len(sys.argv) < 3:
         print(__doc__)
@@ -538,6 +641,13 @@ def main() -> int:
         row["_phost"] = _phost                # update replaced them
     d = merge(primary, extras)
     apply_lane_carry(d, incumbent, extras)
+
+    # The Issue 034 wall runs BEFORE anything is written: a fresh-docs
+    # publish over an existing table must not silently shrink it.
+    out = site_root / "data" / "bench.json"
+    rc = guard_wholesale_replace(d, out, Path(results_paths[0]))
+    if rc != 0:
+        return rc
 
     meta = d.get("meta", {})
     for k in DROP_META_KEYS:
@@ -561,7 +671,6 @@ def main() -> int:
                 l["lane"] = LANE_DISPLAY.get(l.get("lane"), l.get("lane"))
 
     # The sanitized file is the ONLY thing the site serves.
-    out = site_root / "data" / "bench.json"
     out.parent.mkdir(parents=True, exist_ok=True)
     # LF line endings EXPLICITLY: a text-mode default write translates
     # \n to os.linesep, so a publish from the Windows box flips the whole

@@ -11,6 +11,7 @@ import importlib.util
 import copy
 import io
 import json
+import os
 import sys
 import tempfile
 from pathlib import Path
@@ -263,6 +264,163 @@ def case_extra_suite_absent_in_primary_refuses():
                                      "unknown_suite": {"modelless_acc": 0.9}})
     merged, err = merge_refusing(primary, extra)
     assert merged is None and "unknown_suite" in err
+
+
+def run_main(docs, root, extra_argv=()):
+    """main() over doc objects written into `root`; returns (rc, served_or_None)."""
+    paths = []
+    for i, d in enumerate(docs):
+        p = Path(root) / f"doc{i}.json"
+        p.write_text(json.dumps(d), encoding="utf-8")
+        paths.append(str(p))
+    old = sys.argv
+    sys.argv = ["publish_bench.py", *paths, str(root), *extra_argv]
+    try:
+        rc = pb.main()
+    finally:
+        sys.argv = old
+    served = None
+    served_path = Path(root) / "data" / "bench.json"
+    if served_path.is_file():
+        served = json.loads(served_path.read_text("utf-8"))
+    return rc, served
+
+
+def case_fresh_docs_wipe_refused():
+    """The Issue 034 wall, measured mechanism: the fresh-docs path over an
+    existing published table replaces it wholesale — lanes the docs do not
+    carry would vanish silently, so main() must refuse naming them and the
+    published file must be untouched on disk."""
+    published = doc("m3", "sha-m3", {"s1": {"modelless_acc": 0.5,
+                                            "laya_p50": 4.0}})
+    published["suites"][0]["clm"] = {
+        "lane": "clm", "hard": {"accuracy": 0.55}}
+    published["suites"][0]["extra_host_lanes"] = {
+        "4090-win": {"modelless": {"lane": "modelless",
+                                   "hard": {"accuracy": 0.5}},
+                     "clm": {"lane": "clm", "hard": {"accuracy": 0.55}}},
+    }
+    published["meta"]["hosts"] = [{"host": "m3"}, {"host": "4090-win"}]
+    fresh = doc("4090-windows", "sha-fresh", {"s1": {"modelless_acc": 0.5}})
+    with tempfile.TemporaryDirectory() as td:
+        root = Path(td)
+        rc0, served0 = run_main([published], root)
+        assert rc0 == 0 and served0 is not None, "seed publish must succeed"
+        before = (root / "data" / "bench.json").read_text("utf-8")
+        buf = io.StringIO()
+        old_err = sys.stderr
+        sys.stderr = buf
+        try:
+            rc, served = run_main([fresh], root)
+        finally:
+            sys.stderr = old_err
+        assert rc == 1, f"the wipe must refuse, got rc={rc}"
+        err = buf.getvalue()
+        assert "refusing" in err and "lane slots" in err, err
+        assert "s1/m3-max-metal/clm" in err or "s1/4090-win/clm" in err, err
+        after = (root / "data" / "bench.json").read_text("utf-8")
+        assert before == after, "a refused publish must not touch the file"
+
+
+def case_fresh_docs_wipe_acknowledged_by_env():
+    """PUBLISH_BENCH_FULL_REPLACE=1 is the deliberate wholesale-replacement
+    escape hatch: the publish proceeds, the disclosure names the drop, and
+    the served file really is the docs' content."""
+    published = doc("m3", "sha-m3", {"s1": {"modelless_acc": 0.5,
+                                            "laya_p50": 4.0}})
+    published["suites"][0]["clm"] = {
+        "lane": "clm", "hard": {"accuracy": 0.55}}
+    published["meta"]["hosts"] = [{"host": "m3"}]
+    fresh = doc("4090-windows", "sha-fresh", {"s1": {"modelless_acc": 0.5}})
+    with tempfile.TemporaryDirectory() as td:
+        root = Path(td)
+        rc0, _ = run_main([published], root)
+        assert rc0 == 0
+        old_env = os.environ.get("PUBLISH_BENCH_FULL_REPLACE")
+        os.environ["PUBLISH_BENCH_FULL_REPLACE"] = "1"
+        buf = io.StringIO()
+        old_err = sys.stderr
+        sys.stderr = buf
+        try:
+            rc, served = run_main([fresh], root)
+        finally:
+            sys.stderr = old_err
+            if old_env is None:
+                os.environ.pop("PUBLISH_BENCH_FULL_REPLACE", None)
+            else:
+                os.environ["PUBLISH_BENCH_FULL_REPLACE"] = old_env
+        assert rc == 0, f"the env must acknowledge the replacement, rc={rc}"
+        assert "wholesale replacement acknowledged" in buf.getvalue(), \
+            buf.getvalue()
+        # the served file is now the fresh doc's content: the m3 host row
+        # and its clm lane are gone, exactly as acknowledged
+        hosts = {r["host"] for r in served["meta"]["hosts"]}
+        assert hosts == {"4090-win"}, hosts
+        assert "clm" not in served["suites"][0]
+
+
+def case_update_path_bypasses_the_wall():
+    """The safe shape (Issue 034's remedy): the CURRENT data/bench.json as
+    the primary — the docs land as lane-scoped updates and the guard never
+    fires, because merge() preserves every host container in place. Both
+    hosts move together (the Issue 023 T5 drift gate binds here too)."""
+    published = doc("m3", "sha-m3", {"s1": {"modelless_acc": 0.5,
+                                            "laya_p50": 4.0}})
+    published["suites"][0]["clm"] = {
+        "lane": "clm", "hard": {"accuracy": 0.55}}
+    published["suites"][0]["extra_host_lanes"] = {
+        "4090-win": {"modelless": {"lane": "modelless",
+                                   "hard": {"accuracy": 0.5}},
+                     "clm": {"lane": "clm", "hard": {"accuracy": 0.55}}},
+    }
+    published["meta"]["hosts"] = [{"host": "m3"}, {"host": "4090-win"}]
+    m3_update = doc("m3", "sha-m3post", {"s1": {"modelless_acc": 0.7}})
+    w4090_update = doc("4090-windows", "sha-4090post",
+                       {"s1": {"modelless_acc": 0.7}})
+    with tempfile.TemporaryDirectory() as td:
+        root = Path(td)
+        rc0, _ = run_main([published], root)
+        assert rc0 == 0
+        # the update doc list STARTS with the served file itself
+        served_path = root / "data" / "bench.json"
+        docs = []
+        for i, d in enumerate((m3_update, w4090_update)):
+            p = root / f"update{i}.json"
+            p.write_text(json.dumps(d), encoding="utf-8")
+            docs.append(str(p))
+        old = sys.argv
+        sys.argv = ["publish_bench.py", str(served_path), *docs, str(root)]
+        try:
+            rc = pb.main()
+        finally:
+            sys.argv = old
+        assert rc == 0, "the update path must never hit the wall"
+        served = json.loads(served_path.read_text("utf-8"))
+        s1 = served["suites"][0]
+        assert s1["modelless"]["hard"]["accuracy"] == 0.7, "modelless updated"
+        assert s1["laya"]["laya-riir"]["p50_ms"] == 4.0, "laya preserved"
+        assert "clm" in s1, "the comparison lane survived the update"
+        e = s1["extra_host_lanes"]["4090-win"]
+        assert "clm" in e and "modelless" in e, "4090 container intact"
+        assert e["modelless"]["hard"]["accuracy"] == 0.7, "4090 modelless updated"
+
+
+def case_lane_inventory_expands_laya_checkpoints():
+    """laya is a CLASS of checkpoint slots: a publish that drops one
+    checkpoint drops published cells, so the inventory must distinguish
+    them and the wall must fire on the loss."""
+    published = doc("m3", "sha-m3", {"s1": {"modelless_acc": 0.5,
+                                           "laya_p50": 4.0}})
+    published["suites"][0]["laya"]["laya-python"] = {
+        "lane": "laya-python", "p50_ms": 5.0}
+    inv = pb.lane_inventory(published)
+    assert ("s1", "m3-max-metal", "laya:laya-riir") in inv
+    assert ("s1", "m3-max-metal", "laya:laya-python") in inv
+    # the checkpoint-loss shape: a fresh doc carrying only the rust ckpt
+    fresh = doc("m3", "sha-fresh", {"s1": {"modelless_acc": 0.5,
+                                          "laya_p50": 4.0}})
+    dropped = pb.lane_inventory(published) - pb.lane_inventory(fresh)
+    assert ("s1", "m3-max-metal", "laya:laya-python") in dropped, dropped
 
 
 def case_end_to_end_main():
@@ -541,6 +699,10 @@ def case_device_variant_host_drops_modelless():
 CASES = [
     case_lane_carry_keeps_incumbent_timing,
     case_modelless_lane_facts_refresh_on_update,
+    case_fresh_docs_wipe_refused,
+    case_fresh_docs_wipe_acknowledged_by_env,
+    case_update_path_bypasses_the_wall,
+    case_lane_inventory_expands_laya_checkpoints,
     case_fleet_join_still_works,
     case_same_host_update_keeps_laya_and_row_facts,
     case_python_lane_update_flips_posture,
