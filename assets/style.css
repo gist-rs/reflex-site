@@ -277,3 +277,17 @@ a.brand:hover { text-decoration: underline; text-decoration-color: var(--line); 
 
 /* a standalone page (the playground) — an h1 of its own */
 h1.page-title { font-size: 36px; margin: 44px 0 8px; }
+
+/* ── home: the two-lanes section — lane process cards + structural diffs ── */
+#twolanes .cell h3 { margin: 8px 0 10px; font-size: 17px; color: var(--ember); }
+#twolanes .cell ol { margin: 0; padding-left: 18px; font-size: 13.5px; color: var(--muted); }
+#twolanes .cell ol li { margin: 0 0 9px; }
+#twolanes .cell ol li:last-child { margin-bottom: 0; }
+#twolanes .cell ol li b { color: var(--text); }
+#twolanes .cell code { color: var(--text); font-size: 12.5px; }
+.diffs { overflow-x: auto; }
+.diffs table { width: 100%; border-collapse: collapse; font-size: 13.5px; margin-top: 20px; }
+.diffs th, .diffs td { padding: 8px 10px; text-align: left; border-bottom: 1px solid var(--line); vertical-align: top; }
+.diffs thead th { color: var(--muted); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; }
+.diffs td:first-child { color: var(--text); font-weight: 600; white-space: nowrap; }
+.diffs td { color: var(--muted); }

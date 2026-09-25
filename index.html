@@ -74,6 +74,111 @@
     </figure>
   </section>
 
+  <section id="twolanes">
+    <h2>Coming from LLMs? The two lanes, mapped.</h2>
+    <p class="sub">
+      Reflex's decision core is <strong>modelless</strong> — if your instinct is
+      <em>new domain → collect data → fine-tune</em>, the loop you know isn't here. The corpus is
+      the model, and the fitting that does exist is a build step, not a training run. Here is what
+      each lane actually is: the product lane (KatGPT modelless) and the open-weights lane it is
+      measured against (laya). Accuracy and latency live on the
+      <a href="/bench/">benchmark page</a>; this is about the machinery.
+    </p>
+
+    <div class="teaser">
+      <div class="cell">
+        <span class="lbl">KATGPT MODELLESS — the product lane</span>
+        <h3>The corpus is the model.</h3>
+        <ol>
+          <li><b>Fit time: a build step, not a training run.</b> You author documents per domain.
+            The build derives three artifacts from them — an LZ4 drafter over the text (a
+            compression model of the domain), a unit centroid (the domain's routing direction),
+            and a distance gate (what "in-corpus" means) — and can optionally fit per-label
+            linear heads from the same labeled docs.</li>
+          <li><b>Serve time.</b> Embed the state — hashed bytes through a fixed projection —
+            route by cosine to the closest domain, score every option by the bytes it adds to
+            the context's compressed form blended with its cosine to that option's corpus (plus an optional fitted-head term),
+            normalize with a sigmoid, then pass two thresholds fitted offline from
+            <em>your</em> labeled slice. Answer — or abstain.</li>
+          <li><b>New domain.</b> Write documents, label a small calibration slice, refit.
+            No GPU, no dataset pipeline. The "checkpoint" is a folder of text you can read and
+            diff in a PR — and a refit is bit-identical.</li>
+        </ol>
+      </div>
+      <div class="cell">
+        <span class="lbl">LAYA — the open-weights comparison lane</span>
+        <h3>The weights are the model.</h3>
+        <ol>
+          <li><b>Fit time: someone else's training run.</b> Pretrained 322M–421M encoder
+            checkpoints arrive with weights fixed. The typed lane is a separate specialist
+            checkpoint, trained on the typed-decision distribution.</li>
+          <li><b>Serve time.</b> Tokenize, run one forward pass, read per-option probabilities
+            off the head.</li>
+          <li><b>New domain.</b> Accept the base checkpoint's zero-shot behavior — or produce a
+            new specialist: a dataset and a training run.</li>
+          <li><b>Role here.</b> A comparison, never a dependency. The lane rides the binary but
+            its weights do not ride the archive — they load from Hugging Face at runtime
+            (SHA-256-verified) and are never redistributed.</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="diffs">
+      <table>
+        <thead>
+          <tr><th>structural axis</th><th>KatGPT modelless</th><th>laya open-weights</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Where knowledge lives</td><td>documents you can read, diff, review (any fitted heads are rebuilt from them)</td><td>322M–421M weights nobody reads</td></tr>
+          <tr><td>New domain</td><td>author docs + refit from a labeled slice (a build step)</td><td>zero-shot from the base — or train a new specialist checkpoint</td></tr>
+          <tr><td>Updating</td><td>edit a document and rebuild — deterministic; thresholds (and optional heads) refit from the same slice</td><td>gather data, retrain — or prompt around it</td></tr>
+          <tr><td>Abstain</td><td>a designed output: distance gate + calibrated confidence, distribution attached</td><td>not a primitive in the lane — it always answers; thresholding is the caller's job</td></tr>
+          <tr><td>Calibration</td><td>a Platt-style 2-parameter refit from your labeled slice, audited (G1)</td><td>raw head probabilities; recalibration is left to you</td></tr>
+          <tr><td>Determinism</td><td>claimed and gated — cross-host bit-identity is enforced at publish</td><td>repeat runs have matched — reproduced, not claimed; no cross-device gate</td></tr>
+          <tr><td>Breadth</td><td>bounded by the corpus — it cannot know what the corpus never said</td><td>pretraining carries zero-shot breadth</td></tr>
+          <tr><td>Off-corpus behavior</td><td>declines — abstains, distribution still attached</td><td>answers anyway — no off-corpus gate exists in the lane</td></tr>
+          <tr><td>Deploy footprint</td><td>KB–MB of corpus text</td><td>~GB-scale weights, downloaded at runtime — never redistributed</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <details class="faq">
+      <summary>So where does the learning happen?</summary>
+      <p>In small, deterministic, replayable fits — not a training run. The confidence
+      calibration is a 2-parameter Platt-style solve (Newton, bit-identical on replay); the two
+      abstain thresholds are percentiles of your calibration slice; and, where a lane opts in,
+      per-label linear heads are fitted at build time by a short fixed-order SGD that also
+      replays bit-identically. No neural network is trained, no GPU is booked. Optionally, the
+      running engine keeps learning its calibration: a <code>/feedback</code> endpoint refits it
+      from outcome observations.</p>
+    </details>
+    <details class="faq">
+      <summary>Is this RAG? k-NN?</summary>
+      <p>Closest cousins: nearest-centroid classification for routing, retrieval-flavored scoring
+      for options. The twist is the scorer — an LZ4 drafter treats the corpus as a compression
+      dictionary, so "how many bytes does this option add to the context" is a predictability
+      signal with no learned parameters. The cosine term is what actually ranks options; the
+      drafter delta alone can't (a 4-byte option barely moves a ~300-byte context's compressed
+      size).</p>
+    </details>
+    <details class="faq">
+      <summary>When does each lane make sense?</summary>
+      <p>The modelless lane is native territory when the answer space is typed and the domain is
+      yours to describe: routing states, code spans, workflow decisions — anywhere you can author
+      documents and label a calibration slice. Trained checkpoints win where you can't author the
+      domain: broad pretraining knowledge, open-class NLU. They also compose — the abstain is a
+      routing decision for the caller, so a declined local answer can escalate to a model only
+      when there's signal to gain.</p>
+    </details>
+    <details class="faq">
+      <summary>And the game boards — where does the "grammar" live?</summary>
+      <p>The arena's game heads encode state and options as closed-grammar sentences, so every
+      answer decodes back to exact feature values. That grammar is a lane-local convention for
+      game boards — not the engine's. For text domains, the documents themselves are the
+      vocabulary: no grammar authoring, just docs.</p>
+    </details>
+  </section>
+
   <section id="explore">
     <h2>Start here</h2>
     <p class="sub">Four doors into the same engine — pick the one that matches what you're doing today.</p>
