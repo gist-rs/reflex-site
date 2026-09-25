@@ -33,6 +33,12 @@ Docs apply in argv order. The first doc's suites shape the tables (run the
 superset run first). A previously-published data/bench.json is a valid
 primary for a re-publish (its meta.hosts seed the seen-host set).
 
+Display host spellings (2026-09-25): HOST_DISPLAY renames machine labels at
+the LOAD boundary — `m3-ane` → `m3-max-ane`, `4090-windows` → `4090-win` —
+the same law as LANE_DISPLAY (raw results keep their REFLEX_BENCH_HOST
+names; the rename happens here, the one place every published byte passes
+through, so a re-publish can never drift from the page).
+
 The bench page renders whatever bench.json carries — regenerating the site
 tables is: re-run the harness in riir-reflex, then run this script, commit,
 deploy. A hand-typed number on the site is a defect by definition.
@@ -86,6 +92,36 @@ LANE_DISPLAY = {
 # doc, and the display name in a previously-published bench.json.
 PYTHON_LANE_SPELLINGS = ("laya-python", LANE_DISPLAY["laya-python"])
 
+# Display-only host spellings (the same law as LANE_DISPLAY: the canonical
+# results keep the REFLEX_BENCH_HOST machine labels — the rename happens
+# HERE, the one place every published byte passes through, so a re-publish
+# can never drift from the page). Applied at the LOAD boundary: meta.host,
+# every meta.hosts row, and every extra_host_lanes key — so merge keys,
+# the drift gate and the output all see one spelling, and re-publishing a
+# renamed bench.json as primary is a no-op (idempotent by construction).
+HOST_DISPLAY = {
+    "m3-ane": "m3-max-ane",
+    "4090-windows": "4090-win",
+}
+
+
+def display_host(h):
+    return HOST_DISPLAY.get(h, h)
+
+
+def rename_hosts(d):
+    m = d.get("meta") or {}
+    if m.get("host"):
+        m["host"] = display_host(m["host"])
+    for row in m.get("hosts") or []:
+        if row.get("host"):
+            row["host"] = display_host(row["host"])
+    for s in d.get("suites", []):
+        lanes = s.get("extra_host_lanes")
+        if lanes:
+            s["extra_host_lanes"] = {display_host(k): v
+                                     for k, v in lanes.items()}
+
 
 def rename_lanes(d):
     for s in d.get("suites", []):
@@ -122,6 +158,7 @@ def load_run(path):
               "unlabeled run (set REFLEX_BENCH_HOST on the harness run)",
               file=sys.stderr)
         sys.exit(1)
+    rename_hosts(d)
     return d
 
 

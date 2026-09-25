@@ -235,8 +235,12 @@ def case_end_to_end_main():
         s1 = served["suites"][0]
         assert s1["modelless"]["lane"] == "KatGPT"
         assert s1["laya"]["laya-riir"]["lane"] == "laya (rust)"
-        e = s1["extra_host_lanes"]["4090-windows"]
+        # HOST_DISPLAY: the machine label renames at the load boundary —
+        # the served file carries the display spelling only.
+        assert "4090-windows" not in s1.get("extra_host_lanes", {})
+        e = s1["extra_host_lanes"]["4090-win"]
         assert e["laya"]["laya-riir"]["lane"] == "laya (rust)"
+        assert served["meta"]["hosts"][-1]["host"] == "4090-win"
 
 
 def case_code_fixtures_population_excluded_from_drift_gate():
@@ -341,6 +345,39 @@ def case_clm_lane_and_leak_block_ride_an_update():
     assert d["suites"][0]["clm"]["lane"] == "clm (reference)"
 
 
+def case_host_display_rename_at_load_boundary():
+    # HOST_DISPLAY renames machine labels to the page spellings at the LOAD
+    # boundary (merge stays spelling-agnostic): meta.host, every
+    # meta.hosts row, every extra_host_lanes key. Idempotent — loading an
+    # already-renamed doc is a no-op, so a re-publish with a renamed
+    # bench.json as primary works.
+    d = doc("4090-windows", "sha-w", {"s1": {"modelless_acc": PRE_ACC}})
+    d["meta"]["hosts"] = [{"host": "m3"}, {"host": "m3-ane"},
+                          {"host": "4090-windows"}]
+    d["suites"][0]["extra_host_lanes"] = {
+        "m3-ane": {"modelless": {"lane": "modelless",
+                                 "hard": {"accuracy": PRE_ACC}}},
+        "4090-windows": {"modelless": {"lane": "modelless",
+                                       "hard": {"accuracy": PRE_ACC}}},
+    }
+    with tempfile.TemporaryDirectory() as td:
+        p = Path(td) / "doc.json"
+        p.write_text(json.dumps(d), encoding="utf-8")
+        loaded = pb.load_run(str(p))
+    assert loaded["meta"]["host"] == "4090-win"
+    assert [h["host"] for h in loaded["meta"]["hosts"]] == \
+        ["m3", "m3-max-ane", "4090-win"]
+    keys = set(loaded["suites"][0]["extra_host_lanes"])
+    assert keys == {"m3-max-ane", "4090-win"}, keys
+    # idempotent: the display spellings load back unchanged
+    with tempfile.TemporaryDirectory() as td:
+        p2 = Path(td) / "doc.json"
+        p2.write_text(json.dumps(loaded), encoding="utf-8")
+        again = pb.load_run(str(p2))
+    assert again["meta"]["host"] == "4090-win"
+    assert set(again["suites"][0]["extra_host_lanes"]) == keys
+
+
 CASES = [
     case_fleet_join_still_works,
     case_same_host_update_keeps_laya_and_row_facts,
@@ -351,6 +388,7 @@ CASES = [
     case_code_fixtures_population_excluded_from_drift_gate,
     case_device_posture_refreshes_on_laya_update,
     case_clm_lane_and_leak_block_ride_an_update,
+    case_host_display_rename_at_load_boundary,
     case_extra_suite_absent_in_primary_refuses,
     case_end_to_end_main,
 ]

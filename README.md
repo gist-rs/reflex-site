@@ -82,7 +82,10 @@ python3 ../reflex-site/scripts/publish_bench.py \
 
 `REFLEX_BENCH_HOST` names the host in results.json meta (the per-host merge
 key — use a self-describing label like `m3` or `4090-windows`, not a bare
-uname). The publish script MERGES per-host rows (Issue 018): the FIRST
+uname). Machine labels are machine-side; the page spellings are the
+publisher's job — `HOST_DISPLAY` renames `m3-ane` → `m3-max-ane` and
+`4090-windows` → `4090-win` at load, and the raw files keep their
+`REFLEX_BENCH_HOST` labels. The publish script MERGES per-host rows (Issue 018): the FIRST
 results doc is the primary (its suites shape the tables; run the superset
 run first), every further doc contributes `meta.hosts` rows + per-suite
 `extra_host_lanes`. It REFUSES on modelless accuracy drift between hosts

@@ -89,7 +89,28 @@
         <strong>laya (rust)</strong> — our Rust port running the open-weights laya checkpoints on the local GPU
         (device noted per run: Metal, or the Apple Neural Engine where the lane serves it).
         <strong>laya (python)</strong> — the original torch reference, driven as a subprocess oracle on the same cases.
-        <strong>clm (reference)</strong> — the external Contrastive-LM reference (Apache-2.0, not affiliated): Qwen3-8B pooling + trained heads, served on its own stack and measured on ours — a comparison lane.</p>
+        <strong>clm (reference)</strong> — the external Contrastive-LM reference (Apache-2.0, not affiliated): Qwen3-8B pooling + trained heads, served on its own stack and measured on ours — a comparison lane
+        (full detail in the clm entry below).</p>
+
+      <h3>Tell me more about the clm (reference) lane</h3>
+      <p>CLM (Contrastive Language Models) is an external, unaffiliated research project — an Apache-2.0
+        "System One" decision model (Kwok, Kang, Suresh, Saad-Falcon, Pavone, Ré, Mirhoseini —
+        <a href="https://github.com/Contrastive-LM/CLM">github.com/Contrastive-LM/CLM</a> ·
+        <a href="https://contrastive-lm.notion.site">project blog</a>). Architecture: a frozen Qwen3-8B
+        encoder with last-token pooling plus ~20M-parameter state/action heads trained with a contrastive
+        (InfoNCE) objective, so a softmax over state–action scores <em>is</em> the answer distribution.
+        These rows use their reference head <code>CLM-v0.1-8B</code> (75 MB,
+        <a href="https://huggingface.co/Contrastive-LM/CLM-v0.1-8B">on Hugging Face</a>).</p>
+      <p>How we measure it: their stack serves, ours measures. The lane runs on the 4090 box — one vLLM
+        Qwen3-8B pooling server plus <code>clm-serve</code> (the heads) behind their TypeSafe-compatible
+        <code>/v1/systemone</code> endpoint — and our harness drives it with the same byte-identical
+        questions as every other lane. Their prompt/prose rendering is byte-pinned against the reference
+        implementation (goldens generated from their own Python at the pinned commit <code>cca045ff</code>),
+        so the comparison is their rendering law, not our paraphrase of it. Latency figures include the
+        HTTP round-trip, and their published "9× vs Jev" speedup — measured against Jev's remote endpoint,
+        network included — deliberately does not carry into these tables. CLM is a comparison lane only:
+        it is not part of Reflex and ships in no release; accuracy columns compare it exactly as they
+        compare everyone else.</p>
 
       <h3>What is the ANE device row?</h3>
       <p>Some laya (rust) runs serve from the Apple Neural Engine — the encoder executes as one compiled whole-graph
@@ -134,6 +155,10 @@
 
     <h2 style="margin-top:40px">Notes</h2>
     <div class="notes"><ul>
+      <li><strong>No <code>@box</code> tag means the M3 by default</strong> — the primary host
+        <code>m3</code> is this page's baseline machine, so its lanes are untagged; only lanes measured on
+        other boxes carry a <code>@host</code> tag (<code>@m3-max-ane</code>, <code>@4090-win</code>).
+        Hardware for every box: <a href="#machines">Machines</a> below.</li>
       <li>Accuracy chance level differs per suite (a 3-way and a 77-way task are not comparable) — compare lanes within
         a suite, never one suite's bar with another's.</li>
       <li>The hero chart shows one checkpoint per laya lane: the best non-multilingual one for that suite, picked once
@@ -164,6 +189,23 @@
         <a href="https://huggingface.co/datasets/mteb/banking77">banking77</a></li>
       <li>Calibration (ECE): Guo et al., <a href="https://arxiv.org/abs/1706.04599">On Calibration of Modern Neural Networks</a> (2017)</li>
       <li>Conformal floor: Angelopoulos &amp; Bates, <a href="https://arxiv.org/abs/2107.07511">A Gentle Introduction to Conformal Prediction</a> (2021)</li>
+      <li>clm reference: <a href="https://github.com/Contrastive-LM/CLM">Contrastive-LM/CLM</a>
+        (Apache-2.0, pinned <code>cca045ff</code>) · head
+        <a href="https://huggingface.co/Contrastive-LM/CLM-v0.1-8B">CLM-v0.1-8B</a> ·
+        <a href="https://contrastive-lm.notion.site">project blog</a></li>
+    </ul></div>
+
+    <h2 id="machines" style="margin-top:40px">Machines</h2>
+    <div class="notes"><ul>
+      <li><strong><code>m3</code> / <code>@m3-max-ane</code> — MacBook Pro (Mac15,8)</strong>: Apple M3 Max —
+        16-core CPU (12 performance + 4 efficiency), 40-core integrated GPU (Metal 4), 64 GB unified
+        memory, macOS 26.6.2. One machine, two device rows: <code>m3</code> serves the laya lane from
+        Metal; <code>@m3-max-ane</code> is the same box with the encoder compiled as a whole-graph Core ML
+        model on the Apple Neural Engine (FP16, decision-level gated — see the ANE entry above).</li>
+      <li><strong><code>@4090-win</code> — desktop, Windows 11 Pro</strong>: Intel Core i7-13700K (16 cores /
+        24 threads), 32 GB RAM, NVIDIA GeForce RTX 4090 (24 GB GDDR6X, driver 610.62). Serves the
+        <code>@4090-win</code> laya rows (CUDA) and the clm reference lane (vLLM Qwen3-8B pooling +
+        <code>clm-serve</code> heads), so those lanes share this box's silicon and thermals.</li>
     </ul></div>
 
     <p class="sub" style="margin-top:26px">
