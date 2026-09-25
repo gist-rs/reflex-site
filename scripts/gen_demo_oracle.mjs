@@ -119,6 +119,9 @@ for (const [game, file, stateKey] of [
   })();
   const RECORDED_KEYS = [
     "tetris_walk", "tetris_head_walk", "tetris_raw_walk", "tetris_python_walk",
+    // katgpt-rs examples/tetris_09_site_walk.rs, merged by
+    // scripts/merge_rulebook_walk.mjs (the rulebook lane never runs here)
+    "tetris_rulebook_walk",
     "flappy_python", "flappy_raw", "lanes_python", "lanes_raw",
   ];
   // …and their provenance rows (recorder, host, timing transport, summary)

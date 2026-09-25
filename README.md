@@ -73,6 +73,16 @@ node scripts/record_demo_walks.mjs http://127.0.0.1:7331 --python ../riir-reflex
 node scripts/arena_demo_check.mjs && node scripts/arena_head_parity.mjs && node scripts/arena_demo_smoke.mjs
 ```
 
+The KatGPT rulebook walk (`tetris_rulebook_walk`, the katgpt-rs Issue 892
+hybrid FSM champion) is recorded in katgpt-rs, not against the engine, and
+merged after a stream + chain-replay check (`arena_demo_check.mjs` re-checks
+it; `gen_demo_oracle.mjs` preserves it):
+
+```sh
+(cd ../katgpt-rs && cargo run --release --example tetris_09_site_walk -- --out /tmp/walk.json)
+node scripts/merge_rulebook_walk.mjs /tmp/walk.json
+```
+
 `--python` points at a riir-reflex checkout: its `scripts/laya_python_lane.py`
 (the bench's own torch oracle, `.raw/laya` + the cached weights) scores the
 laya (Python) lane; its reels must match the laya (Rust) fixture within 1e-3
