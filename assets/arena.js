@@ -93,7 +93,7 @@ async function loadDemo() {
 
 function demoStatusText() {
   if (arenaHeadReady()) {
-    return "no local engine — the KatGPT modelless board PLAYS LIVE in-tab (fitted head · WebAssembly · zero engine); laya (Rust), laya (Python) and the raw baseline replay recorded games";
+    return "no local engine — the KatGPT modelless board PLAYS LIVE in-tab (fitted head · WebAssembly · zero engine); laya (Rust), laya (Python), the raw baseline and the rulebook search replay recorded games";
   }
   return "no local engine — RECORDED DEMO playing (Plan 607 oracle) · start the engine, then press Start to go live";
 }
