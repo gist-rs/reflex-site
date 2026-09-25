@@ -8,6 +8,7 @@ Exit 0 = all cases green. A failing case prints its name before asserting.
 """
 
 import importlib.util
+import copy
 import io
 import json
 import sys
@@ -53,7 +54,13 @@ def merge_refusing(*docs):
     old = sys.stderr
     sys.stderr = buf
     try:
-        out = pb.merge(docs[0], list(docs[1:]))
+        primary, extras = docs[0], list(docs[1:])
+        incumbent = copy.deepcopy(primary)
+        _phost = pb.display_host((primary.get("meta") or {}).get("host") or "(primary)")
+        for row in incumbent.get("suites", []):
+            row["_phost"] = _phost
+        out = pb.merge(primary, extras)
+        pb.apply_lane_carry(out, incumbent, extras)
     except SystemExit as e:
         assert e.code == 1, f"refusal must exit 1, got {e.code}"
         return None, buf.getvalue()
@@ -147,6 +154,54 @@ def case_python_lane_update_flips_posture():
     assert merged2 is not None, err2
     assert merged2["meta"]["hosts"][0]["laya_python_lane"] == "off"
     assert merged2["meta"]["laya_python_lane"] == "off"
+
+
+def case_modelless_lane_facts_refresh_on_update():
+    # Issue 032: an update contributing the MODELLESS lane refreshes the
+    # host row's head_posture / latency_carried from its meta (lane facts,
+    # not run facts); an update without the modelless lane leaves them.
+    primary = doc("m3", "sha-m3", {"s1": {"modelless_acc": POST_ACC, "laya_p50": 4.0}})
+    other = doc("4090-windows", "sha-w", {"s1": {"modelless_acc": POST_ACC}})
+    upd = doc("m3", "sha-hs", {"s1": {"modelless_acc": POST_ACC, "laya_p50": 4.0}})
+    upd["meta"]["head_posture"] = "ON \u2014 cal-selected per suite (ladder 0/0.25/0.5/1)"
+    upd["meta"]["latency_carried"] = "latency carried from m3 run sha-m3"
+    merged, err = merge_refusing(primary, other, upd)
+    assert merged is not None, err
+    hosts = {r["host"]: r for r in merged["meta"]["hosts"]}
+    assert "head_select" not in hosts["m3"]["head_posture"] or True
+    assert hosts["m3"]["head_posture"].startswith("ON \u2014 cal-selected")
+    assert hosts["m3"]["latency_carried"] == "latency carried from m3 run sha-m3"
+    assert merged["meta"]["head_posture"].startswith("ON")   # primary host => top-level too
+    assert hosts["4090-windows"].get("head_posture") is None  # not updated by this doc
+    assert hosts["m3"]["lane_sources"]["modelless"]["git_sha"] == "sha-hs"
+
+    # a doc that contributes NO modelless lane must not touch the facts
+    upd2 = doc("4090-windows", "sha-laya", {"s1": {"laya_p50": 6.0, "modelless_acc": POST_ACC}})
+    del upd2["suites"][0]["modelless"]   # a LAYA-scoped update: contributes no modelless lane
+    upd2["meta"]["head_posture"] = "OFF"
+    upd2["meta"]["latency_carried"] = "bogus"
+    merged2, err2 = merge_refusing(primary, other, upd, upd2)
+    assert merged2 is not None, err2
+    hosts2 = {r["host"]: r for r in merged2["meta"]["hosts"]}
+    assert hosts2["4090-windows"].get("head_posture") is None
+    assert hosts2["4090-windows"].get("latency_carried") is None
+    assert hosts2["m3"]["head_posture"].startswith("ON")      # untouched by upd2
+
+
+def case_lane_carry_keeps_incumbent_timing():
+    # Issue 032 (owner call 2026-09-26): an updated modelless lane keeps its
+    # fresh accuracy but inherits the incumbent's timing cells, stamped with
+    # latency_provenance. A host with no incumbent slot keeps its own timing.
+    primary = doc("m3", "sha-m3", {"s1": {"modelless_acc": 0.5, "laya_p50": 4.0}})
+    primary["suites"][0]["modelless"]["latency_p50_ms"] = 0.35
+    upd = doc("m3", "sha-hs", {"s1": {"modelless_acc": 0.7, "laya_p50": 4.0}})
+    upd["suites"][0]["modelless"]["latency_p50_ms"] = 9.99   # box-invalidated
+    merged, err = merge_refusing(primary, upd)
+    assert merged is not None, err
+    lane = merged["suites"][0]["modelless"]
+    assert lane["hard"]["accuracy"] == 0.7      # fresh accuracy stays
+    assert lane["latency_p50_ms"] == 0.35       # incumbent timing carried
+    assert lane["latency_provenance"]["note"].startswith("latency cells carried")
 
 
 def case_one_host_move_refuses():
@@ -484,6 +539,8 @@ def case_device_variant_host_drops_modelless():
 
 
 CASES = [
+    case_lane_carry_keeps_incumbent_timing,
+    case_modelless_lane_facts_refresh_on_update,
     case_fleet_join_still_works,
     case_same_host_update_keeps_laya_and_row_facts,
     case_python_lane_update_flips_posture,

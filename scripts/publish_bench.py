@@ -57,6 +57,7 @@ tables is: re-run the harness in riir-reflex, then run this script, commit,
 deploy. A hand-typed number on the site is a defect by definition.
 """
 
+import copy
 import json
 import sys
 from pathlib import Path
@@ -89,6 +90,32 @@ HOST_META_KEYS = (
 # meta keys recorded per UPDATED lane on a host row (lane_sources) — the
 # update run's provenance for exactly the lanes it contributed.
 LANE_SOURCE_KEYS = ("git_sha", "date_utc")
+
+# Modelless lane-fact postures (Issue 032): refreshed on a host row when an
+# update contributes the MODELLESS lane — head_posture names the fitted-head
+# posture ("off"/absent = the published baseline), latency_carried discloses
+# that the lane's latency cells were CARRIED from an earlier run while the
+# accuracy is fresh (the 2026-09-26 accuracy-first landing; the lane dict's
+# latency_provenance field names the source run). The laya_python_lane /
+# laya_device class: a LANE fact, never a run fact.
+LANE_FACT_META_KEYS = ("head_posture", "latency_carried")
+
+# The LANE-CARRY law (Issue 032, owner call 2026-09-26): LANE_CARRY.latency
+# names the lane dicts whose TIMING cells are carried from the host's
+# incumbent run while the accuracy columns are fresh. Applied after the
+# merge lands: an updated lane of a carried class has its five latency
+# fields replaced by the primary's (or its own extra_host_lanes') values
+# and gains `latency_provenance` naming that source run. Without this law
+# a lane-scoped update would silently replace validated latency cells with
+# box-invalidated ones (the accuracy bit-identity gate cannot see timing).
+LANE_CARRY = {"latency": ("modelless",)}
+
+# The five timing fields a carried lane inherits from its incumbent (the
+# raw LaneResult's latency block; `seconds` is the suite wall time).
+LANE_LATENCY_FIELDS = (
+    "latency_p50_ms", "latency_p99_ms", "latency_extremes",
+    "latency_tail_support", "seconds",
+)
 
 # Display-only lane spellings. The canonical results.json keeps the machine
 # fields ("laya-riir" / "laya-python" / "modelless" / "clm" / "gliner" /
@@ -360,6 +387,17 @@ def merge(primary, extras):
                 for lane in updated_lanes:
                     src[lane] = {k: emeta[k] for k in LANE_SOURCE_KEYS
                                  if k in emeta}
+                # The modelless lane-fact postures (Issue 032): an update
+                # that contributes the MODELLESS lane refreshes the row's
+                # head_posture / latency_carried from its meta — these are
+                # properties of the LANE, not the host's original run (the
+                # laya_python_lane / laya_device class just below).
+                if "modelless" in updated_lanes:
+                    for k in LANE_FACT_META_KEYS:
+                        if k in emeta:
+                            row[k] = emeta[k]
+                            if ehost == phost:
+                                pmeta[k] = emeta[k]
             # riir-reflex Issue 025 T4: the python-lane posture is a LANE
             # fact, not a run fact. An update that contributes python lanes
             # must replace the row's "off", or the published file says "off"
@@ -429,6 +467,63 @@ def merge(primary, extras):
     return primary
 
 
+def apply_lane_carry(d, incumbent_snapshot, extras):
+    """The LANE-CARRY law (LANE_CARRY, Issue 032, owner call 2026-09-26):
+    an updated lane of a carried class keeps its fresh ACCURACY columns but
+    has its TIMING cells replaced by the host's incumbent run's values, with
+    `latency_provenance` naming that source run. The incumbent values come
+    from the PRE-MERGE snapshot of the primary doc (its row-level lanes AND
+    its extra_host_lanes cover every host the publish knew before this
+    run). Without this law a lane-scoped update would silently replace
+    validated latency cells with box-invalidated ones — the accuracy
+    bit-identity gate cannot see timing."""
+    for s in d.get("suites", []):
+        snap = next((r for r in incumbent_snapshot.get("suites", [])
+                     if r["name"] == s["name"]), None)
+        if snap is None:
+            continue
+        phost = display_host((d.get("meta") or {}).get("host") or "(primary)")
+        for lane_key in LANE_CARRY["latency"]:
+            for host, target in _host_lane_slots(s, lane_key, phost):
+                src_lane = _host_lane_slot(snap, host, lane_key)
+                if src_lane is not None:
+                    _carry_into(target, src_lane)
+
+
+def _host_lane_slots(suite, lane_key, phost):
+    """(host, lane-dict) pairs for lane_key on this suite row: the primary
+    host's own slot first, then every extra host's."""
+    out = []
+    row_lane = suite.get(lane_key)
+    if row_lane is not None:
+        out.append((phost, row_lane))
+    for host, hl in (suite.get("extra_host_lanes") or {}).items():
+        l = hl.get(lane_key)
+        if l is not None:
+            out.append((host, l))
+    return out
+
+
+def _host_lane_slot(snapshot_suite, host, lane_key):
+    """The incumbent lane dict for `host` from the pre-merge snapshot. The
+    snapshot's row-level slot belongs to its _phost (the primary host);
+    every other host's incumbent lives in its extra_host_lanes."""
+    if host == snapshot_suite.get("_phost"):
+        return snapshot_suite.get(lane_key)
+    hl = (snapshot_suite.get("extra_host_lanes") or {}).get(host)
+    return (hl or {}).get(lane_key)
+
+
+def _carry_into(lane, incumbent):
+    if incumbent is None or lane is incumbent:
+        return
+    for k in LANE_LATENCY_FIELDS:
+        if k in incumbent:
+            lane[k] = incumbent[k]
+    lane["latency_provenance"] = {
+        "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)",
+    }
+
 def main() -> int:
     if len(sys.argv) < 3:
         print(__doc__)
@@ -437,7 +532,12 @@ def main() -> int:
     primary = load_run(results_paths[0])
     extras = [load_run(p) for p in results_paths[1:]]
 
+    incumbent = copy.deepcopy(primary)   # pre-merge snapshot: every host's
+    _phost = display_host((primary.get("meta") or {}).get("host") or "(primary)")
+    for row in incumbent.get("suites", []):   # own lane dicts, before any
+        row["_phost"] = _phost                # update replaced them
     d = merge(primary, extras)
+    apply_lane_carry(d, incumbent, extras)
 
     meta = d.get("meta", {})
     for k in DROP_META_KEYS:
