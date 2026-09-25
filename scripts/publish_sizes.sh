@@ -21,17 +21,26 @@ set -eu
 
 SITE_ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 
-echo "== 1/4 publish_sizes self-test (synthetic sources, no network)"
+echo "== 1/5 publish_sizes self-test (synthetic sources, no network)"
 python3 "$SITE_ROOT/scripts/test_publish_sizes.py"
 
-echo "== 2/4 generate data/sizes.json (live sources; refuses on any failure)"
+echo "== 2/5 generate data/sizes.json (live sources; refuses on any failure)"
 python3 "$SITE_ROOT/scripts/publish_sizes.py"
 
-echo "== 3/4 structural gate over the committed file"
+echo "== 3/5 structural gate over the committed file"
 python3 "$SITE_ROOT/scripts/publish_sizes.py" --check
 
-echo "== 4/4 size-chart render smoke (zero-dep)"
+echo "== 4/5 size-chart render smoke (zero-dep)"
 node "$SITE_ROOT/scripts/size_chart_smoke.cjs"
+
+echo "== 5/5 home-page browser smoke (the /#sizes placement + render)"
+if node -e "require('playwright')" >/dev/null 2>&1; then
+    node "$SITE_ROOT/scripts/home_page_smoke.cjs"
+else
+    echo "SKIP (loud): playwright not installed — install with:"
+    echo "  npm i --no-save playwright && npx playwright install chromium"
+    echo "the publish itself is unaffected; run the smoke before deploying"
+fi
 
 echo
 echo "== done. remaining steps (manual by design):"

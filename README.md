@@ -210,7 +210,11 @@ host + date + the exact command, and is re-measured per bench window, not
 estimated). Any failed source REFUSES loudly — a partial footprint report
 never renders as a complete one. The self-test
 (`scripts/test_publish_sizes.py`) covers the merge laws and the refusal
-arms; `scripts/size_chart_smoke.cjs` is the zero-dep render check.
+arms; `scripts/size_chart_smoke.cjs` is the zero-dep render check;
+`scripts/home_page_smoke.cjs` is the headless-chromium check (the /#sizes
+placement + render against the REAL page — needs playwright locally, the
+bench-smoke posture: installed with `npm i --no-save playwright && npx
+playwright install chromium`, skipped loudly by the wrapper when absent).
 
 ## Mirrored docs surfaces
 
