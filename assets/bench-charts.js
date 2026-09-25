@@ -290,7 +290,9 @@
 
   // ── summary: the compact averaged chart (the landing page) ──────────────
   // The /bench/ hero with the per-suite separation removed: ONE bar per lane
-  // per metric, averaged over every suite that lane ran on the primary host.
+  // per metric, averaged over every suite that lane ran (a comparison lane
+  // whose primary-host cell is absent falls back to its extra-host cell, as
+  // on the full chart — the tooltip names the host).
   // Accuracy metrics are macro-averages (suites count equally, exactly like
   // the hero's rows); latency is the GEOMETRIC mean — the average that
   // matches the log axis (bar position = mean of the per-suite bar
@@ -303,18 +305,23 @@
 
   function laneAvg(d, m, lane) {
     const vals = [];
+    const hosts = new Set();
     for (const s of d.suites || []) {
-      const l = pick(s, lane);
+      // pick() returns [lane, host] — host names the extra-host cell when the
+      // primary host never ran this lane (the comparison-lane fallback)
+      const picked = pick(s, lane);
+      const l = picked ? picked[0] : null;
       if (!l) continue;
       const v = METRICS[m].get(l);
       if (!num(v) || (METRICS[m].log && v <= 0)) continue;
       vals.push(v);
+      if (picked[1]) hosts.add(picked[1]);
     }
     if (!vals.length) return null;
     const avg = METRICS[m].log
       ? Math.exp(vals.reduce((a, v) => a + Math.log(v), 0) / vals.length)
       : vals.reduce((a, v) => a + v, 0) / vals.length;
-    return { value: avg, n: vals.length };
+    return { value: avg, n: vals.length, hosts: [...hosts] };
   }
 
   function summaryBody() {
@@ -326,6 +333,7 @@
       const how = M.log ? "geometric mean" : "macro-average";
       const tip = `<span class="bc-sw" style="background:${lane.color}"></span><b>${esc(lane.label)}</b><br>` +
         `${how} over <b>${a.n}</b> suites: <b>${f(a.value)}</b>` +
+        (a.hosts.length ? `<br><span class="bc-mut">includes extra-host cells: ${a.hosts.map((h) => "@" + esc(h)).join(", ")}</span>` : "") +
         (M.log ? " — log axis, so the bar sits at the mean of the per-suite bars" : "");
       return `<div class="bc-hlabel"><i class="bc-sw" style="background:${lane.color}"></i>${esc(lane.label)}</div>` +
         `<div class="bc-htrack">${grid(m)}` +
@@ -335,7 +343,7 @@
     const note = (M.log
       ? "Latency bars are geometric means — on a log axis that is the average; each gridline = 10×, shorter is faster. "
       : "Accuracy bars are macro-averages — every suite counts equally; chance level differs per suite, so compare lanes within a bar, not bars with each other. ") +
-      `Averaged over every suite the lane ran on the primary host (${(d.suites || []).length} published); checkpoints follow the same pick as the full chart — best non-multilingual.`;
+      `Averaged over every suite the lane ran (${(d.suites || []).length} published); comparison lanes may include extra-host cells — the hover names them. Checkpoints follow the same pick as the full chart — best non-multilingual.`;
     return `<div class="bc-hgrid"><div></div>${axis(m)}${rows}<div></div>${axis(m)}</div><p class="bc-note">${esc(note)}</p>`;
   }
 
