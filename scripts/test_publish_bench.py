@@ -439,6 +439,50 @@ def case_agentjev_lane_rides_an_update():
     assert d["suites"][0]["agentjev"]["lane"] == "agentjev (reference)"
 
 
+
+
+def case_device_variant_host_drops_modelless():
+    """The DEVICE_VARIANT_HOSTS law (2026-09-25): the ANE host is the same
+    physical M3 as the baseline, so only its laya lanes merge — a doc that
+    declares modelless publishes NO "modelless @m3-max-ane" rows, and a
+    previously-published bench.json carrying the old-shape rows is cleaned
+    when re-merged as primary."""
+    primary = doc("m3", "sha-m3", {"s1": {"modelless_acc": 0.5, "laya_p50": 4.0}})
+    ane = doc("m3-ane", "sha-ane", {"s1": {"modelless_acc": 0.5,
+                                           "laya_p50": 2.0}})
+    pb.rename_hosts(ane)  # load_run's rename half — merge sees one spelling
+    merged, err = merge_refusing(primary, ane)
+    assert merged is not None, f"merge must pass, got: {err}"
+    s1 = next(s for s in merged["suites"] if s["name"] == "s1")
+    entry = s1["extra_host_lanes"]["m3-max-ane"]  # renamed at the load boundary
+    assert "laya" in entry and "laya-riir" in entry["laya"]
+    assert "modelless" not in entry, "device-independent lane must not merge"
+    assert "modelless@m3-max-ane" in err, "the skip must be disclosed loudly"
+    hosts = {r["host"]: r for r in merged["meta"]["hosts"]}
+    assert set(hosts) == {"m3", "m3-max-ane"}
+
+    # A published bench.json that predates the law re-merges CLEAN: the
+    # old-shape "modelless @m3-max-ane" rows are stripped, the laya row
+    # and the 4090 modelless row (a genuinely different box) survive.
+    prior = doc("m3", "sha-m3", {"s1": {"modelless_acc": 0.5, "laya_p50": 4.0}})
+    prior["suites"][0]["extra_host_lanes"] = {
+        "m3-max-ane": {
+            "modelless": {"lane": "modelless", "hard": {"accuracy": 0.5}},
+            "laya": {"laya-riir": {"lane": "laya-riir", "p50_ms": 2.0}},
+        },
+        "4090-win": {
+            "modelless": {"lane": "modelless", "hard": {"accuracy": 0.5}},
+        },
+    }
+    merged2, err2 = merge_refusing(prior)
+    assert merged2 is not None, f"re-merge must pass, got: {err2}"
+    s1b = next(s for s in merged2["suites"] if s["name"] == "s1")
+    ehl = s1b["extra_host_lanes"]
+    assert "modelless" not in ehl["m3-max-ane"]
+    assert "laya" in ehl["m3-max-ane"]
+    assert "modelless" in ehl["4090-win"], "a different box keeps its row"
+
+
 CASES = [
     case_fleet_join_still_works,
     case_same_host_update_keeps_laya_and_row_facts,
@@ -452,10 +496,10 @@ CASES = [
     case_host_display_rename_at_load_boundary,
     case_gliner_lane_rides_an_update,
     case_agentjev_lane_rides_an_update,
+    case_device_variant_host_drops_modelless,
     case_extra_suite_absent_in_primary_refuses,
     case_end_to_end_main,
 ]
-
 
 def main() -> int:
     for c in CASES:

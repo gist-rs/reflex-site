@@ -39,6 +39,18 @@ the same law as LANE_DISPLAY (raw results keep their REFLEX_BENCH_HOST
 names; the rename happens here, the one place every published byte passes
 through, so a re-publish can never drift from the page).
 
+Device-variant hosts (2026-09-25): DEVICE_VARIANT_HOSTS names a host that
+is the SAME physical machine as another published host, differing only in
+laya serving device (`m3-max-ane` = the m3 baseline box with the encoder on
+the Apple Neural Engine). Only the device-sensitive lanes (laya) merge from
+such a host — the modelless lane is pure-CPU and device-independent, so its
+row under the device tag is a tagged duplicate of the base machine's own
+row (the "KatGPT · modelless @m3-max-ane" confusion), and the comparison
+lanes have no device-variant posture. Skips are disclosed on stderr, and a
+previously-published bench.json re-published as primary is CLEANED of the
+old-shape rows (a re-publish can only converge on the law, never preserve
+a violation).
+
 The bench page renders whatever bench.json carries — regenerating the site
 tables is: re-run the harness in riir-reflex, then run this script, commit,
 deploy. A hand-typed number on the site is a defect by definition.
@@ -106,6 +118,26 @@ HOST_DISPLAY = {
     "m3-ane": "m3-max-ane",
     "4090-windows": "4090-win",
 }
+
+# Device-variant hosts: the SAME physical machine as another host, serving
+# the laya lane from a different device — "m3-max-ane" is the m3 baseline
+# box with the encoder compiled as a whole-graph Core ML model for the
+# Apple Neural Engine. Only the DEVICE-SENSITIVE lanes (the laya
+# checkpoints) are publishable from such a host. The modelless lane is
+# pure-CPU and device-independent: publishing it under the ANE tag is a
+# duplicate of the baseline box's own row wearing a label that names a
+# device the lane never touches (measured 2026-09-25: identical accuracy
+# to full float precision, p50 within run noise — the "KatGPT · modelless
+# @m3-max-ane" confusion row). Comparison lanes (clm / gliner / agentjev)
+# are external services measured on their own serving host; they have no
+# device-variant posture either and are skipped the same way, with a loud
+# stderr disclosure. Applied in merge() on BOTH paths: a raw extra doc's
+# top-level lanes at carry time, and a previously-published bench.json's
+# already-merged extra_host_lanes (a re-publish cleans the old rows).
+DEVICE_VARIANT_HOSTS = {
+    "m3-max-ane": "m3",
+}
+DEVICE_VARIANT_KEEP = ("laya",)
 
 
 def display_host(h):
@@ -201,6 +233,19 @@ def merge(primary, extras):
         hosts_order.insert(0, phost)
 
     p_suites = {s["name"]: s for s in primary.get("suites", [])}
+    skipped_variant_lanes = []
+
+    # A previously-published bench.json as primary may already carry
+    # device-variant rows merged before this law existed — strip them here
+    # so a re-publish cleans the old shape instead of re-publishing it.
+    for s in p_suites.values():
+        variant_lanes = s.get("extra_host_lanes") or {}
+        for vhost, hl in variant_lanes.items():
+            if vhost not in DEVICE_VARIANT_HOSTS:
+                continue
+            for key in [k for k in hl if k not in DEVICE_VARIANT_KEEP]:
+                skipped_variant_lanes.append(f"{key}@{vhost}")
+                del hl[key]
 
     def host_lane_entry(suite, host):
         """The writable lane container for `host` on this suite row."""
@@ -218,6 +263,11 @@ def merge(primary, extras):
         excluded = []
         updated_lanes = {}
         python_lanes = False
+        # Device-variant host (the DEVICE_VARIANT_HOSTS law): only the
+        # laya lanes cross the merge — the rest of this doc's lanes are
+        # device-independent and would publish as tagged duplicates of the
+        # base machine's own rows.
+        device_variant = ehost in DEVICE_VARIANT_HOSTS
         for s in extra.get("suites", []):
             name = s["name"]
             p = p_suites.get(name)
@@ -240,9 +290,11 @@ def merge(primary, extras):
                 continue
             entry = host_lane_entry(p, ehost)
             em, el = s.get("modelless"), (s.get("laya") or {})
-            if em:
+            if em and not device_variant:
                 entry["modelless"] = em
                 updated_lanes["modelless"] = True
+            elif em:
+                skipped_variant_lanes.append(f"modelless@{ehost}")
             for lk, lv in el.items():
                 entry.setdefault("laya", {})[lk] = lv
                 updated_lanes[f"laya:{lk}"] = True
@@ -253,22 +305,28 @@ def merge(primary, extras):
             # away. No cross-host gate: it is an external reference
             # measured per-host, no bit-identity claim applies.
             ec = s.get("clm")
-            if ec:
+            if ec and not device_variant:
                 entry["clm"] = ec
                 updated_lanes["clm"] = True
+            elif ec:
+                skipped_variant_lanes.append(f"clm@{ehost}")
             # The GLiNER comparison lane (reflex .issues/029): the same
             # carry law as clm — an external reference measured per-host.
             eg = s.get("gliner")
-            if eg:
+            if eg and not device_variant:
                 entry["gliner"] = eg
                 updated_lanes["gliner"] = True
+            elif eg:
+                skipped_variant_lanes.append(f"gliner@{ehost}")
             # The AgentJev comparison lane (reflex .issues/025 amendment
             # 4): the same carry law — an external reference measured
             # per-host.
             ea = s.get("agentjev")
-            if ea:
+            if ea and not device_variant:
                 entry["agentjev"] = ea
                 updated_lanes["agentjev"] = True
+            elif ea:
+                skipped_variant_lanes.append(f"agentjev@{ehost}")
             # The Issue-024 leak block (T4): a slice property of the
             # DATASETS + registry caps, not of the host — the latest
             # run's scan is the published one (a doc without it never
@@ -311,6 +369,14 @@ def merge(primary, extras):
             if updated_lanes and any(k.startswith("laya:") for k in updated_lanes) \
                     and "laya_device" in emeta:
                 row["laya_device"] = emeta["laya_device"]
+
+    if skipped_variant_lanes:
+        print(
+            "note: device-variant host lanes skipped (device-independent "
+            "lanes of a device row publish as tagged duplicates of the base "
+            f"machine): {', '.join(sorted(set(skipped_variant_lanes)))}",
+            file=sys.stderr,
+        )
 
     # FINAL-state cross-host drift gate (Issue 018 T7, mechanized on the
     # state that would be published): every host carrying the modelless
@@ -391,7 +457,14 @@ def main() -> int:
     # The sanitized file is the ONLY thing the site serves.
     out = site_root / "data" / "bench.json"
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(json.dumps(d, indent=1) + "\n", encoding="utf-8")
+    # LF line endings EXPLICITLY: a text-mode default write translates
+    # \n to os.linesep, so a publish from the Windows box flips the whole
+    # file to CRLF and the next POSIX publish diffs every line (measured
+    # 2026-09-25 — the committed file was CRLF from a Windows publish).
+    # The bytes are host-independent, one more thing the one-publish pass
+    # owns end to end.
+    with open(out, "w", encoding="utf-8", newline="\n") as f:
+        f.write(json.dumps(d, indent=1) + "\n")
     n_suites = len(d.get("suites", []))
     hosts = ", ".join(r.get("host", "?") for r in meta.get("hosts", []))
     print(f"published {out} ({n_suites} suites; hosts: {hosts}; dropped "
