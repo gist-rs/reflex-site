@@ -172,7 +172,9 @@ function scoreChart(host, games) {
 
 // ── chart 2: time to judge one spot (log scale) ──────────────────────────
 function latencyChart(host, games) {
-  const rows = games.filter((g) => g.p50 != null);
+  // Fastest first (owner call) — the bars read as a ranking; color still
+  // follows the lane, never the rank.
+  const rows = games.filter((g) => g.p50 != null).sort((a, b) => a.p50 - b.p50);
   const W = 920, rowH = 30, L = 190, R = 110, TOP = 6, B = 30;
   const H = TOP + rows.length * rowH + B;
   const pw = W - L - R;
