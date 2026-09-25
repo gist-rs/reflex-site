@@ -199,7 +199,9 @@
   // positions). Same lane pick rule as hero(): best non-multilingual
   // checkpoint per suite, so both charts always agree lane-for-lane. The
   // per-suite separation lives on /bench/ and only there.
-  let summaryData = null, summaryMetric = "acc";
+  // the landing page defaults to the speed story — the reason Reflex exists;
+  // /bench/'s hero keeps its own accuracy default
+  let summaryData = null, summaryMetric = "p50";
 
   function laneAvg(d, m, lane) {
     const vals = [];
