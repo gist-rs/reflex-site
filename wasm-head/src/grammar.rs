@@ -3,7 +3,10 @@
 //! fitted game heads answer (riir-reflex `src/game_heads.rs` is the
 //! canonical serving port; this is the in-tab wasm twin):
 //!
-//! - `laya-tetris-v2` spot (5 slots) — the tetris head;
+//! - `laya-tetris-v2` spot (5 slots) — the tetris head (the v2/v3 grammars
+//!   share the SPOT template; only the drop rule differs, which is sim-side
+//!   — the v3 refit (Bench 892) scores v3 spot sentences through this same
+//!   decoder);
 //! - `laya-flappy-v3` option (3 slots) + state (3 slots) — the flappy head
 //!   (Bench 882's decoded arm; the option sentence carries band + offset +
 //!   neutral post-motion, the state sentence supplies rel/v/h).

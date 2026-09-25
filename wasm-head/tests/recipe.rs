@@ -10,7 +10,7 @@
 //!    byte-identically — the same drift detector the engine runs);
 //! 4. the recipes (the LOO-selected λ and the published anchors reproduce
 //!    from the fixtures INDEPENDENTLY of the blobs: tetris Bench 881 λ=1
-//!    44/120 + 44/120; flappy v3 Bench 882 λ=1 96/100 + 96/100 + the
+//!    42/120 + 42/120 (v3 refit Bench 892); flappy v3 Bench 882 λ=1 96/100 + 96/100 + the
 //!    published full head digest);
 //! 5. the boot path (the shared `boot::run` — the exact sequence the wasm
 //!    module executes — verifies the anchors and is bit-deterministic);
@@ -27,7 +27,7 @@ use arena_head_wasm::gen::{self, FLAPPY_D, FLAPPY_F, LANES_D, LANES_F, TETRIS_D,
 /// The cross-repo data contract — the hex the engine pins in
 /// `riir-reflex/src/game_heads.rs`.
 const TETRIS_FIXTURE_PIN: &str =
-    "f32c8577bca50726618d2bb4fb27c904148161d650f16a59c01676a97fa540bb";
+    "12035ebf43d0293c7ec00e716e72ee6a21686cc41a222938a81d0abd9316e804";
 /// The Bench 882 decoded-arm head digest (katgpt-rs
 /// `examples/decode_01_losslessness.rs` `FLAPPY_V3_DECODED_HEAD_ANCHOR`).
 const FLAPPY_HEAD_PIN: &str =
@@ -159,7 +159,7 @@ fn the_tetris_recipe_selects_lambda_1_and_hits_the_anchors() {
         .zip(c.argmaxes.iter())
         .filter(|(p, a)| **p == **a as usize)
         .count();
-    assert_eq!(loo_agree, 44, "LOO agreement drifted from Bench 881");
+    assert_eq!(loo_agree, 42, "LOO agreement drifted from the v3 refit (Bench 892)");
     let head = fitter.fit_into(&rows, &c.targets, lambda);
     let in_agree = (0..c.argmaxes.len())
         .filter(|&s| {
@@ -170,7 +170,7 @@ fn the_tetris_recipe_selects_lambda_1_and_hits_the_anchors() {
             ) == c.argmaxes[s] as usize
         })
         .count();
-    assert_eq!(in_agree, 44, "in-corpus agreement drifted from Bench 881");
+    assert_eq!(in_agree, 42, "in-corpus agreement drifted from the v3 refit (Bench 892)");
 }
 
 #[test]
@@ -291,8 +291,8 @@ fn the_committed_blobs_boot_to_the_published_anchors_and_are_deterministic() {
             "tetris",
             include_bytes!("../src/tetris_corpus.bin").as_slice(),
             1.0,
-            44u32,
-            44u32,
+            42u32,
+            42u32,
             2660usize,
             120usize,
         ),

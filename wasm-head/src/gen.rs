@@ -19,10 +19,11 @@ pub use crate::{FLAPPY_D, FLAPPY_F, LANES_D, LANES_F, TETRIS_D, TETRIS_F};
 
 /// The fixture, verbatim from katgpt-rs `tests/fixtures/` via the
 /// riir-reflex serving copy (`assets/game_heads/`). The engine pins this
-/// bytes BLAKE3 `f32c8577…f40bb`; the native test asserts the copy.
-pub const FIXTURE: &str = include_str!("../fixtures/tetris_oracle_laya_en_v2.jsonl");
+/// bytes BLAKE3 `12035ebf…6e804` (the v3 fixture, katgpt-rs
+/// tetris_oracle_v3_README); the native test asserts the copy.
+pub const FIXTURE: &str = include_str!("../fixtures/tetris_oracle_laya_en_v3.jsonl");
 pub const FIXTURE_BLAKE3: &str =
-    "f32c8577bca50726618d2bb4fb27c904148161d650f16a59c01676a97fa540bb";
+    "12035ebf43d0293c7ec00e716e72ee6a21686cc41a222938a81d0abd9316e804";
 
 /// The flappy v3 fixture, verbatim from katgpt-rs `tests/fixtures/` (the
 /// Bench 882 record — the decoded arm's published anchors: λ=1, 96/100
@@ -260,8 +261,8 @@ pub fn build_corpus_bytes() -> Vec<u8> {
 
     // sanity: never emit a blob that disagrees with the published story
     assert_eq!(lambda, 1.0, "LOO-selected λ drifted from the published fit");
-    assert_eq!(in_agree, 44, "in-corpus agreement drifted from Bench 881");
-    assert_eq!(loo_agree, 44, "LOO agreement drifted from Bench 881");
+    assert_eq!(in_agree, 42, "in-corpus agreement drifted from the v3 refit (Bench 892)");
+    assert_eq!(loo_agree, 42, "LOO agreement drifted from the v3 refit (Bench 892)");
 
     let mut flat = Vec::with_capacity(n * TETRIS_F);
     for r in &c.raws {

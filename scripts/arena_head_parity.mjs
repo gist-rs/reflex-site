@@ -31,7 +31,7 @@ const mask = e.head_ready();
 assert.equal(rc, 0, `head_init refused (${rc}) — a head is broken`);
 assert.equal(mask & 1, 1, "the tetris head did not boot");
 assert.equal(e.head_lambda(), 1.0, "tetris λ drifted from the published fit");
-assert.equal(e.head_anchor(), 44, "tetris in-corpus anchor did not reproduce");
+assert.equal(e.head_anchor(), 42, "tetris in-corpus anchor did not reproduce (v3 refit Bench 892)");
 assert.equal(mask & 2, 2, "the flappy head did not boot");
 assert.equal(e.head_flappy_lambda(), 1.0, "flappy λ drifted from the Bench 882 fit");
 assert.equal(e.head_flappy_anchor(), 96, "flappy in-corpus anchor did not reproduce");

@@ -11,8 +11,8 @@
 //! u32  n_options    design rows
 //! u32  n_states     LOO units
 //! f64  lambda       the recipe's selected λ (LOO over the pinned grid)
-//! u32  in_anchor    in-corpus agreement at λ (tetris Bench 881: 44; flappy v3 Bench 882: 96)
-//! u32  loo_anchor   LOO agreement at λ      (tetris Bench 881: 44; flappy v3 Bench 882: 96)
+//! u32  in_anchor    in-corpus agreement at λ (tetris v3 refit Bench 892: 42; flappy v3 Bench 882: 96)
+//! u32  loo_anchor   LOO agreement at λ      (tetris v3 refit Bench 892: 42; flappy v3 Bench 882: 96)
 //! u32  feat_width   decoded feature width F (tetris: 5; flappy: 8)
 //! u32  offsets      (n_states+1) state row ranges
 //! u8   argmaxes     n_states oracle decisions (lowest-index tie-break)

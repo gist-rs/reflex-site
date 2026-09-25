@@ -4,8 +4,9 @@ The engine's fitted game heads (riir-reflex `src/game_heads.rs` is the
 canonical serving port) compiled to **WebAssembly**, so the arena's
 latent-first lane plays in-tab with **zero engine**:
 
-- **tetris** — `laya-tetris-v2` spot sentences, Bench 881's decoded arm
-  (λ=1, 44/120 in-corpus + LOO);
+- **tetris** — `laya-tetris-v3` spot sentences, the v3 refit (Bench 892:
+  λ=1, 42/120 in-corpus + LOO; was Bench 881's v2 44/120 — the v2-fitted
+  head measured raw-class play under v3 sentences, demo re-record 2026-09-25);
 - **flappy** — `laya-flappy-v3` (state, option) sentence PAIRS, Bench 882's
   decoded arm — the structured-units reconstruction (λ=1, 96/100
   in-corpus + LOO, full head digest pinned). The joined-state protocol
@@ -24,8 +25,9 @@ latent-first lane plays in-tab with **zero engine**:
 
 This is NOT a second model. It is the engine's own published recipe —
 
-1. decode the spot sentence through the `laya-tetris-v2` grammar (5 class
-   ordinals),
+1. decode the spot sentence through the `laya-tetris` spot grammar (5 class
+   ordinals; the v2/v3 spot templates are identical — the drop rule is
+   sim-side),
 2. standardize by the corpus stats,
 3. score = linear head `w·x` (ridge, λ selected by state-level LOO over the
    pinned grid),

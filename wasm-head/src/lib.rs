@@ -11,7 +11,7 @@
 //!
 //! - build time (`tests/recipe.rs`): each committed blob regenerates
 //!   byte-identically, the full recipe (LOO λ selection included) hits the
-//!   published anchors (tetris: Bench 881 λ=1, 44/120 + 44/120; flappy v3:
+//!   published anchors (tetris: v3 refit Bench 892 λ=1, 42/120 + 42/120; flappy v3:
 //!   Bench 882 λ=1, 96/100 + 96/100 + the full head digest; lanes: Bench
 //!   880 λ=0.01, 84/100 + 84/100 + the head-digest prefix — the decode arm
 //!   is EXACTLY lossless), the grammars round-trip every corpus sentence,
