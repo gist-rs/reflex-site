@@ -398,12 +398,17 @@
         ? `<i class="bc-range" style="left:${(fLo * 100).toFixed(2)}%;width:${Math.max((fHi - fLo) * 100, 0.6).toFixed(2)}%;background:${lane.color}40;border-color:${lane.color}"></i>`
         : "";
       // the value label rides just past the band's right edge (band end or
-      // the mean tick, whichever is further), clamped so it never overflows
-      const labelLeft = Math.min(Math.max(fHi, fAv) + 0.01, 0.82) * 100;
+      // the mean tick, whichever is further); once the band reaches past
+      // ~84% there IS no room outside, so the label tucks INSIDE the right
+      // end (absolute + chip-backed via CSS) instead of sitting mid-band
+      const maxEnd = Math.max(fHi, fAv);
+      const valStyle = maxEnd <= 0.84
+        ? `margin-left:${((maxEnd + 0.01) * 100).toFixed(2)}%`
+        : "margin-left:0;position:absolute;right:0.4%;top:50%;transform:translateY(-50%);";
       return `<div class="bc-hlabel"><i class="bc-sw" style="background:${lane.color}"></i>${esc(lane.label)}</div>` +
         `<div class="bc-htrack">${grid(m)}` +
         `<div class="bc-hbar" tabindex="0" data-tip="${esc(tip)}" aria-label="${esc(`${lane.label} averaged: ${f(a.value)} over ${a.n} suites (min ${f(a.min)}, max ${f(a.max)})`)}">` +
-        `${band}<i class="bc-mark" style="left:${(fAv * 100).toFixed(2)}%;background:${lane.color}"></i><span class="bc-val" style="margin-left:${labelLeft.toFixed(2)}%">${f(a.value)}</span></div></div>`;
+        `${band}<i class="bc-mark" style="left:${(fAv * 100).toFixed(2)}%;background:${lane.color}"></i><span class="bc-val" style="${valStyle}">${f(a.value)}</span></div></div>`;
     }).join("");
     const note = (M.log
       ? "Latency bands span each suite's p50 (min → max); the tick marks the geometric mean — on a log axis that is the average; each gridline = 10×, shorter is faster. "
