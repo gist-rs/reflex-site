@@ -12,7 +12,7 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 
 const {
   PIECE_COLORS, UNKNOWN_COLOR, PieceBag, withAlpha,
-  newStampGrid, clearRowsGrid, replayStamps,
+  newStampGrid, clearRowsGrid, replayStamps, reachableFromTop, liveOptions,
 } = await import("./tetris_view.js");
 const T = await import("./tetris.js");
 const { Rng } = await import("./rng.js");
@@ -136,4 +136,49 @@ test("recorded demo walk replays with per-piece stamps end to end", () => {
     console.log(`${name}: ${replayed}/${walk.length} turns replayed with stamps`);
     assert.ok(replayed > 0, `${name}: at least the clean prefix must replay`);
   }
+});
+
+// ── live-play drop rule (katgpt-rs Issue 884) ────────────────────────────
+
+const emptyBoard = () => Array.from({ length: T.HEIGHT }, () => Array(T.WIDTH).fill(false));
+
+test("reachableFromTop: an O under a solid roof is a tunnelled spot", () => {
+  const b = emptyBoard();
+  const roof = T.HEIGHT - 3;
+  for (let c = 0; c < 4; c++) b[roof][c] = true;
+  const opts = T.buildTurn(b, "O");
+  const cave = opts.find((o) => o.col === 0);
+  // The pinned sim rests it in the cave BELOW the roof (the v2 semantics)...
+  assert.equal(cave.row, roof + 1);
+  assert.equal(reachableFromTop(b, cave), false);
+  // ...and the live set drops exactly the spots whose column is roofed.
+  const live = liveOptions(b, opts);
+  assert.deepEqual(live.map((o) => o.col), opts.filter((o) => o.col >= 4).map((o) => o.col));
+  // Two-sided: with the roof open at col 0-1 the same spot is reachable.
+  b[roof][0] = b[roof][1] = false;
+  const open = T.buildTurn(b, "O").find((o) => o.col === 0);
+  assert.equal(reachableFromTop(b, open), true);
+});
+
+test("reachableFromTop: every spot on an empty board is reachable", () => {
+  const b = emptyBoard();
+  for (const piece of T.PIECES) {
+    const opts = T.buildTurn(b, piece);
+    assert.equal(liveOptions(b, opts).length, opts.length, piece);
+  }
+});
+
+test("pinned corpus: exactly 3 of 2660 v2 options are tunnelled (Issue 884)", () => {
+  const fx = path.resolve(here, "../../tests/fixtures/tetris_oracle_laya_en_v2.jsonl");
+  const rows = readFileSync(fx, "utf8").trim().split("\n").map(JSON.parse).filter((r) => r.board);
+  let options = 0;
+  let tunnelled = 0;
+  for (const r of rows) {
+    const b = T.fromStrings(r.board);
+    const opts = T.buildTurn(b, r.piece);
+    options += opts.length;
+    tunnelled += opts.length - liveOptions(b, opts).length;
+  }
+  assert.equal(options, 2660);
+  assert.equal(tunnelled, 3);
 });

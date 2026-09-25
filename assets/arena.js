@@ -10,7 +10,7 @@ import { Rng } from "./games/rng.js";
 import * as T from "./games/tetris.js";
 import {
   PIECE_COLORS, UNKNOWN_COLOR, withAlpha,
-  PieceBag, newStampGrid, clearRowsGrid, replayStamps,
+  PieceBag, newStampGrid, clearRowsGrid, replayStamps, liveOptions,
 } from "./games/tetris_view.js";
 import * as F from "./games/flappy.js";
 import * as L from "./games/lanes.js";
@@ -481,7 +481,10 @@ class TetrisBoard {
     }
     const piece = demoRec ? demoRec[2] : this.bag.next();
     this.curPiece = piece;
-    this.opts = T.buildTurn(this.board, piece);
+    // Recorded walks index the pinned v2 option order; live play drops
+    // spots a real hard drop cannot reach (katgpt-rs Issue 884).
+    const allOpts = T.buildTurn(this.board, piece);
+    this.opts = demoRec ? allOpts : liveOptions(this.board, allOpts);
     if (this.opts.length === 0) {
       this.over = true;
       setReadout(this.ui.readout, {

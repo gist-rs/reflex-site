@@ -75,6 +75,30 @@ export class PieceBag {
   }
 }
 
+// ── live-play drop rule (katgpt-rs Issue 884) ────────────────────────────
+
+/** Is `opt` (a buildTurn/landingOptions entry) reachable by a real hard
+ * drop — straight down from the top of the board in its rotation and
+ * column? The pinned sim rests a piece at the DEEPEST collision-free row,
+ * so under an overhang it passes through the roof into the cave below
+ * (3 of 2660 pinned-corpus options). Reachable iff every row above the
+ * rest row is collision-free too. Live play only: recorded walks index
+ * the unfiltered v2 option order and must stay byte-identical (Issue 878). */
+export function reachableFromTop(board, opt) {
+  for (let r = 0; r < opt.row; r++) {
+    const shift = r - opt.row;
+    for (const [cr, cc] of opt.cells) {
+      if (board[cr + shift][cc]) return false;
+    }
+  }
+  return true;
+}
+
+/** The live-play option set: drop tunnelled spots, keep pinned order. */
+export function liveOptions(board, opts) {
+  return opts.filter((o) => reachableFromTop(board, o));
+}
+
 // ── per-cell piece recovery for recorded-demo boards ─────────────────────
 
 function boardsEqual(a, b) {
