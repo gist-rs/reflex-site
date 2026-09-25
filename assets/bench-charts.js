@@ -345,8 +345,8 @@
 
 
   // ── summary: the compact averaged chart (the landing page) ──────────────
-  // The /bench/ hero with the per-suite separation removed: ONE bar per lane
-  // per metric, averaged over every suite that lane ran (a comparison lane
+  // The /bench/ hero with the per-suite separation RESTORED as a range: one
+  // min–max band + average tick per lane per metric (a comparison lane
   // whose primary-host cell is absent falls back to its extra-host cell, as
   // on the full chart — the tooltip names the host).
   // Accuracy metrics are macro-averages (suites count equally, exactly like
@@ -359,8 +359,8 @@
   // /bench/'s hero keeps its own accuracy default
   let summaryData = null, summaryMetric = "p50";
 
-  function laneAvg(d, m, lane) {
-    const vals = [];
+  function laneStats(d, m, lane) {
+    const vals = [], perSuite = [];
     const hosts = new Set();
     for (const s of d.suites || []) {
       // pick() returns [lane, host] — host names the extra-host cell when the
@@ -371,35 +371,44 @@
       const v = METRICS[m].get(l);
       if (!num(v) || (METRICS[m].log && v <= 0)) continue;
       vals.push(v);
+      perSuite.push([s.name, v]);
       if (picked[1]) hosts.add(picked[1]);
     }
     if (!vals.length) return null;
     const avg = METRICS[m].log
       ? Math.exp(vals.reduce((a, v) => a + Math.log(v), 0) / vals.length)
       : vals.reduce((a, v) => a + v, 0) / vals.length;
-    return { value: avg, n: vals.length, hosts: [...hosts] };
+    return { value: avg, min: Math.min(...vals), max: Math.max(...vals), n: vals.length, perSuite, hosts: [...hosts] };
   }
 
   function summaryBody() {
     const d = summaryData, m = summaryMetric, M = METRICS[m], f = fmtOf(m);
     const rows = LANES.map((lane) => {
-      const a = laneAvg(d, m, lane);
+      const a = laneStats(d, m, lane);
       if (!a) return "";
-      const fr = frac(m, a.value);
+      const fLo = frac(m, a.min), fHi = frac(m, a.max), fAv = frac(m, a.value);
       const how = M.log ? "geometric mean" : "macro-average";
+      const spread = a.n > 1 ? `min <b>${f(a.min)}</b> · max <b>${f(a.max)}</b>` : "single suite";
+      const per = a.perSuite.map(([name, v]) => `${esc(name)}: <b>${f(v)}</b>`).join("<br>");
       const tip = `<span class="bc-sw" style="background:${lane.color}"></span><b>${esc(lane.label)}</b><br>` +
-        `${how} over <b>${a.n}</b> suites: <b>${f(a.value)}</b>` +
+        `${how} over <b>${a.n}</b> suites: <b>${f(a.value)}</b> — band = per-suite range (${spread})` +
         (a.hosts.length ? `<br><span class="bc-mut">includes extra-host cells: ${a.hosts.map((h) => "@" + esc(h)).join(", ")}</span>` : "") +
-        (M.log ? " — log axis, so the bar sits at the mean of the per-suite bars" : "");
+        `<br><span class="bc-mut">${per}</span>`;
+      const band = a.n > 1
+        ? `<i class="bc-range" style="left:${(fLo * 100).toFixed(2)}%;width:${Math.max((fHi - fLo) * 100, 0.6).toFixed(2)}%;background:${lane.color}40;border-color:${lane.color}"></i>`
+        : "";
+      // the value label rides just past the band's right edge (band end or
+      // the mean tick, whichever is further), clamped so it never overflows
+      const labelLeft = Math.min(Math.max(fHi, fAv) + 0.01, 0.82) * 100;
       return `<div class="bc-hlabel"><i class="bc-sw" style="background:${lane.color}"></i>${esc(lane.label)}</div>` +
         `<div class="bc-htrack">${grid(m)}` +
-        `<div class="bc-hbar" tabindex="0" data-tip="${esc(tip)}" aria-label="${esc(`${lane.label} averaged: ${f(a.value)} over ${a.n} suites`)}">` +
-        `<i style="width:${(fr * 100).toFixed(2)}%;background:${lane.color}"></i><span class="bc-val">${f(a.value)}</span></div></div>`;
+        `<div class="bc-hbar" tabindex="0" data-tip="${esc(tip)}" aria-label="${esc(`${lane.label} averaged: ${f(a.value)} over ${a.n} suites (min ${f(a.min)}, max ${f(a.max)})`)}">` +
+        `${band}<i class="bc-mark" style="left:${(fAv * 100).toFixed(2)}%;background:${lane.color}"></i><span class="bc-val" style="margin-left:${labelLeft.toFixed(2)}%">${f(a.value)}</span></div></div>`;
     }).join("");
     const note = (M.log
-      ? "Latency bars are geometric means — on a log axis that is the average; each gridline = 10×, shorter is faster. "
-      : "Accuracy bars are macro-averages — every suite counts equally; chance level differs per suite, so compare lanes within a bar, not bars with each other. ") +
-      `Averaged over every suite the lane ran (${(d.suites || []).length} published); comparison lanes may include extra-host cells — the hover names them. Checkpoints follow the same pick as the full chart — best non-multilingual.`;
+      ? "Latency bands span each suite's p50 (min → max); the tick marks the geometric mean — on a log axis that is the average; each gridline = 10×, shorter is faster. "
+      : "Accuracy bands span each suite's value (min → max); the tick marks the macro-average — every suite counts equally; chance level differs per suite, so compare lanes within a row, not rows with each other. ") +
+      `Averaged over every suite the lane ran (${(d.suites || []).length} published); a lane with a single suite shows its tick only; comparison lanes may include extra-host cells — the hover lists per-suite values and names them. Checkpoints follow the same pick as the full chart — best non-multilingual.`;
     return `<div class="bc-hgrid"><div></div>${axis(m)}${rows}<div></div>${axis(m)}</div><p class="bc-note">${esc(note)}</p>`;
   }
 
@@ -409,7 +418,7 @@
     tooltip();
     const btns = Object.entries(METRICS).map(([k, M]) =>
       `<button type="button" data-metric="${k}" aria-pressed="${k === summaryMetric}">${esc(M.label)}${M.log ? " (log)" : ""}</button>`).join("");
-    el.innerHTML = `<div class="bc-bar"><div class="bc-legend"><span>every published suite, one averaged bar per lane — the same data as <a href="/bench/">the full benchmark</a></span></div>` +
+    el.innerHTML = `<div class="bc-bar"><div class="bc-legend"><span>every published suite, one min–avg–max range per lane — the same data as <a href="/bench/">the full benchmark</a></span></div>` +
       `<div class="bc-toggle" role="group" aria-label="metric">${btns}</div></div><div class="bc-summary-body">${summaryBody()}</div>`;
     el.querySelector(".bc-toggle").addEventListener("click", (e) => {
       const b = e.target.closest("button[data-metric]");

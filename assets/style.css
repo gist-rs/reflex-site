@@ -238,6 +238,9 @@ a.brand:hover { text-decoration: underline; text-decoration-color: var(--line); 
 .bc-hbar.bc-none { height: 6px; font-size: 9.5px; line-height: 6px; color: var(--muted); opacity: .7; }
 .bc-val { font-size: 11.5px; color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
 .bc-grid { position: absolute; top: -4px; bottom: -4px; width: 1px; background: var(--line); opacity: .7; }
+.bc-hbar .bc-range { position: absolute; top: 0; bottom: 0; border: 1px solid; border-radius: 3px; }
+.bc-hbar .bc-mark { position: absolute; top: -3px; bottom: -3px; width: 2px; transform: translateX(-1px); border-radius: 1px; }
+.bc-summary-body .bc-hbar { height: 8px; }
 .bc-axis { position: relative; height: 14px; font-size: 10.5px; color: var(--muted); }
 .bc-axis span { position: absolute; transform: translateX(-50%); white-space: nowrap; }
 .bc-axis span:first-child { transform: none; }

@@ -80,6 +80,20 @@ python3 ../reflex-site/scripts/publish_bench.py \
     <results-primary.json> [results-extra.json ...] ../reflex-site
 ```
 
+One wrapper mechanises the whole flow (self-test -> publish -> docs-mirror
+parity -> the bench-page smoke when playwright is installed):
+
+```sh
+scripts/republish_bench.sh <results-primary.json> [results-extra.json ...]
+```
+
+The home page is NOT a separate number to maintain: its TL;DR + averaged
+chart render from `data/bench.json` too (`assets/app.js`), so republishing
+the tables IS the home-page update. Land the bench, re-run the harness +
+this publish in the same effort, then commit + deploy. A stale publish is
+diagnosable from the page itself: `meta.lane_sources` carries the git sha
+per lane.
+
 `REFLEX_BENCH_HOST` names the host in results.json meta (the per-host merge
 key — use a self-describing label like `m3` or `4090-windows`, not a bare
 uname). Machine labels are machine-side; the page spellings are the
@@ -114,6 +128,25 @@ modelless-only post-023 re-run). The self-test covers every merge law:
 Commit + deploy. The provenance (git sha, date, host, protocols) rides
 inside `bench.json` and renders on the page — every host in `meta.hosts`
 is named in the provenance line.
+
+## Mirrored docs surfaces
+
+Two files on this site are MIRRORS of the riir-reflex `.docs` book — the
+source of truth lives THERE; edit the source, never the mirror:
+
+- `assets/decision_flow.svg` <- `../riir-reflex/.docs/03_decision_flow/decision_flow.svg`
+- `skills/reflex-integration/SKILL.md` <- `../riir-reflex/.docs/04_agent_skill/SKILL.md`
+
+After editing a source (or when riir-reflex's guard flags drift):
+
+```sh
+python3 scripts/sync_mirror.py          # copy + report (default)
+python3 scripts/sync_mirror.py --check  # verify only; exit 1 = drift, 2 = no sibling checkout
+```
+
+riir-reflex's `ci_feature_guard.sh` runs `--check` as a layer (skipping
+loudly when this checkout is absent beside it), so a forgotten mirror is
+caught at the source repo's gate too.
 
 ## Deploy
 
