@@ -108,6 +108,9 @@ canvas {
 #game-tetris .boardcard, #game-flappy .boardcard {
   display: grid; grid-template-columns: max-content minmax(0, 1fr);
   column-gap: 16px; align-items: start;
+  /* rows pack to the top: a card stretched to its row-mate's height must
+     not spread the extra space over its rows (the board floated down) */
+  align-content: start;
 }
 #game-tetris .boardhead, #game-flappy .boardhead { grid-column: 1 / -1; }
 #game-tetris .boardcard canvas, #game-flappy .boardcard canvas { grid-column: 1; grid-row: 2; }
@@ -143,17 +146,22 @@ canvas {
 }
 
 /* Tetris readout: fixed-height rows so the card never reflows per piece —
-   STATE SENT 6 lines, QUESTION 4, ANSWER 4 (owner call); longer text clamps
-   with an ellipsis, full text on hover (setReadout sets the title). */
-#game-tetris .readout div { line-height: 1.55; }
-#game-tetris .readout div:nth-child(2),
-#game-tetris .readout div:nth-child(3),
-#game-tetris .readout div:nth-child(4) {
+   SOURCE 4 lines, STATE SENT 6, QUESTION 4, ANSWER 4, ACTION 1, TIMING 4
+   (owner call; the "…" placeholders and the live Cloudflare timing jumped
+   the card height every piece). Longer text clamps with an ellipsis, full
+   text on hover (setReadout sets the title). */
+#game-tetris .readout div {
+  --rl: 4; line-height: 1.55;
   display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden;
+  height: calc(var(--rl) * 1.55em); -webkit-line-clamp: var(--rl); line-clamp: var(--rl);
 }
-#game-tetris .readout div:nth-child(2) { height: calc(6 * 1.55em); -webkit-line-clamp: 6; line-clamp: 6; }
-#game-tetris .readout div:nth-child(3),
-#game-tetris .readout div:nth-child(4) { height: calc(4 * 1.55em); -webkit-line-clamp: 4; line-clamp: 4; }
+#game-tetris .readout div:nth-child(2) { --rl: 6; }
+#game-tetris .readout div:nth-child(5) { --rl: 1; }
+/* the statline too: "…ms/decision" wraps to a 2nd line mid-game — reserve
+   both lines up front so the card height is fixed from the first frame */
+#game-tetris .boardcard .stats {
+  line-height: 1.45; height: calc(2 * 1.45em); overflow: hidden;
+}
 
 /* readout under the board: the lanes cards, and every card once the card is
    too narrow for a side-by-side board + readout */

@@ -403,7 +403,7 @@ function setReadout(prefix, fields) {
       el.textContent = v;
       // Tetris readout rows are clamped to a fixed line count (no layout
       // jump per piece) — the full text stays one hover away.
-      el.title = typeof v === "string" && v.length > 40 ? v : "";
+      el.title = typeof v === "string" && v.length > 20 ? v : "";
     }
   }
 }
@@ -1294,10 +1294,11 @@ document.querySelectorAll("button[data-copy]").forEach((b) => {
 });
 
 // First paint: probe the engine; with none running, auto-play the recorded
-// demo so the arena shows the lanes immediately — and LOOP it (the games
-// end; a frozen dead board is not a demo). Any Start/Stop press ends the loop
-// via demoSession; Start then re-probes and goes live the moment the engine
-// is up.
+// demo ONCE so the arena shows the lanes immediately, then stop. It does NOT
+// loop: the Cloudflare board spends a real Worker request per piece, and a
+// looping demo in an idle tab is request spam. Any Start/Stop press ends the
+// auto run via demoSession; Start then re-probes and goes live the moment the
+// engine is up.
 let demoSession = 0;
 (async () => {
   await Promise.all([probe(), readyReflexer()]);
@@ -1317,18 +1318,15 @@ let demoSession = 0;
   markSeedMode(true);
   $("demo-banner").hidden = false;
   renderStatus($("status-text"));
-  const delay = () => Number($("tetris-delay").value);
   const btn = $("tetris-run");
-  while (session === demoSession && demoMode) {
-    const seed = Number($("tetris-seed").value) || 607;
-    for (const b of Object.values(tetris)) b.reset(seed);
-    btn.textContent = "Stop";
-    await Promise.all(Object.values(tetris).map((b) => b.run(delay())));
-    if (session !== demoSession || !demoMode) break;
-    $("status-text").textContent = `${demoStatusText()} · replaying in 3 s`;
-    await sleep(3000);
-  }
-  if (session === demoSession) btn.textContent = "Start";
+  const seed = Number($("tetris-seed").value) || 607;
+  for (const b of Object.values(tetris)) b.reset(seed);
+  btn.textContent = "Stop";
+  const delay = Number($("tetris-delay").value);
+  await Promise.all(Object.values(tetris).map((b) => b.run(delay)));
+  if (session !== demoSession) return; // a manual press took over
+  btn.textContent = "Start";
+  $("status-text").textContent = `${demoStatusText()} · every game done — press Start to replay`;
 })();
 
 setInterval(probe, 4000);
