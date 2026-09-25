@@ -4,8 +4,11 @@ The public arena site for **Reflex** (the riir-reflex decision engine) —
 static content only, deployed to `reflex.gist.rs` on Cloudflare Workers
 static assets.
 
-- `/` — install commands, the three-step start, the playground (talks to the
-  visitor's OWN engine on `127.0.0.1:7331`; nothing is uploaded).
+- `/` — the landing: the measured TL;DR + the averaged all-suites chart, the
+  how-it-works figure (a .docs-first SVG, mirrored to `assets/`), per-page
+  cards, and the agent-skill section.
+- `/playground/` — the playground (talks to the visitor's OWN engine on
+  `127.0.0.1:7331`; nothing is uploaded) + the three-step start.
 - `/bench/` — the per-task arena tables, rendered client-side from
   `data/bench.json`.
 - `/arena/` — the live games, four lanes, 2 per row: laya (Python) | laya

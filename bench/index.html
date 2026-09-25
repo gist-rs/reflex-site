@@ -21,43 +21,15 @@
   .protocol { font-size: 13px; color: var(--muted); margin: 6px 0 0; }
   #bench-meta { color: var(--muted); font-size: 13.5px; }
   .scroll { overflow-x: auto; }
-  /* bench-charts.js — minimal bars (lane colors validated all-pairs on the dark surfaces) */
-  #bench-hero { background: var(--bg2); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px 10px; margin: 8px 0 26px; }
-  .bc-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
-  .bc-legend { display: flex; flex-wrap: wrap; gap: 16px; font-size: 13px; color: var(--text); }
-  .bc-legend span { display: inline-flex; align-items: center; gap: 6px; }
-  .bc-sw { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
-  .bc-legend .bc-sw { margin-right: 0; }
-  .bc-toggle { display: inline-flex; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
-  .bc-toggle button { background: transparent; color: var(--muted); border: 0; padding: 4px 10px; font: inherit; font-size: 12.5px; cursor: pointer; }
-  .bc-toggle button + button { border-left: 1px solid var(--line); }
-  .bc-toggle button[aria-pressed="true"] { background: var(--dark-red); color: var(--text); }
-  .bc-hgrid { display: grid; grid-template-columns: 150px 1fr; column-gap: 12px; row-gap: 9px; align-items: center; }
-  .bc-hlabel { font-size: 12.5px; color: var(--muted); text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .bc-hlabel:hover { color: var(--ember); }
-  .bc-htrack { position: relative; display: flex; flex-direction: column; gap: 2px; }
-  .bc-hbar { position: relative; height: 6px; }
-  .bc-hbar i, .bc-cell i { display: block; height: 100%; border-radius: 0 4px 4px 0; }
-  .bc-hbar:hover i, .bc-hbar:focus i, .bc-cell:hover i, .bc-cell:focus i { filter: brightness(1.25); }
-  .bc-hbar, .bc-cell { outline: none; }
-  .bc-hbar.bc-none { height: 6px; font-size: 9.5px; line-height: 6px; color: var(--muted); opacity: .7; }
-  .bc-grid { position: absolute; top: -4px; bottom: -4px; width: 1px; background: var(--line); opacity: .7; }
-  .bc-axis { position: relative; height: 14px; font-size: 10.5px; color: var(--muted); }
-  .bc-axis span { position: absolute; transform: translateX(-50%); white-space: nowrap; }
-  .bc-axis span:first-child { transform: none; }
-  .bc-axis span:last-child { transform: translateX(-100%); }
-  .bc-note { font-size: 12px; color: var(--muted); margin: 10px 0 0; }
-  .bc-mut { color: var(--muted); font-weight: 400; }
+  /* the per-suite bar table (bench-only — the shared bc-* rules live in style.css) */
   .bc-suite { display: grid; grid-template-columns: minmax(150px, 210px) 1fr 1fr; column-gap: 14px; row-gap: 5px; align-items: center; margin: 8px 0 10px; font-size: 12px; }
   .bc-sh { color: var(--muted); font-size: 11px; }
   .bc-slabel { color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .bc-cell { display: flex; align-items: center; gap: 6px; height: 12px; }
-  .bc-cell i { height: 9px; flex: none; }
+  .bc-cell i { height: 9px; }
   .bc-cell span { color: var(--muted); font-size: 11.5px; white-space: nowrap; font-variant-numeric: tabular-nums; }
   .bc-cell.bc-none { color: var(--muted); }
-  .bc-tip { position: fixed; display: none; z-index: 20; pointer-events: none; background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 7px 10px; font-size: 12px; line-height: 1.5; color: var(--text); box-shadow: 0 4px 18px rgba(0,0,0,.45); max-width: 320px; }
   @media (max-width: 640px) {
-    .bc-hgrid { grid-template-columns: 96px 1fr; }
     .bc-suite { grid-template-columns: 1fr 1fr; }
     .bc-suite .bc-slabel { grid-column: 1 / -1; }
     .bc-suite .bc-sh:first-child { display: none; }
@@ -73,7 +45,7 @@
   <div class="wrap">
     <a class="brand" href="/">Reflex <span>· bench</span></a>
     <nav>
-      <a href="/#playground">Playground</a>
+      <a href="/playground/">Playground</a>
       <a href="/arena/">Arena</a>
       <a href="/bench/" aria-current="page">Benchmark</a>
       <a href="/#skill">For agents</a>

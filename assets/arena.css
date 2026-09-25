@@ -139,14 +139,8 @@ footer.site-foot {
   border-top: 1px solid var(--line); padding: 18px 0; color: var(--muted); font-size: 13.5px;
 }
 
-/* TL;DR — the measured lane order, rendered from data/bench.json */
-.tldr {
-  border: 1px solid var(--line); border-left: 3px solid var(--ember);
-  background: var(--panel); border-radius: 10px;
-  padding: 12px 16px; margin: 0 0 18px; font-size: 14px; color: var(--muted);
-}
-.tldr > b { color: var(--ember); letter-spacing: 0.06em; margin-right: 6px; }
-.tldr p { margin: 0 0 6px; display: inline; }
+/* TL;DR — the measured lane order, rendered from data/bench.json
+   (base .tldr rules live in style.css; these are the arena's per-row rules) */
 .tldr ul { list-style: none; margin: 8px 0 0; padding: 0; }
 .tldr li { margin: 4px 0; }
 .tldr li b { color: var(--text); }

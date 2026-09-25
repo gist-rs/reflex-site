@@ -13,7 +13,7 @@
   <div class="wrap">
     <a class="brand" href="/">Reflex <span>· KatGPT</span></a>
     <nav>
-      <a href="/#playground" aria-current="page">Playground</a>
+      <a href="/playground/">Playground</a>
       <a href="/arena/">Arena</a>
       <a href="/bench/">Benchmark</a>
       <a href="/#skill">For agents</a>
@@ -25,6 +25,11 @@
 <div class="wrap">
 
   <div class="hero">
+    <div class="tldr" id="tldr">
+      <b>TL;DR</b><span class="tldr-body" id="tldr-body">A decision lands in ~50&nbsp;µs — a median ~700× faster than the open-weights
+      model on byte-identical questions — with calibrated confidence, honest abstains, and nothing leaving your machine.</span>
+    </div>
+
     <h1>Typed decisions, <em>calibrated honestly</em>, on your machine.</h1>
     <p class="lead">
       Reflex answers <strong>choice</strong>, <strong>score</strong>, and <strong>yes/no</strong> questions about
@@ -43,93 +48,70 @@
       <span class="badge">G4 zero allocs on the hot path</span>
       <span class="badge muted">laya parity: 88/88 forwards, top-1 1.000, drift ≤ 3.1e-6</span>
     </div>
+
+    <div id="bench-summary" aria-label="every published suite, averaged per lane">
+      <p class="sub" style="margin:4px 0 8px">loading the averaged numbers from <code>data/bench.json</code>…</p>
+    </div>
+    <div class="after-chart">
+      <p class="prov" id="home-prov" hidden></p>
+      <a href="/bench/">the full benchmark — every suite, every lane, the losses published →</a>
+    </div>
   </div>
 
-  <section id="how">
-    <h2>Three steps</h2>
-    <p class="sub">The engine never phones home. The browser cannot reach it until you open the door for exactly one origin.</p>
-    <div class="steps">
-      <div class="step"><h3>1 · Install</h3><p>One binary. <code>reflex --version</code> prints its compiled feature set and warns if the build is incomplete.</p></div>
-      <div class="step"><h3>2 · Run with the door open</h3><p><code>RIIR_REFLEX_ALLOWED_ORIGIN=https://reflex.gist.rs reflex</code> — the engine listens on <code>127.0.0.1:7331</code> and accepts browser calls from this page only.</p></div>
-      <div class="step"><h3>3 · Play</h3><p>Type a state and a question. Answers come back in microseconds, with confidence — or an honest abstain.</p></div>
-    </div>
-  </section>
-
-  <section id="playground">
-    <h2>Playground</h2>
-    <p class="sub">This page talks to YOUR engine on YOUR machine — nothing is uploaded anywhere.</p>
-
-    <div id="status"><span class="dot"></span><span id="status-text">checking for a local engine…</span></div>
-
-    <div class="launch" id="launch-box" hidden>
-      <strong>No local engine found.</strong> Install and start it, then refresh:
-      <code>RIIR_REFLEX_ALLOWED_ORIGIN=https://reflex.gist.rs reflex</code>
-    </div>
-
-    <div class="play">
-      <div class="card">
-        <label for="state">State (the situation under decision)</label>
-        <textarea id="state">Deploy the server to staging and verify the rollout before promoting to production. Rollback is one command when a deploy regresses the error budget.</textarea>
-        <label for="kind">Question type</label>
-        <select id="kind">
-          <option value="noul">yes / no</option>
-          <option value="choice">choice (pick one option)</option>
-          <option value="score">score (rate 1–5)</option>
-        </select>
-        <div class="options" id="options-box">
-          <label for="options">Options (one per line; the first is the default outcome order)</label>
-          <textarea id="options" style="min-height:70px">roll back
-promote</textarea>
-        </div>
-        <label for="prompt">Question</label>
-        <input type="text" id="prompt" value="Should the rollout proceed now?">
-        <button class="go" id="ask" disabled>Decide</button>
-      </div>
-
-      <div class="card">
-        <label>Answer</label>
-        <div class="answer" id="answer"><span style="color:var(--muted)">—</span></div>
-      </div>
-    </div>
-  </section>
-
-  <section id="bench-teaser">
-    <h2>Measured, with the losses published</h2>
+  <section id="flow">
+    <h2>How it works</h2>
     <p class="sub">
-      The arena exists to make the trade visible: the modelless lane is ~10²–10³× faster per question and
-      deterministic; the open-weights <strong>laya</strong> lane is the accuracy heavyweight.
-      Same questions, both lanes, per-task tables —
-      <a href="/bench/">full benchmark</a>.
+      One pipeline, no trained weights: embed the state, route to the matching corpus, score every
+      option <em>corpus-is-the-model</em>, calibrate with a sigmoid gate — then answer, or abstain.
+      The thresholds come from <strong>your</strong> labeled data, fitted offline. The full write-up:
+      <a href="https://github.com/gist-rs/reflex/blob/main/.docs/decision_flow.md">.docs/decision_flow.md</a>.
     </p>
-    <div class="teaser">
-      <div class="cell">
-        <div class="big" id="t-ml-p50">497 µs</div>
-        <div class="lbl" id="t-ml-lbl">modelless p50 per question — the typed-decision set (2,000 questions)</div>
-      </div>
-      <div class="cell">
-        <table>
-          <thead><tr><th>suite</th><th>modelless</th><th>laya·best</th><th>laya p50</th></tr></thead>
-          <tbody id="t-rows">
-            <tr><td>typed decisions</td><td>0.319</td><td><strong>0.745</strong></td><td>372 ms</td></tr>
-            <tr><td>AG News</td><td>0.510</td><td><strong>0.950</strong></td><td>38 ms</td></tr>
-            <tr><td>emotion</td><td>0.282</td><td><strong>0.593</strong></td><td>24 ms</td></tr>
-          </tbody>
-        </table>
-        <div class="lbl" id="t-prov" hidden></div>
-      </div>
-    </div>
+    <figure class="figure">
+      <img src="/assets/decision_flow.svg" width="1517" height="610"
+        alt="The Reflex decision flow: state plus a typed question (choice, score, or yes/no) is embedded, routed to a domain, options scored corpus-is-the-model, calibrated by a sigmoid gate, then answered in microseconds with confidence or an honest abstain — loopback only, thresholds fitted offline from your own labeled data"
+        loading="lazy">
+      <figcaption>
+        Everything above runs on <code>127.0.0.1:7331</code> — one allowed origin, zero telemetry.
+        The same engine drives the arena's game lanes; the laya lane is a comparison, never a dependency.
+      </figcaption>
+    </figure>
   </section>
 
-  <section id="arena-teaser">
-    <h2>Watch the three lanes play.</h2>
-    <p class="sub">
-      Tetris, Flappy and three-lanes, side by side from the same seeded stream:
-      <strong>laya</strong> (the model-based lane — it reads every sentence) vs the
-      <strong>reflex modelless</strong> core (microsecond decisions, honest abstains).
-      With your engine running the boards play live; without one, a recorded demo
-      replays the measured oracle, labelled as such.
-      <a href="/arena/"><strong>Open the arena →</strong></a>
-    </p>
+  <section id="explore">
+    <h2>Start here</h2>
+    <p class="sub">Four doors into the same engine — pick the one that matches what you're doing today.</p>
+    <div class="pages">
+      <div class="page-card">
+        <h3>Playground</h3>
+        <p>Type a state, ask a typed question, get a µs answer with calibrated confidence — or an honest
+          abstain. Talks to <em>your</em> engine on <em>your</em> machine; nothing is uploaded anywhere.</p>
+        <a class="cta" href="/playground/">Open the playground</a>
+      </div>
+      <div class="page-card">
+        <h3>Arena</h3>
+        <p>Watch the lanes play Tetris, Flappy and three-lanes side by side from the same seeded stream:
+          the modelless core (microsecond decisions) vs the open-weights laya lane (it reads every sentence).</p>
+        <a class="cta" href="/arena/">Watch the games</a>
+      </div>
+      <div class="page-card">
+        <h3>Benchmark</h3>
+        <p>Every suite, every lane, per-task tables with the losses published — no single "we win" number
+          exists or will exist. Byte-identical questions, regenerable from the open harness.</p>
+        <a class="cta" href="/bench/">Audit the tables</a>
+      </div>
+      <div class="page-card">
+        <h3>For agents</h3>
+        <p>One file teaches your coding agent to drive Reflex properly — the wire, questions that work,
+          thresholds fitted from your data, abstention as a fallback path instead of an error.</p>
+        <a class="cta" href="/#skill">Install the skill</a>
+      </div>
+      <div class="page-card">
+        <h3>Download</h3>
+        <p>One static binary, checksum-verified, for macOS (arm64 + x86_64), Linux (musl, both arches) and
+          Windows — via curl, Homebrew or Scoop. <code>reflex --version</code> prints its own feature set.</p>
+        <a class="cta" href="https://github.com/gist-rs/reflex/releases">Get the binary</a>
+      </div>
+    </div>
   </section>
 
   <section id="skill">
@@ -179,6 +161,7 @@ promote</textarea>
   </div>
 </footer>
 
+<script src="/assets/bench-charts.js"></script>
 <script src="/assets/app.js"></script>
 </body>
 </html>

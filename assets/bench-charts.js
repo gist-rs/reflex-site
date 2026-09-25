@@ -189,5 +189,72 @@
       `</div>`;
   }
 
-  window.BenchCharts = { hero, suite, setLogDomain };
+
+  // ── summary: the compact averaged chart (the landing page) ──────────────
+  // The /bench/ hero with the per-suite separation removed: ONE bar per lane
+  // per metric, averaged over every suite that lane ran on the primary host.
+  // Accuracy metrics are macro-averages (suites count equally, exactly like
+  // the hero's rows); latency is the GEOMETRIC mean — the average that
+  // matches the log axis (bar position = mean of the per-suite bar
+  // positions). Same lane pick rule as hero(): best non-multilingual
+  // checkpoint per suite, so both charts always agree lane-for-lane. The
+  // per-suite separation lives on /bench/ and only there.
+  let summaryData = null, summaryMetric = "acc";
+
+  function laneAvg(d, m, lane) {
+    const vals = [];
+    for (const s of d.suites || []) {
+      const l = pick(s, lane);
+      if (!l) continue;
+      const v = METRICS[m].get(l);
+      if (!num(v) || (METRICS[m].log && v <= 0)) continue;
+      vals.push(v);
+    }
+    if (!vals.length) return null;
+    const avg = METRICS[m].log
+      ? Math.exp(vals.reduce((a, v) => a + Math.log(v), 0) / vals.length)
+      : vals.reduce((a, v) => a + v, 0) / vals.length;
+    return { value: avg, n: vals.length };
+  }
+
+  function summaryBody() {
+    const d = summaryData, m = summaryMetric, M = METRICS[m], f = fmtOf(m);
+    const rows = LANES.map((lane) => {
+      const a = laneAvg(d, m, lane);
+      if (!a) return "";
+      const fr = frac(m, a.value);
+      const how = M.log ? "geometric mean" : "macro-average";
+      const tip = `<span class="bc-sw" style="background:${lane.color}"></span><b>${esc(lane.label)}</b><br>` +
+        `${how} over <b>${a.n}</b> suites: <b>${f(a.value)}</b>` +
+        (M.log ? " — log axis, so the bar sits at the mean of the per-suite bars" : "");
+      return `<div class="bc-hlabel"><i class="bc-sw" style="background:${lane.color}"></i>${esc(lane.label)}</div>` +
+        `<div class="bc-htrack">${grid(m)}` +
+        `<div class="bc-hbar" tabindex="0" data-tip="${esc(tip)}" aria-label="${esc(`${lane.label} averaged: ${f(a.value)} over ${a.n} suites`)}">` +
+        `<i style="width:${(fr * 100).toFixed(2)}%;background:${lane.color}"></i><span class="bc-val">${f(a.value)}</span></div></div>`;
+    }).join("");
+    const note = (M.log
+      ? "Latency bars are geometric means — on a log axis that is the average; each gridline = 10×, shorter is faster. "
+      : "Accuracy bars are macro-averages — every suite counts equally; chance level differs per suite, so compare lanes within a bar, not bars with each other. ") +
+      `Averaged over every suite the lane ran on the primary host (${(d.suites || []).length} published); checkpoints follow the same pick as the full chart — best non-multilingual.`;
+    return `<div class="bc-hgrid"><div></div>${axis(m)}${rows}<div></div>${axis(m)}</div><p class="bc-note">${esc(note)}</p>`;
+  }
+
+  function summary(d, el) {
+    if (!el || !d || !d.suites) return;
+    summaryData = d;
+    tooltip();
+    const btns = Object.entries(METRICS).map(([k, M]) =>
+      `<button type="button" data-metric="${k}" aria-pressed="${k === summaryMetric}">${esc(M.label)}${M.log ? " (log)" : ""}</button>`).join("");
+    el.innerHTML = `<div class="bc-bar"><div class="bc-legend"><span>every published suite, one averaged bar per lane — the same data as <a href="/bench/">the full benchmark</a></span></div>` +
+      `<div class="bc-toggle" role="group" aria-label="metric">${btns}</div></div><div class="bc-summary-body">${summaryBody()}</div>`;
+    el.querySelector(".bc-toggle").addEventListener("click", (e) => {
+      const b = e.target.closest("button[data-metric]");
+      if (!b) return;
+      summaryMetric = b.dataset.metric;
+      for (const x of el.querySelectorAll("button[data-metric]")) x.setAttribute("aria-pressed", x === b);
+      el.querySelector(".bc-summary-body").innerHTML = summaryBody();
+    });
+  }
+
+  window.BenchCharts = { hero, suite, setLogDomain, summary };
 })();

@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Playground · Reflex</title>
+  <meta name="description" content="Ask your own local Reflex engine a typed question — choice, score, or yes/no — and get a microsecond answer with calibrated confidence, or an honest abstain. Nothing is uploaded anywhere.">
+  <link rel="stylesheet" href="/assets/style.css">
+</head>
+<body>
+
+<header class="site">
+  <div class="wrap">
+    <a class="brand" href="/">Reflex <span>· playground</span></a>
+    <nav>
+      <a href="/playground/" aria-current="page">Playground</a>
+      <a href="/arena/">Arena</a>
+      <a href="/bench/">Benchmark</a>
+      <a href="/#skill">For agents</a>
+      <a href="https://github.com/gist-rs/reflex/releases">Download</a>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section style="border-top:0">
+    <h1 class="page-title">Playground</h1>
+    <p class="sub">This page talks to YOUR engine on YOUR machine — nothing is uploaded anywhere.
+      The engine never phones home; the browser cannot reach it until you open the door for exactly one origin.</p>
+
+    <div id="status"><span class="dot"></span><span id="status-text">checking for a local engine…</span></div>
+
+    <div class="launch" id="launch-box" hidden>
+      <strong>No local engine found.</strong> Install and start it, then refresh:
+      <code>RIIR_REFLEX_ALLOWED_ORIGIN=https://reflex.gist.rs reflex</code>
+    </div>
+
+    <div class="play">
+      <div class="card">
+        <label for="state">State (the situation under decision)</label>
+        <textarea id="state">Deploy the server to staging and verify the rollout before promoting to production. Rollback is one command when a deploy regresses the error budget.</textarea>
+        <label for="kind">Question type</label>
+        <select id="kind">
+          <option value="noul">yes / no</option>
+          <option value="choice">choice (pick one option)</option>
+          <option value="score">score (rate 1–5)</option>
+        </select>
+        <div class="options" id="options-box">
+          <label for="options">Options (one per line; the first is the default outcome order)</label>
+          <textarea id="options" style="min-height:70px">roll back
+promote</textarea>
+        </div>
+        <label for="prompt">Question</label>
+        <input type="text" id="prompt" value="Should the rollout proceed now?">
+        <button class="go" id="ask" disabled>Decide</button>
+      </div>
+
+      <div class="card">
+        <label>Answer</label>
+        <div class="answer" id="answer"><span style="color:var(--muted)">—</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="how">
+    <h2>Three steps</h2>
+    <div class="steps">
+      <div class="step"><h3>1 · Install</h3><p>One binary. <code>reflex --version</code> prints its compiled feature set and warns if the build is incomplete.</p></div>
+      <div class="step"><h3>2 · Run with the door open</h3><p><code>RIIR_REFLEX_ALLOWED_ORIGIN=https://reflex.gist.rs reflex</code> — the engine listens on <code>127.0.0.1:7331</code> and accepts browser calls from this page only.</p></div>
+      <div class="step"><h3>3 · Play</h3><p>Type a state and a question. Answers come back in microseconds, with confidence — or an honest abstain.</p></div>
+    </div>
+  </section>
+
+</div>
+
+<footer class="site">
+  <div class="wrap">
+    <div>
+      Reflex is part of the <a href="https://github.com/katopz">KatGPT</a> funnel ·
+      binary releases at <a href="https://github.com/gist-rs/reflex">gist-rs/reflex</a> ·
+      <a href="/">back to the landing page</a>
+    </div>
+    <div class="fine">
+      Not affiliated with, or endorsed by, TypeSafe AI; Jev is their product, named only to compare against.
+      The optional laya comparison lane loads Apache-2.0-licensed checkpoints (ModernBERT, mmBERT, mask-scoring head)
+      from the brainfunctioncollapse laya Hugging Face repositories at runtime — unmodified, SHA-256-verified, and never
+      redistributed here; their license text ships in every release archive's THIRD_PARTY_LICENSES.md.
+      Site content original; measurements regenerate from the open harness, never hand-typed.
+    </div>
+  </div>
+</footer>
+
+<script src="/assets/app.js"></script>
+</body>
+</html>
