@@ -313,3 +313,35 @@ h1.page-title { font-size: 36px; margin: 44px 0 8px; }
   .sz-grid { grid-template-columns: 108px 1fr 62px; }
   .sz-chips { display: none; } /* the chips re-read from each bar's tooltip on small screens */
 }
+
+/* Playground · Reflexer — the board editor (canvas left, text right) and
+   the graphical answer. Same palette as the arena boards (tetris_view.js). */
+.rx-edit { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 12px; align-items: start; }
+@media (max-width: 420px) { .rx-edit { grid-template-columns: 1fr; } }
+.rx-grid {
+  display: block; width: 200px; height: 400px; background: var(--bg);
+  border: 1px solid var(--line); border-radius: 6px;
+}
+#rx-canvas { cursor: crosshair; touch-action: none; }
+.rx-text, .card textarea#rx-board {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 13.5px; line-height: 1.15; font-variant-ligatures: none;
+}
+.card textarea#rx-board { height: 400px; min-height: 400px; white-space: pre; overflow: auto; resize: none; }
+.card textarea#rx-board[aria-invalid="true"] { border-color: var(--warn); }
+.rx-board-err { color: var(--warn); font-size: 13px; margin-top: 6px; }
+pre.rx-text {
+  margin: 0; height: 400px; overflow: auto; white-space: pre;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px;
+}
+.rx-pieces { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+.rx-piece { display: flex; gap: 8px; align-items: center; }
+.rx-piece select { width: auto; }
+.rx-mini {
+  display: block; width: 48px; height: 48px; background: var(--bg);
+  border: 1px solid var(--line); border-radius: 6px;
+}
+/* a grid item's min-width is its content's: the long endpoint URL pushed the
+   board card past a phone viewport */
+#reflexer .play > .card { min-width: 0; }
+#rx-endpoint { overflow-wrap: anywhere; }

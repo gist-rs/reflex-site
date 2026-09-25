@@ -76,12 +76,24 @@ promote</textarea>
     <div id="rx-status" class="sub">checking the Worker…</div>
     <div class="play">
       <div class="card">
-        <label for="rx-board">Board (20 rows × 10, <code>#</code> filled · <code>.</code> empty, row 1 = top)</label>
-        <textarea id="rx-board" spellcheck="false" style="min-height:330px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;line-height:1.15"></textarea>
+        <label for="rx-board">Board (20 rows × 10, <code>#</code> filled · <code>.</code> empty, row 1 = top) —
+          drag on the grid to paint or erase cells, or type in the text</label>
+        <div class="rx-edit">
+          <canvas id="rx-canvas" class="rx-grid" width="200" height="400" role="img"
+            aria-label="Board editor: drag to paint or erase cells"></canvas>
+          <textarea id="rx-board" spellcheck="false" wrap="off" autocomplete="off"></textarea>
+        </div>
+        <div class="rx-board-err" id="rx-board-err" hidden></div>
         <label for="rx-cur">Falling piece · preview</label>
-        <div style="display:flex;gap:10px;align-items:center">
-          <select id="rx-cur"></select><select id="rx-next"></select>
+        <div class="rx-pieces">
+          <div class="rx-piece"><canvas id="rx-cur-view" class="rx-mini" width="48" height="48" role="img" aria-label="falling piece"></canvas>
+            <select id="rx-cur" aria-label="falling piece"></select></div>
+          <div class="rx-piece"><canvas id="rx-next-view" class="rx-mini" width="48" height="48" role="img" aria-label="preview piece"></canvas>
+            <select id="rx-next" aria-label="preview piece"></select></div>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:10px">
           <button class="go" id="rx-random" type="button" style="margin:0">random position</button>
+          <button class="go" id="rx-clear" type="button" style="margin:0">clear board</button>
         </div>
         <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap">
           <button class="go" id="rx-ask-cloud" disabled>Ask Cloudflare</button>
@@ -94,7 +106,11 @@ promote</textarea>
         <label>Latency</label>
         <div><span class="latcap live idle" id="rx-cap-cloud">Cloudflare —</span> <span class="latcap" id="rx-cap-local">in-tab —</span></div>
         <label style="margin-top:12px">Answer (▓ = where the piece lands)</label>
-        <pre class="answer" id="rx-answer" style="white-space:pre-wrap;overflow-wrap:anywhere;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;line-height:1.15">—</pre>
+        <div class="rx-edit">
+          <canvas id="rx-answer-view" class="rx-grid" width="200" height="400" role="img"
+            aria-label="Answer: where the piece lands"></canvas>
+          <pre class="answer rx-text" id="rx-answer">—</pre>
+        </div>
         <details><summary>request sent</summary><pre id="rx-request" style="white-space:pre-wrap;font-size:11.5px">—</pre></details>
       </div>
     </div>
