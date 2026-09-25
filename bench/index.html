@@ -101,7 +101,9 @@
         <strong>clm (reference)</strong> — the external Contrastive-LM reference (Apache-2.0, not affiliated): Qwen3-8B pooling + trained heads, served on its own stack and measured on ours — a comparison lane
         (full detail in the clm entry below).
         <strong>gliner (reference)</strong> — the external GLiNER2.5-Decide zero-shot classifier (Apache-2.0, not affiliated, 340M DeBERTa-v3 encoder):
-        their gliner2 package answers the same candidate-label questions — a comparison lane, never a product lane.</p>
+        their gliner2 package answers the same candidate-label questions — a comparison lane, never a product lane.
+        <strong>agentjev (reference)</strong> — the external AgentJev-0.6B typed-decision specialist (Apache-2.0, not affiliated, Qwen3-0.6B backbone):
+        their service answers over HTTP, measured gold-label on our split — a comparison lane, never a product lane.</p>
 
       <h3>Tell me more about the clm (reference) lane</h3>
       <p>CLM (Contrastive Language Models) is an external, unaffiliated research project — an Apache-2.0
@@ -278,6 +280,10 @@ function suiteSection(s) {
   // over their gliner2 package — same questions, their probability readout,
   // another honest comparison row (never a product lane).
   if (s.gliner) lanes.push(s.gliner);
+  // The AgentJev comparison lane (reflex .issues/025 amendment 4): their
+  // jev_service answered over HTTP — the MEASURE-vs-SERVE split; the
+  // gold-label row beside their published teacher-argmax number.
+  if (s.agentjev) lanes.push(s.agentjev);
   // The lane filter (governs every section): hidden lanes drop out of the
   // tables, the per-suite bars, and the hero — and the best-acc highlight
   // recomputes over the visible rows only.
@@ -291,6 +297,7 @@ function suiteSection(s) {
     for (const k of Object.keys(hl.laya || {})) extraRows.push([hl.laya[k], host]);
     if (hl.clm) extraRows.push([hl.clm, host]);
     if (hl.gliner) extraRows.push([hl.gliner, host]);
+    if (hl.agentjev) extraRows.push([hl.agentjev, host]);
   }
   const shownExtra = window.BenchFilter ? extraRows.filter(([l]) => BenchFilter.visible(l)) : extraRows;
   const bestAcc = Math.max(...shown.concat(shownExtra.map(([l]) => l)).map((l) => (l.hard || {}).accuracy ?? 0));

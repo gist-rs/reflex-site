@@ -78,7 +78,8 @@ HOST_META_KEYS = (
 LANE_SOURCE_KEYS = ("git_sha", "date_utc")
 
 # Display-only lane spellings. The canonical results.json keeps the machine
-# fields ("laya-riir" / "laya-python" / "modelless" / "clm" / "gliner") — the
+# fields ("laya-riir" / "laya-python" / "modelless" / "clm" / "gliner" /
+# "agentjev") — the
 # rename happens HERE, the one place every published byte passes through, so
 # a re-publish can never drift from the page.
 LANE_DISPLAY = {
@@ -87,6 +88,7 @@ LANE_DISPLAY = {
     "modelless": "KatGPT",
     "clm": "clm (reference)",
     "gliner": "gliner (reference)",
+    "agentjev": "agentjev (reference)",
 }
 
 # Both spellings of the python lane: the machine field in a fresh harness
@@ -131,6 +133,7 @@ def rename_lanes(d):
             + list((s.get("laya") or {}).values())
             + ([s["clm"]] if s.get("clm") else [])
             + ([s["gliner"]] if s.get("gliner") else [])
+            + ([s["agentjev"]] if s.get("agentjev") else [])
         )
         for l in lanes:
             # The model column renders the harness's own field — the modelless
@@ -259,6 +262,13 @@ def merge(primary, extras):
             if eg:
                 entry["gliner"] = eg
                 updated_lanes["gliner"] = True
+            # The AgentJev comparison lane (reflex .issues/025 amendment
+            # 4): the same carry law — an external reference measured
+            # per-host.
+            ea = s.get("agentjev")
+            if ea:
+                entry["agentjev"] = ea
+                updated_lanes["agentjev"] = True
             # The Issue-024 leak block (T4): a slice property of the
             # DATASETS + registry caps, not of the host — the latest
             # run's scan is the published one (a doc without it never
@@ -372,6 +382,8 @@ def main() -> int:
                 + list((host_lanes.get("laya") or {}).values())
                 + ([host_lanes["clm"]] if host_lanes.get("clm") else [])
                 + ([host_lanes["gliner"]] if host_lanes.get("gliner") else [])
+                + ([host_lanes["agentjev"]] if host_lanes.get("agentjev")
+                   else [])
             )
             for l in lanes:
                 l["lane"] = LANE_DISPLAY.get(l.get("lane"), l.get("lane"))

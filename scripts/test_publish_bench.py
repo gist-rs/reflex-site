@@ -414,6 +414,31 @@ def case_gliner_lane_rides_an_update():
     assert d["suites"][0]["gliner"]["lane"] == "gliner (reference)"
 
 
+def case_agentjev_lane_rides_an_update():
+    # reflex .issues/025 amendment 4: the AgentJev comparison lane rides
+    # the same carry law — an update declares it, the merged state carries
+    # it on the host's entry, and the display rename reaches both surfaces.
+    primary = doc("m3", "sha-m3", {"s1": {"modelless_acc": PRE_ACC}})
+    update = doc("4090-windows", "sha-aj", {"s1": {"modelless_acc": PRE_ACC}})
+    update["suites"][0]["agentjev"] = {
+        "lane": "agentjev", "model": "AgentJev-0.6B@9d9b5fc3",
+        "hard": {"accuracy": 0.7715}, "latency_p50_ms": 88.0,
+    }
+    merged, err = merge_refusing(primary, update)
+    assert merged is not None, f"merge must pass, got: {err}"
+    s1 = next(s for s in merged["suites"] if s["name"] == "s1")
+    e = s1["extra_host_lanes"]["4090-windows"]
+    assert e["agentjev"]["hard"]["accuracy"] == 0.7715
+    assert e["agentjev"]["lane"] == "agentjev"  # machine field preserved
+
+    # the display rename reaches the agentjev lane (the extra_host_lanes
+    # surface renames in the publish path's own loop — covered by the
+    # merged fixture above carrying the machine field through)
+    d = {"suites": [{"agentjev": {"lane": "agentjev"}}]}
+    pb.rename_lanes(d)
+    assert d["suites"][0]["agentjev"]["lane"] == "agentjev (reference)"
+
+
 CASES = [
     case_fleet_join_still_works,
     case_same_host_update_keeps_laya_and_row_facts,
@@ -426,6 +451,7 @@ CASES = [
     case_clm_lane_and_leak_block_ride_an_update,
     case_host_display_rename_at_load_boundary,
     case_gliner_lane_rides_an_update,
+    case_agentjev_lane_rides_an_update,
     case_extra_suite_absent_in_primary_refuses,
     case_end_to_end_main,
 ]

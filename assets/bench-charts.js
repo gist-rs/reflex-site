@@ -24,6 +24,7 @@
     { key: "python", label: "laya (python)", color: "#199e70", match: (l) => l.lane === "laya (python)" },
     { key: "clm", label: "clm (reference)", color: "#b39ddb", match: (l) => l.lane === "clm (reference)" },
     { key: "gliner", label: "gliner (reference)", color: "#4dd0c4", match: (l) => l.lane === "gliner (reference)" },
+    { key: "agentjev", label: "agentjev (reference)", color: "#d9a62e", match: (l) => l.lane === "agentjev (reference)" },
   ];
   const OTHER = { key: "other", label: "other", color: "#8a7468" };
   const laneOf = (l) => LANES.find((x) => x.match(l)) || OTHER;
@@ -134,6 +135,7 @@
     for (const k of Object.keys(s.laya || {})) out.push(s.laya[k]);
     if (s.clm) out.push(s.clm);
     if (s.gliner) out.push(s.gliner);
+    if (s.agentjev) out.push(s.agentjev);
     return out;
   }
   function extraLanes(s) {
@@ -143,6 +145,7 @@
       for (const k of Object.keys(hl.laya || {})) out.push([hl.laya[k], host]);
       if (hl.clm) out.push([hl.clm, host]);
       if (hl.gliner) out.push([hl.gliner, host]);
+      if (hl.agentjev) out.push([hl.agentjev, host]);
     }
     return out;
   }
@@ -240,7 +243,7 @@
       }
     const extraHosts = d.suites.some((s) => s.extra_host_lanes);
     const note = `laya bars use each suite's best non-multilingual checkpoint${picks.size ? ` (${[...picks].join(", ")}; english elsewhere)` : " (english)"}. ` +
-      `Comparison-lane bars (clm, gliner) carry the host they ran on in the tooltip${extraHosts ? " — other hosts' rows stay in the tables below" : ""}.` +
+      `Comparison-lane bars (clm, gliner, agentjev) carry the host they ran on in the tooltip${extraHosts ? " — other hosts' rows stay in the tables below" : ""}.` +
       (M.log ? " Latency is log-scale (each gridline = 10×) — shorter is faster." : " Chance level differs per suite — compare lanes within a row, not rows with each other.");
     return `<div class="bc-hgrid"><div></div>${axis(m)}${rows}<div></div>${axis(m)}</div><p class="bc-note">${esc(note)}</p>`;
   }

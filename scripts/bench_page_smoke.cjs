@@ -41,7 +41,7 @@ const server = http.createServer((req, res) => {
   // 2) the filter bar: 5 chips (the two laya spellings may both exist)
   const chips = await page.$$eval("#lane-filter input[type=checkbox]", (xs) => xs.map((x) => x.dataset.key));
   console.log("chips:", chips.join(","));
-  for (const k of ["katgpt", "rust", "python", "clm", "gliner"]) {
+  for (const k of ["katgpt", "rust", "python", "clm", "gliner", "agentjev"]) {
     if (!chips.includes(k)) fail(`filter chip missing: ${k}`);
   }
   if (chips.length >= 5) console.log("ok: filter chips present");
@@ -50,6 +50,12 @@ const server = http.createServer((req, res) => {
   const glinerRows = await page.$$eval("#tables tr", (trs) => trs.filter((t) => t.textContent.includes("gliner (reference)")).length);
   if (glinerRows < 10) fail(`expected >=10 gliner table rows, got ${glinerRows}`);
   else console.log(`ok: ${glinerRows} gliner table rows`);
+
+  // 3b) agentjev rows (reflex .issues/025 amendment 4 — the same 4090
+  // extra-host law; 14 suites carry the lane)
+  const ajRows = await page.$$eval("#tables tr", (trs) => trs.filter((t) => t.textContent.includes("agentjev (reference)")).length);
+  if (ajRows < 10) fail(`expected >=10 agentjev table rows, got ${ajRows}`);
+  else console.log(`ok: ${ajRows} agentjev table rows`);
 
   // 4) hero bars: gliner lane bar present (not "not run")
   const notRun = await page.$$eval("#bench-hero .bc-hbar.bc-none", (xs) => xs.map((x) => x.textContent.trim()));
