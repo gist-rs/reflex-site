@@ -179,6 +179,20 @@
     </details>
   </section>
 
+  <section id="sizes">
+    <h2>What each lane costs on disk</h2>
+    <p class="sub">
+      The same lanes the <a href="/bench/">benchmark</a> and <a href="/arena/">arena</a> pages compare,
+      priced in bytes: runtime/engine below in ember, model weights in blue — smallest total first.
+      Every count is measured (unpacked release archives, Hugging Face tree sizes, on-host venv and
+      image measurements), generated into <code>data/sizes.json</code>, never hand-typed.
+    </p>
+    <div id="size-report" aria-label="disk footprint per candidate, smallest first">
+      <p class="sub" style="margin:4px 0 8px">loading the measured footprints from <code>data/sizes.json</code>…</p>
+    </div>
+    <p class="prov" id="sizes-prov" hidden></p>
+  </section>
+
   <section id="explore">
     <h2>Start here</h2>
     <p class="sub">Four doors into the same engine — pick the one that matches what you're doing today.</p>
@@ -275,6 +289,7 @@
 </footer>
 
 <script src="/assets/bench-charts.js"></script>
+<script src="/assets/size-charts.js"></script>
 <script src="/assets/app.js"></script>
 </body>
 </html>

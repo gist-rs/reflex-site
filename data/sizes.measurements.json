@@ -1,0 +1,52 @@
+{
+  "meta": {
+    "recorded_utc": "2026-09-25T09:30:00Z",
+    "law": "box-specific footprint facts, measured once per bench window with the command in `how` recorded verbatim; the live half of the size report (release archives, HF model trees, local wasm) refreshes in data/sizes.json on every publish_sizes run. A recorded row is a MEASUREMENT, never an estimate.",
+    "hosts": {
+      "m3-max-metal": "Apple M3 Max, macOS \u2014 the host that runs the modelless + laya (rust) + laya (python) lanes",
+      "4090-win": "RTX 4090, Windows \u2014 the host that runs the gliner / agentjev / clm comparison lanes"
+    }
+  },
+  "measurements": [
+    {
+      "key": "laya_python_runtime",
+      "bytes": 643625020,
+      "what": "python runtime for the ORIGINAL torch reference oracle: the import closure of scripts/laya_python_lane.py (torch 392.4 MB MPS build, transformers 95.4 MB, sympy, numpy, tokenizers, ... = 637497404 B) + the pinned reference checkout .raw/laya (6127616 B)",
+      "host": "m3-max-metal",
+      "date_utc": "2026-09-25",
+      "how": "sum of lstat sizes over the oracle's imported site-packages dirs (homebrew python3.14) + `du` over .raw/laya"
+    },
+    {
+      "key": "gliner_venv",
+      "bytes": 4440404787,
+      "what": "the gliner2 venv (torch-cu + transformers + peft + accelerate + their gliner2 package)",
+      "host": "4090-win",
+      "date_utc": "2026-09-25",
+      "how": "PowerShell (Get-ChildItem -Recurse -Force -File | Measure-Object -Sum Length).Sum over E:\\git\\riir-reflex\\.raw\\gliner-env \u2192 4234.7 MiB \u00d7 1048576"
+    },
+    {
+      "key": "agentjev_venv",
+      "bytes": 4518943130,
+      "what": "their jev_service venv (torch-cu + deps)",
+      "host": "4090-win",
+      "date_utc": "2026-09-25",
+      "how": "PowerShell (Get-ChildItem -Recurse -Force -File | Measure-Object -Sum Length).Sum over E:\\git\\riir-reflex\\.raw\\agentjev-env \u2192 4309.6 MiB \u00d7 1048576"
+    },
+    {
+      "key": "clm_docker",
+      "bytes": 30700000000,
+      "what": "the vLLM serving image (vllm/vllm-openai:nightly) their CLM stack boots in",
+      "host": "4090-win",
+      "date_utc": "2026-09-25",
+      "how": "docker images --format '{{.Repository}}:{{.Tag}} {{.Size}}' \u2192 '30.7GB' (docker-reported, one decimal, decimal GB)"
+    },
+    {
+      "key": "clm_repo",
+      "bytes": 77804339,
+      "what": "their CLM repo checkout @ cca045ff + the trained head (checkpoints/CLM_v0.1-8B.pt)",
+      "host": "4090-win",
+      "date_utc": "2026-09-25",
+      "how": "PowerShell recursive file-length sum over E:\\git\\riir-reflex\\.raw\\CLM \u2192 74.2 MiB \u00d7 1048576"
+    }
+  ]
+}

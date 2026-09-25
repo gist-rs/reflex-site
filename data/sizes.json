@@ -1,0 +1,172 @@
+{
+ "meta": {
+  "date_utc": "2026-09-25T13:25:10Z",
+  "release": {
+   "tag": "v0.2.3",
+   "url": "https://github.com/gist-rs/reflex/releases/tag/v0.2.3",
+   "archives": {
+    "reflex-v0.2.3-aarch64-apple-darwin.tar.gz": 1667989,
+    "reflex-v0.2.3-aarch64-unknown-linux-musl.tar.gz": 1734479,
+    "reflex-v0.2.3-x86_64-apple-darwin.tar.gz": 1783352,
+    "reflex-v0.2.3-x86_64-pc-windows-gnu.zip": 1809619,
+    "reflex-v0.2.3-x86_64-unknown-linux-musl.tar.gz": 1889667
+   }
+  },
+  "law": "every byte count is measured (release archive unpack, HF tree API, local stat) or a recorded on-host measurement with provenance \u2014 never hand-typed",
+  "order": "ascending total (engine + model)"
+ },
+ "candidates": [
+  {
+   "key": "wasm_heads",
+   "name": "reflex \u00b7 in-browser (wasm heads)",
+   "framework": "Rust \u2192 wasm32 (wasm-opt -Oz), zero deps",
+   "engine_bytes": 92057,
+   "engine_what": "arena_head.wasm \u2014 the engine's fitted game heads as one module",
+   "engine_provenance": {
+    "source": "local file",
+    "detail": "assets/arena_head.wasm"
+   },
+   "model_bytes": 0,
+   "model_what": "none \u2014 the fitted heads are compiled into the module",
+   "model_provenance": null,
+   "targets": [
+    "browser tab",
+    "edge worker (1 MB class)"
+   ],
+   "note": "plays Tetris / Flappy / three-lanes in-tab with no engine install \u2014 parity-proven against the recorded engine play before it moves a piece"
+  },
+  {
+   "key": "reflex_native",
+   "name": "reflex \u00b7 native binary (modelless)",
+   "framework": "one static Rust binary (dist profile, stripped, fat LTO)",
+   "engine_bytes": 5073281,
+   "engine_what": "installed binary + THIRD_PARTY_LICENSES.md (unpacked from the aarch64-apple-darwin archive)",
+   "engine_provenance": {
+    "source": "measured: unpacked release archive",
+    "detail": "v0.2.3 aarch64-apple-darwin, downloaded + stat'd at publish time"
+   },
+   "model_bytes": 0,
+   "model_what": "none \u2014 the corpus ships inside the binary; the game heads boot-fit from embedded fixtures",
+   "model_provenance": null,
+   "targets": [
+    "macOS",
+    "Linux (musl, static)",
+    "Windows",
+    "container"
+   ],
+   "note": "archive download 1.67\u20131.89 MB across all 5 release targets \u2014 the same binary serves every lane"
+  },
+  {
+   "key": "reflex_laya_typed",
+   "name": "reflex + laya \u00b7 typed",
+   "framework": "the same reflex binary + the laya-riir lane (runtime download)",
+   "engine_bytes": 5073281,
+   "engine_what": "the same installed binary",
+   "engine_provenance": {
+    "source": "measured: unpacked release archive",
+    "detail": "v0.2.3 aarch64-apple-darwin, downloaded + stat'd at publish time"
+   },
+   "model_bytes": 846195716,
+   "model_what": "the typed-decisions specialist checkpoint (SHA-256-pinned, downloaded at first boot)",
+   "model_provenance": {
+    "source": "huggingface.co tree API (exact bytes)",
+    "detail": "convaiinnovations/laya \u00b7 typed-decisions/ subtree sum"
+   },
+   "targets": [
+    "macOS (Metal)",
+    "Linux",
+    "Windows (CUDA)",
+    "container"
+   ],
+   "note": "the english base is the same size class (848 MB); multilingual 678 MB; all three checkpoints \u2248 2.37 GB"
+  },
+  {
+   "key": "laya_python",
+   "name": "laya \u00b7 python reference",
+   "framework": "CPython + torch (MPS build) + transformers + the pinned reference checkout",
+   "engine_bytes": 643625020,
+   "engine_what": "the oracle's python import closure + the pinned .raw/laya checkout",
+   "engine_provenance": {
+    "source": "recorded measurement",
+    "detail": "python runtime for the ORIGINAL torch reference oracle: the import closure of scripts/laya_python_lane.py (torch 392.4 MB MPS build, transformers 95.4 MB, sympy, numpy, tokenizers, ... = 637497404 B) + the pinned reference checkout .raw/laya (6127616 B) \u2014 measured 2026-09-25 on m3-max-metal: sum of lstat sizes over the oracle's imported site-packages dirs (homebrew python3.14) + `du` over .raw/laya"
+   },
+   "model_bytes": 846195716,
+   "model_what": "the same typed checkpoint, loaded by the original reference",
+   "model_provenance": {
+    "source": "huggingface.co tree API (exact bytes)",
+    "detail": "convaiinnovations/laya \u00b7 typed-decisions/ subtree sum"
+   },
+   "targets": [
+    "python env",
+    "GPU (MPS/CUDA)"
+   ],
+   "note": "measurement-only lane \u2014 the reference is never shipped; footprint measured on the bench host that runs it"
+  },
+  {
+   "key": "gliner",
+   "name": "GLiNER2.5-Decide",
+   "framework": "their gliner2 package in a torch-cu venv",
+   "engine_bytes": 4440404787,
+   "engine_what": "the gliner2 venv (torch-cu + transformers + peft + accelerate)",
+   "engine_provenance": {
+    "source": "recorded measurement",
+    "detail": "the gliner2 venv (torch-cu + transformers + peft + accelerate + their gliner2 package) \u2014 measured 2026-09-25 on 4090-win: PowerShell (Get-ChildItem -Recurse -Force -File | Measure-Object -Sum Length).Sum over E:\\git\\riir-reflex\\.raw\\gliner-env \u2192 4234.7 MiB \u00d7 1048576"
+   },
+   "model_bytes": 1954841041,
+   "model_what": "their model + tokenizer tree (HF, exact bytes)",
+   "model_provenance": {
+    "source": "huggingface.co tree API (exact bytes)",
+    "detail": "fastino/GLiNER2.5-Decide"
+   },
+   "targets": [
+    "python env",
+    "GPU (CUDA)"
+   ],
+   "note": null
+  },
+  {
+   "key": "agentjev",
+   "name": "AgentJev-0.6B",
+   "framework": "their jev_service in a torch venv",
+   "engine_bytes": 4518943130,
+   "engine_what": "their service venv (torch-cu + deps)",
+   "engine_provenance": {
+    "source": "recorded measurement",
+    "detail": "their jev_service venv (torch-cu + deps) \u2014 measured 2026-09-25 on 4090-win: PowerShell (Get-ChildItem -Recurse -Force -File | Measure-Object -Sum Length).Sum over E:\\git\\riir-reflex\\.raw\\agentjev-env \u2192 4309.6 MiB \u00d7 1048576"
+   },
+   "model_bytes": 3925770487,
+   "model_what": "their agent-jev tensors + the Qwen3-0.6B backbone their service loads at boot",
+   "model_provenance": {
+    "source": "huggingface.co tree API (exact bytes)",
+    "detail": "aimeigaoshou/agent-jev + Qwen/Qwen3-0.6B"
+   },
+   "targets": [
+    "python env",
+    "GPU (CUDA)"
+   ],
+   "note": "their boot loads BOTH the agent-jev checkpoint and the Qwen3-0.6B base from the HF cache \u2014 both counted"
+  },
+  {
+   "key": "clm",
+   "name": "CLM v0.1-8B",
+   "framework": "vLLM docker image + their clm-serve head",
+   "engine_bytes": 30777804339,
+   "engine_what": "the vLLM serving image + their CLM repo/head checkout",
+   "engine_provenance": {
+    "source": "recorded measurement (sum)",
+    "detail": "30,700,000,000 B (the vLLM serving image (vllm/vllm-openai:nightly) their CLM stack boots in, 2026-09-25 on 4090-win) + 77,804,339 B (their CLM repo checkout @ cca045ff + the trained head (checkpoints/CLM_v0.1-8B.pt), 2026-09-25 on 4090-win)"
+   },
+   "model_bytes": 16473292630,
+   "model_what": "the Qwen3-8B encoder weights + the trained head (CLM_v0.1-8B.pt)",
+   "model_provenance": {
+    "source": "huggingface.co tree API (exact bytes)",
+    "detail": "Qwen/Qwen3-8B + Contrastive-LM/CLM-v0.1-8B"
+   },
+   "targets": [
+    "docker container",
+    "GPU (CUDA)"
+   ],
+   "note": null
+  }
+ ]
+}

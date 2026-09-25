@@ -296,3 +296,20 @@ h1.page-title { font-size: 36px; margin: 44px 0 8px; }
 .diffs thead th { color: var(--muted); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; }
 .diffs td:first-child { color: var(--text); font-weight: 600; white-space: nowrap; }
 .diffs td { color: var(--muted); }
+
+/* ── #sizes — the disk-footprint chart (size-charts.js) ───────────────────
+   Reuses the bc-hbar/bc-htrack/bc-grid/bc-axis/bc-legend atoms; adds the
+   three-column row (label | bars | total) and the target chips. */
+.sz-grid { display: grid; grid-template-columns: 190px 1fr 76px; column-gap: 12px; row-gap: 16px; align-items: center; }
+.sz-row { display: contents; }
+.sz-label { display: flex; flex-direction: column; gap: 4px; align-items: flex-end; text-align: right; }
+.sz-name { font-size: 12.5px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.sz-chips { display: flex; flex-wrap: wrap; gap: 4px; justify-content: flex-end; }
+.sz-chip { font-size: 10px; line-height: 1.5; color: var(--muted); border: 1px solid var(--line); border-radius: 4px; padding: 0 5px; white-space: nowrap; }
+.sz-total { text-align: right; font-variant-numeric: tabular-nums; }
+.sz-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
+.sz-axis { flex: 1; min-width: 220px; }
+@media (max-width: 720px) {
+  .sz-grid { grid-template-columns: 108px 1fr 62px; }
+  .sz-chips { display: none; } /* the chips re-read from each bar's tooltip on small screens */
+}

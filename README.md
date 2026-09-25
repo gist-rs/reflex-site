@@ -5,6 +5,7 @@ static content only, deployed to `reflex.gist.rs` on Cloudflare Workers
 static assets.
 
 - `/` — the landing: the measured TL;DR + the averaged all-suites chart, the
+  disk-footprint chart (`/#sizes` — every lane priced in measured bytes), the
   how-it-works figure (a .docs-first SVG, mirrored to `assets/`), per-page
   cards, and the agent-skill section.
 - `/playground/` — the playground (talks to the visitor's OWN engine on
@@ -155,6 +156,30 @@ modelless-only post-023 re-run). The self-test covers every merge law:
 Commit + deploy. The provenance (git sha, date, host, protocols) rides
 inside `bench.json` and renders on the page — every host in `meta.hosts`
 is named in the provenance line.
+
+## Regenerate the size chart
+
+The `/#sizes` section ("What each lane costs on disk") renders from
+`data/sizes.json` — every byte count measured, never hand-typed. Re-run the
+wrapper whenever a new reflex release ships, the wasm head is rebuilt
+(`assets/arena_head.wasm` is a live source), or a comparison lane's stack
+moves:
+
+```sh
+scripts/publish_sizes.sh
+```
+
+Sources, two classes: **LIVE** (refreshed every run — the gist-rs/reflex
+latest release via the GitHub API *plus the unpacked darwin-arm64 archive
+downloaded and stat'd*, the Hugging Face tree API for every model bytes
+figure, the local wasm) and **RECORDED**
+(`data/sizes.measurements.json` — the box-specific halves: python venvs,
+the vLLM docker image, the m3 oracle's import closure; each row carries
+host + date + the exact command, and is re-measured per bench window, not
+estimated). Any failed source REFUSES loudly — a partial footprint report
+never renders as a complete one. The self-test
+(`scripts/test_publish_sizes.py`) covers the merge laws and the refusal
+arms; `scripts/size_chart_smoke.cjs` is the zero-dep render check.
 
 ## Mirrored docs surfaces
 
