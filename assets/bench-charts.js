@@ -13,13 +13,81 @@
 (function () {
   "use strict";
 
+  // Palette: categorical slots validated on the site's dark surfaces
+  // (#140b08 and #1d110c). Color follows the LANE, never its rank. The
+  // three founding slots were validated all-pairs (CVD ΔE 9.4, normal
+  // ΔE 20.9); the two comparison-lane slots (clm violet, gliner teal) were
+  // added later with the same dark-surface ≥3:1 contrast rule.
   const LANES = [
     { key: "katgpt", label: "KatGPT · modelless", color: "#d95926", match: (l) => l.lane === "KatGPT" || l.model === "modelless" },
     { key: "rust", label: "laya (rust)", color: "#3987e5", match: (l) => l.lane === "laya (rust)" },
     { key: "python", label: "laya (python)", color: "#199e70", match: (l) => l.lane === "laya (python)" },
+    { key: "clm", label: "clm (reference)", color: "#b39ddb", match: (l) => l.lane === "clm (reference)" },
+    { key: "gliner", label: "gliner (reference)", color: "#4dd0c4", match: (l) => l.lane === "gliner (reference)" },
   ];
   const OTHER = { key: "other", label: "other", color: "#8a7468" };
   const laneOf = (l) => LANES.find((x) => x.match(l)) || OTHER;
+
+  // ── lane filter (one checkbox bar, governs EVERY section of the page) ────
+  // The filter keys on the CANONICAL lane key (laneOf(l).key — "katgpt",
+  // "rust", …), never on display spellings, so the charts, the tables, and
+  // the extra-host rows all agree by construction. State = hidden keys,
+  // persisted in localStorage so a reader's view survives a reload; a key
+  // the data no longer carries is dropped at init (a retired lane must not
+  // stay hidden forever).
+  const FILTER_KEY = "bench-lane-filter";
+  const filter = { hidden: new Set(), keys: [], ready: false };
+  function loadHidden() {
+    try {
+      const raw = JSON.parse(localStorage.getItem(FILTER_KEY) || "[]");
+      if (Array.isArray(raw)) filter.hidden = new Set(raw.map(String));
+    } catch (e) { /* corrupt storage = the default all-visible view */ }
+  }
+  loadHidden();
+  // Derive the ordered key/label list from the DATA (every lane the page
+  // would render, primary + extra-host, in first-seen order).
+  function init(d) {
+    const seen = [];
+    const add = (l) => {
+      const k = laneOf(l).key;
+      if (!seen.some((x) => x.key === k)) seen.push({ key: k, label: laneOf(l).label });
+    };
+    for (const s of (d && d.suites) || []) {
+      for (const l of allLanes(s)) add(l);
+      for (const [l] of extraLanes(s)) add(l);
+    }
+    filter.keys = seen;
+    for (const k of [...filter.hidden]) if (!seen.some((x) => x.key === k)) filter.hidden.delete(k);
+    filter.ready = true;
+  }
+  const visible = (l) => !filter.hidden.has(laneOf(l).key);
+  const visibleKey = (k) => !filter.hidden.has(k);
+  function bar() {
+    if (!filter.ready || !filter.keys.length) return "";
+    const byKey = Object.fromEntries(filter.keys.map((x) => [x.key, x]));
+    const order = LANES.map((x) => x.key).concat(filter.keys.map((x) => x.key)
+      .filter((k) => !LANES.some((x) => x.key === k)));
+    const chips = order.filter((k) => byKey[k]).map((k) => {
+      const x = byKey[k];
+      const color = (LANES.find((l) => l.key === k) || OTHER).color;
+      return `<label class="lf-chip"><input type="checkbox" data-key="${esc(k)}"${visibleKey(k) ? " checked" : ""}><i class="bc-sw" style="background:${color}"></i>${esc(x.label)}</label>`;
+    }).join("");
+    return `<div class="lf-bar" role="group" aria-label="filter lanes">${chips}</div>`;
+  }
+  function wire(el, rerender) {
+    // Property assignment (not addEventListener): render() re-wires on every
+    // re-render, and assignment REPLACES the handler — listeners never
+    // accumulate on the container.
+    el.onchange = (e) => {
+      const b = e.target.closest("input[type=checkbox][data-key]");
+      if (!b) return;
+      if (b.checked) filter.hidden.delete(b.dataset.key);
+      else filter.hidden.add(b.dataset.key);
+      try { localStorage.setItem(FILTER_KEY, JSON.stringify([...filter.hidden])); } catch (err) { /* non-fatal */ }
+      rerender();
+    };
+  }
+  window.BenchFilter = { init, visible, bar, wire };
 
   const METRICS = {
     acc: { label: "accuracy", get: (l) => (l.hard || {}).accuracy, log: false },
@@ -38,7 +106,10 @@
   let logDomain = [-3, 3];
   function setLogDomain(d) {
     const vs = [];
-    for (const s of d.suites || []) for (const l of allLanes(s)) if (num(l.latency_p50_ms) && l.latency_p50_ms > 0) vs.push(l.latency_p50_ms);
+    for (const s of d.suites || []) {
+      for (const l of allLanes(s)) if (num(l.latency_p50_ms) && l.latency_p50_ms > 0) vs.push(l.latency_p50_ms);
+      for (const [l] of extraLanes(s)) if (num(l.latency_p50_ms) && l.latency_p50_ms > 0) vs.push(l.latency_p50_ms);
+    }
     if (vs.length) logDomain = [Math.floor(Math.log10(Math.min(...vs))), Math.ceil(Math.log10(Math.max(...vs)))];
     if (logDomain[1] <= logDomain[0]) logDomain[1] = logDomain[0] + 1;
   }
@@ -61,6 +132,8 @@
     const out = [];
     if (s.modelless) out.push(s.modelless);
     for (const k of Object.keys(s.laya || {})) out.push(s.laya[k]);
+    if (s.clm) out.push(s.clm);
+    if (s.gliner) out.push(s.gliner);
     return out;
   }
   function extraLanes(s) {
@@ -68,18 +141,29 @@
     for (const [host, hl] of Object.entries(s.extra_host_lanes || {})) {
       if (hl.modelless) out.push([hl.modelless, host]);
       for (const k of Object.keys(hl.laya || {})) out.push([hl.laya[k], host]);
+      if (hl.clm) out.push([hl.clm, host]);
+      if (hl.gliner) out.push([hl.gliner, host]);
     }
     return out;
   }
 
   // Hero pick: per suite and lane, the best-accuracy NON-multilingual
-  // checkpoint on the primary host. Picked once by accuracy, so every metric
-  // toggle shows the SAME run (no per-metric cherry-pick).
+  // checkpoint on the primary host; when the primary never ran the lane
+  // (the comparison lanes run on their own host), the best EXTRA-HOST cell
+  // fills the bar, host-tagged in the tooltip. Picked once by accuracy, so
+  // every metric toggle shows the SAME run (no per-metric cherry-pick);
+  // accuracy is box-independent and may mix hosts (reflex .issues/027
+  // amendment 2), latency bars disclose the host in the tooltip.
   function pick(s, lane) {
     let best = null;
     for (const l of allLanes(s)) {
       if (laneOf(l) !== lane || l.model === "multilingual" || !l.hard) continue;
       if (!best || (l.hard.accuracy ?? -1) > (best.hard.accuracy ?? -1)) best = l;
+    }
+    if (best) return [best, null];
+    for (const [l, host] of extraLanes(s)) {
+      if (laneOf(l) !== lane || l.model === "multilingual" || !l.hard) continue;
+      if (!best || (l.hard.accuracy ?? -1) > (best.hard.accuracy ?? -1)) best = [l, host];
     }
     return best;
   }
@@ -120,7 +204,7 @@
       (num(h.n) ? ` · n=${h.n}` : "");
   };
 
-  const legend = () => `<div class="bc-legend" aria-label="lanes">${LANES.map((x) =>
+  const legend = () => `<div class="bc-legend" aria-label="lanes">${LANES.filter((x) => visibleKey(x.key)).map((x) =>
     `<span><i class="bc-sw" style="background:${x.color}"></i>${esc(x.label)}</span>`).join("")}</div>`;
 
   const axis = (m) => `<div class="bc-axis">${ticks(m).map(([f, t]) =>
@@ -132,21 +216,31 @@
 
   function heroBody() {
     const d = heroData, m = heroMetric, M = METRICS[m], f = fmtOf(m);
+    const shown = LANES.filter((lane) => visibleKey(lane.key));
     const rows = (d.suites || []).map((s) => {
-      const bars = LANES.map((lane) => {
-        const l = pick(s, lane);
+      const bars = shown.map((lane) => {
+        const picked = pick(s, lane);
+        const l = picked ? picked[0] : null;
+        const host = picked ? picked[1] : null;
         const v = l ? M.get(l) : null;
         const fr = frac(m, v);
         if (fr === null) return `<div class="bc-hbar bc-none">${esc(lane.label)} — not run</div>`;
-        return `<div class="bc-hbar" tabindex="0" data-tip="${esc(`<span class="bc-mut">${esc(s.name)}</span><br>` + tipHtml(l))}" aria-label="${esc(`${s.name} ${lane.label} ${l.model}: ${f(v)}`)}">` +
+        return `<div class="bc-hbar" tabindex="0" data-tip="${esc(`<span class="bc-mut">${esc(s.name)}</span><br>` + tipHtml(l, host ? "@" + host : ""))}" aria-label="${esc(`${s.name} ${lane.label} ${l.model}${host ? " on " + host : ""}: ${f(v)}`)}">` +
           `<i style="width:${(fr * 100).toFixed(2)}%;background:${lane.color}"></i></div>`;
       }).join("");
       return `<a class="bc-hlabel" href="#suite-${esc(s.name)}">${esc(s.name)}</a><div class="bc-htrack">${grid(m)}${bars}</div>`;
     }).join("");
     const picks = new Set();
-    for (const s of d.suites || []) for (const lane of LANES.slice(1)) { const l = pick(s, lane); if (l && l.model !== "english") picks.add(`${l.model} on ${s.name}`); }
+    for (const s of d.suites || [])
+      for (const lane of LANES.filter((x) => x.key === "rust" || x.key === "python")) {
+        if (!visibleKey(lane.key)) continue;
+        const picked = pick(s, lane);
+        const l = picked ? picked[0] : null;
+        if (l && l.model !== "english") picks.add(`${l.model} on ${s.name}`);
+      }
+    const extraHosts = d.suites.some((s) => s.extra_host_lanes);
     const note = `laya bars use each suite's best non-multilingual checkpoint${picks.size ? ` (${[...picks].join(", ")}; english elsewhere)` : " (english)"}. ` +
-      `Multilingual rows${d.suites.some((s) => s.extra_host_lanes) ? " and other hosts" : ""} stay in the tables below.` +
+      `Comparison-lane bars (clm, gliner) carry the host they ran on in the tooltip${extraHosts ? " — other hosts' rows stay in the tables below" : ""}.` +
       (M.log ? " Latency is log-scale (each gridline = 10×) — shorter is faster." : " Chance level differs per suite — compare lanes within a row, not rows with each other.");
     return `<div class="bc-hgrid"><div></div>${axis(m)}${rows}<div></div>${axis(m)}</div><p class="bc-note">${esc(note)}</p>`;
   }
@@ -179,7 +273,8 @@
   }
 
   function suite(s) {
-    const rows = allLanes(s).map((l) => [l, null]).concat(extraLanes(s));
+    const rows = allLanes(s).map((l) => [l, null]).concat(extraLanes(s))
+      .filter(([l]) => visible(l));
     if (!rows.length) return "";
     return `<div class="bc-suite" aria-label="${esc(s.name)} lanes compared">` +
       `<div class="bc-sh"></div><div class="bc-sh">accuracy</div><div class="bc-sh">p50 latency · log · shorter is faster</div>` +

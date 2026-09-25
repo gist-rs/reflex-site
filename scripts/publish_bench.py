@@ -78,14 +78,15 @@ HOST_META_KEYS = (
 LANE_SOURCE_KEYS = ("git_sha", "date_utc")
 
 # Display-only lane spellings. The canonical results.json keeps the machine
-# fields ("laya-riir" / "laya-python" / "modelless" / "clm") — the rename
-# happens HERE, the one place every published byte passes through, so a
-# re-publish can never drift from the page.
+# fields ("laya-riir" / "laya-python" / "modelless" / "clm" / "gliner") — the
+# rename happens HERE, the one place every published byte passes through, so
+# a re-publish can never drift from the page.
 LANE_DISPLAY = {
     "laya-riir": "laya (rust)",
     "laya-python": "laya (python)",
     "modelless": "KatGPT",
     "clm": "clm (reference)",
+    "gliner": "gliner (reference)",
 }
 
 # Both spellings of the python lane: the machine field in a fresh harness
@@ -129,6 +130,7 @@ def rename_lanes(d):
             ([s["modelless"]] if s.get("modelless") else [])
             + list((s.get("laya") or {}).values())
             + ([s["clm"]] if s.get("clm") else [])
+            + ([s["gliner"]] if s.get("gliner") else [])
         )
         for l in lanes:
             # The model column renders the harness's own field — the modelless
@@ -251,6 +253,12 @@ def merge(primary, extras):
             if ec:
                 entry["clm"] = ec
                 updated_lanes["clm"] = True
+            # The GLiNER comparison lane (reflex .issues/029): the same
+            # carry law as clm — an external reference measured per-host.
+            eg = s.get("gliner")
+            if eg:
+                entry["gliner"] = eg
+                updated_lanes["gliner"] = True
             # The Issue-024 leak block (T4): a slice property of the
             # DATASETS + registry caps, not of the host — the latest
             # run's scan is the published one (a doc without it never
@@ -363,6 +371,7 @@ def main() -> int:
                  else [])
                 + list((host_lanes.get("laya") or {}).values())
                 + ([host_lanes["clm"]] if host_lanes.get("clm") else [])
+                + ([host_lanes["gliner"]] if host_lanes.get("gliner") else [])
             )
             for l in lanes:
                 l["lane"] = LANE_DISPLAY.get(l.get("lane"), l.get("lane"))

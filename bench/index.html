@@ -29,6 +29,13 @@
   .bc-cell i { height: 9px; }
   .bc-cell span { color: var(--muted); font-size: 11.5px; white-space: nowrap; font-variant-numeric: tabular-nums; }
   .bc-cell.bc-none { color: var(--muted); }
+  .bc-tip { position: fixed; display: none; z-index: 20; pointer-events: none; background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 7px 10px; font-size: 12px; line-height: 1.5; color: var(--text); box-shadow: 0 4px 18px rgba(0,0,0,.45); max-width: 320px; }
+  .lf-bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 10px 12px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; margin: 12px 0 4px; }
+  .lf-chip { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--text); border: 1px solid var(--line); border-radius: 999px; padding: 4px 10px 4px 8px; cursor: pointer; user-select: none; }
+  .lf-chip:has(input:checked) { border-color: color-mix(in srgb, var(--accent, #d95926) 55%, var(--line)); }
+  .lf-chip input { accent-color: var(--accent, #d95926); margin: 0; }
+  .lf-chip .bc-sw { width: 9px; height: 9px; border-radius: 2px; flex: none; }
+  .lf-hint { font-size: 12px; color: var(--muted); margin: 2px 0 8px; }
   @media (max-width: 640px) {
     .bc-suite { grid-template-columns: 1fr 1fr; }
     .bc-suite .bc-slabel { grid-column: 1 / -1; }
@@ -56,8 +63,10 @@
 
 <div class="wrap">
   <section style="border-top:0">
-    <h2>At a glance — every suite, three lanes</h2>
+    <h2>At a glance — every suite, every lane</h2>
     <p class="sub">Hover a bar for its numbers; click a suite name to jump to its table. Same questions for every lane.</p>
+    <div id="lane-filter"></div>
+    <p class="lf-hint">Filter the lanes — the checkboxes govern every chart and table on this page (kept across visits).</p>
     <div id="bench-hero" aria-live="polite"></div>
 
     <h2>Per-task tables — the losses are the point</h2>
@@ -90,7 +99,9 @@
         (device noted per run: Metal, or the Apple Neural Engine where the lane serves it).
         <strong>laya (python)</strong> — the original torch reference, driven as a subprocess oracle on the same cases.
         <strong>clm (reference)</strong> — the external Contrastive-LM reference (Apache-2.0, not affiliated): Qwen3-8B pooling + trained heads, served on its own stack and measured on ours — a comparison lane
-        (full detail in the clm entry below).</p>
+        (full detail in the clm entry below).
+        <strong>gliner (reference)</strong> — the external GLiNER2.5-Decide zero-shot classifier (Apache-2.0, not affiliated, 340M DeBERTa-v3 encoder):
+        their gliner2 package answers the same candidate-label questions — a comparison lane, never a product lane.</p>
 
       <h3>Tell me more about the clm (reference) lane</h3>
       <p>CLM (Contrastive Language Models) is an external, unaffiliated research project — an Apache-2.0
@@ -263,6 +274,14 @@ function suiteSection(s) {
   // Contrastive-LM reference over /v1/systemone — same questions, their
   // rendering law, an honest comparison row (never a product lane).
   if (s.clm) lanes.push(s.clm);
+  // The GLiNER comparison lane (reflex .issues/029): fastino/GLiNER2.5-Decide
+  // over their gliner2 package — same questions, their probability readout,
+  // another honest comparison row (never a product lane).
+  if (s.gliner) lanes.push(s.gliner);
+  // The lane filter (governs every section): hidden lanes drop out of the
+  // tables, the per-suite bars, and the hero — and the best-acc highlight
+  // recomputes over the visible rows only.
+  const shown = window.BenchFilter ? lanes.filter((l) => BenchFilter.visible(l)) : lanes;
   // Extra-host lanes (Issue 018 T5 — the fleet merge): the SAME questions
   // answered on other silicon. Same row renderer, host-tagged label; they
   // compete for the best-acc highlight honestly (identical questions).
@@ -271,8 +290,10 @@ function suiteSection(s) {
     if (hl.modelless) extraRows.push([hl.modelless, host]);
     for (const k of Object.keys(hl.laya || {})) extraRows.push([hl.laya[k], host]);
     if (hl.clm) extraRows.push([hl.clm, host]);
+    if (hl.gliner) extraRows.push([hl.gliner, host]);
   }
-  const bestAcc = Math.max(...lanes.concat(extraRows.map(([l]) => l)).map((l) => (l.hard || {}).accuracy ?? 0));
+  const shownExtra = window.BenchFilter ? extraRows.filter(([l]) => BenchFilter.visible(l)) : extraRows;
+  const bestAcc = Math.max(...shown.concat(shownExtra.map(([l]) => l)).map((l) => (l.hard || {}).accuracy ?? 0));
   const m = s.modelless;
   // The G1 verdict: g1_verdict (pass/fail/no_claim) when the run carries it;
   // the g1_pass boolean is the pre-no-claim fallback. no_claim = the
@@ -291,12 +312,23 @@ function suiteSection(s) {
   return `<h3 class="suite" id="suite-${s.name}">${s.name} <span class="cases">— ${s.n_cases} cases / ${s.n_questions} questions</span></h3>
   ${window.BenchCharts ? BenchCharts.suite(s) : ""}<div class="scroll"><table class="bench">
     <thead><tr><th>lane · model</th><th>acc</th><th>macro F1</th><th>ECE(maxp)</th><th>Brier</th><th>acc@50cov</th><th>rECE cal (raw)</th><th>abst / sel-acc</th><th>p50</th><th>p99</th><th>det</th></tr></thead>
-    <tbody>${lanes.map((l) => laneRow(l, bestAcc)).join("")}${extraRows.map(([l, host]) => laneRow(l, bestAcc, host)).join("")}</tbody>
+    <tbody>${shown.map((l) => laneRow(l, bestAcc)).join("")}${shownExtra.map(([l, host]) => laneRow(l, bestAcc, host)).join("")}</tbody>
   </table></div>${leakLine}${g1}${gateFit(s.modelless)}`;
 }
 
 function render(d) {
   const meta = d.meta || {};
+  // The lane filter FIRST (it governs the hero and every table below):
+  // derive the key set from the data, render the checkbox bar, and re-render
+  // the whole page on change (data is closed over — no refetch).
+  if (window.BenchFilter) {
+    BenchFilter.init(d);
+    const lf = document.getElementById("lane-filter");
+    if (lf) {
+      lf.innerHTML = BenchFilter.bar();
+      BenchFilter.wire(lf, () => render(d));
+    }
+  }
   if (window.BenchCharts) BenchCharts.hero(d);
   const hosts = meta.hosts;
   let provenance;

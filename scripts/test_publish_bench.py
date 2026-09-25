@@ -378,6 +378,42 @@ def case_host_display_rename_at_load_boundary():
     assert set(again["suites"][0]["extra_host_lanes"]) == keys
 
 
+def case_gliner_lane_rides_an_update():
+    # reflex .issues/029: the GLiNER comparison lane rides the same carry
+    # law as clm — an update declares it, the merged state carries it on
+    # the host's entry, and the display rename reaches both surfaces.
+    primary = doc("m3", "sha-m3", {"s1": {"modelless_acc": PRE_ACC}})
+    update = doc("4090-windows", "sha-gl", {"s1": {"modelless_acc": PRE_ACC}})
+    update["suites"][0]["gliner"] = {
+        "lane": "gliner", "model": "fastino/GLiNER2.5-Decide",
+        "hard": {"accuracy": 0.61}, "latency_p50_ms": 30.0,
+    }
+    merged, err = merge_refusing(primary, update)
+    assert merged is not None, f"merge must pass, got: {err}"
+    s1 = next(s for s in merged["suites"] if s["name"] == "s1")
+    e = s1["extra_host_lanes"]["4090-windows"]
+    assert e["gliner"]["hard"]["accuracy"] == 0.61
+    assert e["gliner"]["lane"] == "gliner"  # machine field preserved pre-rename
+
+    # a later gliner-bearing update replaces the lane + records lane_sources
+    later = doc("4090-windows", "sha-gl2", {"s1": {"modelless_acc": PRE_ACC}})
+    later["suites"][0]["gliner"] = {
+        "lane": "gliner", "model": "fastino/GLiNER2.5-Decide",
+        "hard": {"accuracy": 0.62}, "latency_p50_ms": 29.0,
+    }
+    merged2, err2 = merge_refusing(merged, later)
+    assert merged2 is not None, f"second merge must pass, got: {err2}"
+    s1b = next(s for s in merged2["suites"] if s["name"] == "s1")
+    assert s1b["extra_host_lanes"]["4090-windows"]["gliner"]["hard"]["accuracy"] == 0.62
+    row = next(h for h in merged2["meta"]["hosts"] if h["host"] == "4090-windows")
+    assert row["lane_sources"]["gliner"]["git_sha"] == "sha-gl2"
+
+    # the display rename reaches the gliner lane (both spellings surfaces)
+    d = {"suites": [{"gliner": {"lane": "gliner"}}]}
+    pb.rename_lanes(d)
+    assert d["suites"][0]["gliner"]["lane"] == "gliner (reference)"
+
+
 CASES = [
     case_fleet_join_still_works,
     case_same_host_update_keeps_laya_and_row_facts,
@@ -389,6 +425,7 @@ CASES = [
     case_device_posture_refreshes_on_laya_update,
     case_clm_lane_and_leak_block_ride_an_update,
     case_host_display_rename_at_load_boundary,
+    case_gliner_lane_rides_an_update,
     case_extra_suite_absent_in_primary_refuses,
     case_end_to_end_main,
 ]
