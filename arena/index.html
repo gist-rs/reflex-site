@@ -7,6 +7,7 @@
   <meta name="description" content="Watch the Reflex lanes play Tetris, Flappy and three-lanes — KatGPT modelless, Reflexer (the rulebook search), laya (Rust), the laya (Python) reference, and the raw baseline, same seeded game, honest losses published.">
   <link rel="stylesheet" href="/assets/style.css">
   <link rel="stylesheet" href="/assets/arena.css">
+  <link rel="stylesheet" href="/assets/latcap.css">
 </head>
 <body>
   <header class="site">
@@ -39,16 +40,20 @@
         <a href="https://www.brainfunctioncollapse.com/laya/">laya</a> model — reads every
         sentence; <b>laya (Python)</b> is the original torch reference it is measured
         against; the <b>raw baseline</b> runs the same engine with its fitted heads
-        skipped — the honest abstain floor. A fifth board, <b>Reflexer</b> (the rulebook search engine),
+        skipped — the honest abstain floor. <b>Reflexer</b> (the rulebook search engine)
         asks no question at all: it plans three pieces ahead and scores boards with a
-        strategy rulebook. Nothing is scripted and bad answers get played.
+        strategy rulebook — and it plays on TWO boards from the same engine bytes:
+        <b>wasm local</b> runs in this tab, <b>Cloudflare</b> answers every piece from the
+        edge, so the two boards play the identical game and differ only by the network
+        hop its latency capsule measures live. Nothing is scripted and bad answers get played.
       </p>
       <div class="statusbar" id="status">
         <span class="chip" id="chip-python"><b>laya (Python)</b> —</span>
         <span class="chip" id="chip-laya"><b>laya (Rust)</b> —</span>
         <span class="chip" id="chip-modelless"><b>KatGPT modelless</b> —</span>
         <span class="chip" id="chip-raw"><b>raw</b> —</span>
-        <span class="chip" id="chip-rulebook"><b>Reflexer</b> —</span>
+        <span class="chip" id="chip-rulebook"><b>Reflexer · wasm local</b> —</span>
+        <span class="chip" id="chip-rulebook_cf"><b>Reflexer · Cloudflare</b> —</span>
         <span class="status-text" id="status-text">checking for a local engine…</span>
       </div>
       <div class="launch" id="launch-box" hidden>
@@ -73,7 +78,9 @@
         heavy for a browser at ~650&nbsp;MB of weights — replays recorded full-argmax
         games; the <b>laya (Python)</b> board replays the original torch reference's
         games, recorded offline (Python never runs in the engine or this page); the
-        <b>raw baseline</b> replays the engine's recorded heads-skipped games. All loop.
+        <b>raw baseline</b> replays the engine's recorded heads-skipped games. Both
+        <b>Reflexer</b> boards play live without your engine: <b>wasm local</b> runs the
+        reflexer engine in this tab, <b>Cloudflare</b> asks the same engine at the edge. All loop.
         Start the engine, then press Start for the live lanes.</p>
       </div>
     </section>
@@ -106,7 +113,7 @@
       </div>
       <div class="boards">
         <div class="boardcard" id="tc-python">
-          <div class="boardhead"><b>laya lane (Python) · torch reference</b><span class="lane-note">the ORIGINAL open-weights torch reference the Rust port is measured against · recorded offline (MPS) — measurement only, never shipped, never run by this page</span><span class="scorebox"><span>SCORE</span><b id="ts-python">0000</b><span>LINES</span><b id="tl-python">000</b></span></div>
+          <div class="boardhead"><b>laya lane (Python) · torch reference</b><span class="lane-note"><span class="latcap" id="lat-python" title="recorded per-spot p50 and range from this lane's recorded game (arena/demo_oracle.json) — static, not live">rec —</span> the ORIGINAL open-weights torch reference the Rust port is measured against · recorded offline (MPS) — measurement only, never shipped, never run by this page</span><span class="scorebox"><span>SCORE</span><b id="ts-python">0000</b><span>LINES</span><b id="tl-python">000</b></span></div>
           <canvas id="tb-python" width="200" height="400"></canvas>
           <div class="stats" id="tst-python">pieces 0 · decisions 0 · p50 — ms · errors 0</div>
           <div class="readout">
@@ -119,7 +126,7 @@
           </div>
         </div>
         <div class="boardcard" id="tc-laya">
-          <div class="boardhead"><b>laya lane (Rust) · model-based</b><span class="lane-note">our riir port of the same open weights — reads every spot sentence · Metal on Apple silicon, CPU elsewhere · per-spot p50 on the stats line</span><span class="scorebox"><span>SCORE</span><b id="ts-laya">0000</b><span>LINES</span><b id="tl-laya">000</b></span></div>
+          <div class="boardhead"><b>laya lane (Rust) · model-based</b><span class="lane-note"><span class="latcap" id="lat-laya" title="recorded per-spot p50 and range from this lane's recorded game (arena/demo_oracle.json) — static, not live">rec —</span> our riir port of the same open weights — reads every spot sentence · Metal on Apple silicon, CPU elsewhere · per-spot p50 on the stats line</span><span class="scorebox"><span>SCORE</span><b id="ts-laya">0000</b><span>LINES</span><b id="tl-laya">000</b></span></div>
           <canvas id="tb-laya" width="200" height="400"></canvas>
           <div class="stats" id="tst-laya">pieces 0 · decisions 0 · p50 — ms · errors 0</div>
           <div class="readout">
@@ -132,7 +139,7 @@
           </div>
         </div>
         <div class="boardcard" id="tc-modelless">
-          <div class="boardhead"><b>KatGPT modelless lane · reflex core</b><span class="lane-note">corpus-fitted heads play Tetris + Flappy + three-lanes — LIVE in-tab via WebAssembly with zero engine, or through your v0.2.3+ engine</span><span class="scorebox"><span>SCORE</span><b id="ts-modelless">0000</b><span>LINES</span><b id="tl-modelless">000</b></span></div>
+          <div class="boardhead"><b>KatGPT modelless lane · reflex core</b><span class="lane-note"><span class="latcap" id="lat-modelless" title="recorded per-spot p50 and range from this lane's recorded game (arena/demo_oracle.json) — static, not live">rec —</span> corpus-fitted heads play Tetris + Flappy + three-lanes — LIVE in-tab via WebAssembly with zero engine, or through your v0.2.3+ engine</span><span class="scorebox"><span>SCORE</span><b id="ts-modelless">0000</b><span>LINES</span><b id="tl-modelless">000</b></span></div>
           <canvas id="tb-modelless" width="200" height="400"></canvas>
           <div class="stats" id="tst-modelless">pieces 0 · decisions 0 · p50 — ms · errors 0</div>
           <div class="readout">
@@ -145,7 +152,7 @@
           </div>
         </div>
         <div class="boardcard" id="tc-rulebook">
-          <div class="boardhead"><b>Reflexer · rulebook search, no model</b><span class="lane-note">plans 3 pieces ahead (falling + preview + every piece left in the bag) and scores boards with a self-evolved strategy rulebook — no sentence, no question · recorded game (katgpt-rs Issue 892)</span><span class="scorebox"><span>SCORE</span><b id="ts-rulebook">0000</b><span>LINES</span><b id="tl-rulebook">000</b></span></div>
+          <div class="boardhead"><b>Reflexer · wasm local</b><span class="lane-note"><span class="latcap" id="lat-rulebook" title="per decision, the reflexer engine running in THIS tab (WebAssembly) — live">in-tab —</span> rulebook search, no model — plans 3 pieces ahead (falling + preview + the bag) with a self-evolved strategy rulebook · the reflexer engine as WebAssembly, in THIS tab</span><span class="scorebox"><span>SCORE</span><b id="ts-rulebook">0000</b><span>LINES</span><b id="tl-rulebook">000</b></span></div>
           <canvas id="tb-rulebook" width="200" height="400"></canvas>
           <div class="stats" id="tst-rulebook">pieces 0 · decisions 0 · p50 — ms · errors 0</div>
           <div class="readout">
@@ -157,8 +164,21 @@
             <div><span>TIMING</span><em id="tr-rulebook-t">—</em></div>
           </div>
         </div>
+        <div class="boardcard" id="tc-rulebook_cf">
+          <div class="boardhead"><b>Reflexer · Cloudflare</b><span class="lane-note"><span class="latcap live" id="lat-rulebook_cf" title="per decision, the full browser → Cloudflare Worker → browser round trip — measured live on every piece">edge —</span> the SAME reflexer wasm on a Cloudflare Worker — one <code>POST /v1/decide</code> per piece, so it plays wasm local's identical game and the capsule is the live round trip</span><span class="scorebox"><span>SCORE</span><b id="ts-rulebook_cf">0000</b><span>LINES</span><b id="tl-rulebook_cf">000</b></span></div>
+          <canvas id="tb-rulebook_cf" width="200" height="400"></canvas>
+          <div class="stats" id="tst-rulebook_cf">pieces 0 · decisions 0 · p50 — ms · errors 0</div>
+          <div class="readout">
+            <div><span>SOURCE</span><em id="tr-rulebook_cf-src">—</em></div>
+            <div><span>STATE SENT</span><em id="tr-rulebook_cf-state">—</em></div>
+            <div><span>QUESTION</span><em id="tr-rulebook_cf-q">—</em></div>
+            <div><span>ANSWER</span><em id="tr-rulebook_cf-a">—</em></div>
+            <div><span>ACTION</span><em id="tr-rulebook_cf-act">—</em></div>
+            <div><span>TIMING</span><em id="tr-rulebook_cf-t">—</em></div>
+          </div>
+        </div>
         <div class="boardcard" id="tc-raw">
-          <div class="boardhead"><b>raw baseline · heads skipped</b><span class="lane-note"><code>X-Reflex-Lane: raw</code> — the corpus engine without its fitted heads; abstains play as labelled random — the honest floor (engine v0.2.3+)</span><span class="scorebox"><span>SCORE</span><b id="ts-raw">0000</b><span>LINES</span><b id="tl-raw">000</b></span></div>
+          <div class="boardhead"><b>raw baseline · heads skipped</b><span class="lane-note"><span class="latcap" id="lat-raw" title="recorded per-spot p50 and range from this lane's recorded game (arena/demo_oracle.json) — static, not live">rec —</span> <code>X-Reflex-Lane: raw</code> — the corpus engine without its fitted heads; abstains play as labelled random — the honest floor (engine v0.2.3+)</span><span class="scorebox"><span>SCORE</span><b id="ts-raw">0000</b><span>LINES</span><b id="tl-raw">000</b></span></div>
           <canvas id="tb-raw" width="200" height="400"></canvas>
           <div class="stats" id="tst-raw">pieces 0 · decisions 0 · p50 — ms · errors 0</div>
           <div class="readout">

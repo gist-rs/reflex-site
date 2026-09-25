@@ -50,7 +50,7 @@ try {
 
   // ── the demo must announce itself and auto-play tetris ──
   await page.waitForFunction(
-    () => /RECORDED DEMO|PLAYS LIVE/.test(document.getElementById("status-text").textContent),
+    () => /RECORDED DEMO|PLAYS? LIVE/.test(document.getElementById("status-text").textContent),
     { timeout: 10000 },
   );
   const bannerHidden = await page.$eval("#demo-banner", (el) => el.hidden);
@@ -99,21 +99,42 @@ try {
     console.log(`[demo-smoke] ${lane} board (recorded): ${(await page.textContent(`#tr-${lane}-a`)).trim()} · ${src}`);
   }
 
-  // layout: 2 boards per row — python|laya, modelless|rulebook, then raw
-  // (owner call 2026-09-25: the rulebook board sits beside modelless) — and
-  // the lane-note boxes of a row share one height
+  // The two Reflexer boards — ONE engine, two hosts: wasm local (in-tab)
+  // and Cloudflare (the Worker). Each plays LIVE when its host answers, else
+  // its recorded game (labelled); a live board's capsule carries a real range.
+  for (const [lane, liveSrc, cap] of [
+    ["rulebook", /THIS tab/, /^in-tab p50 [\d.]+ ms/],
+    ["rulebook_cf", /Worker reflexer\./, /p50 [\d.]+ ms · [\d.]+–[\d.]+ ms round trip/],
+  ]) {
+    await page.waitForFunction(
+      (l) => /pieces ([3-9]|\d\d)/.test(document.getElementById(`tst-${l}`).textContent),
+      lane,
+      { timeout: 30000 },
+    );
+    const src = (await page.textContent(`#tr-${lane}-src`)).trim();
+    const capsule = (await page.textContent(`#lat-${lane}`)).trim();
+    const live = liveSrc.test(src);
+    if (!live && !/recorded/.test(src)) fail(`${lane} board neither live nor labelled recorded: ${src}`);
+    if (live && !cap.test(capsule)) fail(`${lane} live capsule has no measured range: ${capsule}`);
+    console.log(`[demo-smoke] ${lane} (${live ? "LIVE" : "recorded fallback"}): ${capsule} · ${src}`);
+  }
+
+  // layout: 2 boards per row — python|laya, modelless|rulebook (wasm
+  // local), rulebook_cf (Cloudflare)|raw (owner call 2026-09-25) — and the
+  // lane-note boxes of a row share one height
   const box = await page.evaluate(() => Object.fromEntries(
-    ["python", "laya", "modelless", "rulebook", "raw"].map((l) => {
+    ["python", "laya", "modelless", "rulebook", "rulebook_cf", "raw"].map((l) => {
       const c = document.getElementById(`tc-${l}`).getBoundingClientRect();
       const n = document.querySelector(`#tc-${l} .lane-note`).getBoundingClientRect();
       return [l, { top: Math.round(c.top), left: Math.round(c.left), note: Math.round(n.height) }];
     }),
   ));
   if (box.python.top !== box.laya.top || box.modelless.top !== box.rulebook.top || box.modelless.top <= box.python.top
-    || box.raw.top <= box.modelless.top || box.raw.left !== box.python.left) {
+    || box.rulebook_cf.top !== box.raw.top || box.raw.top <= box.modelless.top
+    || box.rulebook_cf.left !== box.python.left || box.raw.left !== box.laya.left) {
     fail(`board grid is not 2 per row: ${JSON.stringify(box)}`);
   }
-  if (box.python.note !== box.laya.note || box.modelless.note !== box.rulebook.note) {
+  if (box.python.note !== box.laya.note || box.modelless.note !== box.rulebook.note || box.rulebook_cf.note !== box.raw.note) {
     fail(`lane-note heights differ within a row: ${JSON.stringify(box)}`);
   }
 

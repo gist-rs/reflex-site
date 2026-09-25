@@ -6,6 +6,7 @@
   <title>Playground · Reflex</title>
   <meta name="description" content="Ask your own local Reflex engine a typed question — choice, score, or yes/no — and get a microsecond answer with calibrated confidence, or an honest abstain. Nothing is uploaded anywhere.">
   <link rel="stylesheet" href="/assets/style.css">
+  <link rel="stylesheet" href="/assets/latcap.css">
 </head>
 <body>
 
@@ -28,7 +29,8 @@
   <section style="border-top:0">
     <h1 class="page-title">Playground</h1>
     <p class="sub">This page talks to YOUR engine on YOUR machine — nothing is uploaded anywhere.
-      The engine never phones home; the browser cannot reach it until you open the door for exactly one origin.</p>
+      The engine never phones home; the browser cannot reach it until you open the door for exactly one origin.
+      No engine? <a href="#reflexer">Reflexer</a> below runs with no install — in this tab, or on Cloudflare.</p>
 
     <div id="status"><span class="dot"></span><span id="status-text">checking for a local engine…</span></div>
 
@@ -64,6 +66,40 @@ promote</textarea>
     </div>
   </section>
 
+  <section id="reflexer">
+    <h2>Reflexer — no install, on Cloudflare</h2>
+    <p class="sub">The <b>reflexer</b> decision engine (the arena's rulebook search) is public and
+      needs nothing on your machine: the same WebAssembly runs on a Cloudflare Worker and in this tab.
+      <b>This section is the one exception to "nothing is uploaded"</b> — <em>Ask Cloudflare</em> sends the
+      board below to the Worker (stateless: no storage, no logging of request bodies); <em>Ask this tab</em>
+      sends nothing. Same engine bytes, so the two answers are identical and the difference is the network hop.</p>
+    <div id="rx-status" class="sub">checking the Worker…</div>
+    <div class="play">
+      <div class="card">
+        <label for="rx-board">Board (20 rows × 10, <code>#</code> filled · <code>.</code> empty, row 1 = top)</label>
+        <textarea id="rx-board" spellcheck="false" style="min-height:330px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;line-height:1.15"></textarea>
+        <label for="rx-cur">Falling piece · preview</label>
+        <div style="display:flex;gap:10px;align-items:center">
+          <select id="rx-cur"></select><select id="rx-next"></select>
+          <button class="go" id="rx-random" type="button" style="margin:0">random position</button>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap">
+          <button class="go" id="rx-ask-cloud" disabled>Ask Cloudflare</button>
+          <button class="go" id="rx-ask-local" disabled>Ask this tab (wasm)</button>
+        </div>
+        <p class="sub" style="font-size:13px;margin-top:10px">Endpoint: <code id="rx-endpoint">—</code> ·
+          one <code>decision_wire</code> <code>place</code> question, options = every landing spot (<code>h0i&lt;k&gt;</code>).</p>
+      </div>
+      <div class="card">
+        <label>Latency</label>
+        <div><span class="latcap live idle" id="rx-cap-cloud">Cloudflare —</span> <span class="latcap" id="rx-cap-local">in-tab —</span></div>
+        <label style="margin-top:12px">Answer (▓ = where the piece lands)</label>
+        <pre class="answer" id="rx-answer" style="white-space:pre-wrap;overflow-wrap:anywhere;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;line-height:1.15">—</pre>
+        <details><summary>request sent</summary><pre id="rx-request" style="white-space:pre-wrap;font-size:11.5px">—</pre></details>
+      </div>
+    </div>
+  </section>
+
   <section id="how">
     <h2>Three steps</h2>
     <div class="steps">
@@ -93,5 +129,6 @@ promote</textarea>
 </footer>
 
 <script src="/assets/app.js"></script>
+<script type="module" src="/assets/playground_reflexer.js"></script>
 </body>
 </html>

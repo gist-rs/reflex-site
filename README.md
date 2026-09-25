@@ -9,7 +9,11 @@ static assets.
   how-it-works figure (a .docs-first SVG, mirrored to `assets/`), per-page
   cards, and the agent-skill section.
 - `/playground/` — the playground (talks to the visitor's OWN engine on
-  `127.0.0.1:7331`; nothing is uploaded) + the three-step start.
+  `127.0.0.1:7331`; nothing is uploaded) + the three-step start, and the
+  **Reflexer** section: a Tetris position asked of the reflexer engine with
+  no install — *Ask Cloudflare* (the Worker; the one section that sends
+  anything) or *Ask this tab* (the same wasm, in-tab), with the latency
+  capsule for each.
 - `/bench/` — the per-task arena tables, rendered client-side from
   `data/bench.json`.
 - `/arena/` — the live games, four lanes, 2 per row: laya (Python) | laya
@@ -33,6 +37,33 @@ static assets.
 - `data/bench.json` — GENERATED from riir-reflex's harness output by
   `scripts/publish_bench.py` (sanitizes machine-local meta). Never
   hand-typed; a hand-typed number on the site is a defect by definition.
+
+## The Reflexer boards (wasm local + Cloudflare)
+
+Tetris row 2 right is **Reflexer · wasm local**, row 3 left is **Reflexer ·
+Cloudflare** (beside the raw baseline). One engine, two hosts: the
+reflexer engine (gist-rs/riir-reflexer `crates/reflexer-wasm`,
+`wasm32-wasip1`) runs in the tab from `assets/reflexer.wasm`, and the SAME
+bytes answer `POST /v1/decide` on the reflexer Worker
+(`https://reflexer.foxfox.workers.dev`, riir-reflexer
+`cloudflare/reflexer-worker`). Both boards play the identical seeded game;
+the Cloudflare board's capsule (`assets/latcap.css`, `.latcap.live`) is the
+measured browser round trip per decision, live. The four classic lanes carry
+a static `rec` capsule re-derived from their recorded walks at load.
+
+`assets/reflexer.wasm` + `assets/reflexer_host.js` are MIRRORS — rebuild them
+from the source, never edit them here (`assets/reflexer.mirror.json` records
+the source git + sha256):
+
+```sh
+../riir-reflexer/cloudflare/reflexer-worker/build.sh --site .
+node scripts/reflexer_parity.mjs                                  # wasm in-process: 300/300 picks = the recorded walk
+node scripts/reflexer_parity.mjs --url https://reflexer.foxfox.workers.dev   # the Worker, same check + latency
+```
+
+Deploy is manual from the M3 through the riir-deployer manifest (both
+Workers, one build step that rebuilds the wasm and this mirror together, so
+the in-tab board and the Worker never ship different engine bytes).
 
 ## Rebuild the wasm heads
 

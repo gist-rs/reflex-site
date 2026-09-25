@@ -15,13 +15,16 @@ import {
 import * as F from "./games/flappy.js";
 import * as L from "./games/lanes.js";
 import { renderTetrisResults } from "./arena_charts.js";
+import {
+  REFLEXER_CLOUD, ensureReflexerLocal, probeReflexerCloud, reflexerPlace, reflexerState, latencyRange,
+} from "./reflexer_lanes.js";
 import { ensureArenaHead, arenaHeadReady, arenaHeadScore, arenaFlappyHeadReady, arenaHeadScoreState, arenaLanesHeadReady, arenaHeadScoreLanes } from "./arena_head.js";
 
 const ENGINE = "http://127.0.0.1:7331";
 
 // ── engine client ────────────────────────────────────────────────────────────
 
-const lanes = { modelless: "unknown", laya: "unknown", raw: "unknown", python: "recorded", rulebook: "recorded" };
+const lanes = { modelless: "unknown", laya: "unknown", raw: "unknown", python: "recorded" };
 
 // Display names — one source, so "laya" never appears without its runtime
 // (the Rust port vs the Python reference are different lanes).
@@ -30,8 +33,21 @@ const LANE_NAME = {
   laya: "laya (Rust)",
   modelless: "KatGPT modelless",
   raw: "raw baseline",
-  rulebook: "Reflexer",
+  rulebook: "Reflexer · wasm local",
+  rulebook_cf: "Reflexer · Cloudflare",
 };
+
+// The two Reflexer boards are ONE engine on two hosts (reflexer_lanes.js):
+// neither needs the visitor's local engine, so they play live in demo mode
+// too, and fall back to the recorded rulebook walk only when their host is
+// unavailable — decided once per game, never mid-game.
+const REFLEXER_WHERE = { rulebook: "local", rulebook_cf: "cloud" };
+const isReflexer = (lane) => lane in REFLEXER_WHERE;
+async function readyReflexer() {
+  await Promise.all([ensureReflexerLocal(), probeReflexerCloud()]);
+}
+const RX_CAP = 300;
+const boardRows = (b) => b.map((row) => row.map((c) => (c ? "#" : ".")).join(""));
 
 // ── no-engine demo mode ─────────────────────────────────────────────────────
 // Without a local engine the boards replay the recorded Plan 607 oracle (the
@@ -67,7 +83,21 @@ async function loadRecorded() {
   // The final-result charts render from the same file, once, at load — the
   // outcome is readable before any replay finishes.
   try { renderTetrisResults(j); } catch (e) { console.warn("result charts failed", e); }
+  renderRecordedCapsules();
   return demo;
+}
+
+// Static latency capsules for the four classic lanes: per-spot p50 + range
+// re-derived from each lane's RECORDED game (walk rows carry per-option ms)
+// — recorded, never hand-typed, and labelled "rec" so it never reads as live.
+function renderRecordedCapsules() {
+  for (const lane of ["python", "laya", "modelless", "raw"]) {
+    const el = document.getElementById(`lat-${lane}`);
+    if (!el) continue;
+    const ms = tetrisWalkFor(lane).flatMap((row) => row[5] || []);
+    const r = latencyRange(ms);
+    el.textContent = r ? `rec ${r}/spot` : "rec —";
+  }
 }
 
 // The recorded tetris walk each lane replays.
@@ -79,6 +109,7 @@ function tetrisWalkFor(lane) {
     raw: demo.tetrisRawWalk,
     python: demo.tetrisPythonWalk,
     rulebook: demo.tetrisRulebookWalk,
+    rulebook_cf: demo.tetrisRulebookWalk,
   }[lane] || [];
 }
 
@@ -93,7 +124,7 @@ async function loadDemo() {
 
 function demoStatusText() {
   if (arenaHeadReady()) {
-    return "no local engine — the KatGPT modelless board PLAYS LIVE in-tab (fitted head · WebAssembly · zero engine); laya (Rust), laya (Python), the raw baseline and Reflexer (the rulebook search) replay recorded games";
+    return "no local engine — the KatGPT modelless and Reflexer · wasm local boards PLAY LIVE in-tab (WebAssembly · zero engine), Reflexer · Cloudflare plays live from the edge; laya (Rust), laya (Python) and the raw baseline replay recorded games";
   }
   return "no local engine — RECORDED DEMO playing (Plan 607 oracle) · start the engine, then press Start to go live";
 }
@@ -139,7 +170,10 @@ async function renderStatus(text) {
     else if (state === "off") [cls, label] = ["warn", "off (RIIR_REFLEX_LAYA=1)"];
     else if (state === "absent") [cls, label] = ["warn", "needs engine v0.2.3+"];
     else if (state === "unknown") [cls, label] = ["ok", "ready"];
-    else if (state === "recorded") [cls, label] = ["warn", id === "chip-rulebook" ? "recorded game" : "recorded reference"];
+    else if (state === "recorded") [cls, label] = ["warn", "recorded reference"];
+    else if (state === "in-tab") [cls, label] = ["ok", "live in-tab"];
+    else if (state === "edge") [cls, label] = ["ok", `live${reflexerState().colo ? ` · ${reflexerState().colo}` : ""}`];
+    else if (state === "fallback") [cls, label] = ["warn", "unavailable → recorded game"];
     el.classList.add(cls);
     el.innerHTML = el.innerHTML.replace(/—.*$/, `— ${label}`);
   };
@@ -147,7 +181,9 @@ async function renderStatus(text) {
   chip("chip-modelless", lanes.modelless);
   chip("chip-laya", lanes.laya);
   chip("chip-raw", lanes.raw);
-  chip("chip-rulebook", lanes.rulebook);
+  const rx = reflexerState();
+  chip("chip-rulebook", rx.local === "ready" ? "in-tab" : rx.local === "failed" ? "fallback" : "loading");
+  chip("chip-rulebook_cf", rx.cloud === "ready" ? "edge" : rx.cloud === "down" ? "fallback" : "loading");
   const up = lanes.modelless !== "down";
   const layaArmed = lanes.laya === "ready" || lanes.laya === "loading";
   const rawArmed = lanes.raw === "ready";
@@ -402,7 +438,7 @@ const NO_RECORDING_NOTE = "no recorded game for this lane — start the engine t
 
 class TetrisBoard {
   constructor(lane, ui) {
-    this.lane = lane; // "python" | "laya" | "modelless" | "raw" | "rulebook"
+    this.lane = lane; // "python" | "laya" | "modelless" | "raw" | "rulebook" (wasm local) | "rulebook_cf" (Cloudflare)
     this.ui = ui; // {canvas, score, lines, stats, readout}
     this.running = false;
     this.reset(607);
@@ -426,6 +462,9 @@ class TetrisBoard {
     this.chosen = -1;
     this.over = false;
     this.demoTurn = 0;
+    this.preview = null; // Reflexer boards: the drawn-ahead next piece
+    this.rxLive = null; // Reflexer boards: live (true) or recorded (false), fixed at run()
+    this.colo = null;
     this.render();
     this.renderStats();
     setReadout(this.ui.readout, {
@@ -436,7 +475,12 @@ class TetrisBoard {
   srcLabel() {
     const name = LANE_NAME[this.lane];
     if (this.lane === "python") return `${name} · recorded torch reference (MPS)`;
-    if (this.lane === "rulebook") return `${name} · recorded · depth-3 search, no model (genome 68cae9d3)`;
+    if (isReflexer(this.lane)) {
+      if (this.rxLive === false) return `${name} · recorded · host unavailable (genome 68cae9d3)`;
+      return this.lane === "rulebook"
+        ? `${name} · reflexer engine in THIS tab (WebAssembly, genome 68cae9d3)`
+        : `${name} · Worker ${REFLEXER_CLOUD.replace("https://", "")}${this.colo ? ` · colo ${this.colo}` : ""} (genome 68cae9d3)`;
+    }
     if (this.lane === "modelless" && demoMode && arenaHeadReady()) {
       return `${name} · wasm head (in-tab)`;
     }
@@ -447,13 +491,24 @@ class TetrisBoard {
   // Replay a recorded game? laya (Python) always (it never runs live); in
   // demo mode every lane except the in-tab wasm head.
   replaying() {
-    if (this.lane === "python" || this.lane === "rulebook") return true;
+    if (this.lane === "python") return true;
+    if (isReflexer(this.lane)) return this.rxLive === false;
     return demoMode && !(this.lane === "modelless" && arenaHeadReady());
   }
 
   async run(delayMs) {
     this.running = true;
+    if (isReflexer(this.lane) && this.rxLive === null) {
+      const rx = reflexerState();
+      this.rxLive = REFLEXER_WHERE[this.lane] === "local" ? rx.local === "ready" : rx.cloud === "ready";
+      this.renderLatency();
+    }
     while (this.running && !this.over) {
+      // The Cloudflare board spends a real request per piece — never while
+      // nobody is looking (a backgrounded demo loop would burn the quota).
+      if (this.lane === "rulebook_cf" && this.rxLive) {
+        while (this.running && document.hidden) await sleep(500);
+      }
       await this.step();
       if (this.running && !this.over && delayMs > 0) await sleep(delayMs);
     }
@@ -481,7 +536,7 @@ class TetrisBoard {
         setReadout(this.ui.readout, {
           src: this.srcLabel(),
           a: walkArr.length
-            ? this.lane === "rulebook"
+            ? isReflexer(this.lane)
               ? `recording stops here (${this.pieces} pieces) — still alive, never topped out`
               : `recorded game ends here (${this.pieces} pieces)${this.lane === "python" ? "" : " — start the engine for live play"}`
             : NO_RECORDING_NOTE,
@@ -495,7 +550,25 @@ class TetrisBoard {
       // stamp; the current turn's placement still gets its color).
       this.stamps = replayStamps(walkArr, this.demoTurn - 1, this.board) ?? newStampGrid();
     }
-    const piece = demoRec ? demoRec[2] : this.bag.next();
+    const rxLive = isReflexer(this.lane) && !replay;
+    if (rxLive && this.pieces >= RX_CAP) {
+      // The rulebook practically never tops out — cap a live game at the
+      // recorded walk's length so the demo loop (and the Worker quota) ends.
+      this.over = true;
+      setReadout(this.ui.readout, {
+        a: `game capped at ${RX_CAP} pieces — still alive, never topped out`,
+        act: "game complete",
+      });
+      return;
+    }
+    let piece;
+    if (demoRec) piece = demoRec[2];
+    else if (rxLive) {
+      // Same stream as every live board (the k-th draw is the k-th piece);
+      // the preview is simply drawn one ahead.
+      piece = this.preview ?? this.bag.next();
+      this.preview = this.bag.next();
+    } else piece = this.bag.next();
     this.curPiece = piece;
     // laya-tetris-v3: a real hard drop (katgpt-rs Issue 884) — the recorded
     // walks and live play share it.
@@ -511,8 +584,8 @@ class TetrisBoard {
     setReadout(this.ui.readout, {
       src: this.srcLabel(),
       state: this.opts[0].stateSentence,
-      q: this.lane === "rulebook" ? "(none — searches placements, scores boards with the rulebook)" : T.SPOT_QUESTION,
-      a: this.lane === "rulebook" ? `searching ${this.opts.length} spots × the preview × the bag…` : `reading ${this.opts.length} spots…`,
+      q: isReflexer(this.lane) ? "(none — searches placements, scores boards with the rulebook)" : T.SPOT_QUESTION,
+      a: isReflexer(this.lane) ? `searching ${this.opts.length} spots × the preview × the bag…` : `reading ${this.opts.length} spots…`,
       act: "…",
       t: replay ? "recorded" : "…",
     });
@@ -524,7 +597,33 @@ class TetrisBoard {
     // recorded p's arrive at once.)
     const sentences = this.opts.map((o) => o.sentence);
     const t0 = performance.now();
-    const results = demoRec
+    let rx = null;
+    if (rxLive) {
+      const turn = {
+        board: boardRows(this.board),
+        cur: piece,
+        next: this.preview,
+        bag: [...this.bag.queue].reverse(), // the 7-bag remainder, draw order
+        nOptions: this.opts.length,
+      };
+      rx = await reflexerPlace(REFLEXER_WHERE[this.lane], turn);
+      if (rx.error) rx = await reflexerPlace(REFLEXER_WHERE[this.lane], turn); // one retry
+      if (rx.error || rx.pick == null) {
+        this.errors += 1;
+        this.over = true;
+        setReadout(this.ui.readout, {
+          a: `${LANE_NAME[this.lane]} did not answer (${rx.error || "abstained"})`,
+          act: "stopped — reload to retry",
+        });
+        this.renderStats();
+        return;
+      }
+      if (rx.colo) this.colo = rx.colo;
+      this.latencies.push(rx.ms);
+    }
+    const results = rx
+      ? rx.ps.map((p) => ({ p, ms: null }))
+      : demoRec
       ? demoRec[1].map((p, i) => ({ p, ms: demoRec[5] ? demoRec[5][i] : null }))
       : await scoreOptions(
         sentences,
@@ -556,7 +655,9 @@ class TetrisBoard {
     // A replay places the recorded pick — the argmax, or (raw) the recorded
     // random spot when every option abstained — so the board re-traces the
     // recorded game exactly.
-    const forced = demoRec ? demoRec[4] : null;
+    // The live Reflexer pick is the ENGINE's first strict argmax over its
+    // values (the f32 display probs may tie where the values do not).
+    const forced = rx ? rx.pick : demoRec ? demoRec[4] : null;
     const pick = argmax(this.ps);
     this.decisions += 1;
     if (forced != null && forced >= 0) {
@@ -565,7 +666,7 @@ class TetrisBoard {
       setReadout(this.ui.readout, {
         a: pick === -1
           ? `abstain ×${this.opts.length}${FALLBACK_NOTE} — recorded, spot ${forced + 1}/${this.opts.length}`
-          : this.lane === "rulebook"
+          : isReflexer(this.lane)
             ? `best 3-piece plan starts at spot ${forced + 1}/${this.opts.length} (brighter ghost = better plan)`
             : `P(clean) ${this.ps[forced].toFixed(3)} — recorded play, spot ${forced + 1}/${this.opts.length}`,
       });
@@ -587,12 +688,16 @@ class TetrisBoard {
     const opt = this.opts[this.chosen];
     setReadout(this.ui.readout, {
       act: `${piece} → rot ${opt.rot}, col ${opt.col}${
-        forced != null && forced >= 0 ? " · recorded" : pick === -1 ? FALLBACK_NOTE : ""
+        rx ? "" : forced != null && forced >= 0 ? " · recorded" : pick === -1 ? FALLBACK_NOTE : ""
       }`,
-      t: liveHead
+      t: rx
+        ? this.lane === "rulebook"
+          ? `wasm in-tab · ${fmtMs(rx.ms)} ms to plan this piece (${this.opts.length} spots × preview × bag)`
+          : `Cloudflare round trip ${fmtMs(rx.ms)} ms${rx.colo ? ` via ${rx.colo}` : ""} · ${this.opts.length} spots × preview × bag searched at the edge`
+        : liveHead
         ? `wasm · ${this.opts.length} spots · ~${fmtUs(results[0]?.ms)} µs/spot (amortized, re-timed ≥ ${MIN_TIMED_MS} ms)`
         : replay
-          ? this.lane === "rulebook"
+          ? isReflexer(this.lane)
             ? `recorded · ${fmtMs(results.reduce((a, r) => a + (r.ms ?? 0), 0))} ms to plan this piece (${this.opts.length} spots × preview × bag)`
             : `recorded · p50 ${fmtMs(p50(this.latencies))} ms/spot · ${this.opts.length} spots`
           : `p50 ${fmtMs(p50(this.latencies))} ms/spot · ${this.opts.length} spots in ${fmtMs(wallMs)} ms`,
@@ -675,7 +780,28 @@ class TetrisBoard {
     $(this.ui.stats).textContent =
       `pieces ${this.pieces} · decisions ${this.decisions}` +
       ` · abstains ${this.abstains} · errors ${this.errors}` +
-      ` · p50 ${fmtMs(p50(this.latencies))} ms`;
+      ` · p50 ${fmtMs(p50(this.latencies))} ms${isReflexer(this.lane) && this.rxLive ? "/decision" : ""}`;
+    this.renderLatency();
+  }
+
+  // The latency capsule on the Reflexer boards: live per-decision p50 +
+  // range (wasm local = the in-tab engine call; Cloudflare = the browser
+  // round trip). Classic lanes carry a static recorded capsule instead.
+  renderLatency() {
+    if (!isReflexer(this.lane)) return;
+    const el = $(`lat-${this.lane}`);
+    if (!el) return;
+    const cloud = this.lane === "rulebook_cf";
+    if (this.rxLive === false) {
+      el.textContent = cloud ? "edge unreachable · recorded" : "wasm unavailable · recorded";
+      el.classList.add("idle");
+      return;
+    }
+    const r = latencyRange(this.latencies);
+    el.classList.toggle("idle", !r);
+    el.textContent = cloud
+      ? r ? `${this.colo ? `${this.colo} · ` : ""}${r} round trip` : "edge — waiting for the first piece"
+      : r ? `in-tab ${r}` : "in-tab —";
   }
 }
 
@@ -1007,6 +1133,9 @@ const tetris = {
   rulebook: new TetrisBoard("rulebook", {
     canvas: "tb-rulebook", score: "ts-rulebook", lines: "tl-rulebook", stats: "tst-rulebook", readout: "tr-rulebook",
   }),
+  rulebook_cf: new TetrisBoard("rulebook_cf", {
+    canvas: "tb-rulebook_cf", score: "ts-rulebook_cf", lines: "tl-rulebook_cf", stats: "tst-rulebook_cf", readout: "tr-rulebook_cf",
+  }),
 };
 
 // Legend swatches: injected from PIECE_COLORS so the module stays the
@@ -1060,13 +1189,15 @@ function stopAll() {
 function laneReady(lane) {
   if (lane === "modelless") return lanes.modelless === "ready" || lanes.modelless === "unknown";
   if (lane === "raw") return lanes.raw === "ready";
-  if (lane === "python" || lane === "rulebook") return demo != null; // a recorded replay — needs only the oracle file
+  if (lane === "python") return demo != null; // a recorded replay — needs only the oracle file
+  if (isReflexer(lane)) return true; // live on its own host, or its recorded game (fixed at run())
   return lanes.laya === "ready";
 }
 
 const LANE_HINT = {
   python: () => "the recorded laya (Python) games could not be loaded (arena/demo_oracle.json)",
-  rulebook: () => "the recorded Reflexer (rulebook search) game could not be loaded (arena/demo_oracle.json)",
+  rulebook: () => "the Reflexer wasm could not load and its recorded game is unavailable (arena/demo_oracle.json)",
+  rulebook_cf: () => "the Reflexer Worker is unreachable and its recorded game is unavailable (arena/demo_oracle.json)",
   laya: (state) =>
     `laya (Rust) lane is ${state}` +
     (state === "off" || state === "down"
@@ -1095,7 +1226,7 @@ function bindRun(gameName, boards, runArg) {
     stopAll();
     const seed = Number(seedInput.value) || 607;
     for (const b of Object.values(boards)) b.reset(seed);
-    await probe();
+    await Promise.all([probe(), gameName === "tetris" ? readyReflexer() : null]);
     // Engine down? Replay the recorded demo (labelled) instead of idling.
     let isDemo = false;
     if (lanes.modelless === "down") {
@@ -1169,7 +1300,8 @@ document.querySelectorAll("button[data-copy]").forEach((b) => {
 // is up.
 let demoSession = 0;
 (async () => {
-  await probe();
+  await Promise.all([probe(), readyReflexer()]);
+  renderStatus($("status-text"));
   if (lanes.modelless !== "down") {
     // Live engine: the charts + the recorded boards still need the file.
     await loadRecorded().catch(() => {});
