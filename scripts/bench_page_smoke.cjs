@@ -90,8 +90,11 @@ const server = http.createServer((req, res) => {
   if (glinerBack < 10) fail(`gliner rows must return when re-checked, got ${glinerBack}`);
   else console.log("ok: gliner rows restored");
 
-  // screenshot for the record
-  await page.screenshot({ path: "bench_smoke.png", fullPage: false });
+  // screenshot for the record — into the gitignored scripts/out/, never the
+  // repo root: the root is the public assets directory (wrangler.toml).
+  const shotDir = path.join(__dirname, "out");
+  fs.mkdirSync(shotDir, { recursive: true });
+  await page.screenshot({ path: path.join(shotDir, "bench_smoke.png"), fullPage: false });
   await browser.close();
   server.close();
   console.log(process.exitCode ? "SMOKE FAILED" : "SMOKE PASSED");
