@@ -4,14 +4,14 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Reflex — a modelless decision engine for your machine</title>
-  <meta name="description" content="Typed decisions (choice / score / yes-no) with calibrated confidence and first-class abstention, served on localhost in microseconds. No AI service, no telemetry.">
+  <meta name="description" content="Typed decisions (choice / score / yes-no) in microseconds, with calibrated confidence and a real abstain. No model weights, nothing leaves your machine.">
   <link rel="stylesheet" href="/assets/style.css">
 </head>
 <body>
 
 <header class="site">
   <div class="wrap">
-    <a class="brand" href="/">Reflex <span>· KatGPT</span></a>
+    <a class="brand" href="/">Reflex</a>
     <nav>
       <a href="/" aria-current="page">Home</a>
       <a href="/playground/">Playground</a>
@@ -26,24 +26,21 @@
 <div class="wrap">
 
   <div class="hero">
-    <div class="tldr" id="tldr">
-      <b>TL;DR</b><span class="tldr-body" id="tldr-body">A decision lands in ~50&nbsp;µs — a median ~700× faster than the open-weights
-      model on byte-identical questions — with calibrated confidence, honest abstains, and nothing leaving your machine.</span>
-    </div>
-
-    <h1>Typed decisions, <em>calibrated honestly</em>, on your machine.</h1>
+    <p class="kicker">Modelless decision engine · runs on localhost</p>
+    <h1>Decisions in microseconds.<br><em>Honest when it doesn't know.</em></h1>
     <p class="lead">
-      Reflex answers <strong>choice</strong>, <strong>score</strong>, and <strong>yes/no</strong> questions about
-      a state you give it — with calibrated confidence and a first-class <strong>abstain</strong>:
-      when it has no signal, it declines instead of guessing. No trained weights on the decision
-      path, no AI service, no telemetry. Loopback-only, microsecond-tier, bit-deterministic.
+      Ask <strong>choice</strong>, <strong>score</strong> or <strong>yes/no</strong> — get an answer with
+      calibrated confidence, or an <strong>abstain</strong> instead of a guess. No model weights, nothing leaves your machine.
     </p>
 
-    <div class="badges">
-      <span class="badge">G1 calibration beats the conformal-naive floor — 8/9 suites</span>
-      <span class="badge">G2 p99 0.06 ms / decision set</span>
-      <span class="badge">G4 zero allocs on the hot path</span>
-      <span class="badge muted">laya parity: 88/88 forwards, top-1 1.000, drift ≤ 3.1e-6</span>
+    <div class="cta-row">
+      <a class="btn primary" href="#install">Install</a>
+      <a class="btn" href="/arena/">Watch it play →</a>
+      <a class="btn" href="/playground/">Try it →</a>
+    </div>
+
+    <div class="tldr" id="tldr">
+      <b>TL;DR</b><span class="tldr-body" id="tldr-body">loading the measured numbers from <a href="/data/bench.json">data/bench.json</a>…</span>
     </div>
 
     <div id="bench-summary" aria-label="every published suite, averaged per lane">
@@ -51,142 +48,108 @@
     </div>
     <div class="after-chart">
       <p class="prov" id="home-prov" hidden></p>
-      <a href="/bench/">the full benchmark — every suite, every lane, the losses published →</a>
+      <a href="/bench/">Full benchmark — losses included →</a>
+    </div>
+    <div class="badges" id="gate-badges">
+      <a class="badge" id="g1-badge" href="/bench/" hidden></a>
+      <a class="badge muted" href="#notes">G2 latency · G4 zero-alloc · G5 laya parity — gate record</a>
     </div>
   </div>
 
   <section id="flow">
     <h2>How it works</h2>
-    <p class="sub">
-      One pipeline, no trained weights: embed the state, route to the matching corpus, score every
-      option <em>corpus-is-the-model</em>, calibrate with a sigmoid gate — then answer, or abstain.
-      The thresholds come from <strong>your</strong> labeled data, fitted offline. The full write-up:
-      <a href="https://github.com/gist-rs/riir-reflex/blob/HEAD/.docs/03_decision_flow/decision_flow.md">.docs/03_decision_flow/decision_flow.md</a>.
-    </p>
+    <p class="sub">Embed → route to your corpus → score options → calibrate → answer or abstain.
+      Thresholds are fitted offline from <strong>your</strong> labeled data.</p>
     <figure class="figure">
       <img src="/assets/decision_flow.svg" width="1517" height="610"
         alt="The Reflex decision flow: state plus a typed question (choice, score, or yes/no) is embedded, routed to a domain, options scored corpus-is-the-model, calibrated by a sigmoid gate, then answered in microseconds with confidence or an honest abstain — loopback only, thresholds fitted offline from your own labeled data"
         loading="lazy">
-      <figcaption>
-        Everything above runs on <code>127.0.0.1:7331</code> — one allowed origin, zero telemetry.
-        The same engine drives the arena's game lanes; the laya lane is a comparison, never a dependency.
-      </figcaption>
+      <figcaption>Runs on <code>127.0.0.1:7331</code> only. Write-up:
+        <a href="https://github.com/gist-rs/riir-reflex/blob/HEAD/.docs/03_decision_flow/decision_flow.md">decision_flow.md</a>.</figcaption>
     </figure>
   </section>
 
   <section id="twolanes">
-    <h2>Coming from LLMs? The two lanes, mapped.</h2>
-    <p class="sub">
-      Reflex's decision core is <strong>modelless</strong> — if your instinct is
-      <em>new domain → collect data → fine-tune</em>, the loop you know isn't here. The corpus is
-      the model, and the fitting that does exist is a build step, not a training run. Here is what
-      each lane actually is: the product lane (KatGPT modelless) and the open-weights lane it is
-      measured against (laya). Accuracy and latency live on the
-      <a href="/bench/">benchmark page</a>; this is about the machinery.
-    </p>
+    <h2>The corpus is the model.</h2>
+    <p class="sub">Coming from LLMs? There is no training run. You write documents; a build step fits the rest.</p>
 
     <div class="teaser">
       <div class="cell">
-        <span class="lbl">KATGPT MODELLESS — the product lane</span>
-        <h3>The corpus is the model.</h3>
+        <span class="lbl">REFLEX · MODELLESS — the product</span>
+        <h3>Knowledge lives in documents.</h3>
         <ol>
-          <li><b>Fit time: a build step, not a training run.</b> You author documents per domain.
-            The build derives three artifacts from them — an LZ4 drafter over the text (a
-            compression model of the domain), a unit centroid (the domain's routing direction),
-            and a distance gate (what "in-corpus" means) — and can optionally fit per-label
-            linear heads from the same labeled docs.</li>
-          <li><b>Serve time.</b> Embed the state — hashed bytes through a fixed projection —
-            route by cosine to the closest domain, score every option by the bytes it adds to
-            the context's compressed form blended with its cosine to that option's corpus (plus an optional fitted-head term),
-            normalize with a sigmoid, then pass two thresholds fitted offline from
-            <em>your</em> labeled slice. Answer — or abstain.</li>
-          <li><b>New domain.</b> Write documents, label a small calibration slice, refit.
-            No GPU, no dataset pipeline. The "checkpoint" is a folder of text you can read and
-            diff in a PR — and a refit is bit-identical.</li>
+          <li><b>Build:</b> write docs per domain, label a small slice, refit — no GPU.</li>
+          <li><b>Serve:</b> µs answers, or abstain when the question is off-corpus.</li>
+          <li><b>Update:</b> edit a doc, rebuild — bit-identical, reviewable in a PR.</li>
         </ol>
       </div>
       <div class="cell">
-        <span class="lbl">LAYA — the open-weights comparison lane</span>
-        <h3>The weights are the model.</h3>
+        <span class="lbl">LAYA · OPEN WEIGHTS — the comparison</span>
+        <h3>Knowledge lives in weights.</h3>
         <ol>
-          <li><b>Fit time: someone else's training run.</b> Pretrained 322M–421M encoder
-            checkpoints arrive with weights fixed. The typed lane is a separate specialist
-            checkpoint, trained on the typed-decision distribution.</li>
-          <li><b>Serve time.</b> Tokenize, run one forward pass, read per-option probabilities
-            off the head.</li>
-          <li><b>New domain.</b> Accept the base checkpoint's zero-shot behavior — or produce a
-            new specialist: a dataset and a training run.</li>
-          <li><b>Role here.</b> A comparison, never a dependency. The lane rides the binary but
-            its weights do not ride the archive — they load from Hugging Face at runtime
-            (SHA-256-verified) and are never redistributed.</li>
+          <li><b>Build:</b> someone else's training run (322M–421M parameters).</li>
+          <li><b>Serve:</b> one forward pass per question; always answers.</li>
+          <li><b>Update:</b> gather data and retrain — or prompt around it.</li>
         </ol>
       </div>
     </div>
 
-    <div class="diffs">
-      <table>
-        <thead>
-          <tr><th>structural axis</th><th>KatGPT modelless</th><th>laya open-weights</th></tr>
-        </thead>
-        <tbody>
-          <tr><td>Where knowledge lives</td><td>documents you can read, diff, review (any fitted heads are rebuilt from them)</td><td>322M–421M weights nobody reads</td></tr>
-          <tr><td>New domain</td><td>author docs + refit from a labeled slice (a build step)</td><td>zero-shot from the base — or train a new specialist checkpoint</td></tr>
-          <tr><td>Updating</td><td>edit a document and rebuild — deterministic; thresholds (and optional heads) refit from the same slice</td><td>gather data, retrain — or prompt around it</td></tr>
-          <tr><td>Abstain</td><td>a designed output: distance gate + calibrated confidence, distribution attached</td><td>not a primitive in the lane — it always answers; thresholding is the caller's job</td></tr>
-          <tr><td>Calibration</td><td>a Platt-style 2-parameter refit from your labeled slice, audited (G1)</td><td>raw head probabilities; recalibration is left to you</td></tr>
-          <tr><td>Determinism</td><td>claimed and gated — cross-host bit-identity is enforced at publish</td><td>repeat runs have matched — reproduced, not claimed; no cross-device gate</td></tr>
-          <tr><td>Breadth</td><td>bounded by the corpus — it cannot know what the corpus never said</td><td>pretraining carries zero-shot breadth</td></tr>
-          <tr><td>Off-corpus behavior</td><td>declines — abstains, distribution still attached</td><td>answers anyway — no off-corpus gate exists in the lane</td></tr>
-          <tr><td>Deploy footprint</td><td>KB–MB of corpus text</td><td>~GB-scale weights, downloaded at runtime — never redistributed</td></tr>
-        </tbody>
-      </table>
-    </div>
+    <details class="more">
+      <summary>Compare side by side</summary>
+      <div class="diffs">
+        <table>
+          <thead>
+            <tr><th>axis</th><th>Reflex · modelless</th><th>laya · open weights</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Where knowledge lives</td><td>documents you can read, diff, review (any fitted heads are rebuilt from them)</td><td>322M–421M weights nobody reads</td></tr>
+            <tr><td>New domain</td><td>author docs + refit from a labeled slice (a build step)</td><td>zero-shot from the base — or train a new specialist checkpoint</td></tr>
+            <tr><td>Updating</td><td>edit a document and rebuild — deterministic</td><td>gather data, retrain — or prompt around it</td></tr>
+            <tr><td>Abstain</td><td>a designed output: distance gate + calibrated confidence</td><td>not a primitive — it always answers; thresholding is the caller's job</td></tr>
+            <tr><td>Calibration</td><td>Platt-style 2-parameter refit, audited (G1)</td><td>raw head probabilities</td></tr>
+            <tr><td>Determinism</td><td>gated — cross-host bit-identity enforced at publish</td><td>repeat runs have matched — reproduced, not claimed</td></tr>
+            <tr><td>Breadth</td><td>bounded by the corpus</td><td>pretraining carries zero-shot breadth</td></tr>
+            <tr><td>Off-corpus</td><td>abstains, distribution still attached</td><td>answers anyway</td></tr>
+            <tr><td>Deploy footprint</td><td>KB–MB of corpus text</td><td>GB-scale weights, downloaded at runtime (<a href="#sizes">measured below</a>)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </details>
 
-    <details class="faq">
-      <summary>So where does the learning happen?</summary>
-      <p>In small, deterministic, replayable fits — not a training run. The confidence
-      calibration is a 2-parameter Platt-style solve (Newton, bit-identical on replay); the two
-      abstain thresholds are percentiles of your calibration slice; and, where a lane opts in,
-      per-label linear heads are fitted at build time by a short fixed-order SGD that also
-      replays bit-identically. No neural network is trained, no GPU is booked. Optionally, the
-      running engine keeps learning its calibration: a <code>/feedback</code> endpoint refits it
-      from outcome observations.</p>
-    </details>
-    <details class="faq">
-      <summary>Is this RAG? k-NN?</summary>
-      <p>Closest cousins: nearest-centroid classification for routing, retrieval-flavored scoring
-      for options. The twist is the scorer — an LZ4 drafter treats the corpus as a compression
-      dictionary, so "how many bytes does this option add to the context" is a predictability
-      signal with no learned parameters. The cosine term is what actually ranks options; the
-      drafter delta alone can't (a 4-byte option barely moves a ~300-byte context's compressed
-      size).</p>
-    </details>
-    <details class="faq">
-      <summary>When does each lane make sense?</summary>
-      <p>The modelless lane is native territory when the answer space is typed and the domain is
-      yours to describe: routing states, code spans, workflow decisions — anywhere you can author
-      documents and label a calibration slice. Trained checkpoints win where you can't author the
-      domain: broad pretraining knowledge, open-class NLU. They also compose — the abstain is a
-      routing decision for the caller, so a declined local answer can escalate to a model only
-      when there's signal to gain.</p>
-    </details>
-    <details class="faq">
-      <summary>And the game boards — where does the "grammar" live?</summary>
-      <p>The arena's game heads encode state and options as closed-grammar sentences, so every
-      answer decodes back to exact feature values. That grammar is a lane-local convention for
-      game boards — not the engine's. For text domains, the documents themselves are the
-      vocabulary: no grammar authoring, just docs.</p>
-    </details>
+    <div class="faqs">
+      <details class="faq">
+        <summary>Where does the learning happen?</summary>
+        <p>In small, deterministic, replayable fits — not a training run. Confidence calibration is a
+        2-parameter Platt-style solve; the two abstain thresholds are percentiles of your calibration
+        slice; optional per-label linear heads are fitted at build time by a short fixed-order SGD. All
+        replay bit-identically. A <code>/feedback</code> endpoint can refit calibration from outcomes.</p>
+      </details>
+      <details class="faq">
+        <summary>Is this RAG? k-NN?</summary>
+        <p>Closest cousins: nearest-centroid routing and retrieval-flavored scoring. The twist is the
+        scorer — an LZ4 drafter treats the corpus as a compression dictionary, so "how many bytes does
+        this option add" is a predictability signal with no learned parameters. The cosine term does
+        most of the ranking.</p>
+      </details>
+      <details class="faq">
+        <summary>When should I use which?</summary>
+        <p>Modelless fits a typed answer space in a domain you can describe — routing, triage,
+        workflow decisions. Trained models win on broad knowledge you can't author. They compose: an
+        abstain is a signal to escalate to a model only when it's worth it.</p>
+      </details>
+      <details class="faq">
+        <summary>Where does the game "grammar" live?</summary>
+        <p>The arena's game heads write state and options as closed-grammar sentences so every answer
+        decodes back to exact features. That is a convention of the game lanes, not the engine — text
+        domains just use their documents.</p>
+      </details>
+    </div>
   </section>
 
   <section id="sizes">
     <h2>What each lane costs on disk</h2>
-    <p class="sub">
-      The same lanes the <a href="/bench/">benchmark</a> and <a href="/arena/">arena</a> pages compare,
-      priced in bytes: runtime/engine below in ember, model weights in blue — smallest total first.
-      Every count is measured (unpacked release archives, Hugging Face tree sizes, on-host venv and
-      image measurements), generated into <code>data/sizes.json</code>, never hand-typed.
-    </p>
+    <p class="sub">Measured bytes — engine in ember, model weights in blue, smallest first. Generated into
+      <a href="/data/sizes.json">data/sizes.json</a>.</p>
     <div id="size-report" aria-label="disk footprint per candidate, smallest first">
       <p class="sub" style="margin:4px 0 8px">loading the measured footprints from <code>data/sizes.json</code>…</p>
     </div>
@@ -195,95 +158,99 @@
 
   <section id="explore">
     <h2>Start here</h2>
-    <p class="sub">Four doors into the same engine — pick the one that matches what you're doing today.</p>
     <div class="pages">
       <div class="page-card">
         <h3>Playground</h3>
-        <p>Type a state, ask a typed question, get a µs answer with calibrated confidence — or an honest
-          abstain. Talks to <em>your</em> engine on <em>your</em> machine; nothing is uploaded anywhere.</p>
+        <p>Ask your own engine a question. Nothing is uploaded.</p>
         <a class="cta" href="/playground/">Open the playground</a>
       </div>
       <div class="page-card">
         <h3>Arena</h3>
-        <p>Watch the lanes play Tetris, Flappy and three-lanes side by side from the same seeded stream:
-          the modelless core (microsecond decisions) vs the open-weights laya lane (it reads every sentence).</p>
+        <p>Tetris, Flappy and three-lanes — every lane on the same seeded game.</p>
         <a class="cta" href="/arena/">Watch the games</a>
       </div>
       <div class="page-card">
         <h3>Benchmark</h3>
-        <p>Every suite, every lane, per-task tables with the losses published — no single "we win" number
-          exists or will exist. Byte-identical questions, regenerable from the open harness.</p>
+        <p>Every suite, every lane, losses published.</p>
         <a class="cta" href="/bench/">Audit the tables</a>
       </div>
       <div class="page-card">
         <h3>For agents</h3>
-        <p>One file teaches your coding agent to drive Reflex properly — the wire, questions that work,
-          thresholds fitted from your data, abstention as a fallback path instead of an error.</p>
+        <p>One skill file teaches your coding agent to use Reflex.</p>
         <a class="cta" href="/#skill">Install the skill</a>
-      </div>
-      <div class="page-card">
-        <h3>Download</h3>
-        <p>One static binary, checksum-verified, for macOS (arm64 + x86_64), Linux (musl, both arches) and
-          Windows — via curl, Homebrew or Scoop. <code>reflex --version</code> prints its own feature set.</p>
-        <a class="cta" href="#install">Jump to install</a>
       </div>
     </div>
   </section>
 
   <section id="skill">
     <h2>Give your coding agent a decision engine.</h2>
-    <p class="sub">
-      One file teaches your agent to drive Reflex properly — the wire, questions that work,
-      thresholds fitted from your data, calibration, and the traps we found building this arena.
-      Curl-installable, plain instructions, exact HTTP calls.
-    </p>
+    <p class="sub">One file: the wire, questions that work, thresholds from your data, abstain as a fallback path.</p>
     <div class="cmd"><span class="os">Claude Code</span><code>mkdir -p .claude/skills/reflex-integration &amp;&amp; curl -fsSL https://reflex.gist.rs/skills/reflex-integration/SKILL.md -o .claude/skills/reflex-integration/SKILL.md</code><button data-copy="mkdir -p .claude/skills/reflex-integration &amp;&amp; curl -fsSL https://reflex.gist.rs/skills/reflex-integration/SKILL.md -o .claude/skills/reflex-integration/SKILL.md">copy</button></div>
     <div class="cmd"><span class="os">Zed / any agent</span><code>mkdir -p .agents/skills/reflex-integration &amp;&amp; curl -fsSL https://reflex.gist.rs/skills/reflex-integration/SKILL.md -o .agents/skills/reflex-integration/SKILL.md</code><button data-copy="mkdir -p .agents/skills/reflex-integration &amp;&amp; curl -fsSL https://reflex.gist.rs/skills/reflex-integration/SKILL.md -o .agents/skills/reflex-integration/SKILL.md">copy</button></div>
-    <details class="faq">
-      <summary>Which agents does it work with?</summary>
-      <p>Claude Code reads <code>.claude/skills/</code> natively; Zed reads <code>.agents/skills/</code>.
-      And any agent that accepts a markdown instruction file works — the skill is plain
-      instructions plus exact HTTP calls your agent already knows how to make.</p>
-    </details>
-    <details class="faq">
-      <summary>What does it change?</summary>
-      <p>Without it, an agent asked to classify, route, or triage reaches for an LLM call.
-      With it, it starts a microsecond-tier local engine, asks typed questions with the
-      answer space defined at request time, fits confidence thresholds from your labeled
-      data, wires abstention into a fallback path instead of an error — and reports
-      measured accuracy instead of a guess.</p>
-    </details>
-    <p class="fine">Section pattern borrowed with thanks from the
-      <a href="https://www.brainfunctioncollapse.com/laya/#skill">laya page's skill section</a>;
-      the file itself is written fresh against Reflex, traps and all.</p>
+    <div class="faqs">
+      <details class="faq">
+        <summary>Which agents does it work with?</summary>
+        <p>Claude Code reads <code>.claude/skills/</code>; Zed reads <code>.agents/skills/</code>. Any agent
+        that takes a markdown instruction file works — it is plain instructions plus exact HTTP calls.</p>
+      </details>
+      <details class="faq">
+        <summary>What does it change?</summary>
+        <p>Without it, an agent asked to classify or route reaches for an LLM call. With it, the agent
+        starts a local engine, asks typed questions, fits thresholds from your labeled data, handles
+        abstain as a fallback — and reports measured accuracy instead of a guess.</p>
+      </details>
+    </div>
   </section>
 
   <section id="install">
     <h2>Install</h2>
-    <p class="sub">
-      One static binary, checksum-verified — <code>reflex --version</code> prints its compiled
-      feature set and warns if the build is incomplete.
-    </p>
+    <p class="sub">One static binary, checksum-verified. <code>reflex --version</code> prints its feature set.</p>
     <div class="cmd"><span class="os">macOS / Linux</span><code>curl -fsSL https://raw.githubusercontent.com/gist-rs/reflex/main/install.sh | sh</code><button data-copy="curl -fsSL https://raw.githubusercontent.com/gist-rs/reflex/main/install.sh | sh">copy</button></div>
     <div class="cmd"><span class="os">Windows</span><code>iwr -useb https://raw.githubusercontent.com/gist-rs/reflex/main/install.ps1 | iex</code><button data-copy="iwr -useb https://raw.githubusercontent.com/gist-rs/reflex/main/install.ps1 | iex">copy</button></div>
-    <div class="cmd"><span class="os">Homebrew</span><code>brew tap gist-rs/tap &amp;&amp; brew install riir-reflex</code> <span class="hint-inline">— the command it installs is <code>reflex</code></span><button data-copy="brew tap gist-rs/tap && brew install riir-reflex">copy</button></div>
+    <div class="cmd"><span class="os">Homebrew</span><code>brew tap gist-rs/tap &amp;&amp; brew install riir-reflex</code> <span class="hint-inline">— installs the <code>reflex</code> command</span><button data-copy="brew tap gist-rs/tap && brew install riir-reflex">copy</button></div>
+  </section>
+
+  <section id="notes">
+    <h2>Notes &amp; sources</h2>
+    <details class="more">
+      <summary>Gates, claims and where each is proven</summary>
+      <ul class="notes-list">
+        <li><b>Every number above the fold</b> (TL;DR, chart, G1 badge) is computed in your browser from
+          <a href="/data/bench.json">data/bench.json</a>, which is generated by the open harness — never hand-typed.
+          <span class="src"><a href="https://github.com/gist-rs/reflex-site/blob/HEAD/scripts/publish_bench.py">publish_bench.py</a></span></li>
+        <li><b>G1 calibration</b> — the fitted confidence must beat both the raw readout and the conformal-naive floor.
+          It is not an accuracy gate; suites whose calibration window is too thin make no claim.
+          <span class="src"><a href="/bench/">per-suite verdicts</a></span>
+          <span class="src">Angelopoulos &amp; Bates, <a href="https://arxiv.org/abs/2107.07511">conformal prediction</a> (2021)</span></li>
+        <li><b>G2 latency</b> (p99 per decision set) and <b>G4 zero allocations</b> on the hot path are GOAT-gated in the engine repo.
+          <span class="src"><a href="https://github.com/gist-rs/riir-reflex/blob/HEAD/benches/decision_set_goat.rs">decision_set_goat.rs</a></span>
+          <span class="src"><a href="https://github.com/gist-rs/riir-reflex#the-gates-plan-603-goat">gate table</a></span></li>
+        <li><b>G5 laya parity</b> — our Rust port must match the reference checkpoints' top-1 answers (≥ 99.9%) within 1e-3 probability drift.
+          <span class="src"><a href="https://github.com/gist-rs/riir-reflex/blob/HEAD/tests/laya_riir_parity.rs">laya_riir_parity.rs</a></span></li>
+        <li><b>laya weights are never redistributed.</b> The optional comparison lane loads Apache-2.0 checkpoints (ModernBERT, mmBERT,
+          mask-scoring head) from Hugging Face at runtime, SHA-256-verified; their license ships in every release's THIRD_PARTY_LICENSES.md.
+          <span class="src"><a href="https://huggingface.co/brainfunctioncollapse">brainfunctioncollapse</a></span>
+          <span class="src"><a href="https://www.brainfunctioncollapse.com/laya/">laya</a></span></li>
+        <li><b>Privacy:</b> the engine listens on <code>127.0.0.1:7331</code>, accepts one allowed browser origin, and sends no telemetry.</li>
+        <li>The skill-section pattern is borrowed with thanks from the
+          <a href="https://www.brainfunctioncollapse.com/laya/#skill">laya page</a>; the file itself is written fresh against Reflex.</li>
+        <li>Not affiliated with, or endorsed by, TypeSafe AI; Jev is their product, named only to compare against.</li>
+      </ul>
+    </details>
   </section>
 
 </div>
 
 <footer class="site">
   <div class="wrap">
-    <div>
-      Reflex is part of the <a href="https://github.com/katopz">KatGPT</a> funnel ·
-      binary releases at <a href="https://github.com/gist-rs/reflex">gist-rs/reflex</a> ·
-      benchmark protocol in the <a href="https://gist.github.com">open-weights</a> tradition of honest tables.
+    <div class="credit">
+      Built on <a href="https://github.com/katopz/katgpt-rs">KatGPT-RS</a> — the open modelless primitives under every Reflex engine.
     </div>
     <div class="fine">
-      Not affiliated with, or endorsed by, TypeSafe AI; Jev is their product, named only to compare against.
-      The optional laya comparison lane loads Apache-2.0-licensed checkpoints (ModernBERT, mmBERT, mask-scoring head)
-      from the brainfunctioncollapse laya Hugging Face repositories at runtime — unmodified, SHA-256-verified, and never
-      redistributed here; their license text ships in every release archive's THIRD_PARTY_LICENSES.md.
-      Site content original; measurements regenerate from the open harness, never hand-typed.
+      Binaries: <a href="https://github.com/gist-rs/reflex">gist-rs/reflex</a> ·
+      engine: <a href="https://github.com/gist-rs/riir-reflex">gist-rs/riir-reflex</a> ·
+      rulebook engine: <a href="https://github.com/gist-rs/riir-reflexer">gist-rs/riir-reflexer</a> ·
+      site: <a href="https://github.com/gist-rs/reflex-site">gist-rs/reflex-site</a>
     </div>
   </div>
 </footer>

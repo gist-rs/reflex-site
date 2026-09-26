@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Reflex — benchmark tables</title>
-  <meta name="description" content="Per-task arena tables over the modelless and laya lanes — byte-identical questions, honest losses published.">
+  <meta name="description" content="Every suite, every lane, the same questions — Reflex · modelless against open-weights models, losses published.">
   <link rel="stylesheet" href="/assets/style.css">
   <style>
   .suite { margin: 26px 0 8px; font-size: 21px; color: var(--ember); }
@@ -55,7 +55,7 @@
 
 <header class="site">
   <div class="wrap">
-    <a class="brand" href="/">Reflex <span>· bench</span></a>
+    <a class="brand" href="/">Reflex <span>· benchmark</span></a>
     <nav>
       <a href="/">Home</a>
       <a href="/playground/">Playground</a>
@@ -69,38 +69,30 @@
 
 <div class="wrap">
   <section style="border-top:0">
-    <h2>At a glance — every suite, every lane</h2>
-    <p class="sub">Hover a bar for its numbers; click a suite name to jump to its table. Same questions for every lane.</p>
+    <h1 class="page-title">Same questions. Every lane. Losses included.</h1>
+    <p class="sub">Reflex · modelless is built for <b>latency</b> and <b>selective accuracy</b> (right when it answers,
+      abstains when it can't) — not raw accuracy against a neural model. Judge it on those axes.
+      <a href="/arena/">See it play →</a></p>
     <div id="lane-filter"></div>
-    <p class="lf-hint">Filter the lanes — the checkboxes govern every chart and table on this page (kept across visits).</p>
+    <p class="lf-hint">Filter lanes — applies to every chart and table (remembered).</p>
     <div id="bench-hero" aria-live="polite"></div>
 
-    <h2>Per-task tables — the losses are the point</h2>
-    <p class="sub">
-      Both lanes see byte-identical questions. The modelless lane is ns–µs tier and
-      bit-deterministic on a given build; the open-weights laya lane is the accuracy
-      heavyweight (rust = our port, python = the original torch reference). No single
-      "we win" number exists or will exist — audit the tables.
-      The modelless lane's near-chance rows on out-of-domain text are structural
-      (it is corpus-bound by design), and they are published here rather than trimmed.
-      Read the modelless lane on its own axes — latency, and selective accuracy
-      under abstention (acc@50cov, abstain/sel-acc) — not raw accuracy against laya.
-      The G1 line gates calibration honesty only (does the fitted confidence beat
-      the raw readout AND the conformal-naive floor?) — it is not an accuracy gate;
-      a FAIL there means the calibrator had nothing to improve, never that the
-      answers got worse.
-    </p>
+    <h2>Per suite</h2>
+    <p class="sub">Charts first; open a suite's table for every metric, the G1 calibration verdict and the gate fit.</p>
     <p id="bench-meta">loading data/bench.json …</p>
     <div id="suite-sort" hidden><span class="bc-mut">sort</span></div>
     <div id="tables"></div>
 
     <h2 style="margin-top:40px">Protocol</h2>
+    <details class="more"><summary>Corpus, calibration, floor and divergence rules (from the run's own metadata)</summary>
     <div id="protocol"></div>
+    </details>
 
     <h2 style="margin-top:40px">FAQ</h2>
-    <div class="faq">
-      <h3>What are the lanes?</h3>
-      <p><strong>KatGPT · modelless</strong> — no neural weights: decisions come from a per-label corpus plus a
+    <div class="faqs">
+      <details class="faq">
+        <summary>What are the lanes?</summary>
+      <p><strong>Reflex · modelless</strong> — no neural weights: decisions come from a per-label corpus plus a
         fitted sigmoid gate, so it answers in micro-seconds and is bit-deterministic on a given build.
         <strong>laya (rust)</strong> — our Rust port running the open-weights laya checkpoints on the local GPU
         (device noted per run: Metal, or the Apple Neural Engine where the lane serves it).
@@ -111,8 +103,9 @@
         their gliner2 package answers the same candidate-label questions — a comparison lane, never a product lane.
         <strong>agentjev</strong> — the external AgentJev-0.6B typed-decision specialist (Apache-2.0, not affiliated, Qwen3-0.6B backbone):
         their service answers over HTTP, measured gold-label on our split — a comparison lane, never a product lane.</p>
-
-      <h3>Tell me more about the clm lane</h3>
+      </details>
+      <details class="faq">
+        <summary>Tell me more about the clm lane</summary>
       <p>CLM (Contrastive Language Models) is an external, unaffiliated research project — an Apache-2.0
         "System One" decision model (Kwok, Kang, Suresh, Saad-Falcon, Pavone, Ré, Mirhoseini —
         <a href="https://github.com/Contrastive-LM/CLM">github.com/Contrastive-LM/CLM</a> ·
@@ -131,8 +124,9 @@
         network included — deliberately does not carry into these tables. CLM is a comparison lane only:
         it is not part of Reflex and ships in no release; accuracy columns compare it exactly as they
         compare everyone else.</p>
-
-      <h3>What is the ANE device row?</h3>
+      </details>
+      <details class="faq">
+        <summary>What is the ANE device row?</summary>
       <p>Some laya (rust) runs serve from the Apple Neural Engine — the encoder executes as one compiled whole-graph
         Core ML model per length bucket (BC1S, FP16), while the gather and the decision head stay host-side. FP16
         math fails a bit-level drift bar by nature, so the ANE rows are gated the way every device row should be:
@@ -140,41 +134,55 @@
         every argmax flip must sit inside the near-tie band (the reference's own top-2 margin &lt; 0.04). Every flip,
         near-tie or not, is listed — never hidden. Probability drift is published as observation, never as a gate.
         Sequences longer than the largest bucket are served by the other devices and named as skips on the ANE row.</p>
-
-      <h3>Why does the modelless lane lose on accuracy?</h3>
+      </details>
+      <details class="faq">
+        <summary>Why does the modelless lane lose on accuracy?</summary>
       <p>It is corpus-bound by design: out-of-domain text lands near chance, and those rows are published rather than
         trimmed. Its axes are latency and selective accuracy — how right it is on the questions it chooses to answer
         (acc@50cov, abstain / sel-acc) — not raw accuracy against a neural model.</p>
-
-      <h3>Why are the rust and python bars the same length on accuracy?</h3>
+      </details>
+      <details class="faq">
+        <summary>Why are the rust and python bars the same length on accuracy?</summary>
       <p>They should be: the rust lane is a port of the same checkpoints and is checked against the python oracle's
         own outputs per suite. What differs is latency — and the python figure includes the subprocess round-trip (IPC).</p>
-
-      <h3>Why is latency on a log scale?</h3>
+      </details>
+      <details class="faq">
+        <summary>Why is latency on a log scale?</summary>
       <p>The lanes are orders of magnitude apart. On a linear axis every modelless bar would be invisible; on the log
         axis each gridline is 10×, so bar length compares ratios, not differences.</p>
-
-      <h3>What do acc@50cov and abstain / sel-acc mean?</h3>
+      </details>
+      <details class="faq">
+        <summary>What do acc@50cov and abstain / sel-acc mean?</summary>
       <p><strong>acc@50cov</strong> is accuracy on the half of the questions the lane is most confident about.
         <strong>abstain / sel-acc</strong> is the fraction the calibrated gate declined to answer, and the accuracy on
         the rest.</p>
-
-      <h3>What does G1 PASS / FAIL / NO CLAIM mean?</h3>
+      </details>
+      <details class="faq">
+        <summary>What does G1 PASS / FAIL / NO CLAIM mean?</summary>
       <p>G1 gates calibration honesty only: does the fitted confidence beat both the raw readout and the
         conformal-naive floor? It is not an accuracy gate. FAIL means the calibrator had nothing to improve;
         NO CLAIM means it never fitted (the calibration window was too thin) — neither means the answers got worse.</p>
-
-      <h3>Why is a bar missing?</h3>
+      </details>
+      <details class="faq">
+        <summary>Why is a bar missing?</summary>
       <p>That lane did not run on that suite (for example, a suite that only the LLM lane can answer). A missing bar
         reads "not run", never zero.</p>
-
-      <h3>Are these numbers hand-typed?</h3>
+      </details>
+      <details class="faq">
+        <summary>Are these numbers hand-typed?</summary>
       <p>No. Charts and tables are both drawn in your browser from <a href="/data/bench.json">data/bench.json</a>,
         which is generated from the harness output. Re-publishing that file re-draws everything.</p>
+      </details>
     </div>
 
     <h2 style="margin-top:40px">Notes</h2>
+    <details class="more"><summary>How to read these numbers</summary>
     <div class="notes"><ul>
+      <li>Every lane sees byte-identical questions. No single "we win" number exists or will exist.</li>
+      <li>The modelless lane's near-chance rows on out-of-domain text are structural — it is corpus-bound by
+        design — and are published rather than trimmed.</li>
+      <li>G1 gates calibration honesty only (does the fitted confidence beat the raw readout AND the
+        conformal-naive floor?). A FAIL means the calibrator had nothing to improve, never that answers got worse.</li>
       <li><strong>Every row names its machine</strong> with an <code>@host</code> tag (chip + device):
         <code>@m3-max-metal</code> is this page's baseline machine serving the <em>laya</em> lane from
         Metal, <code>@4090-win</code> is a different box, and <code>@m3-max-ane</code> is the same M3 serving
@@ -193,10 +201,13 @@
       <li>Latency is wall-clock on the host named in the provenance line above; it moves with the machine and its power
         state. Modelless accuracy does not — the publisher refuses to merge a host whose modelless accuracy drifts.</li>
     </ul></div>
+    </details>
 
     <h2 style="margin-top:40px">References</h2>
     <div class="refs"><ul>
-      <li>Engine: <a href="https://github.com/gist-rs/reflex">gist-rs/reflex</a> ·
+      <li>Harness + gates: <a href="https://github.com/gist-rs/riir-reflex">gist-rs/riir-reflex</a> ·
+        publisher <a href="https://github.com/gist-rs/reflex-site/blob/HEAD/scripts/publish_bench.py">publish_bench.py</a></li>
+      <li>Engine binaries: <a href="https://github.com/gist-rs/reflex">gist-rs/reflex</a> ·
         <a href="https://github.com/gist-rs/reflex/releases">releases</a> · raw data
         <a href="/data/bench.json">bench.json</a></li>
       <li>laya checkpoints: <a href="https://huggingface.co/brainfunctioncollapse">brainfunctioncollapse on Hugging Face</a></li>
@@ -218,6 +229,7 @@
     </ul></div>
 
     <h2 id="machines" style="margin-top:40px">Machines</h2>
+    <details class="more"><summary>Hardware of every <code>@host</code></summary>
     <div class="notes"><ul>
       <li><strong><code>@m3-max-metal</code> / <code>@m3-max-ane</code> — MacBook Pro (Mac15,8)</strong>: Apple M3 Max —
         16-core CPU (12 performance + 4 efficiency), 40-core integrated GPU (Metal 4), 64 GB unified
@@ -229,14 +241,21 @@
         <code>@4090-win</code> laya rows (CUDA) and the clm reference lane (vLLM Qwen3-8B pooling +
         <code>clm-serve</code> heads), so those lanes share this box's silicon and thermals.</li>
     </ul></div>
+    </details>
 
-    <p class="sub" style="margin-top:26px">
+    <p class="prov" style="margin-top:26px">
       Not affiliated with, or endorsed by, TypeSafe AI; Jev is their product, named only to compare against.
       The laya lane loads Apache-2.0 checkpoints from the brainfunctioncollapse laya Hugging Face repositories
       at runtime — unmodified, SHA-256-verified, never redistributed.
     </p>
   </section>
 </div>
+
+<footer class="site">
+  <div class="wrap">
+    <div class="credit">Built on <a href="https://github.com/katopz/katgpt-rs">KatGPT-RS</a> — the open modelless primitives under every Reflex engine.</div>
+  </div>
+</footer>
 
 <script src="/assets/bench-charts.js"></script>
 <script>
@@ -251,7 +270,9 @@ function laneRow(l, bestAcc, hostTag) {
   const h = l.hard || {};
   const tds = [];
   const accCell = h.accuracy === bestAcc ? "best" : "";
-  tds.push(`<td>${fmt(String(l.lane).replace(/ \(reference\)$/, ""))} · ${fmt(l.model)}${hostTag ? ` <span class="host">@${hostTag}</span>` : ""}</td>`);
+  // "KatGPT" is the lane's DATA id (publish_bench.py); the product name is Reflex.
+  const laneName = l.lane === "KatGPT" ? "Reflex" : String(l.lane).replace(/ \(reference\)$/, "");
+  tds.push(`<td>${fmt(laneName)} · ${fmt(l.model)}${hostTag ? ` <span class="host">@${hostTag}</span>` : ""}</td>`);
   tds.push(`<td class="${accCell}">${fmt(h.accuracy)}</td>`);
   tds.push(`<td>${fmt(h.macro_f1)}</td>`);
   tds.push(`<td>${fmt(h.ece, 3)}</td>`);
@@ -334,10 +355,10 @@ function suiteSection(s) {
     : "";
 
   return `<h3 class="suite" id="suite-${s.name}">${s.name} <span class="cases">— ${s.n_cases} cases / ${s.n_questions} questions</span></h3>
-  ${window.BenchCharts ? BenchCharts.suite(s) : ""}<div class="scroll"><table class="bench">
+  ${window.BenchCharts ? BenchCharts.suite(s) : ""}<details class="more"><summary>Table · calibration · gate fit${g1Word ? ` <span class="chip ${v === "pass" ? "pass" : v === "fail" ? "fail" : ""}">G1 ${g1Word}</span>` : ""}</summary><div class="scroll"><table class="bench">
     <thead><tr><th>lane · model</th><th>acc</th><th>macro F1</th><th>ECE(maxp)</th><th>Brier</th><th>acc@50cov</th><th>rECE cal (raw)</th><th>abst / sel-acc</th><th>p50</th><th>p99</th><th>det</th></tr></thead>
     <tbody>${shown.map((l) => laneRow(l, bestAcc, PRIMARY_HOST)).join("")}${shownExtra.map(([l, host]) => laneRow(l, bestAcc, host)).join("")}</tbody>
-  </table></div>${leakLine}${g1}${gateFit(s.modelless)}`;
+  </table></div>${leakLine}${g1}${gateFit(s.modelless)}</details>`;
 }
 
 function render(d) {

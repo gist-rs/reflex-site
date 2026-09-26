@@ -12,7 +12,7 @@
 // the site's own landingOptions + line clears), and cross-checked against the
 // recorder's summary; a mismatch is shown, never hidden.
 //
-// Color follows the LANE (the bench-charts palette: KatGPT orange, laya
+// Color follows the LANE (the bench-charts palette: Reflex · modelless orange, laya
 // Rust blue, laya Python green) + the rulebook lane's magenta (#c4579e,
 // validated all-pairs against the three on #1d110c: normal-vision ΔE ≥ 16,
 // CVD pass) + the raw baseline in the de-emphasis gray — it is the floor.
@@ -20,10 +20,10 @@
 import * as T from "./games/tetris.js";
 
 export const CHART_LANES = [
-  { key: "rulebook", label: "Reflexer", walk: "tetris_rulebook_walk", meta: "tetris_rulebook", color: "#c4579e" },
+  { key: "rulebook", label: "Reflex · rulebook", walk: "tetris_rulebook_walk", meta: "tetris_rulebook", color: "#c4579e" },
   { key: "laya", label: "laya (Rust)", walk: "tetris_walk", meta: "tetris_laya", color: "#3987e5" },
   { key: "python", label: "laya (Python)", walk: "tetris_python_walk", meta: "tetris_python", color: "#199e70" },
-  { key: "modelless", label: "KatGPT modelless", walk: "tetris_head_walk", meta: "tetris_head", color: "#d95926" },
+  { key: "modelless", label: "Reflex · modelless", walk: "tetris_head_walk", meta: "tetris_head", color: "#d95926" },
   { key: "raw", label: "raw baseline", walk: "tetris_raw_walk", meta: "tetris_raw", color: "#8a7468" },
 ];
 

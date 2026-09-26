@@ -31,10 +31,10 @@ const lanes = { modelless: "unknown", laya: "unknown", raw: "unknown", python: "
 const LANE_NAME = {
   python: "laya (Python)",
   laya: "laya (Rust)",
-  modelless: "KatGPT modelless",
+  modelless: "Reflex · modelless",
   raw: "raw baseline",
-  rulebook: "Reflexer · wasm local",
-  rulebook_cf: "Reflexer · Cloudflare",
+  rulebook: "Reflex · rulebook (tab)",
+  rulebook_cf: "Reflex · rulebook (edge)",
 };
 
 // The two Reflexer boards are ONE engine on two hosts (reflexer_lanes.js):
@@ -124,7 +124,7 @@ async function loadDemo() {
 
 function demoStatusText() {
   if (arenaHeadReady()) {
-    return "no local engine — the KatGPT modelless and Reflexer · wasm local boards PLAY LIVE in-tab (WebAssembly · zero engine), Reflexer · Cloudflare plays live from the edge; laya (Rust), laya (Python) and the raw baseline replay recorded games";
+    return "no local engine — Reflex · modelless and Reflex · rulebook PLAY LIVE (this tab + Cloudflare edge); laya (Rust), laya (Python) and raw replay recorded games";
   }
   return "no local engine — RECORDED DEMO playing (Plan 607 oracle) · start the engine, then press Start to go live";
 }
@@ -421,7 +421,7 @@ function markSeedMode(isDemo) {
     label.classList.toggle("demo-seed", isDemo);
     label.title = isDemo
       ? liveHead
-        ? "Seeds the KatGPT modelless board's live in-tab game (wasm head); laya (Rust), laya (Python) and raw replay fixed recorded games"
+        ? "Seeds the Reflex · modelless board's live in-tab game (wasm head); laya (Rust), laya (Python) and raw replay fixed recorded games"
         : "Recorded demo — the board stream is fixed; this seed only shuffles the random abstain fallback"
       : "Seeds the piece stream — the same seed plays the same game on every live lane (laya (Python) always replays its recorded seed-607 game)";
     const word = label.querySelector(".seed-word");
@@ -1196,8 +1196,8 @@ function laneReady(lane) {
 
 const LANE_HINT = {
   python: () => "the recorded laya (Python) games could not be loaded (arena/demo_oracle.json)",
-  rulebook: () => "the Reflexer wasm could not load and its recorded game is unavailable (arena/demo_oracle.json)",
-  rulebook_cf: () => "the Reflexer Worker is unreachable and its recorded game is unavailable (arena/demo_oracle.json)",
+  rulebook: () => "the Reflex · rulebook wasm could not load and its recorded game is unavailable (arena/demo_oracle.json)",
+  rulebook_cf: () => "the Reflex · rulebook Worker is unreachable and its recorded game is unavailable (arena/demo_oracle.json)",
   laya: (state) =>
     `laya (Rust) lane is ${state}` +
     (state === "off" || state === "down"

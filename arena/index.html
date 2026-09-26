@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Arena · live games · Reflex</title>
-  <meta name="description" content="Watch the Reflex lanes play Tetris, Flappy and three-lanes — KatGPT modelless, Reflexer (the rulebook search), laya (Rust), the laya (Python) reference, and the raw baseline, same seeded game, honest losses published.">
+  <meta name="description" content="Watch Reflex play Tetris, Flappy and three-lanes live against an open-weights model — same seeded game, nothing scripted.">
   <link rel="stylesheet" href="/assets/style.css">
   <link rel="stylesheet" href="/assets/arena.css">
   <link rel="stylesheet" href="/assets/latcap.css">
@@ -12,7 +12,7 @@
 <body>
   <header class="site">
     <div class="wrap">
-      <a class="brand" href="/">Reflex<span> · arena</span></a>
+      <a class="brand" href="/">Reflex <span>· arena</span></a>
       <nav>
         <a href="/">Home</a>
         <a href="/playground/">Playground</a>
@@ -26,62 +26,40 @@
 
   <main class="wrap">
     <section class="hero slim">
+      <h1>Fast enough to <em>play live.</em></h1>
+      <p class="lead">Every lane plays the same seeded game and picks every move itself — nothing scripted,
+        bad picks get played. No install needed: the Reflex boards run in this tab.</p>
+      <div class="cta-row">
+        <a class="btn primary" href="#game-tetris">Press Start ↓</a>
+        <a class="btn" href="/bench/">See the numbers →</a>
+      </div>
       <div class="tldr" id="tldr">
         <b>TL;DR</b>
         <span class="tldr-body" id="tldr-body">loading the measured results from <a href="/bench/">the benchmark</a>…</span>
       </div>
-      <h1>Fast enough to <em>play a game live.</em></h1>
-      <p class="lead">
-        The games write their situation as sentences and ask one typed question per
-        option — the same protocol as the
-        <a href="/bench/">measured tables</a>. Four lanes play side by side from the
-        same seeded stream: the <b>KatGPT modelless</b> lane answers in microseconds;
-        <b>laya (Rust)</b> — our riir port of the open-weights
-        <a href="https://www.brainfunctioncollapse.com/laya/">laya</a> model — reads every
-        sentence; <b>laya (Python)</b> is the original torch reference it is measured
-        against; the <b>raw baseline</b> runs the same engine with its fitted heads
-        skipped — the honest abstain floor. <b>Reflexer</b> (the rulebook search engine)
-        asks no question at all: it plans three pieces ahead and scores boards with a
-        strategy rulebook — and it plays on TWO boards from the same engine bytes:
-        <b>wasm local</b> runs in this tab, <b>Cloudflare</b> answers every piece from the
-        edge, so the two boards play the identical game and differ only by the network
-        hop its latency capsule measures live. Nothing is scripted and bad answers get played.
-      </p>
       <div class="statusbar" id="status">
         <span class="chip" id="chip-python"><b>laya (Python)</b> —</span>
         <span class="chip" id="chip-laya"><b>laya (Rust)</b> —</span>
-        <span class="chip" id="chip-modelless"><b>KatGPT modelless</b> —</span>
+        <span class="chip" id="chip-modelless"><b>Reflex · modelless</b> —</span>
         <span class="chip" id="chip-raw"><b>raw</b> —</span>
-        <span class="chip" id="chip-rulebook"><b>Reflexer · wasm local</b> —</span>
-        <span class="chip" id="chip-rulebook_cf"><b>Reflexer · Cloudflare</b> —</span>
+        <span class="chip" id="chip-rulebook"><b>Reflex · rulebook (tab)</b> —</span>
+        <span class="chip" id="chip-rulebook_cf"><b>Reflex · rulebook (edge)</b> —</span>
         <span class="status-text" id="status-text">checking for a local engine…</span>
       </div>
-      <div class="launch" id="launch-box" hidden>
-        <p>The page talks to <b>YOUR</b> engine on <b>YOUR</b> machine — nothing is uploaded anywhere.
-        Install, then start it with the door open for this page
-        (add <code>RIIR_REFLEX_LAYA=1</code> to arm the laya (Rust) board — first start downloads ~650&nbsp;MB of
-        Apache-2.0 open weights). The raw baseline board needs engine
-        <b>v0.2.3+</b> (the <code>X-Reflex-Lane: raw</code> lane). Your browser may ask permission to connect to
-        local devices — that is this page reaching <code>127.0.0.1</code>; allow it.</p>
-        <div class="cmd"><span class="os">run</span><code id="launch-cmd">RIIR_REFLEX_ALLOWED_ORIGIN=https://reflex.gist.rs RIIR_REFLEX_LAYA=1 reflex</code><button data-copy="RIIR_REFLEX_ALLOWED_ORIGIN=https://reflex.gist.rs RIIR_REFLEX_LAYA=1 reflex">copy</button></div>
-        <p class="hint" id="pna-hint" hidden>Chrome blocked the local call — allow the local-network permission for this site (the icon in the address bar), then refresh.</p>
-      </div>
       <div class="launch demo" id="demo-banner" hidden>
-        <p><b>No local engine — the KatGPT modelless boards play LIVE in your tab.</b> The fitted
-        heads ship compiled to WebAssembly on this page: each fits its published head
-        in-tab from the same pinned oracle corpus and answers every spot question itself
-        — Tetris proven bit-exact against the recorded engine play, Flappy reproducing
-        its published 96/100 oracle agreement, Three-lanes reproducing its published
-        84/100 through the joined-state protocol (its head reads all three lanes'
-        sentences) — hundreds of decisions verified before
-        any board moves. No engine, no server, no upload. The <b>laya (Rust)</b> board — too
-        heavy for a browser at ~650&nbsp;MB of weights — replays recorded full-argmax
-        games; the <b>laya (Python)</b> board replays the original torch reference's
-        games, recorded offline (Python never runs in the engine or this page); the
-        <b>raw baseline</b> replays the engine's recorded heads-skipped games. Both
-        <b>Reflexer</b> boards play live without your engine: <b>wasm local</b> runs the
-        reflexer engine in this tab, <b>Cloudflare</b> asks the same engine at the edge. Each game plays once and stops — press Start to replay.
-        Start the engine, then press Start for the live lanes.</p>
+        <p><b>No engine needed.</b> Reflex · modelless and Reflex · rulebook play <b>live</b> in this tab
+        (rulebook also live from the Cloudflare edge). laya and raw <b>replay recorded games</b> — labelled as such.
+        <a href="#arena-notes">What's live vs recorded</a></p>
+      </div>
+      <div class="launch" id="launch-box" hidden>
+        <details class="more"><summary>Play laya and raw live on your machine</summary>
+        <p>Play the laya and raw lanes on <b>your</b> machine — nothing is uploaded. Install Reflex (engine
+        <b>v0.2.3+</b>), then run the command below. <code>RIIR_REFLEX_LAYA=1</code> downloads the Apache-2.0
+        weights on first start (<a href="/#sizes">measured size</a>). If the browser asks to reach local devices, allow it — that is
+        <code>127.0.0.1</code>.</p>
+        <div class="cmd"><span class="os">run</span><code id="launch-cmd">RIIR_REFLEX_ALLOWED_ORIGIN=https://reflex.gist.rs RIIR_REFLEX_LAYA=1 reflex</code><button data-copy="RIIR_REFLEX_ALLOWED_ORIGIN=https://reflex.gist.rs RIIR_REFLEX_LAYA=1 reflex">copy</button></div>
+        </details>
+        <p class="hint" id="pna-hint" hidden>Chrome blocked the local call — allow the local-network permission for this site (the icon in the address bar), then refresh.</p>
       </div>
     </section>
 
@@ -96,10 +74,8 @@
       <div class="results" id="tetris-results">
         <h3>The final result — no need to wait for the replays</h3>
         <div id="tetris-results-charts"><p class="sub">loading the recorded games…</p></div>
-        <p class="results-note">Every lane's recorded game on seed 607, re-scored here from its own
-        recorded moves. <b>First chart:</b> the lines stop where a game ended — ✕ means it topped
-        out, ● means it was still alive when the recording stopped. <b>Second chart:</b> time to judge
-        one landing spot, on a log scale — each grid step is 10× slower.</p>
+        <p class="results-note">Seed 607, re-scored from each lane's recorded moves. ✕ topped out · ● still alive when
+        recording stopped. Latency is log scale (each grid step = 10×).</p>
       </div>
       <div class="controls">
         <button class="ctl primary" id="tetris-run">Start</button>
@@ -113,7 +89,7 @@
       </div>
       <div class="boards">
         <div class="boardcard" id="tc-python">
-          <div class="boardhead"><b>laya lane (Python) · torch reference</b><span class="lane-note"><span class="latcap" id="lat-python" title="recorded per-spot p50 and range from this lane's recorded game (arena/demo_oracle.json) — static, not live">rec —</span> the ORIGINAL open-weights torch reference the Rust port is measured against · recorded offline (MPS) — measurement only, never shipped, never run by this page</span><span class="scorebox"><span>SCORE</span><b id="ts-python">0000</b><span>LINES</span><b id="tl-python">000</b></span></div>
+          <div class="boardhead"><b>laya lane (Python) · torch reference</b><span class="lane-note"><span class="latcap" id="lat-python" title="recorded per-spot p50 and range from this lane's recorded game (arena/demo_oracle.json) — static, not live">rec —</span> the original open-weights reference · recorded offline, never shipped</span><span class="scorebox"><span>SCORE</span><b id="ts-python">0000</b><span>LINES</span><b id="tl-python">000</b></span></div>
           <canvas id="tb-python" width="200" height="400"></canvas>
           <div class="stats" id="tst-python">pieces 0 · decisions 0 · p50 — ms · errors 0</div>
           <div class="readout">
@@ -126,7 +102,7 @@
           </div>
         </div>
         <div class="boardcard" id="tc-laya">
-          <div class="boardhead"><b>laya lane (Rust) · model-based</b><span class="lane-note"><span class="latcap" id="lat-laya" title="recorded per-spot p50 and range from this lane's recorded game (arena/demo_oracle.json) — static, not live">rec —</span> our riir port of the same open weights — reads every spot sentence · Metal on Apple silicon, CPU elsewhere · per-spot p50 on the stats line</span><span class="scorebox"><span>SCORE</span><b id="ts-laya">0000</b><span>LINES</span><b id="tl-laya">000</b></span></div>
+          <div class="boardhead"><b>laya lane (Rust) · model-based</b><span class="lane-note"><span class="latcap" id="lat-laya" title="recorded per-spot p50 and range from this lane's recorded game (arena/demo_oracle.json) — static, not live">rec —</span> our Rust port of the same weights · reads a sentence per spot</span><span class="scorebox"><span>SCORE</span><b id="ts-laya">0000</b><span>LINES</span><b id="tl-laya">000</b></span></div>
           <canvas id="tb-laya" width="200" height="400"></canvas>
           <div class="stats" id="tst-laya">pieces 0 · decisions 0 · p50 — ms · errors 0</div>
           <div class="readout">
@@ -139,7 +115,7 @@
           </div>
         </div>
         <div class="boardcard" id="tc-modelless">
-          <div class="boardhead"><b>KatGPT modelless lane · reflex core</b><span class="lane-note"><span class="latcap" id="lat-modelless" title="recorded per-spot p50 and range from this lane's recorded game (arena/demo_oracle.json) — static, not live">rec —</span> corpus-fitted heads play Tetris + Flappy + three-lanes — LIVE in-tab via WebAssembly with zero engine, or through your v0.2.3+ engine</span><span class="scorebox"><span>SCORE</span><b id="ts-modelless">0000</b><span>LINES</span><b id="tl-modelless">000</b></span></div>
+          <div class="boardhead"><b>Reflex · modelless</b><span class="lane-note"><span class="latcap" id="lat-modelless" title="recorded per-spot p50 and range from this lane's recorded game (arena/demo_oracle.json) — static, not live">rec —</span> corpus-fitted heads · live in this tab (WebAssembly) or your engine</span><span class="scorebox"><span>SCORE</span><b id="ts-modelless">0000</b><span>LINES</span><b id="tl-modelless">000</b></span></div>
           <canvas id="tb-modelless" width="200" height="400"></canvas>
           <div class="stats" id="tst-modelless">pieces 0 · decisions 0 · p50 — ms · errors 0</div>
           <div class="readout">
@@ -152,7 +128,7 @@
           </div>
         </div>
         <div class="boardcard" id="tc-rulebook">
-          <div class="boardhead"><b>Reflexer · wasm local</b><span class="lane-note"><span class="latcap" id="lat-rulebook" title="per decision, the reflexer engine running in THIS tab (WebAssembly) — live">in-tab —</span> rulebook search, no model — plans 3 pieces ahead (falling + preview + the bag) with a self-evolved strategy rulebook · the reflexer engine as WebAssembly, in THIS tab</span><span class="scorebox"><span>SCORE</span><b id="ts-rulebook">0000</b><span>LINES</span><b id="tl-rulebook">000</b></span></div>
+          <div class="boardhead"><b>Reflex · rulebook · in this tab</b><span class="lane-note"><span class="latcap" id="lat-rulebook" title="per decision, the reflexer engine running in THIS tab (WebAssembly) — live">in-tab —</span> rulebook search, no model · plans 3 pieces ahead</span><span class="scorebox"><span>SCORE</span><b id="ts-rulebook">0000</b><span>LINES</span><b id="tl-rulebook">000</b></span></div>
           <canvas id="tb-rulebook" width="200" height="400"></canvas>
           <div class="stats" id="tst-rulebook">pieces 0 · decisions 0 · p50 — ms · errors 0</div>
           <div class="readout">
@@ -165,7 +141,7 @@
           </div>
         </div>
         <div class="boardcard" id="tc-rulebook_cf">
-          <div class="boardhead"><b>Reflexer · Cloudflare</b><span class="lane-note"><span class="latcap live" id="lat-rulebook_cf" title="per decision, the full browser → Cloudflare Worker → browser round trip — measured live on every piece">edge —</span> the SAME reflexer wasm on a Cloudflare Worker — one <code>POST /v1/decide</code> per piece, so it plays wasm local's identical game and the capsule is the live round trip</span><span class="scorebox"><span>SCORE</span><b id="ts-rulebook_cf">0000</b><span>LINES</span><b id="tl-rulebook_cf">000</b></span></div>
+          <div class="boardhead"><b>Reflex · rulebook · Cloudflare edge</b><span class="lane-note"><span class="latcap live" id="lat-rulebook_cf" title="per decision, the full browser → Cloudflare Worker → browser round trip — measured live on every piece">edge —</span> the same engine bytes on a Worker · capsule = live round trip</span><span class="scorebox"><span>SCORE</span><b id="ts-rulebook_cf">0000</b><span>LINES</span><b id="tl-rulebook_cf">000</b></span></div>
           <canvas id="tb-rulebook_cf" width="200" height="400"></canvas>
           <div class="stats" id="tst-rulebook_cf">pieces 0 · decisions 0 · p50 — ms · errors 0</div>
           <div class="readout">
@@ -178,7 +154,7 @@
           </div>
         </div>
         <div class="boardcard" id="tc-raw">
-          <div class="boardhead"><b>raw baseline · heads skipped</b><span class="lane-note"><span class="latcap" id="lat-raw" title="recorded per-spot p50 and range from this lane's recorded game (arena/demo_oracle.json) — static, not live">rec —</span> <code>X-Reflex-Lane: raw</code> — the corpus engine without its fitted heads; abstains play as labelled random — the honest floor (engine v0.2.3+)</span><span class="scorebox"><span>SCORE</span><b id="ts-raw">0000</b><span>LINES</span><b id="tl-raw">000</b></span></div>
+          <div class="boardhead"><b>raw baseline · heads skipped</b><span class="lane-note"><span class="latcap" id="lat-raw" title="recorded per-spot p50 and range from this lane's recorded game (arena/demo_oracle.json) — static, not live">rec —</span> the engine without fitted heads · abstains play random — the floor</span><span class="scorebox"><span>SCORE</span><b id="ts-raw">0000</b><span>LINES</span><b id="tl-raw">000</b></span></div>
           <canvas id="tb-raw" width="200" height="400"></canvas>
           <div class="stats" id="tst-raw">pieces 0 · decisions 0 · p50 — ms · errors 0</div>
           <div class="readout">
@@ -193,33 +169,26 @@
       </div>
       <section class="lanes-how" id="tetris-how">
         <h3>How each lane picks a spot</h3>
-        <p class="sub">Same game for everyone — seeded 7-bag, a real hard drop, guideline scoring.
-        Only the way a landing spot is chosen differs. Figures rendered from
-        <a href="https://github.com/katopz/katgpt-rs/blob/HEAD/.docs/06_game_arenas/tetris_lane_flows.md">.docs/06_game_arenas/tetris_lane_flows.md</a>.</p>
+        <p class="sub">Same game for everyone (seeded 7-bag, hard drop, guideline scoring) — only the pick differs.
+        Source: <a href="https://github.com/katopz/katgpt-rs/blob/HEAD/.docs/06_game_arenas/tetris_lane_flows.md">tetris_lane_flows.md</a>.</p>
         <figure class="figure lanefig">
-          <figcaption><b>laya (Rust) · laya (Python)</b> — the model reads a sentence per spot. One
-          forward per spot; it sees only the falling piece.</figcaption>
+          <figcaption><b>laya (Rust / Python)</b> — one forward pass per spot sentence; sees only the falling piece.</figcaption>
           <img src="/assets/tetris_flow_laya.svg" alt="laya lanes: code lists every landing spot, writes each as an English sentence, the laya model answers Does the stack look clean for each, and the piece goes to the highest probability" loading="lazy">
         </figure>
         <figure class="figure lanefig">
-          <figcaption><b>KatGPT modelless</b> — laya's recorded answers distilled into a tiny head.
-          Plays like laya, ~10⁵× faster, and runs in this tab.</figcaption>
-          <img src="/assets/tetris_flow_modelless.svg" alt="KatGPT modelless lane: the same spot sentence is decoded back into board features, scored by a small linear head fitted on laya's recorded answers, and the highest score is played, in microseconds inside WebAssembly" loading="lazy">
+          <figcaption><b>Reflex · modelless</b> — laya's recorded answers distilled into a tiny linear head that runs in this tab.</figcaption>
+          <img src="/assets/tetris_flow_modelless.svg" alt="Reflex · modelless lane: the same spot sentence is decoded back into board features, scored by a small linear head fitted on laya's recorded answers, and the highest score is played, in microseconds inside WebAssembly" loading="lazy">
         </figure>
         <figure class="figure lanefig">
-          <figcaption><b>Reflexer</b> — the rulebook search: no model, no sentence. It plans three pieces
-          ahead; the unknown third piece is <i>averaged</i> over what is left in the bag, so a plan
-          that needs a lucky I-piece scores low.</figcaption>
-          <img src="/assets/tetris_flow_rulebook.svg" alt="Reflexer, the rulebook search: try every spot for the falling piece, every spot for the preview piece keeping the best six, then every piece still left in the bag; score each end board with the strategy rulebook, average over the unknown piece, take the best plan, and play its first move, in about six to nine milliseconds" loading="lazy">
+          <figcaption><b>Reflex · rulebook</b> — no model: plans three pieces ahead, averaging the unknown third over the bag.</figcaption>
+          <img src="/assets/tetris_flow_rulebook.svg" alt="Reflex · rulebook search: try every spot for the falling piece, every spot for the preview piece keeping the best six, then every piece still left in the bag; score each end board with the strategy rulebook, average over the unknown piece, take the best plan, and play its first move" loading="lazy">
         </figure>
         <figure class="figure lanefig">
-          <figcaption><b>The rulebook's modes</b> — go for tetrises only while it is safe. The 9-1
-          stack was found by self-evolution, not hand-coded.</figcaption>
+          <figcaption><b>The rulebook's modes</b> — build for tetrises only while safe; found by self-evolution, not hand-coded.</figcaption>
           <img src="/assets/tetris_flow_modes.svg" alt="the rulebook's play modes: on a clean low stack it builds a nine-one stack and waits for tetrises; three or more covered holes switch it to downstack, a tall stack to survive, both using safe survival weights; a clean board returns it to build" loading="lazy">
         </figure>
         <figure class="figure lanefig">
-          <figcaption><b>raw baseline</b> — the engine with its heads removed. It abstains, and the
-          abstain plays a labelled random spot: the honest floor.</figcaption>
+          <figcaption><b>raw baseline</b> — no fitted heads: it abstains, and the abstain plays a random spot.</figcaption>
           <img src="/assets/tetris_flow_raw.svg" alt="raw baseline lane: the corpus engine without fitted heads finds the spot sentence off-corpus, abstains, and the abstain plays as a labelled random spot, the honest floor" loading="lazy">
         </figure>
       </section>
@@ -252,7 +221,7 @@
           </div>
         </div>
         <div class="boardcard" id="fc-modelless">
-          <div class="boardhead"><b>KatGPT modelless lane · reflex core</b><span class="scorebox"><span>PIPES</span><b id="fp-modelless">000</b><span>CRASHES</span><b id="fx-modelless">000</b></span></div>
+          <div class="boardhead"><b>Reflex · modelless</b><span class="scorebox"><span>PIPES</span><b id="fp-modelless">000</b><span>CRASHES</span><b id="fx-modelless">000</b></span></div>
           <canvas id="fb-modelless" width="160" height="240"></canvas>
           <div class="readout">
             <div><span>STATE SENT</span><em id="fr-modelless-state">—</em></div>
@@ -270,7 +239,7 @@
           </div>
         </div>
       </div>
-      <details class="explain">
+      <div class="faqs"><details class="faq">
         <summary>Why ask what it sees, not what to do?</summary>
         <p>The game writes where the bird <i>is</i> — “The bird is a little below the gap
         center, falling. The gap is narrow. The pipe is just ahead.” — and asks one typed
@@ -278,7 +247,7 @@
         frozen v2 option sentences. The bird does the action with the higher P(clean).
         Asked which way to move, decision models answer backwards; asked where things
         are, they read cleanly.</p>
-      </details>
+      </details></div>
     </section>
 
     <!-- ══════════════════════════ LANES ══════════════════════════ -->
@@ -308,7 +277,7 @@
           </div>
         </div>
         <div class="boardcard" id="lc-modelless">
-          <div class="boardhead"><b>KatGPT modelless lane · reflex core</b><span class="scorebox"><span>STEPS</span><b id="lp-modelless">000</b><span>CRASHES</span><b id="lx-modelless">000</b></span></div>
+          <div class="boardhead"><b>Reflex · modelless</b><span class="scorebox"><span>STEPS</span><b id="lp-modelless">000</b><span>CRASHES</span><b id="lx-modelless">000</b></span></div>
           <div class="lanes" id="lb-modelless"></div>
           <div class="readout">
             <div><span>STATE SENT</span><em id="lr-modelless-state">—</em></div>
@@ -326,43 +295,47 @@
           </div>
         </div>
       </div>
-      <details class="explain">
+      <div class="faqs"><details class="faq">
         <summary>Does wording matter?</summary>
-        <p>A lot. Each barrier row is described in plain English and the engine answers
-        “Is this lane safe to run?” per lane. The runner takes the lane with the highest
-        P(safe). Small wording changes move the probabilities a lot — the measured trap
-        here was noun choice itself (the same lane blocked by “a barrier” vs “a train”
-        reads 0.75 vs 0.45), so the grammar carries ONE noun per obstacle class, never
-        varied — and the fitted head absorbs the residual noun-dependent weights from
-        the corpus, which is exactly why it beats the clearest-lane arithmetic policy
-        at imitating the model (84% vs 74%). The grammar here is the measured, pinned
-        one.</p>
-      </details>
+        <p>A lot. Each barrier row is described in plain English and the engine answers “Is this lane
+        safe to run?” per lane; the runner takes the highest P(safe). Even the noun moves the answer
+        (“a barrier” vs “a train” for the same lane), so the grammar pins ONE noun per obstacle class —
+        and the fitted head absorbs the rest.</p>
+      </details></div>
     </section>
 
-    <section class="footnote">
-      <p>With your engine connected, every number on this page is produced live by the
-      lanes on <b>your</b> machine — nothing is scripted or pre-recorded. Without an engine,
-      the modelless Tetris, Flappy and three-lanes boards play live in-tab on the compiled
-      WebAssembly
-      heads (tetris parity-proven against the recorded engine play; flappy and lanes
-      reproducing their published agreements, before any board moves),
-      while the other boards replay <b>recorded games</b> — committed runs through this
-      same wire, labelled as such, never mixed with live results. The laya (Rust) lane runs our Rust
-      port of the
-      open-weights model — G5-parity-verified against its reference checkpoints (top-1
-      agreement 1.000, probability drift ≤ 3e-6); there is no Python anywhere in the
-      shipped stack. The laya (Python) board is that reference itself, recorded offline
-      for comparison — it never runs in the engine or on this page. Protocol and measurement tables:
-      <a href="/bench/">the benchmark</a>. The engine never phones home; the page reaches
-      only <code>127.0.0.1:7331</code>.</p>
+    <section class="footnote" id="arena-notes">
+      <h2>Notes &amp; sources</h2>
+      <details class="more"><summary>What's live, what's recorded, and how it is checked</summary>
+      <ul class="notes-list">
+        <li><b>With your engine connected</b>, every board except laya (Python) plays live on your machine; the page reaches
+          only <code>127.0.0.1:7331</code>.</li>
+        <li><b>Without an engine</b>, Reflex · modelless plays live in-tab from compiled WebAssembly heads, each parity-checked
+          against the recorded engine play before any board moves.
+          <span class="src"><a href="https://github.com/gist-rs/reflex-site/blob/HEAD/scripts/arena_head_parity.mjs">arena_head_parity.mjs</a> — Tetris bit-exact, Flappy and three-lanes pinned to their published agreement</span></li>
+        <li><b>Reflex · rulebook</b> runs the public reflexer engine as WebAssembly — in this tab and on a Cloudflare Worker (stateless,
+          no storage). Both replay the recorded walk pick-for-pick.
+          <span class="src"><a href="https://github.com/gist-rs/reflex-site/blob/HEAD/scripts/reflexer_parity.mjs">reflexer_parity.mjs</a></span>
+          <span class="src"><a href="https://github.com/gist-rs/riir-reflexer">gist-rs/riir-reflexer</a></span></li>
+        <li><b>Recorded boards</b> (laya, raw, and any lane without its host) replay committed runs through the same wire —
+          labelled, never mixed with live results.
+          <span class="src"><a href="/arena/demo_oracle.json">demo_oracle.json</a></span></li>
+        <li><b>laya (Rust)</b> is our Rust port of the open-weights model, G5-parity-gated against its reference checkpoints; no Python
+          ships anywhere. <b>laya (Python)</b> is that reference, recorded offline for comparison only.
+          <span class="src"><a href="https://github.com/gist-rs/riir-reflex/blob/HEAD/tests/laya_riir_parity.rs">laya_riir_parity.rs</a></span>
+          <span class="src"><a href="https://www.brainfunctioncollapse.com/laya/">laya</a></span></li>
+        <li>The TL;DR above is computed from <a href="/data/bench.json">data/bench.json</a> on load — never typed.
+          <span class="src"><a href="https://github.com/gist-rs/reflex-site/blob/HEAD/assets/arena_tldr.js">arena_tldr.js</a></span></li>
+      </ul>
+      </details>
     </section>
   </main>
 
-  <footer class="site-foot">
+  <footer class="site">
     <div class="wrap">
-      <p>Reflex is part of the KatGPT funnel · binary releases at
-      <a href="https://github.com/gist-rs/reflex">gist-rs/reflex</a>.</p>
+      <div class="credit">Built on <a href="https://github.com/katopz/katgpt-rs">KatGPT-RS</a> — the open modelless primitives under every Reflex engine.</div>
+      <div class="fine">Binaries: <a href="https://github.com/gist-rs/reflex">gist-rs/reflex</a> ·
+        rulebook engine: <a href="https://github.com/gist-rs/riir-reflexer">gist-rs/riir-reflexer</a></div>
     </div>
   </footer>
 

@@ -53,7 +53,8 @@ nav a:hover { color: var(--ember); }
   font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 14px;
   overflow-x: auto;
 }
-.cmd code { white-space: nowrap; }
+.cmd code { white-space: nowrap; flex: 1; min-width: 0; overflow-x: auto; }
+.cmd .os, .cmd button { flex: none; }
 .cmd .os { color: var(--muted); min-width: 118px; }
 .cmd button {
   margin-left: auto; background: var(--dark-red); color: var(--text);
@@ -345,3 +346,62 @@ pre.rx-text {
    board card past a phone viewport */
 #reflexer .play > .card { min-width: 0; }
 #rx-endpoint { overflow-wrap: anywhere; }
+
+/* ── redesign 2026-09-26: hook + CTA hero, FAQ-as-buttons, collapsed
+   tables/notes (charts stay visible; everything else is one click away) ── */
+.hero .kicker { font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 0 0 10px; }
+.cta-row { display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 8px; }
+.btn {
+  display: inline-block; padding: 10px 18px; border-radius: 8px; font-weight: 700; font-size: 15px;
+  border: 1px solid var(--rust); color: var(--ember); background: transparent;
+}
+.btn:hover { text-decoration: none; background: rgba(183, 65, 14, 0.15); }
+.btn.primary { background: var(--rust); color: #fff; border-color: var(--rust); }
+.btn.primary:hover { background: var(--rust-bright); }
+
+/* FAQ: each question is a button; open answers take the full row. */
+.faqs { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 0; }
+.faqs > details.faq { border: 0; background: transparent; padding: 0; margin: 0; }
+.faqs > details.faq[open] { flex-basis: 100%; }
+.faqs > details.faq > summary {
+  list-style: none; display: inline-flex; align-items: center; gap: 8px;
+  padding: 7px 14px; border: 1px solid var(--line); border-radius: 999px;
+  background: var(--panel); font-size: 14px; font-weight: 600; color: var(--text);
+}
+.faqs > details.faq > summary::-webkit-details-marker { display: none; }
+.faqs > details.faq > summary::before { content: "+"; color: var(--ember); font-weight: 800; }
+.faqs > details.faq[open] > summary { border-color: var(--rust); }
+.faqs > details.faq[open] > summary::before { content: "–"; }
+.faqs > details.faq > summary:hover { border-color: var(--rust); }
+.faqs > details.faq > :not(summary) {
+  background: var(--panel); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px 16px; margin: 8px 0 4px;
+}
+.faqs > details.faq > p { color: var(--muted); font-size: 14.5px; }
+
+/* A collapsed block (tables, notes, long explanations). */
+details.more { margin: 14px 0 0; }
+details.more > summary {
+  cursor: pointer; color: var(--ember); font-size: 14px; font-weight: 600; list-style: none;
+}
+details.more > summary::-webkit-details-marker { display: none; }
+details.more > summary::before { content: "▸ "; }
+details.more[open] > summary::before { content: "▾ "; }
+details.more > summary .chip { margin-left: 6px; }
+.chip { font-size: 11.5px; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); font-weight: 600; }
+.chip.pass { border-color: var(--ok); color: var(--ok); }
+.chip.fail { border-color: var(--warn); color: var(--warn); }
+
+/* Notes & sources — the long-form material, cited. */
+.notes-list { padding-left: 20px; margin: 8px 0 0; }
+.notes-list li { font-size: 13.5px; color: var(--muted); margin: 0 0 8px; }
+.notes-list li b { color: var(--text); }
+.src { font-size: 12px; white-space: nowrap; }
+.src::before { content: "["; color: var(--muted); }
+.src::after { content: "]"; color: var(--muted); }
+
+/* Footer credit line. */
+.credit { color: var(--text); }
+.credit a { font-weight: 700; }
+.launch > details.more { margin: 0; }
+.launch > details.more[open] > summary { margin-bottom: 8px; }

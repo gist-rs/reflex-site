@@ -19,7 +19,7 @@
   // ΔE 20.9); the two comparison-lane slots (clm violet, gliner teal) were
   // added later with the same dark-surface ≥3:1 contrast rule.
   const LANES = [
-    { key: "katgpt", label: "KatGPT · modelless", color: "#d95926", match: (l) => l.lane === "KatGPT" || l.model === "modelless" },
+    { key: "katgpt", label: "Reflex · modelless", color: "#d95926", match: (l) => l.lane === "KatGPT" || l.model === "modelless" },
     { key: "rust", label: "laya (rust)", color: "#3987e5", match: (l) => l.lane === "laya (rust)" },
     { key: "python", label: "laya (python)", color: "#199e70", match: (l) => l.lane === "laya (python)" },
     { key: "clm", label: "clm", color: "#b39ddb", match: (l) => l.lane === "clm (reference)" },
@@ -30,7 +30,8 @@
   const laneOf = (l) => LANES.find((x) => x.match(l)) || OTHER;
   // display form of the data's lane name — the "(reference)" qualifier
   // stays in the data (it drives laneOf matching) but never renders
-  const shortLane = (l) => String(l.lane).replace(/ \(reference\)$/, "");
+  // "KatGPT" is the modelless lane's DATA id (publish_bench.py); display it as the product.
+  const shortLane = (l) => (l.lane === "KatGPT" ? "Reflex" : String(l.lane).replace(/ \(reference\)$/, ""));
 
   // ── lane filter (one checkbox bar, governs EVERY section of the page) ────
   // The filter keys on the CANONICAL lane key (laneOf(l).key — "katgpt",
@@ -221,7 +222,7 @@
   // "data" is the harness's own suite order / the lane order as published.
   // "acc" sorts best-first (descending); "lat" sorts fastest-first
   // (ascending — on the latency axis shorter is better, so both sorts put
-  // the best row on top). Key for suite rows: the KatGPT · modelless lane —
+  // the best row on top). Key for suite rows: the Reflex · modelless lane —
   // the product lane this site exists for; the note says so when a sort is
   // active. Key for lane rows inside a suite table: that lane's own value.
   // Missing cells sort last, never first.
@@ -265,8 +266,8 @@
   function sortNote(kind) {
     if (kind === "data") return "";
     return SORTS[kind].dir === "desc"
-      ? " Rows sorted best-accuracy-first on the KatGPT · modelless lane; not-run sorts last."
-      : " Rows sorted fastest-first on the KatGPT · modelless lane; not-run sorts last.";
+      ? " Rows sorted best-accuracy-first on the Reflex · modelless lane; not-run sorts last."
+      : " Rows sorted fastest-first on the Reflex · modelless lane; not-run sorts last.";
   }
 
   // ── hero: every suite × three lanes ──────────────────────────────────────
@@ -420,9 +421,9 @@
         `${band}<i class="bc-mark" style="left:${(fAv * 100).toFixed(2)}%;background:${lane.color}"></i><span class="bc-val" style="${valStyle}">${f(a.value)}</span></div></div>`;
     }).join("");
     const note = (M.log
-      ? "Latency bands span each suite's p50 (min → max); the tick marks the geometric mean — on a log axis that is the average; each gridline = 10×, shorter is faster. "
-      : "Accuracy bands span each suite's value (min → max); the tick marks the macro-average — every suite counts equally; chance level differs per suite, so compare lanes within a row, not rows with each other. ") +
-      `Averaged over every suite the lane ran (${(d.suites || []).length} published); a lane with a single suite shows its tick only; comparison lanes may include extra-host cells — the hover lists per-suite values and names them. Checkpoints follow the same pick as the full chart — best non-multilingual.`;
+      ? "Band = min → max suite p50; tick = geometric mean; each gridline 10×, shorter is faster. "
+      : "Band = min → max suite accuracy; tick = macro-average; chance differs per suite — compare lanes, not suites. ") +
+      `Over ${(d.suites || []).length} published suites — hover a bar for per-suite values.`;
     return `<div class="bc-hgrid"><div></div>${axis(m)}${rows}<div></div>${axis(m)}</div><p class="bc-note">${esc(note)}</p>`;
   }
 

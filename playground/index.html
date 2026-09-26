@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Playground · Reflex</title>
-  <meta name="description" content="Ask your own local Reflex engine a typed question — choice, score, or yes/no — and get a microsecond answer with calibrated confidence, or an honest abstain. Nothing is uploaded anywhere.">
+  <meta name="description" content="Ask your local Reflex engine a choice, score or yes/no question — a microsecond answer with calibrated confidence, or an abstain. Nothing is uploaded.">
   <link rel="stylesheet" href="/assets/style.css">
   <link rel="stylesheet" href="/assets/latcap.css">
 </head>
@@ -27,10 +27,9 @@
 <div class="wrap">
 
   <section style="border-top:0">
-    <h1 class="page-title">Playground</h1>
-    <p class="sub">This page talks to YOUR engine on YOUR machine — nothing is uploaded anywhere.
-      The engine never phones home; the browser cannot reach it until you open the door for exactly one origin.
-      No engine? <a href="#reflexer">Reflexer</a> below runs with no install — in this tab, or on Cloudflare.</p>
+    <h1 class="page-title">Ask it something.</h1>
+    <p class="sub">Talks to <b>your</b> engine on <b>your</b> machine — nothing is uploaded.
+      No engine? Try <a href="#reflexer">Reflex · rulebook</a> below — no install.</p>
 
     <div id="status"><span class="dot"></span><span id="status-text">checking for a local engine…</span></div>
 
@@ -67,12 +66,10 @@ promote</textarea>
   </section>
 
   <section id="reflexer">
-    <h2>Reflexer — no install, on Cloudflare</h2>
-    <p class="sub">The <b>reflexer</b> decision engine (the arena's rulebook search) is public and
-      needs nothing on your machine: the same WebAssembly runs on a Cloudflare Worker and in this tab.
-      <b>This section is the one exception to "nothing is uploaded"</b> — <em>Ask Cloudflare</em> sends the
-      board below to the Worker (stateless: no storage, no logging of request bodies); <em>Ask this tab</em>
-      sends nothing. Same engine bytes, so the two answers are identical and the difference is the network hop.</p>
+    <h2>Reflex · rulebook — no install</h2>
+    <p class="sub">Paint a Tetris board and ask where the piece goes. <em>Ask this tab</em> runs the engine here and sends
+      nothing; <em>Ask Cloudflare</em> sends the board to a stateless Worker (no storage) — the one exception to
+      "nothing is uploaded". Same engine bytes, so the answers match; the difference is the network hop.</p>
     <div id="rx-status" class="sub">checking the Worker…</div>
     <div class="play">
       <div class="card">
@@ -119,9 +116,9 @@ promote</textarea>
   <section id="how">
     <h2>Three steps</h2>
     <div class="steps">
-      <div class="step"><h3>1 · Install</h3><p>One binary. <code>reflex --version</code> prints its compiled feature set and warns if the build is incomplete.</p></div>
-      <div class="step"><h3>2 · Run with the door open</h3><p><code>RIIR_REFLEX_ALLOWED_ORIGIN=https://reflex.gist.rs reflex</code> — the engine listens on <code>127.0.0.1:7331</code> and accepts browser calls from this page only.</p></div>
-      <div class="step"><h3>3 · Play</h3><p>Type a state and a question. Answers come back in microseconds, with confidence — or an honest abstain.</p></div>
+      <div class="step"><h3>1 · Install</h3><p>One binary — <a href="/#install">install commands</a>.</p></div>
+      <div class="step"><h3>2 · Run with the door open</h3><p><code>RIIR_REFLEX_ALLOWED_ORIGIN=https://reflex.gist.rs reflex</code> — listens on <code>127.0.0.1:7331</code>, accepts this page only.</p></div>
+      <div class="step"><h3>3 · Ask</h3><p>Type a state and a question. Get an answer with confidence — or an abstain.</p></div>
     </div>
   </section>
 
@@ -129,17 +126,12 @@ promote</textarea>
 
 <footer class="site">
   <div class="wrap">
-    <div>
-      Reflex is part of the <a href="https://github.com/katopz">KatGPT</a> funnel ·
-      binary releases at <a href="https://github.com/gist-rs/reflex">gist-rs/reflex</a> ·
-      <a href="/">back to the landing page</a>
-    </div>
+    <div class="credit">Built on <a href="https://github.com/katopz/katgpt-rs">KatGPT-RS</a> — the open modelless primitives under every Reflex engine.</div>
     <div class="fine">
-      Not affiliated with, or endorsed by, TypeSafe AI; Jev is their product, named only to compare against.
-      The optional laya comparison lane loads Apache-2.0-licensed checkpoints (ModernBERT, mmBERT, mask-scoring head)
-      from the brainfunctioncollapse laya Hugging Face repositories at runtime — unmodified, SHA-256-verified, and never
-      redistributed here; their license text ships in every release archive's THIRD_PARTY_LICENSES.md.
-      Site content original; measurements regenerate from the open harness, never hand-typed.
+      Binaries: <a href="https://github.com/gist-rs/reflex">gist-rs/reflex</a> ·
+      rulebook engine: <a href="https://github.com/gist-rs/riir-reflexer">gist-rs/riir-reflexer</a> ·
+      the laya comparison lane loads Apache-2.0 checkpoints at runtime, never redistributed ·
+      not affiliated with TypeSafe AI (Jev is named only to compare against).
     </div>
   </div>
 </footer>

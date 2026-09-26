@@ -1,6 +1,6 @@
 /* Arena TL;DR — the expected lane order vs what the benchmark measured.
    Rendered from data/bench.json (publish_bench.py's output), never
-   hand-typed: the claim is KatGPT modelless > laya (Rust) > laya (Python) on
+   hand-typed: the claim is Reflex · modelless > laya (Rust) > laya (Python) on
    speed and accuracy, and every place the measurement disagrees is SAID,
    not hidden. Checkpoint compared: english (the arena's own). */
 
@@ -60,26 +60,23 @@ function render(bench) {
   body.innerHTML = "";
   const lead = document.createElement("p");
   lead.innerHTML =
-    `Expected order on speed <i>and</i> accuracy: <b>KatGPT modelless &gt; laya (Rust) &gt; laya (Python)</b>. ` +
-    `Measured on <b>${n}</b> suites (<a href="/bench/">the benchmark</a> · engine ${meta.git_sha || "?"} · ${host} · ${SUITE_ORDER_NOTE}):`;
+    `Measured on <b>${n}</b> suites · <a href="/bench/">benchmark</a> · engine ${meta.git_sha || "?"} · ${host} · ${SUITE_ORDER_NOTE}`;
   const ul = document.createElement("ul");
   ul.appendChild(row(kmFaster.length === n,
-    `<b>Speed — KatGPT modelless vs laya (Rust):</b> faster on <b>${kmFaster.length}/${n}</b> suites, median <b>${Math.round(speedup).toLocaleString()}×</b>.`));
+    `<b>Reflex vs laya, speed:</b> faster on <b>${kmFaster.length}/${n}</b>, median <b>${Math.round(speedup).toLocaleString()}×</b>.`));
   const slowList = rustSlower.slice(0, 3)
     .map((r) => `${r.name} ${ms(r.rust.p50)} vs ${ms(r.py.p50)} ms`).join(", ");
   ul.appendChild(row(rustFaster.length === n,
-    `<b>Speed — laya (Rust) vs laya (Python):</b> Rust faster on <b>${rustFaster.length}/${n}</b>` +
+    `<b>Rust vs Python laya, speed:</b> Rust faster on <b>${rustFaster.length}/${n}</b>` +
     (rustSlower.length
-      ? ` — slower on ${rustSlower.length} (${slowList}). A bug by our own bar, open as riir-reflex Issue 020.`
+      ? `, slower on ${rustSlower.length} (${slowList}) — a bug by our bar, open as <a href="https://github.com/gist-rs/riir-reflex/blob/HEAD/.issues/020_riir_metal_latency_parity.md">riir-reflex Issue 020</a>.`
       : ".")));
   ul.appendChild(row(accEqual.length === n ? null : false,
-    `<b>Accuracy — laya (Rust) vs laya (Python):</b> identical on <b>${accEqual.length}/${n}</b> — ` +
-    `a parity port gives the same answers by design; the only intended difference is speed.`));
+    `<b>Rust vs Python laya, accuracy:</b> identical on <b>${accEqual.length}/${n}</b> — a parity port, by design.`));
   ul.appendChild(row(kmAccAtLeast.length === n,
-    `<b>Accuracy — KatGPT modelless vs laya:</b> at or above laya on <b>${kmAccAtLeast.length}/${n}</b>` +
+    `<b>Reflex vs laya, accuracy:</b> at or above laya on <b>${kmAccAtLeast.length}/${n}</b>` +
     (kmAccAtLeast.length < n
-      ? ` — trails on the rest (widest: ${worstAcc.name} ${pct(worstAcc.km.acc)} vs ${pct(worstAcc.rust.acc)}). ` +
-        `The modelless accuracy gap is real, published, and not relabelled.`
+      ? `; trails on the rest (widest: ${worstAcc.name} ${pct(worstAcc.km.acc)} vs ${pct(worstAcc.rust.acc)}) — published, not hidden.`
       : ".")));
   body.append(lead, ul);
 }

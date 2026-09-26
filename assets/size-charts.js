@@ -11,7 +11,7 @@
 //                               axis would flatten everything but the
 //                               largest), data order = ascending total.
 //
-// Palette: engine = the site's ember (the KatGPT lane color), model = the
+// Palette: engine = the site's ember (the Reflex · modelless lane color), model = the
 // laya lane blue — both already validated on the dark surfaces. The two
 // bars share one tooltip (data-sztip, this module's own handler — never
 // bench-charts' data-tip namespace).
@@ -128,7 +128,6 @@
       `<span><i class="bc-sw" style="background:${MODEL_COLOR}"></i>model / weights</span>` +
       `</div><div class="bc-axis sz-axis">${ticks.map(([f, t]) => `<span style="left:${(f * 100).toFixed(2)}%">${esc(t)}</span>`).join("")}</div></div>` +
       `<div class="sz-grid">${rows}</div>` +
-      `<p class="bc-note">${esc(d.meta && d.meta.law ? d.meta.law : "")}</p>` +
       (d.meta && d.meta.release
         ? `<p class="bc-note">reflex release <a href="${esc(d.meta.release.url)}">${esc(d.meta.release.tag)}</a> — ` +
           `archives ${human(Math.min(...Object.values(d.meta.release.archives || { x: 0 })))}–${human(Math.max(...Object.values(d.meta.release.archives || { x: 0 })))}` +

@@ -175,14 +175,26 @@ async function homeFigure() {
     const speedup = median(ratios), geo = median(kmP50s) && Math.exp(kmP50s.reduce((a, v) => a + Math.log(v), 0) / kmP50s.length);
     if (speedup && geo) {
       tldrBody.innerHTML =
-        `A decision lands in <b class="num">${lat(geo)}</b> — a median <b class="num">${Math.round(speedup).toLocaleString("en-US")}×</b> faster than the open-weights ` +
-        `model on byte-identical questions — with calibrated confidence, honest abstains, and nothing leaving your machine.`;
+        `Typical decision <b class="num">${lat(geo)}</b> — median <b class="num">${Math.round(speedup).toLocaleString("en-US")}×</b> faster than the open-weights ` +
+        `model on the same questions, across <b class="num">${ratios.length}</b> suites.`;
+    }
+  }
+  // G1 badge — counted from the per-suite verdicts, never typed (a suite
+  // with no calibration claim is excluded from the denominator, as on /bench/).
+  const g1 = document.getElementById("g1-badge");
+  if (g1) {
+    const vs = (d.suites || []).map((s) => s.modelless).filter(Boolean)
+      .map((m) => m.g1_verdict || (m.g1_pass === true ? "pass" : m.g1_pass === false ? "fail" : null))
+      .filter((v) => v === "pass" || v === "fail");
+    if (vs.length) {
+      g1.textContent = `G1 calibration beats the conformal floor — ${vs.filter((v) => v === "pass").length}/${vs.length} suites`;
+      g1.hidden = false;
     }
   }
   const prov = document.getElementById("home-prov");
   if (prov && d.meta?.date_utc) {
     prov.hidden = false;
-    prov.textContent = `measured ${d.meta.date_utc.slice(0, 10)} · run ${d.meta.git_sha || "?"} on ${d.meta.host || "?"} — every number on this page renders from data/bench.json, never hand-typed`;
+    prov.textContent = `measured ${d.meta.date_utc.slice(0, 10)} · run ${d.meta.git_sha || "?"} on ${d.meta.host || "?"} · from data/bench.json`;
   }
 }
 homeFigure();
