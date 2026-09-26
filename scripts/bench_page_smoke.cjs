@@ -48,14 +48,11 @@ const server = http.createServer((req, res) => {
     if (bad.length) fail("suite titles not self-linked: " + JSON.stringify(bad));
     else console.log(`ok: ${suiteAnchors.length} suite titles self-linked`);
   }
-  const navChips = await page.$$eval("#suite-nav a", (as) => as.map((a) => a.getAttribute("href")));
-  if (navChips.length !== suiteAnchors.length) fail(`quick-nav chips ${navChips.length} != suites ${suiteAnchors.length}`);
-  else {
-    const ids = new Set(suiteAnchors.map((s) => `#${s.id}`));
-    const missing = navChips.filter((h) => !ids.has(h));
-    if (missing.length) fail("quick-nav chips without a suite anchor: " + missing.join(", "));
-    else console.log(`ok: quick-nav has ${navChips.length} chips, all resolve`);
-  }
+  // the jump nav was removed (the hero labels + browser find replaced it);
+  // the element must be gone, not merely hidden
+  const navGone = await page.$("#suite-nav");
+  if (navGone) fail("jump nav (#suite-nav) still renders — it was removed");
+  else console.log("ok: jump nav removed");
 
   // nav: GitHub icon in, Download out (it lives in the footer now)
   const ghLinks = await page.$$("header.site nav a.gh");
@@ -117,6 +114,63 @@ const server = http.createServer((req, res) => {
   const glinerBack = await page.$$eval("#tables tr", (trs) => trs.filter((t) => { const c = t.querySelector("td"); return c && /^gliner · /.test(c.textContent); }).length);
   if (glinerBack < 10) fail(`gliner rows must return when re-checked, got ${glinerBack}`);
   else console.log("ok: gliner rows restored");
+
+  // 8) hero sort follows the FIRST VISIBLE lane (sorting by a lane the
+  //    reader filtered out rendered as an unsorted page — the bars carried
+  //    no visible order). The key lane is read by COLOR (the first visible
+  //    lane's swatch), widths must be monotone, and suites without the key
+  //    lane must sort last. Covers "by accuracy" AND "by latency".
+  const heroKeyWidths = (color) => page.$$eval(
+    "#bench-hero .bc-htrack",
+    (ts, c) => ts.map((t) => {
+      const b = t.querySelector(`.bc-hbar:not(.bc-none) i[style*="${c}"]`);
+      return b ? parseFloat(b.style.width) : null;
+    }),
+    color
+  );
+  const assertOrdered = (w, tag, asc) => {
+    let seenNull = false;
+    for (let i = 0; i < w.length; i++) {
+      if (w[i] === null) { seenNull = true; continue; }
+      if (seenNull) { fail(`hero sort [${tag}]: a keyed row sorts after a not-run row (index ${i})`); return; }
+      if (i > 0 && w[i - 1] !== null) {
+        const worse = asc ? w[i] < w[i - 1] - 0.01 : w[i] > w[i - 1] + 0.01;
+        if (worse) { fail(`hero sort [${tag}]: order breaks at row ${i} (${w[i - 1]} → ${w[i]})`); return; }
+      }
+    }
+  };
+  const heroNote = () => page.$eval("#bench-hero .bc-note", (n) => n.textContent);
+  // accuracy, all lanes visible → key = Reflex · modelless (#d95926)
+  await page.click('#bench-hero button[data-sort="acc"]');
+  await page.waitForTimeout(100);
+  let widths = await heroKeyWidths("#d95926");
+  assertOrdered(widths, "acc · modelless key", false);
+  let note = await heroNote();
+  if (!note.includes("Rows sorted best-accuracy-first on the Reflex · modelless lane")) fail(`sort note should name the modelless lane, got: ${note}`);
+  else console.log(`ok: hero by-accuracy sorts ${widths.length} rows by the modelless lane`);
+  // hide the product lane → key moves to laya (rust) (#3987e5), note names it
+  await page.uncheck('#lane-filter input[data-key="katgpt"]');
+  await page.waitForTimeout(100);
+  widths = await heroKeyWidths("#3987e5");
+  assertOrdered(widths, "acc · rust key", false);
+  note = await heroNote();
+  if (!note.includes("on the laya (rust) lane")) fail(`sort note should name the laya (rust) lane once modelless is hidden, got: ${note}`);
+  else console.log("ok: hero sort key follows the first visible lane (note names it)");
+  // latency, key back on modelless: fastest-first on the p50 metric
+  await page.check('#lane-filter input[data-key="katgpt"]');
+  await page.waitForTimeout(100);
+  await page.click('#bench-hero button[data-metric="p50"]');
+  await page.click('#bench-hero button[data-sort="lat"]');
+  await page.waitForTimeout(100);
+  widths = await heroKeyWidths("#d95926");
+  assertOrdered(widths, "lat · modelless key", true);
+  note = await heroNote();
+  if (!note.includes("Rows sorted fastest-first on the Reflex · modelless lane")) fail(`latency sort note wrong, got: ${note}`);
+  else console.log("ok: hero by-latency sorts fastest-first by the modelless lane");
+  // restore the default posture for the screenshot
+  await page.click('#bench-hero button[data-metric="acc"]');
+  await page.click('#bench-hero button[data-sort="data"]');
+  await page.waitForTimeout(100);
 
   // screenshot for the record — into the gitignored scripts/out/, never the
   // repo root: the root is the public assets directory (wrangler.toml).

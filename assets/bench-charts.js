@@ -222,10 +222,13 @@
   // "data" is the harness's own suite order / the lane order as published.
   // "acc" sorts best-first (descending); "lat" sorts fastest-first
   // (ascending — on the latency axis shorter is better, so both sorts put
-  // the best row on top). Key for suite rows: the Reflex · modelless lane —
-  // the product lane this site exists for; the note says so when a sort is
-  // active. Key for lane rows inside a suite table: that lane's own value.
-  // Missing cells sort last, never first.
+  // the best row on top). Key for suite rows: the FIRST VISIBLE lane in
+  // LANES order — the product lane at the default filter. Sorting by a lane
+  // the reader has filtered out renders as an unsorted page (the bars the
+  // reader sees carry no visible order), so the key follows the filter and
+  // the note names the lane actually used. Key for lane rows inside a
+  // suite table: that lane's own value. Missing cells sort last, never
+  // first.
   const SORTS = {
     data: { label: "data order" },
     acc: { label: "by accuracy", dir: "desc" },
@@ -263,11 +266,18 @@
       `<button type="button" data-sort="${k}" aria-pressed="${k === current}">${esc(S.label)}</button>`).join("");
     return `<div class="bc-toggle" role="group" aria-label="sort ${esc(kind)}">${btns}</div>`;
   }
-  function sortNote(kind) {
+  // The hero's sort-key lane: the first lane in LANES order the reader has
+  // not filtered out (LANES[0] fallback = the product lane, for the
+  // everything-hidden corner where no visible lane exists to key on).
+  function sortLane() {
+    return LANES.find((x) => visibleKey(x.key)) || LANES[0];
+  }
+  function sortNote(kind, lane) {
     if (kind === "data") return "";
+    const on = lane ? ` on the ${lane.label} lane` : "";
     return SORTS[kind].dir === "desc"
-      ? " Rows sorted best-accuracy-first on the Reflex · modelless lane; not-run sorts last."
-      : " Rows sorted fastest-first on the Reflex · modelless lane; not-run sorts last.";
+      ? ` Rows sorted best-accuracy-first${on}; not-run sorts last.`
+      : ` Rows sorted fastest-first${on}; not-run sorts last.`;
   }
 
   // ── hero: every suite × three lanes ──────────────────────────────────────
@@ -276,8 +286,9 @@
   function heroBody() {
     const d = heroData, m = heroMetric, M = METRICS[m], f = fmtOf(m);
     const shown = LANES.filter((lane) => visibleKey(lane.key));
+    const sLane = sortLane();
     const sorted = sortPairs((d.suites || []).map((s) => [s, null]), heroSort,
-      ([s]) => { const p = pick(s, LANES[0]); return sortKeyOf(p ? p[0] : null, heroSort); });
+      ([s]) => { const p = pick(s, sLane); return sortKeyOf(p ? p[0] : null, heroSort); });
     const rows = sorted.map(([s]) => {
       const bars = shown.map((lane) => {
         const picked = pick(s, lane);
@@ -302,7 +313,7 @@
     const extraHosts = d.suites.some((s) => s.extra_host_lanes);
     const note = `laya bars use each suite's best non-multilingual checkpoint${picks.size ? ` (${[...picks].join(", ")}; english elsewhere)` : " (english)"}. ` +
       `Comparison-lane bars (clm, gliner, agentjev) carry the host they ran on in the tooltip${extraHosts ? " — other hosts' rows stay in the tables below" : ""}.` +
-      (M.log ? " Latency is log-scale (each gridline = 10×) — shorter is faster." : " Chance level differs per suite — compare lanes within a row, not rows with each other.") + sortNote(heroSort);
+      (M.log ? " Latency is log-scale (each gridline = 10×) — shorter is faster." : " Chance level differs per suite — compare lanes within a row, not rows with each other.") + sortNote(heroSort, sLane);
     return `<div class="bc-hgrid"><div></div>${axis(m)}${rows}<div></div>${axis(m)}</div><p class="bc-note">${esc(note)}</p>`;
   }
 
