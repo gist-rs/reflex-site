@@ -25,7 +25,11 @@ static assets.
   outcome reads before any replay ends), and the "How each lane picks a spot"
   figures at the bottom — mermaid sources in katgpt-rs
   `.docs/06_game_arenas/tetris_lane_flows.md`, rendered to `assets/` by
-  `scripts/render_tetris_flows.py` (`--check` verifies the two mirrors). With an engine connected, laya (Rust), KatGPT modelless
+  `scripts/render_tetris_flows.py` (`--check` verifies the two mirrors). The two rulebook
+  figures (search + modes) autoplay as step-through walkthroughs
+  (`assets/flow_walk.js` — highlights one flow block per step, 3 s each, manual
+  play/pause/prev/next/dot controls, and a per-step explanation under the graphic;
+  `scripts/flow_walk_smoke.mjs` is the headless check). With an engine connected, laya (Rust), KatGPT modelless
   and raw play on the visitor's machine; laya (Python) — the original torch
   reference, never shipped — always replays its recorded game. Without an
   engine, the KatGPT modelless Tetris, Flappy and

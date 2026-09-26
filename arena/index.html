@@ -179,11 +179,11 @@
           <figcaption><b>Reflex · modelless</b> — laya's recorded answers distilled into a tiny linear head that runs in this tab.</figcaption>
           <img src="/assets/tetris_flow_modelless.svg" alt="Reflex · modelless lane: the same spot sentence is decoded back into board features, scored by a small linear head fitted on laya's recorded answers, and the highest score is played, in microseconds inside WebAssembly" loading="lazy">
         </figure>
-        <figure class="figure lanefig">
+        <figure class="figure lanefig" data-walk="/assets/tetris_flow_rulebook.svg">
           <figcaption><b>Reflex · rulebook</b> — no model: plans three pieces ahead, averaging the unknown third over the bag.</figcaption>
           <img src="/assets/tetris_flow_rulebook.svg" alt="Reflex · rulebook search: try every spot for the falling piece, every spot for the preview piece keeping the best six, then every piece still left in the bag; score each end board with the strategy rulebook, average over the unknown piece, take the best plan, and play its first move" loading="lazy">
         </figure>
-        <figure class="figure lanefig">
+        <figure class="figure lanefig" data-walk="/assets/tetris_flow_modes.svg">
           <figcaption><b>The rulebook's modes</b> — build for tetrises only while safe; found by self-evolution, not hand-coded.</figcaption>
           <img src="/assets/tetris_flow_modes.svg" alt="the rulebook's play modes: on a clean low stack it builds a nine-one stack and waits for tetrises; three or more covered holes switch it to downstack, a tall stack to survive, both using safe survival weights; a clean board returns it to build" loading="lazy">
         </figure>
@@ -341,5 +341,6 @@
 
   <script type="module" src="/assets/arena_tldr.js"></script>
   <script type="module" src="/assets/arena.js"></script>
+  <script type="module" src="/assets/flow_walk.js"></script>
 </body>
 </html>
