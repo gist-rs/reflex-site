@@ -286,7 +286,7 @@ fn the_flappy_reconstruction_is_exact_where_the_render_is_exact() {
 
 #[test]
 fn the_committed_blobs_boot_to_the_published_anchors_and_are_deterministic() {
-    for (name, bytes, lambda_want, in_want, loo_want, n_options, n_states) in [
+    for (name, bytes, lambda_want, in_want, loo_want, n_options, _n_states) in [
         (
             "tetris",
             include_bytes!("../src/tetris_corpus.bin").as_slice(),

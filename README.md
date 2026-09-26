@@ -71,15 +71,16 @@ the in-tab board and the Worker never ship different engine bytes).
 never join katgpt-rs's). After any change:
 
 ```sh
-cd wasm-head
-CARGO_TARGET_DIR=/tmp/reflex_site_wasm_head cargo test                # recipes + anchors + digests + blob regen
-CARGO_TARGET_DIR=/tmp/reflex_site_wasm_head cargo build --release --target wasm32-unknown-unknown --lib
-npm exec --yes -- wasm-opt -Oz --enable-bulk-memory \
-    -o /tmp/arena_head_oz.wasm \
-    /tmp/reflex_site_wasm_head/wasm32-unknown-unknown/release/arena_head_wasm.wasm
-cp /tmp/arena_head_oz.wasm ../assets/arena_head.wasm
-cd .. && node scripts/arena_head_parity.mjs                           # tetris 836/836 bit-exact + flappy 96/100 + lanes 84/100 or DO NOT ship
+scripts/wasm_head_check.sh --write   # clippy both arms (wasm32 + host), cargo test,
+                                     # release build + wasm-opt → assets/arena_head.wasm
+node scripts/arena_head_parity.mjs   # every game must PASS (tetris bit-exact, flappy +
+                                     # lanes on their published anchors) or DO NOT ship
 ```
+
+Without `--write` the same script is the CHECK: it fails when the shipped
+`assets/arena_head.wasm` is not byte-identical to what the source builds (the
+build is reproducible), so a source edit whose rebuild was forgotten cannot
+ship silently. The counts live in the parity script's output, never here.
 
 The corpus blobs inside the crate are generated from the digest-pinned
 oracle fixtures by `cargo run --bin gen_corpus` (the only step that runs

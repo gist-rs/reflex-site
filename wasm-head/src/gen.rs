@@ -141,9 +141,7 @@ fn number_end(b: &[u8], mut i: usize) -> usize {
 fn parse_state_line(line: &str) -> Option<RawState> {
     let b = line.as_bytes();
     // _meta records have no options — skip by key presence.
-    if find_key(b, 0, "\"options\"").is_none() {
-        return None;
-    }
+    find_key(b, 0, "\"options\"")?;
     let ai = find_key(b, 0, "\"argmax\"")?;
     let vs = skip_ws(b, ai + "\"argmax\":".len());
     let ve = number_end(b, vs);
@@ -152,11 +150,7 @@ fn parse_state_line(line: &str) -> Option<RawState> {
     let mut options = Vec::new();
     let mut sentences = Vec::new();
     let mut cursor = 0usize;
-    loop {
-        let si = match find_key(b, cursor, "\"sentence\"") {
-            Some(p) => p,
-            None => break,
-        };
+    while let Some(si) = find_key(b, cursor, "\"sentence\"") {
         let (qs, after) = json_string(b, si + "\"sentence\":".len())?;
         let sentence = core::str::from_utf8(&qs).ok()?;
         // the option's own p_clean: the next p_clean key after this sentence
@@ -295,9 +289,7 @@ struct FlappyStateRec {
 
 fn parse_flappy_state_line(line: &str) -> Option<FlappyStateRec> {
     let b = line.as_bytes();
-    if find_key(b, 0, "\"options\"").is_none() {
-        return None;
-    }
+    find_key(b, 0, "\"options\"")?;
     let ai = find_key(b, 0, "\"argmax\"")?;
     let vs = skip_ws(b, ai + "\"argmax\":".len());
     let ve = number_end(b, vs);
@@ -312,11 +304,7 @@ fn parse_flappy_state_line(line: &str) -> Option<FlappyStateRec> {
     let mut options = Vec::new();
     let mut option_sentences = Vec::new();
     let mut cursor = 0usize;
-    loop {
-        let si = match find_key(b, cursor, "\"sentence\"") {
-            Some(p) => p,
-            None => break,
-        };
+    while let Some(si) = find_key(b, cursor, "\"sentence\"") {
         let (qs, after) = json_string(b, si + "\"sentence\":".len())?;
         let sentence = core::str::from_utf8(&qs).ok()?;
         // this fixture's option objects order features → label → p_clean →
@@ -490,9 +478,7 @@ struct LanesStateRec {
 
 fn parse_lanes_state_line(line: &str) -> Option<LanesStateRec> {
     let b = line.as_bytes();
-    if find_key(b, 0, "\"options\"").is_none() {
-        return None;
-    }
+    find_key(b, 0, "\"options\"")?;
     let ai = find_key(b, 0, "\"argmax\"")?;
     let vs = skip_ws(b, ai + "\"argmax\":".len());
     let ve = number_end(b, vs);
@@ -501,11 +487,7 @@ fn parse_lanes_state_line(line: &str) -> Option<LanesStateRec> {
     let mut options = Vec::new();
     let mut option_sentences = Vec::new();
     let mut cursor = 0usize;
-    loop {
-        let si = match find_key(b, cursor, "\"sentence\"") {
-            Some(p) => p,
-            None => break,
-        };
+    while let Some(si) = find_key(b, cursor, "\"sentence\"") {
         let (qs, after) = json_string(b, si + "\"sentence\":".len())?;
         let sentence = core::str::from_utf8(&qs).ok()?;
         // the lanes fixture's option objects order features → label →

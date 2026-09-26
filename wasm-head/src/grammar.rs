@@ -247,6 +247,8 @@ fn decode_counting(g: GameGrammar, sentence: &str) -> (u32, [u8; MAX_SLOTS]) {
     (count, first)
 }
 
+// recursive walk: cursor state + out-params as plain args, so recursion allocates nothing (no allocator on wasm)
+#[allow(clippy::too_many_arguments)]
 fn walk(
     g: GameGrammar,
     text: &[u8],

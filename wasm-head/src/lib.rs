@@ -26,27 +26,30 @@
 //!   corpus reel — before either board plays.
 //!
 //! ABI (all exports C-ABI, no wasm-bindgen, no allocator):
-//! - `head_init() -> u32`        0 = ok (memoized; a per-head failure does
+//!
+//! ```text
+//! head_init() -> u32            0 = ok (memoized; a per-head failure does
 //!                               not take down the other heads)
-//! - `head_ready() -> u32`       ready MASK: bit0 = tetris, bit1 = flappy,
+//! head_ready() -> u32           ready MASK: bit0 = tetris, bit1 = flappy,
 //!                               bit2 = lanes
-//! - `head_lambda() -> f64`      the tetris recipe's λ
-//! - `head_anchor() -> u32`      the verified tetris in-corpus agreement
-//! - `head_flappy_lambda() -> f64` / `head_flappy_anchor() -> u32`
-//! - `head_lanes_lambda() -> f64` / `head_lanes_anchor() -> u32`
-//! - `head_alloc(n) -> ptr`      16-aligned bump bytes (0 on OOM)
-//! - `head_reset()`              rewind the bump pointer (single-threaded)
-//! - `head_score(ptr, len) -> f64`   tetris P(clean); NaN = off-grammar
-//! - `head_score_state(state_ptr, state_len, opt_ptr, opt_len) -> f64`
+//! head_lambda() -> f64          the tetris recipe's λ
+//! head_anchor() -> u32          the verified tetris in-corpus agreement
+//! head_flappy_lambda() -> f64 / head_flappy_anchor() -> u32
+//! head_lanes_lambda() -> f64 / head_lanes_anchor() -> u32
+//! head_alloc(n) -> ptr          16-aligned bump bytes (0 on OOM)
+//! head_reset()                  rewind the bump pointer (single-threaded)
+//! head_score(ptr, len) -> f64   tetris P(clean); NaN = off-grammar
+//! head_score_state(state_ptr, state_len, opt_ptr, opt_len) -> f64
 //!                               flappy P(clean) from (state, option)
 //!                               sentences; NaN = off-grammar
-//! - `head_score_lanes(p0, l0, p1, l1, p2, l2, lane) -> f64`
+//! head_score_lanes(p0, l0, p1, l1, p2, l2, lane) -> f64
 //!                               lanes P(clean) from the THREE option
 //!                               sentences (pinned lane order) + the lane
 //!                               to score — the joined-state protocol; the
 //!                               head's cross-lane columns read the other
 //!                               lanes' sentences. NaN = off-grammar
-//! - `memory`                    JS writes sentence bytes at alloc'd ptrs
+//! memory                        JS writes sentence bytes at alloc'd ptrs
+//! ```
 
 #![cfg_attr(target_arch = "wasm32", no_std)]
 
@@ -358,10 +361,7 @@ mod wasm {
                 Ok(s) => s,
                 Err(_) => return f64::NAN,
             };
-            match boot::score_sentence(&std, &*addr_of!(TETRIS_HEAD), sentence) {
-                Some(p) => p,
-                None => f64::NAN,
-            }
+            boot::score_sentence(&std, &*addr_of!(TETRIS_HEAD), sentence).unwrap_or(f64::NAN)
         }
     }
 
@@ -388,10 +388,7 @@ mod wasm {
                 (Ok(s), Ok(o)) => (s, o),
                 _ => return f64::NAN,
             };
-            match boot::score_flappy(&std, &*addr_of!(FLAPPY_HEAD), state, option) {
-                Some(p) => p,
-                None => f64::NAN,
-            }
+            boot::score_flappy(&std, &*addr_of!(FLAPPY_HEAD), state, option).unwrap_or(f64::NAN)
         }
     }
 
@@ -428,10 +425,7 @@ mod wasm {
                 (Some(a), Some(b), Some(c)) => (a, b, c),
                 _ => return f64::NAN,
             };
-            match boot::score_lanes(&std, &*addr_of!(LANES_HEAD), [s0, s1, s2], lane as usize) {
-                Some(p) => p,
-                None => f64::NAN,
-            }
+            boot::score_lanes(&std, &*addr_of!(LANES_HEAD), [s0, s1, s2], lane as usize).unwrap_or(f64::NAN)
         }
     }
 }

@@ -4,6 +4,8 @@
 .git
 README.md
 BOUNDARY.md
+AGENTS.md
+.heal
 wrangler.toml
 scripts
 .DS_Store

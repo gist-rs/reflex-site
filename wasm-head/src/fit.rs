@@ -115,7 +115,7 @@ impl<const F: usize> Standardizer<F> {
     /// [`Self::fit`] bit-for-bit over the same values (pinned by
     /// `tests/recipe.rs`).
     pub fn fit_i8(raws: &[u8]) -> Self {
-        assert!(raws.len() % F == 0, "raws must be option-major × F");
+        assert!(raws.len().is_multiple_of(F), "raws must be option-major × F");
         let n_options = raws.len() / F;
         let n = n_options.max(1) as f64;
         let mut mean = [0.0; F];

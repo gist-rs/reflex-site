@@ -214,6 +214,8 @@ pub mod owned {
         })
     }
 
+    // blob writer: one argument per header field / section, in wire order
+    #[allow(clippy::too_many_arguments)]
     pub fn write(
         feat_width: u32,
         lambda: f64,
