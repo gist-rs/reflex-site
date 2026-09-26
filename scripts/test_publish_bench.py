@@ -660,6 +660,63 @@ def case_agentjev_lane_rides_an_update():
 
 
 
+def case_hybrid_lane_rides_an_update():
+    # riir-instinct .issues/003: the instinct HYBRID lane rides the same
+    # carry law — an update declares it, the merged state carries it on
+    # the host's entry (the SAME-host update path lands it on the row
+    # itself), lane_sources records it, and the display rename reaches
+    # every surface. Pure-CPU: a device-variant host's hybrid lane is
+    # SKIPPED (a tagged duplicate of the base machine's row), never
+    # merged.
+    primary = doc("m3", "sha-m3", {"s1": {"modelless_acc": PRE_ACC}})
+    update = doc("m3", "sha-hy", {"s1": {"modelless_acc": PRE_ACC}})
+    update["suites"][0]["hybrid"] = {
+        "lane": "hybrid", "model": "H2(beta=0.25)",
+        "hard": {"accuracy": 0.8975}, "latency_p50_ms": 0.003,
+    }
+    merged, err = merge_refusing(primary, update)
+    assert merged is not None, f"merge must pass, got: {err}"
+    s1 = next(s for s in merged["suites"] if s["name"] == "s1")
+    assert s1["hybrid"]["hard"]["accuracy"] == 0.8975
+    assert s1["hybrid"]["lane"] == "hybrid"  # machine field pre-rename
+    row = next(h for h in merged["meta"]["hosts"] if h["host"] == "m3")
+    assert row["lane_sources"]["hybrid"]["git_sha"] == "sha-hy"
+
+    # a later hybrid-bearing update replaces the lane (lane-scoped update)
+    later = doc("m3", "sha-hy2", {"s1": {"modelless_acc": PRE_ACC}})
+    later["suites"][0]["hybrid"] = {
+        "lane": "hybrid", "model": "H1",
+        "hard": {"accuracy": 0.90}, "latency_p50_ms": 0.15,
+    }
+    merged2, err2 = merge_refusing(merged, later)
+    assert merged2 is not None, f"second merge must pass, got: {err2}"
+    s1b = next(s for s in merged2["suites"] if s["name"] == "s1")
+    assert s1b["hybrid"]["hard"]["accuracy"] == 0.90
+
+    # the display rename reaches the hybrid lane (primary + extra surfaces)
+    d = {"suites": [{"hybrid": {"lane": "hybrid"}}]}
+    pb.rename_lanes(d)
+    assert d["suites"][0]["hybrid"]["lane"] == "instinct (hybrid)"
+
+    # device-variant posture: a hybrid lane under m3-max-ane is skipped
+    # (pure-CPU lane, a tagged duplicate of the base machine's row) — the
+    # skip is disclosed loudly, never a silent drop.
+    primary_ane = doc("m3", "sha-m3", {"s1": {"modelless_acc": PRE_ACC, "laya_p50": 4.0}})
+    ane = doc("m3-ane", "sha-ane", {"s1": {"modelless_acc": PRE_ACC, "laya_p50": 2.0}})
+    ane["suites"][0]["hybrid"] = {
+        "lane": "hybrid", "model": "H1",
+        "hard": {"accuracy": 0.91}, "latency_p50_ms": 0.15,
+    }
+    pb.rename_hosts(ane)  # load_run's rename half — merge sees one spelling
+    merged3, err3 = merge_refusing(primary_ane, ane)
+    assert merged3 is not None, f"device-variant merge must pass, got: {err3}"
+    s1c = next(s for s in merged3["suites"] if s["name"] == "s1")
+    entry = s1c["extra_host_lanes"]["m3-max-ane"]
+    assert "hybrid" not in entry, (
+        "a device-variant host's hybrid lane must be skipped, never merged")
+    assert "hybrid@m3-max-ane" in err3, "the skip must be disclosed loudly"
+
+
 def case_device_variant_host_drops_modelless():
     """The DEVICE_VARIANT_HOSTS law (2026-09-25): the ANE host is the same
     physical M3 as the baseline, so only its laya lanes merge — a doc that
@@ -721,6 +778,7 @@ CASES = [
     case_host_display_rename_at_load_boundary,
     case_gliner_lane_rides_an_update,
     case_agentjev_lane_rides_an_update,
+    case_hybrid_lane_rides_an_update,
     case_device_variant_host_drops_modelless,
     case_extra_suite_absent_in_primary_refuses,
     case_end_to_end_main,

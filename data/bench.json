@@ -80,6 +80,10 @@
      "laya:typed": {
       "git_sha": "b1aee72",
       "date_utc": "2026-09-26T15:34:14Z"
+     },
+     "hybrid": {
+      "git_sha": "0959928",
+      "date_utc": "2026-09-26T23:09:05Z"
      }
     },
     "head_posture": "ON \u2014 cal-selected per suite (ladder 0/0.25/0.5/1, forced cal-slice accuracy, ties \u2192 0 = off; issue 030 lever 4; per-row candidates in the results)"
@@ -2658,6 +2662,21 @@
     "n_eval": 400,
     "exact": 1,
     "near": 26
+   },
+   "hybrid": {
+    "lane": "instinct (hybrid)",
+    "model": "H2(\u03b2=0.25,nmin=2,\u03c4=2)",
+    "hard": {
+     "n": 400,
+     "accuracy": 0.8975,
+     "ece": 0.013315694555954022,
+     "mean_confidence": 0.888912138562494,
+     "acc_at_50_coverage": 0.99
+    },
+    "consult_rate": 1.0,
+    "latency_p50_ms": 0.001583,
+    "latency_p99_ms": 0.0035,
+    "latency_tail_support": 5
    }
   },
   {
@@ -3542,6 +3561,21 @@
     "n_eval": 400,
     "exact": 0,
     "near": 0
+   },
+   "hybrid": {
+    "lane": "instinct (hybrid)",
+    "model": "A1",
+    "hard": {
+     "n": 400,
+     "accuracy": 0.855,
+     "ece": 0.17770379842258988,
+     "mean_confidence": 0.6780355910304934,
+     "acc_at_50_coverage": 0.955
+    },
+    "consult_rate": 1.0,
+    "latency_p50_ms": 0.000625,
+    "latency_p99_ms": 0.001792,
+    "latency_tail_support": 5
    }
   },
   {
@@ -4426,6 +4460,21 @@
     "n_eval": 600,
     "exact": 1,
     "near": 0
+   },
+   "hybrid": {
+    "lane": "instinct (hybrid)",
+    "model": "A1",
+    "hard": {
+     "n": 600,
+     "accuracy": 0.4216666666666667,
+     "ece": 0.10076249030729133,
+     "mean_confidence": 0.4711805712431669,
+     "acc_at_50_coverage": 0.5
+    },
+    "consult_rate": 1.0,
+    "latency_p50_ms": 0.0006670000000000001,
+    "latency_p99_ms": 0.001459,
+    "latency_tail_support": 8
    }
   },
   {
@@ -6978,6 +7027,21 @@
     "n_eval": 300,
     "exact": 4,
     "near": 17
+   },
+   "hybrid": {
+    "lane": "instinct (hybrid)",
+    "model": "H2(\u03b2=1,nmin=2,\u03c4=8)",
+    "hard": {
+     "n": 300,
+     "accuracy": 0.8266666666666667,
+     "ece": 0.06070700170483837,
+     "mean_confidence": 0.8355173326634961,
+     "acc_at_50_coverage": 0.9933333333333333
+    },
+    "consult_rate": 1.0,
+    "latency_p50_ms": 0.0010840000000000001,
+    "latency_p99_ms": 0.002166,
+    "latency_tail_support": 4
    }
   },
   {
@@ -7812,6 +7876,21 @@
     "n_eval": 500,
     "exact": 0,
     "near": 17
+   },
+   "hybrid": {
+    "lane": "instinct (hybrid)",
+    "model": "H1",
+    "hard": {
+     "n": 500,
+     "accuracy": 0.806,
+     "ece": 0.70590855337074,
+     "mean_confidence": 0.10282889961311593,
+     "acc_at_50_coverage": 0.8
+    },
+    "consult_rate": 0.468,
+    "latency_p50_ms": 0.379542,
+    "latency_p99_ms": 0.687042,
+    "latency_tail_support": 6
    }
   },
   {

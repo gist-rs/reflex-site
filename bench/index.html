@@ -111,7 +111,10 @@
         <strong>gliner</strong> — the external GLiNER2.5-Decide zero-shot classifier (Apache-2.0, not affiliated, 340M DeBERTa-v3 encoder):
         their gliner2 package answers the same candidate-label questions — a comparison lane, never a product lane.
         <strong>agentjev</strong> — the external AgentJev-0.6B typed-decision specialist (Apache-2.0, not affiliated, Qwen3-0.6B backbone):
-        their service answers over HTTP, measured gold-label on our split — a comparison lane, never a product lane.</p>
+        their service answers over HTTP, measured gold-label on our split — a comparison lane, never a product lane.
+        <strong>instinct</strong> — the trained-specialist hybrid (riir-instinct): a BLAKE3-sealed distilled specialist composed with
+        Reflex — the modelless lane's fused gate decides when to consult it; the cell is the registered arm's single frozen test read
+        over the same seat and protocol as every other lane (per suite, only where a hybrid arm won pre-registration).</p>
       </details>
       <details class="faq">
         <summary>Tell me more about the clm lane</summary>
@@ -306,7 +309,7 @@ function laneRow(l, bestAcc, hostTag) {
   tds.push(`<td>${abst ? fmt(abst.abstain_rate, 2) + " / " + fmt(abst.selective_accuracy, 3) : "—"}</td>`);
   tds.push(`<td>${ms(l.latency_p50_ms)}</td>`);
   tds.push(`<td>${ms(l.latency_p99_ms)}</td>`);
-  tds.push(`<td>${l.determinism_ok ? "✓" : "✗"}</td>`);
+  tds.push(`<td>${l.determinism_ok === true ? "✓" : l.determinism_ok === false ? "✗" : "—"}</td>`);
   return "<tr>" + tds.join("") + "</tr>";
 }
 
@@ -379,6 +382,11 @@ function suiteSection(s) {
   // jev_service answered over HTTP — the MEASURE-vs-SERVE split; the
   // gold-label row beside their published teacher-argmax number.
   if (s.agentjev) lanes.push(s.agentjev);
+  // The instinct HYBRID lane (riir-instinct .issues/003): the trained
+  // specialist composed with Reflex over the same seat — the registered
+  // arm's frozen test read, published per suite where a hybrid arm won
+  // registration.
+  if (s.hybrid) lanes.push(s.hybrid);
   // The lane filter (governs every section): hidden lanes drop out of the
   // tables, the per-suite bars, and the hero — and the best-acc highlight
   // recomputes over the visible rows only.
@@ -393,6 +401,7 @@ function suiteSection(s) {
     if (hl.clm) extraRows.push([hl.clm, host]);
     if (hl.gliner) extraRows.push([hl.gliner, host]);
     if (hl.agentjev) extraRows.push([hl.agentjev, host]);
+    if (hl.hybrid) extraRows.push([hl.hybrid, host]);
   }
   const shownExtra = window.BenchFilter ? extraRows.filter(([l]) => BenchFilter.visible(l)) : extraRows;
   const bestAcc = Math.max(...shown.concat(shownExtra.map(([l]) => l)).map((l) => (l.hard || {}).accuracy ?? 0));

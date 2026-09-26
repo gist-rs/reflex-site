@@ -25,6 +25,9 @@
     { key: "clm", label: "clm", color: "#b39ddb", match: (l) => l.lane === "clm (reference)" },
     { key: "gliner", label: "gliner", color: "#4dd0c4", match: (l) => l.lane === "gliner (reference)" },
     { key: "agentjev", label: "agentjev", color: "#d9a62e", match: (l) => l.lane === "agentjev (reference)" },
+    // The instinct hybrid (riir-instinct): magenta slot, distinct from all
+    // six existing hues under the same dark-surface ≥3:1 contrast rule.
+    { key: "instinct", label: "instinct (hybrid)", color: "#e06ab4", match: (l) => l.lane === "instinct (hybrid)" },
   ];
   const OTHER = { key: "other", label: "other", color: "#8a7468" };
   const laneOf = (l) => LANES.find((x) => x.match(l)) || OTHER;
@@ -140,6 +143,7 @@
     if (s.clm) out.push(s.clm);
     if (s.gliner) out.push(s.gliner);
     if (s.agentjev) out.push(s.agentjev);
+    if (s.hybrid) out.push(s.hybrid);
     return out;
   }
   function extraLanes(s) {
@@ -150,6 +154,7 @@
       if (hl.clm) out.push([hl.clm, host]);
       if (hl.gliner) out.push([hl.gliner, host]);
       if (hl.agentjev) out.push([hl.agentjev, host]);
+      if (hl.hybrid) out.push([hl.hybrid, host]);
     }
     return out;
   }

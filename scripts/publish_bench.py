@@ -144,6 +144,7 @@ LANE_DISPLAY = {
     "clm": "clm (reference)",
     "gliner": "gliner (reference)",
     "agentjev": "agentjev (reference)",
+    "hybrid": "instinct (hybrid)",
 }
 
 # Both spellings of the python lane: the machine field in a fresh harness
@@ -214,6 +215,7 @@ def rename_lanes(d):
             + ([s["clm"]] if s.get("clm") else [])
             + ([s["gliner"]] if s.get("gliner") else [])
             + ([s["agentjev"]] if s.get("agentjev") else [])
+            + ([s["hybrid"]] if s.get("hybrid") else [])
         )
         for l in lanes:
             # The model column renders the harness's own field — the modelless
@@ -383,6 +385,18 @@ def merge(primary, extras):
                 updated_lanes["agentjev"] = True
             elif ea:
                 skipped_variant_lanes.append(f"agentjev@{ehost}")
+            # The instinct HYBRID lane (riir-instinct .issues/003): the
+            # trained-specialist composition over the same seat — the
+            # registered arm's frozen test read. Pure-CPU like the
+            # modelless lane, so a device-variant host skips it the same
+            # way (it would publish as a tagged duplicate of the base
+            # machine's own row).
+            eh = s.get("hybrid")
+            if eh and not device_variant:
+                entry["hybrid"] = eh
+                updated_lanes["hybrid"] = True
+            elif eh:
+                skipped_variant_lanes.append(f"hybrid@{ehost}")
             # The Issue-024 leak block (T4): a slice property of the
             # DATASETS + registry caps, not of the host — the latest
             # run's scan is the published one (a doc without it never
@@ -551,7 +565,7 @@ def _carry_into(lane, incumbent):
 # The lane classes a doc can carry. `laya` is a CLASS of checkpoint slots —
 # the inventory expands it per checkpoint key, because a publish that drops
 # one checkpoint drops published cells even though the class survives.
-LANE_CLASSES = ("modelless", "laya", "clm", "gliner", "agentjev")
+LANE_CLASSES = ("modelless", "laya", "clm", "gliner", "agentjev", "hybrid")
 
 
 def lane_inventory(d):
@@ -665,6 +679,8 @@ def main() -> int:
                 + ([host_lanes["clm"]] if host_lanes.get("clm") else [])
                 + ([host_lanes["gliner"]] if host_lanes.get("gliner") else [])
                 + ([host_lanes["agentjev"]] if host_lanes.get("agentjev")
+                   else [])
+                + ([host_lanes["hybrid"]] if host_lanes.get("hybrid")
                    else [])
             )
             for l in lanes:
