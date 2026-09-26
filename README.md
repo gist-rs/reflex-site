@@ -29,7 +29,10 @@ static assets.
   figures (search + modes) autoplay as step-through walkthroughs
   (`assets/flow_walk.js` — highlights one flow block per step, 3 s each, manual
   play/pause/prev/next/dot controls, and a per-step explanation under the graphic;
-  `scripts/flow_walk_smoke.mjs` is the headless check). With an engine connected, laya (Rust), KatGPT modelless
+  `scripts/flow_walk_smoke.mjs` is the headless check; the live-page
+  `scripts/arena_prod_smoke.mjs` — run green 2026-09-26 against a local
+  engine armed `RIIR_REFLEX_ALLOWED_ORIGIN=https://reflex.gist.rs`, both
+  lanes ready). With an engine connected, laya (Rust), KatGPT modelless
   and raw play on the visitor's machine; laya (Python) — the original torch
   reference, never shipped — always replays its recorded game. Without an
   engine, the KatGPT modelless Tetris, Flappy and
