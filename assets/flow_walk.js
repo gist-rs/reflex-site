@@ -30,7 +30,8 @@ import {
 const STEP_MS = 3000;
 const WALK_KEY = "tetris_rulebook_walk";
 const META_KEY = "tetris_rulebook";
-const GHOST = "#f2e6dd"; // candidate ghosts: warm white, brightness = score
+const GHOST = "rgb(242, 230, 221)"; // candidate ghosts: warm white — MUST stay
+// rgb(...) form: withAlpha() expands only "rgb(" strings (the opaque-white bug)
 
 // ── the real record → replayed states ───────────────────────────────────
 
@@ -171,7 +172,7 @@ function ghostSpecs(state, { ranked }) {
   const maxPs = Math.max(...state.ps);
   return state.opts.map((o, i) => {
     const chosen = i === state.pick;
-    const a = chosen ? 0.45 : ranked ? 0.04 + 0.22 * (state.ps[i] / maxPs) : 0.09;
+    const a = chosen ? 0.45 : ranked ? 0.06 + 0.3 * (state.ps[i] / maxPs) : 0.22;
     return { cells: o.cells, chosen, a };
   });
 }
@@ -238,7 +239,7 @@ function rulebookSteps(states) {
         falling,
         ghosts: ghostSpecs(s, { ranked: true }),
         hl: chosenOpt.cells,
-        chip: "Brighter ghost = higher score — brightness is the record's own per-spot score",
+        chip: "Brighter ghost = <b>higher score</b> — the record's own per-spot scores",
       },
     },
     {
@@ -311,7 +312,7 @@ function modesSteps(states, buildState) {
       board: {
         ...baseBoard(down),
         hl: holes,
-        chip: `The ringed gaps are <b>${holes.length} covered holes</b> (this recorded position had ${down.holes}) — 3+ flips to DOWNSTACK`,
+        chip: `The ringed gaps are <b>${holes.length} covered holes</b> — 3+ flips to DOWNSTACK`,
       },
     },
     {

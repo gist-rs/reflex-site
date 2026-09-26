@@ -101,6 +101,17 @@ try {
     (n) => n.style.getPropertyValue("--try-dur"),
   );
   if (!/ms$/.test(tryDur)) fail(`scan cycle duration not set: "${tryDur}"`);
+  // the withAlpha-hex bug class: resting ghosts must be TRANSLUCENT (rgba
+  // fill, not solid) and the scan must actually be seen flashing (some flash
+  // rect reaches high computed opacity within a cycle)
+  const ghostFill = await figs.nth(0).locator(".fw-board svg rect[data-ghost]").first().getAttribute("fill");
+  if (!ghostFill.startsWith("rgba(")) fail(`ghost fill not translucent: "${ghostFill}"`);
+  const scanLit = await page.waitForFunction(
+    () => [...document.querySelectorAll("figure[data-walk] .fw-board svg rect[data-try]")]
+      .some((r) => parseFloat(getComputedStyle(r).opacity) > 0.6),
+    null, { timeout: 4000 },
+  ).then(() => true).catch(() => false);
+  if (!scanLit) fail("scan flash never reached visible opacity (animation not running?)");
 
   // step 6 = the recorded clear: walk the rulebook figure to the last step
   for (let i = 0; i < 5; i++) await figs.nth(0).locator('.fw-btn[aria-label="Next step"]').click();
