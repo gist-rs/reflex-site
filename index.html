@@ -18,7 +18,7 @@
       <a href="/arena/">Arena</a>
       <a href="/bench/">Benchmark</a>
       <a href="/#skill">For agents</a>
-      <a href="https://github.com/gist-rs/reflex/releases">Download</a>
+      <a class="gh" href="https://github.com/gist-rs/reflex" aria-label="Reflex on GitHub" title="github.com/gist-rs/reflex"><svg viewBox="0 0 16 16" width="18" height="18" fill="currentColor" aria-hidden="true" focusable="false"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg></a>
     </nav>
   </div>
 </header>
@@ -57,7 +57,7 @@
   </div>
 
   <section id="flow">
-    <h2>How it works</h2>
+    <h2><a class="hlink" href="#flow">How it works</a></h2>
     <p class="sub">Embed → route to your corpus → score options → calibrate → answer or abstain.
       Thresholds are fitted offline from <strong>your</strong> labeled data.</p>
     <figure class="figure">
@@ -70,7 +70,7 @@
   </section>
 
   <section id="twolanes">
-    <h2>The corpus is the model.</h2>
+    <h2><a class="hlink" href="#twolanes">The corpus is the model.</a></h2>
     <p class="sub">Coming from LLMs? There is no training run. You write documents; a build step fits the rest.</p>
 
     <div class="teaser">
@@ -147,7 +147,7 @@
   </section>
 
   <section id="sizes">
-    <h2>What each lane costs on disk</h2>
+    <h2><a class="hlink" href="#sizes">What each lane costs on disk</a></h2>
     <p class="sub">Measured bytes — engine in ember, model weights in blue, smallest first. Generated into
       <a href="/data/sizes.json">data/sizes.json</a>.</p>
     <div id="size-report" aria-label="disk footprint per candidate, smallest first">
@@ -157,7 +157,7 @@
   </section>
 
   <section id="explore">
-    <h2>Start here</h2>
+    <h2><a class="hlink" href="#explore">Start here</a></h2>
     <div class="pages">
       <div class="page-card">
         <h3>Playground</h3>
@@ -183,7 +183,7 @@
   </section>
 
   <section id="skill">
-    <h2>Give your coding agent a decision engine.</h2>
+    <h2><a class="hlink" href="#skill">Give your coding agent a decision engine.</a></h2>
     <p class="sub">One file: the wire, questions that work, thresholds from your data, abstain as a fallback path.</p>
     <div class="cmd"><span class="os">Claude Code</span><code>mkdir -p .claude/skills/reflex-integration &amp;&amp; curl -fsSL https://reflex.gist.rs/skills/reflex-integration/SKILL.md -o .claude/skills/reflex-integration/SKILL.md</code><button data-copy="mkdir -p .claude/skills/reflex-integration &amp;&amp; curl -fsSL https://reflex.gist.rs/skills/reflex-integration/SKILL.md -o .claude/skills/reflex-integration/SKILL.md">copy</button></div>
     <div class="cmd"><span class="os">Zed / any agent</span><code>mkdir -p .agents/skills/reflex-integration &amp;&amp; curl -fsSL https://reflex.gist.rs/skills/reflex-integration/SKILL.md -o .agents/skills/reflex-integration/SKILL.md</code><button data-copy="mkdir -p .agents/skills/reflex-integration &amp;&amp; curl -fsSL https://reflex.gist.rs/skills/reflex-integration/SKILL.md -o .agents/skills/reflex-integration/SKILL.md">copy</button></div>
@@ -203,7 +203,7 @@
   </section>
 
   <section id="install">
-    <h2>Install</h2>
+    <h2><a class="hlink" href="#install">Install</a></h2>
     <p class="sub">One static binary, checksum-verified. <code>reflex --version</code> prints its feature set.</p>
     <div class="cmd"><span class="os">macOS / Linux</span><code>curl -fsSL https://raw.githubusercontent.com/gist-rs/reflex/main/install.sh | sh</code><button data-copy="curl -fsSL https://raw.githubusercontent.com/gist-rs/reflex/main/install.sh | sh">copy</button></div>
     <div class="cmd"><span class="os">Windows</span><code>iwr -useb https://raw.githubusercontent.com/gist-rs/reflex/main/install.ps1 | iex</code><button data-copy="iwr -useb https://raw.githubusercontent.com/gist-rs/reflex/main/install.ps1 | iex">copy</button></div>
@@ -211,7 +211,7 @@
   </section>
 
   <section id="notes">
-    <h2>Notes &amp; sources</h2>
+    <h2><a class="hlink" href="#notes">Notes &amp; sources</a></h2>
     <details class="more">
       <summary>Gates, claims and where each is proven</summary>
       <ul class="notes-list">
@@ -250,7 +250,8 @@
       Binaries: <a href="https://github.com/gist-rs/reflex">gist-rs/reflex</a> ·
       engine: <a href="https://github.com/gist-rs/riir-reflex">gist-rs/riir-reflex</a> ·
       rulebook engine: <a href="https://github.com/gist-rs/riir-reflexer">gist-rs/riir-reflexer</a> ·
-      site: <a href="https://github.com/gist-rs/reflex-site">gist-rs/reflex-site</a>
+      site: <a href="https://github.com/gist-rs/reflex-site">gist-rs/reflex-site</a> ·
+      <a href="https://github.com/gist-rs/reflex/releases">Download</a>
     </div>
   </div>
 </footer>

@@ -39,6 +39,11 @@
   .lf-chip input { accent-color: var(--accent, #d95926); margin: 0; }
   .lf-chip .bc-sw { width: 9px; height: 9px; border-radius: 2px; flex: none; }
   .lf-hint { font-size: 12px; color: var(--muted); margin: 2px 0 8px; }
+  /* the suite quick-nav: one chip per suite (#suite-<name>) */
+  .suite-nav { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin: 8px 0 2px; }
+  .suite-nav .bc-mut { font-size: 12px; }
+  .suite-nav a { font-size: 12px; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 3px 10px; white-space: nowrap; }
+  .suite-nav a:hover { color: var(--ember); border-color: var(--ember); text-decoration: none; }
   #suite-sort { display: flex; align-items: center; gap: 8px; margin: 2px 0 10px; }
   #suite-sort .bc-mut { font-size: 12px; }
   @media (max-width: 640px) {
@@ -62,7 +67,7 @@
       <a href="/arena/">Arena</a>
       <a href="/bench/" aria-current="page">Benchmark</a>
       <a href="/#skill">For agents</a>
-      <a href="https://github.com/gist-rs/reflex/releases">Download</a>
+      <a class="gh" href="https://github.com/gist-rs/reflex" aria-label="Reflex on GitHub" title="github.com/gist-rs/reflex"><svg viewBox="0 0 16 16" width="18" height="18" fill="currentColor" aria-hidden="true" focusable="false"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg></a>
     </nav>
   </div>
 </header>
@@ -77,18 +82,19 @@
     <p class="lf-hint">Filter lanes — applies to every chart and table (remembered).</p>
     <div id="bench-hero" aria-live="polite"></div>
 
-    <h2>Per suite</h2>
+    <h2 id="per-suite"><a class="hlink" href="#per-suite">Per suite</a></h2>
     <p class="sub">Charts first; open a suite's table for every metric, the G1 calibration verdict and the gate fit.</p>
     <p id="bench-meta">loading data/bench.json …</p>
+    <nav id="suite-nav" class="suite-nav" aria-label="Jump to a suite" hidden></nav>
     <div id="suite-sort" hidden><span class="bc-mut">sort</span></div>
     <div id="tables"></div>
 
-    <h2 style="margin-top:40px">Protocol</h2>
+    <h2 id="protocol-section" style="margin-top:40px"><a class="hlink" href="#protocol-section">Protocol</a></h2>
     <details class="more"><summary>Corpus, calibration, floor and divergence rules (from the run's own metadata)</summary>
     <div id="protocol"></div>
     </details>
 
-    <h2 style="margin-top:40px">FAQ</h2>
+    <h2 id="faq" style="margin-top:40px"><a class="hlink" href="#faq">FAQ</a></h2>
     <div class="faqs">
       <details class="faq">
         <summary>What are the lanes?</summary>
@@ -175,7 +181,7 @@
       </details>
     </div>
 
-    <h2 style="margin-top:40px">Notes</h2>
+    <h2 id="notes" style="margin-top:40px"><a class="hlink" href="#notes">Notes</a></h2>
     <details class="more"><summary>How to read these numbers</summary>
     <div class="notes"><ul>
       <li>Every lane sees byte-identical questions. No single "we win" number exists or will exist.</li>
@@ -203,7 +209,7 @@
     </ul></div>
     </details>
 
-    <h2 style="margin-top:40px">References</h2>
+    <h2 id="references" style="margin-top:40px"><a class="hlink" href="#references">References</a></h2>
     <div class="refs"><ul>
       <li>Harness + gates: <a href="https://github.com/gist-rs/riir-reflex">gist-rs/riir-reflex</a> ·
         publisher <a href="https://github.com/gist-rs/reflex-site/blob/HEAD/scripts/publish_bench.py">publish_bench.py</a></li>
@@ -228,7 +234,7 @@
         <a href="https://contrastive-lm.notion.site">project blog</a></li>
     </ul></div>
 
-    <h2 id="machines" style="margin-top:40px">Machines</h2>
+    <h2 id="machines" style="margin-top:40px"><a class="hlink" href="#machines">Machines</a></h2>
     <details class="more"><summary>Hardware of every <code>@host</code></summary>
     <div class="notes"><ul>
       <li><strong><code>@m3-max-metal</code> / <code>@m3-max-ane</code> — MacBook Pro (Mac15,8)</strong>: Apple M3 Max —
@@ -254,6 +260,13 @@
 <footer class="site">
   <div class="wrap">
     <div class="credit">Built on <a href="https://github.com/katopz/katgpt-rs">KatGPT-RS</a> — the open modelless primitives under every Reflex engine.</div>
+    <div class="fine">
+      Binaries: <a href="https://github.com/gist-rs/reflex">gist-rs/reflex</a> ·
+      engine: <a href="https://github.com/gist-rs/riir-reflex">gist-rs/riir-reflex</a> ·
+      rulebook engine: <a href="https://github.com/gist-rs/riir-reflexer">gist-rs/riir-reflexer</a> ·
+      site: <a href="https://github.com/gist-rs/reflex-site">gist-rs/reflex-site</a> ·
+      <a href="https://github.com/gist-rs/reflex/releases">Download</a>
+    </div>
   </div>
 </footer>
 
@@ -354,7 +367,7 @@ function suiteSection(s) {
     ? `<p class="cases">leak scan (024): exact ${s.leak.exact} / near ${s.leak.near} over ${s.leak.n_eval} eval rows (${s.leak.n_reference} reference rows) — near-duplicate train/eval overlap disclosed per lane as acc_deleaked</p>`
     : "";
 
-  return `<h3 class="suite" id="suite-${s.name}">${s.name} <span class="cases">— ${s.n_cases} cases / ${s.n_questions} questions</span></h3>
+  return `<h3 class="suite" id="suite-${s.name}"><a class="hlink" href="#suite-${s.name}">${s.name}</a> <span class="cases">— ${s.n_cases} cases / ${s.n_questions} questions</span></h3>
   ${window.BenchCharts ? BenchCharts.suite(s) : ""}<details class="more"><summary>Table · calibration · gate fit${g1Word ? ` <span class="chip ${v === "pass" ? "pass" : v === "fail" ? "fail" : ""}">G1 ${g1Word}</span>` : ""}</summary><div class="scroll"><table class="bench">
     <thead><tr><th>lane · model</th><th>acc</th><th>macro F1</th><th>ECE(maxp)</th><th>Brier</th><th>acc@50cov</th><th>rECE cal (raw)</th><th>abst / sel-acc</th><th>p50</th><th>p99</th><th>det</th></tr></thead>
     <tbody>${shown.map((l) => laneRow(l, bestAcc, PRIMARY_HOST)).join("")}${shownExtra.map(([l, host]) => laneRow(l, bestAcc, host)).join("")}</tbody>
@@ -403,6 +416,12 @@ function render(d) {
       `Run <code>${meta.git_sha || "?"}</code> on <code>${meta.host || "?"}</code> · ${meta.date_utc || "?"} · profile <code>${meta.profile || "?"}</code> · laya feature: ${meta.laya_feature ? "on" : "off"} · generated from the harness, never hand-typed.`;
   }
   document.getElementById("bench-meta").innerHTML = provenance;
+  // The suite quick-nav: one chip per suite, deep-linkable at #suite-<name>.
+  const sn = document.getElementById("suite-nav");
+  if (sn) {
+    sn.innerHTML = '<span class="bc-mut">jump</span>' + (d.suites || []).map((s) => `<a href="#suite-${s.name}">${s.name}</a>`).join("");
+    sn.hidden = false;
+  }
   document.getElementById("tables").innerHTML = (d.suites || []).map(suiteSection).join("");
   const sortEl = document.getElementById("suite-sort");
   sortEl.innerHTML = "<span class='bc-mut'>sort lanes</span>" + BenchCharts.suiteSortControl();

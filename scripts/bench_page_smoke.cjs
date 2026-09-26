@@ -38,6 +38,34 @@ const server = http.createServer((req, res) => {
   if (errs.length) fail("page errors: " + errs.join("; "));
   else console.log("ok: no page errors");
 
+  // 1b) suite titles self-link and the quick-nav resolves every anchor
+  const suiteAnchors = await page.$$eval("#tables h3.suite", (hs) =>
+    hs.map((h) => ({ id: h.id, href: h.querySelector("a.hlink") && h.querySelector("a.hlink").getAttribute("href") }))
+  );
+  if (suiteAnchors.length < 10) fail(`expected >=10 suite anchors, got ${suiteAnchors.length}`);
+  else {
+    const bad = suiteAnchors.filter((s) => s.href !== `#${s.id}`);
+    if (bad.length) fail("suite titles not self-linked: " + JSON.stringify(bad));
+    else console.log(`ok: ${suiteAnchors.length} suite titles self-linked`);
+  }
+  const navChips = await page.$$eval("#suite-nav a", (as) => as.map((a) => a.getAttribute("href")));
+  if (navChips.length !== suiteAnchors.length) fail(`quick-nav chips ${navChips.length} != suites ${suiteAnchors.length}`);
+  else {
+    const ids = new Set(suiteAnchors.map((s) => `#${s.id}`));
+    const missing = navChips.filter((h) => !ids.has(h));
+    if (missing.length) fail("quick-nav chips without a suite anchor: " + missing.join(", "));
+    else console.log(`ok: quick-nav has ${navChips.length} chips, all resolve`);
+  }
+
+  // nav: GitHub icon in, Download out (it lives in the footer now)
+  const ghLinks = await page.$$("header.site nav a.gh");
+  if (ghLinks.length !== 1) fail(`expected exactly 1 GitHub icon in the nav, got ${ghLinks.length}`);
+  const dlInNav = await page.$$eval("header.site nav a", (as) => as.filter((a) => /releases/.test(a.getAttribute("href"))).length);
+  if (dlInNav !== 0) fail("Download is still in the nav");
+  const dlInFoot = await page.$$("footer.site .fine a[href*='releases']");
+  if (!dlInFoot.length) fail("Download missing from the footer");
+  else console.log("ok: nav has the GitHub icon, Download moved to the footer");
+
   // 2) the filter bar: 5 chips (the two laya spellings may both exist)
   const chips = await page.$$eval("#lane-filter input[type=checkbox]", (xs) => xs.map((x) => x.dataset.key));
   console.log("chips:", chips.join(","));

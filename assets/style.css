@@ -39,6 +39,10 @@ header.site .wrap { display: flex; align-items: center; justify-content: space-b
 nav a { margin-left: 22px; color: var(--muted); font-size: 15px; }
 nav a:hover { color: var(--ember); }
 
+/* GitHub icon — the nav's one non-text row. */
+nav a.gh { display: inline-flex; align-items: center; }
+nav a.gh svg { display: block; }
+
 .hero { padding: 64px 0 40px; }
 .hero h1 {
   font-size: 42px; line-height: 1.15; margin: 0 0 14px;
@@ -72,6 +76,16 @@ nav a:hover { color: var(--ember); }
 
 section { padding: 34px 0; border-top: 1px solid var(--line); }
 section h2 { font-size: 26px; margin: 0 0 8px; }
+
+/* Section titles are self-links: click to set the fragment (shareable
+   #anchor), hover for the # affordance. */
+h2 a.hlink, h3 a.hlink { color: inherit; }
+h2 a.hlink:hover, h3 a.hlink:hover { text-decoration: none; }
+h2 a.hlink::after, h3 a.hlink::after {
+  content: "#"; margin-left: 8px; color: var(--ember);
+  opacity: 0; transition: opacity 0.12s;
+}
+h2 a.hlink:hover::after, h3 a.hlink:hover::after { opacity: 0.75; }
 section p.sub { color: var(--muted); margin: 0 0 22px; max-width: 760px; }
 
 .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
@@ -198,7 +212,7 @@ nav a[aria-current="page"] { color: var(--rust-bright); font-weight: 700; }
 a.brand { color: var(--rust-bright); }
 a.brand:hover { text-decoration: underline; text-decoration-color: var(--line); }
 
-/* Six nav rows: stack under the wordmark on narrow screens. */
+/* Five text rows + the GitHub icon: stack under the wordmark on narrow screens. */
 @media (max-width: 700px) {
   header.site .wrap { flex-direction: column; gap: 8px; }
   nav { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 18px; }

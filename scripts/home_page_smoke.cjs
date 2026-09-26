@@ -80,6 +80,29 @@ const server = http.createServer((req, res) => {
   if (heroBars < 5) fail(`hero bench chart bars ${heroBars} — regression?`);
   else console.log(`ok: hero bench chart still rendering (${heroBars} bars)`);
 
+  // 4b. every section title self-links to its own anchor
+  const hlinks = await page.evaluate(() =>
+    [...document.querySelectorAll("section[id]")].map((sec) => {
+      const a = sec.querySelector("h2 a.hlink");
+      return { id: sec.id, href: a && a.getAttribute("href") };
+    })
+  );
+  if (hlinks.length < 7) fail(`expected >=7 self-linked section titles, got ${hlinks.length}`);
+  else {
+    const bad = hlinks.filter((s) => s.href !== `#${s.id}`);
+    if (bad.length) fail("section titles not self-linked: " + JSON.stringify(bad));
+    else console.log(`ok: ${hlinks.length} section titles self-linked`);
+  }
+
+  // nav: GitHub icon in, Download out (it lives in the footer now)
+  const ghLinks = await page.$$("header.site nav a.gh");
+  if (ghLinks.length !== 1) fail(`expected exactly 1 GitHub icon in the nav, got ${ghLinks.length}`);
+  const dlInNav = await page.$$eval("header.site nav a", (as) => as.filter((a) => /releases/.test(a.getAttribute("href"))).length);
+  if (dlInNav !== 0) fail("Download is still in the nav");
+  const dlInFoot = await page.$$("footer.site .fine a[href*='releases']");
+  if (!dlInFoot.length) fail("Download missing from the footer");
+  else console.log("ok: nav has the GitHub icon, Download moved to the footer");
+
   // 5. no page errors
   if (errs.length) fail("page errors: " + errs.join("; "));
   else console.log("ok: no page errors");
