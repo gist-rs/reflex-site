@@ -16,6 +16,12 @@ import sys
 import tempfile
 from pathlib import Path
 
+# Console-safe streams (the console_encoding discipline): this script prints
+# non-ASCII glyphs and must not die with NO verdict on a cp874-class console.
+# Backslashreplace keeps every byte of the message readable.
+for _s in (sys.stdout, sys.stderr):
+    _s.reconfigure(encoding="utf-8", errors="backslashreplace")
+
 SCRIPT = Path(__file__).resolve().parent / "publish_bench.py"
 spec = importlib.util.spec_from_file_location("publish_bench", SCRIPT)
 pb = importlib.util.module_from_spec(spec)

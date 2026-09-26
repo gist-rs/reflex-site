@@ -190,7 +190,7 @@ def _():
 
     orig_path, orig_die = ps.OUT_PATH, ps.die
     import tempfile
-    with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False) as tf:
+    with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False, encoding="utf-8") as tf:
         for doc, why in ((bad_sort, "sort"), (bad_set, "set")):
             tf.seek(0); tf.truncate()
             json.dump(doc, tf); tf.flush()

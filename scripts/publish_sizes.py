@@ -35,6 +35,12 @@ import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
 
+# Console-safe streams (the console_encoding discipline): this script prints
+# non-ASCII glyphs and must not die with NO verdict on a cp874-class console.
+# Backslashreplace keeps every byte of the message readable.
+for _s in (sys.stdout, sys.stderr):
+    _s.reconfigure(encoding="utf-8", errors="backslashreplace")
+
 SITE_ROOT = Path(__file__).resolve().parent.parent
 OUT_PATH = SITE_ROOT / "data" / "sizes.json"
 MEAS_PATH = SITE_ROOT / "data" / "sizes.measurements.json"
@@ -312,7 +318,7 @@ def main(argv: list[str]) -> None:
         return
     if not MEAS_PATH.is_file():
         die(f"missing {MEAS_PATH.name} — the recorded half of the report")
-    recorded = {m["key"]: m for m in json.loads(MEAS_PATH.read_text())["measurements"]}
+    recorded = {m["key"]: m for m in json.loads(MEAS_PATH.read_text(encoding="utf-8"))["measurements"]}
     missing = [c["key"] for c in CANDIDATES
                for k in ([c["engine"][1:]] if c["engine"][0].startswith("recorded") else [])
                if k and all(x not in recorded for x in k)]
@@ -320,7 +326,7 @@ def main(argv: list[str]) -> None:
         die(f"recorded measurements missing for: {missing}")
     release = fetch_release()
     doc = build(release, recorded)
-    OUT_PATH.write_text(json.dumps(doc, indent=1) + "\n")
+    OUT_PATH.write_text(json.dumps(doc, indent=1) + "\n", encoding="utf-8")
     tot = [(r["name"], r["engine_bytes"] + r["model_bytes"]) for r in doc["candidates"]]
     print(f"wrote data/sizes.json — {len(tot)} candidates, release {doc['meta']['release']['tag']}:")
     for n, b in tot:
@@ -333,7 +339,7 @@ def check_committed() -> None:
     engine size. Run by publish_sizes.sh before any deploy."""
     if not OUT_PATH.is_file():
         die("data/sizes.json missing — run publish_sizes.py first")
-    d = json.loads(OUT_PATH.read_text())
+    d = json.loads(OUT_PATH.read_text(encoding="utf-8"))
     keys = {c["key"] for c in d["candidates"]}
     want = {c["key"] for c in CANDIDATES}
     if keys != want:
