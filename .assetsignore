@@ -6,6 +6,7 @@ README.md
 BOUNDARY.md
 AGENTS.md
 .heal
+.gitignore
 wrangler.toml
 scripts
 .DS_Store
