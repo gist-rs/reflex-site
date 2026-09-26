@@ -171,7 +171,7 @@ function ghostSpecs(state, { ranked }) {
   const maxPs = Math.max(...state.ps);
   return state.opts.map((o, i) => {
     const chosen = i === state.pick;
-    const a = chosen ? 0.5 : ranked ? 0.05 + 0.28 * (state.ps[i] / maxPs) : 0.12;
+    const a = chosen ? 0.45 : ranked ? 0.04 + 0.22 * (state.ps[i] / maxPs) : 0.09;
     return { cells: o.cells, chosen, a };
   });
 }
@@ -198,7 +198,7 @@ function rulebookSteps(states) {
         falling,
         ghosts: ghostSpecs(s, { ranked: false }),
         hl: falling,
-        chip: `on the board: the real seed-607 position — <b>${s.piece}</b> falls, <b>${s.opts.length} spots</b> to try (rotation × column)`,
+        chip: `The real seed-607 position — <b>${s.piece}</b> falls, <b>${s.opts.length} spots</b> to try (rotation × column)`,
       },
     },
     {
@@ -212,7 +212,7 @@ function rulebookSteps(states) {
         ghosts: ghostSpecs(s, { ranked: true }),
         hl: chosenOpt.cells,
         preview: s.next,
-        chip: `on the board: the bright spot is the recorded pick; preview <b style="color:${PIECE_COLORS[s.next]}">${s.next}</b> chains on — best 6 kept`,
+        chip: `The bright spot is the recorded pick; preview <b style="color:${PIECE_COLORS[s.next]}">${s.next}</b> chains on — best 6 kept`,
       },
     },
     {
@@ -225,7 +225,7 @@ function rulebookSteps(states) {
         falling,
         ghosts: ghostSpecs(s, { ranked: true }),
         minis: true,
-        chip: `on the board: the third piece is unknown — the plan branches over all 7: ${swatches}`,
+        chip: `The third piece is unknown — the plan branches over all 7: ${swatches}`,
       },
     },
     {
@@ -238,7 +238,7 @@ function rulebookSteps(states) {
         falling,
         ghosts: ghostSpecs(s, { ranked: true }),
         hl: chosenOpt.cells,
-        chip: "on the board: brighter ghost = higher score — brightness is the record's own per-spot score",
+        chip: "Brighter ghost = higher score — brightness is the record's own per-spot score",
       },
     },
     {
@@ -251,7 +251,7 @@ function rulebookSteps(states) {
         falling,
         ghosts: ghostSpecs(s, { ranked: true }),
         hl: chosenOpt.cells,
-        chip: `on the board: averaged over the unknown, the <b>${s.piece}</b> at col ${chosenOpt.col} is the sturdiest recorded plan`,
+        chip: `Averaged over the unknown, the <b>${s.piece}</b> at col ${chosenOpt.col} is the sturdiest recorded plan`,
       },
     },
     {
@@ -265,7 +265,7 @@ function rulebookSteps(states) {
             stamps: s.postPlace.stamps,
             hl: s.postPlace.cells,
             flashRows: s.postPlace.full,
-            chip: `on the board: the pick just landed — <b>${cleared ? cleared + " line" + (cleared > 1 ? "s" : "") + " cleared" : "no clear"}</b>, and the next piece restarts the search`,
+            chip: `The pick just landed — <b>${cleared ? cleared + " line" + (cleared > 1 ? "s" : "") + " cleared" : "no clear"}</b>, and the next piece restarts the search`,
           }
         : null,
     },
@@ -300,7 +300,7 @@ function modesSteps(states, buildState) {
         ...baseBoard(buildState),
         hl: wellCells,
         twelve: false,
-        chip: `on the board: a real build position — 9 flat, the open well (col ${wellCol + 1}) stays clear for the I`,
+        chip: `A real build position — 9 flat, the open well (col ${wellCol + 1}) stays clear for the I`,
       },
     },
     {
@@ -311,7 +311,7 @@ function modesSteps(states, buildState) {
       board: {
         ...baseBoard(down),
         hl: holes,
-        chip: `on the board: the ringed gaps are <b>${holes.length} covered holes</b> (this recorded position had ${down.holes}) — 3+ flips to DOWNSTACK`,
+        chip: `The ringed gaps are <b>${holes.length} covered holes</b> (this recorded position had ${down.holes}) — 3+ flips to DOWNSTACK`,
       },
     },
     {
@@ -323,7 +323,7 @@ function modesSteps(states, buildState) {
         ...baseBoard(survive),
         hl: surface(survive),
         twelve: true,
-        chip: `on the board: the tallest recorded position — <b>${Math.max(...survive.heights)} rows</b> high vs the 12-row trigger line`,
+        chip: `The tallest recorded position — <b>${Math.max(...survive.heights)} rows</b> high vs the 12-row trigger line`,
       },
     },
     {
@@ -334,7 +334,7 @@ function modesSteps(states, buildState) {
       board: {
         ...baseBoard(recovery),
         hl: surface(recovery),
-        chip: `on the board: back to ${recovery.holes} hole${recovery.holes === 1 ? "" : "s"} and ${Math.max(...recovery.heights)} rows — BUILD takes over again`,
+        chip: `Back to ${recovery.holes} hole${recovery.holes === 1 ? "" : "s"} and ${Math.max(...recovery.heights)} rows — BUILD takes over again`,
       },
     },
     {
@@ -343,7 +343,7 @@ function modesSteps(states, buildState) {
       text: "The modes are not three different AIs — it is the same placement search wearing different score weights: self-evolved builder weights while safe, proven survival weights in trouble. That is the whole trick behind the rulebook lane.",
       board: {
         ...baseBoard(buildState),
-        chip: "on the board: one search — BUILD vs SURVIVE is only a different set of score weights",
+        chip: "One search — BUILD vs SURVIVE is only a different set of score weights",
       },
     },
   ];
@@ -403,11 +403,23 @@ function boardSVG(spec) {
     }
   }
 
-  // candidate ghosts — brightness = the record's own per-spot score
-  for (const g of spec.ghosts || []) {
+  // candidate ghosts — resting ≤ 50% alpha, brightness = the record's own
+  // per-spot score; on top, a fast sequential scan (transparent → full, one
+  // spot at a time in the engine's own option order) so the search's
+  // spot-by-spot trying is visible. Flash layer is a second rect so the
+  // static brightness still reads between flashes.
+  const nOpts = (spec.ghosts || []).length;
+  const TRY_PER_MS = 90; // fast scan: ~90 ms per spot
+  const tryDur = nOpts * TRY_PER_MS;
+  for (const [i, g] of (spec.ghosts || []).entries()) {
     const color = g.chosen ? PIECE_COLORS[spec.fallingPiece] ?? GHOST : GHOST;
     for (const [r, c] of g.cells) {
       svg.appendChild(cellRect(r, c, withAlpha(color, g.a), "fw-ghost", { "data-ghost": g.chosen ? "chosen" : "cand" }));
+      const flash = cellRect(r, c, withAlpha(color, 0.95), "fw-try", { "data-try": "" });
+      // negative delay starts the cycle mid-way: spot i flashes at i*90 ms
+      flash.style.setProperty("--try-delay", `${-i * TRY_PER_MS}ms`);
+      flash.style.setProperty("--try-dur", `${tryDur}ms`);
+      svg.appendChild(flash);
       if (g.chosen) {
         svg.appendChild(
           svgEl("rect", {
@@ -506,12 +518,12 @@ const STATIC_WALKS = {
   "tetris_flow_rulebook.svg": {
     intro:
       "No model, no sentences — the rulebook lane searches placements and scores boards with a fixed strategy rulebook. Press play to walk the six steps, or click a dot to jump.",
-    introChip: "on the board: the real seed-607 recorded position the steps walk through",
+    introChip: "The real seed-607 recorded position the steps walk through",
   },
   "tetris_flow_modes.svg": {
     intro:
       "Before every piece the rulebook re-reads the board and picks a mode. Press play to walk the full build → trouble → recover cycle, or click a dot to jump.",
-    introChip: "on the board: real positions from the recorded seed-607 run",
+    introChip: "Real positions from the recorded seed-607 run",
   },
 };
 

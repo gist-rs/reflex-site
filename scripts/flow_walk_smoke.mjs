@@ -94,7 +94,13 @@ try {
   const hl = await figs.nth(0).locator(".fw-board svg rect[data-hl]").count();
   if (hl < 1) fail("rulebook board has no step highlight cells");
   const chipRb = (await figs.nth(0).locator(".fw-board-chip").textContent()).trim();
-  if (!chipRb.startsWith("on the board:")) fail(`board chip not pointing: "${chipRb}"`);
+  if (chipRb.length < 10) fail(`board chip empty: "${chipRb}"`);
+  const scan = await figs.nth(0).locator(".fw-board svg rect[data-try]").count();
+  if (scan < 10) fail(`spot-scan flash layer: ${scan} rects (want one per candidate cell)`);
+  const tryDur = await figs.nth(0).locator(".fw-board svg rect[data-try]").first().evaluate(
+    (n) => n.style.getPropertyValue("--try-dur"),
+  );
+  if (!/ms$/.test(tryDur)) fail(`scan cycle duration not set: "${tryDur}"`);
 
   // step 6 = the recorded clear: walk the rulebook figure to the last step
   for (let i = 0; i < 5; i++) await figs.nth(0).locator('.fw-btn[aria-label="Next step"]').click();
