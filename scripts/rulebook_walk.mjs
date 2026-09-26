@@ -13,8 +13,9 @@
 //     summary's score / lines / tetrises / pieces exactly.
 import assert from "node:assert/strict";
 import * as T from "../assets/games/tetris.js";
-import { Rng } from "../assets/games/rng.js";
-import { PieceBag } from "../assets/games/tetris_view.js";
+import { streamPieces } from "../assets/games/tetris_view.js";
+
+export { streamPieces };
 
 export const RULEBOOK_WALK_KEY = "tetris_rulebook_walk";
 export const RULEBOOK_META_KEY = "tetris_rulebook";
@@ -26,21 +27,6 @@ function argmax(ps) {
     if (best === -1 || ps[i] > ps[best]) best = i;
   }
   return best;
-}
-
-/** The first `n` pieces of the declared stream (`meta.stream` prefix). */
-export function streamPieces(stream, seed, n) {
-  const rng = new Rng(seed);
-  let draw;
-  if (stream.startsWith("PieceBag(")) {
-    const bag = new PieceBag(rng);
-    draw = () => bag.next();
-  } else if (stream.startsWith("PIECES[")) {
-    draw = () => T.PIECES[rng.u32Below(7)];
-  } else {
-    throw new Error(`unknown rulebook stream: ${stream}`);
-  }
-  return Array.from({ length: n }, draw);
 }
 
 /** Throws on any drift; returns the replayed totals. */

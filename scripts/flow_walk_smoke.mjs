@@ -85,8 +85,35 @@ try {
   if (afterPrev !== `step ${before} / 6`) fail(`after prev: "${afterPrev}"`);
   console.log("[flow-walk-smoke] manual: pause + next/prev step the highlight + panel");
 
+  // the mini boards replayed from the recorded walk: both render, carry
+  // stack cells + step highlights, and their chip follows the step
+  const boards = await page.locator("figure[data-walk] .fw-board svg").count();
+  if (boards !== 2) fail(`mini boards: ${boards} (want 2)`);
+  const cells = await figs.nth(0).locator(".fw-board svg rect[data-cell]").count();
+  if (cells < 20) fail(`rulebook board stack cells: ${cells} (want a real stack, ≥20)`);
+  const hl = await figs.nth(0).locator(".fw-board svg rect[data-hl]").count();
+  if (hl < 1) fail("rulebook board has no step highlight cells");
+  const chipRb = (await figs.nth(0).locator(".fw-board-chip").textContent()).trim();
+  if (!chipRb.startsWith("on the board:")) fail(`board chip not pointing: "${chipRb}"`);
+
+  // step 6 = the recorded clear: walk the rulebook figure to the last step
+  for (let i = 0; i < 5; i++) await figs.nth(0).locator('.fw-btn[aria-label="Next step"]').click();
+  const lastChip = (await figs.nth(0).locator(".fw-board-chip").textContent()).trim();
+  if (!/play|clear|lands/.test(lastChip)) fail(`rulebook last-step chip: "${lastChip}"`);
+  const flashed = await figs.nth(0).locator(".fw-board svg rect[data-flash]").count();
+  console.log(`[flow-walk-smoke] boards: replayed from the record (cells=${cells}, hl=${hl}, flash rows=${flashed})`);
+
   // dot jump on the modes figure → recovery step: BOTH return edges active
   // (path + label each carry the class; count the paths)
+  await figs.nth(1).locator(".fw-dot").nth(1).click(); // DOWNSTACK: holes ringed
+  await waitFn(
+    () => {
+      const f = document.querySelectorAll("figure[data-walk]")[1];
+      return f.querySelectorAll(".fw-board svg rect[data-hl]").length >= 3 &&
+        f.querySelector(".fw-board-chip").textContent.includes("covered holes");
+    },
+    { timeout: 5000 },
+  );
   await figs.nth(1).locator(".fw-dot").nth(3).click();
   await waitFn(
     () => {

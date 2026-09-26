@@ -16,6 +16,7 @@
 //     fallback is the old uniform color, never a fiction.
 
 import * as T from "./tetris.js";
+import { Rng } from "./rng.js";
 
 // Original Tetris piece colors, exactly as provided by the owner.
 export const PIECE_COLORS = {
@@ -31,6 +32,27 @@ export const PIECE_COLORS = {
 // Fallback for cells whose piece is unknown (a demo replay that refused).
 // The pre-colors uniform brown, kept so the degraded board still reads.
 export const UNKNOWN_COLOR = "#8a5a3a";
+
+/**
+ * The first `n` pieces of a declared walk stream (`meta.stream` prefix):
+ * "PieceBag(<seed-rng>)" deals the guideline 7-bag, "PIECES[…]" draws
+ * uniform pieces. The single implementation behind the rulebook-walk
+ * records — used by the page (flow_walk.js) and the scripts parity checks
+ * (scripts/rulebook_walk.mjs re-exports it).
+ */
+export function streamPieces(stream, seed, n) {
+  const rng = new Rng(seed);
+  let draw;
+  if (stream.startsWith("PieceBag(")) {
+    const bag = new PieceBag(rng);
+    draw = () => bag.next();
+  } else if (stream.startsWith("PIECES[")) {
+    draw = () => T.PIECES[rng.u32Below(7)];
+  } else {
+    throw new Error(`unknown rulebook stream: ${stream}`);
+  }
+  return Array.from({ length: n }, draw);
+}
 
 /** "rgb(r, g, b)" -> "rgba(r, g, b, a)"; anything else passes through. */
 export function withAlpha(rgb, a) {

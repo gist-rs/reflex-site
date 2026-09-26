@@ -28,7 +28,12 @@ static assets.
   `scripts/render_tetris_flows.py` (`--check` verifies the two mirrors). The two rulebook
   figures (search + modes) autoplay as step-through walkthroughs
   (`assets/flow_walk.js` — highlights one flow block per step, 3 s each, manual
-  play/pause/prev/next/dot controls, and a per-step explanation under the graphic;
+  play/pause/prev/next/dot controls, a per-step explanation under the graphic,
+  and a mini Tetris board BESIDE the flow, replayed from the real recorded
+  rulebook walk (`arena/demo_oracle.json` `tetris_rulebook_walk` through the
+  site's own `games/tetris.js` — never hand-drawn: the stack, the falling
+  piece, the candidate spots and their score brightness all come from the
+  record, and each step rings the cells it talks about);
   `scripts/flow_walk_smoke.mjs` is the headless check; the live-page
   `scripts/arena_prod_smoke.mjs` — run green 2026-09-26 against a local
   engine armed `RIIR_REFLEX_ALLOWED_ORIGIN=https://reflex.gist.rs`, both

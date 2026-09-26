@@ -299,3 +299,30 @@ svg.fw-on .edgeLabel:not(.fw-edge-active) { opacity: 0.25; }
   .fw-active { animation: none; }
   .flowchart-link.fw-edge-active { animation: none; }
 }
+
+/* flow_walk.js: the mini tetris board replayed from the recorded rulebook
+   walk, living BESIDE the walked flow (stacked under it on narrow screens).
+   Stack cells use the games palette; ember/rust only for chrome. */
+.fw-cols { display: grid; grid-template-columns: minmax(0, 1fr) 176px; gap: 14px; align-items: start; }
+@media (max-width: 860px) { .fw-cols { grid-template-columns: 1fr; } .fw-board { margin: 0 auto; } }
+.fw-board { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.fw-board svg { display: block; }
+.fw-board-chip {
+  margin: 0; font-size: 12px; line-height: 1.5; color: var(--muted);
+  border: 1px solid var(--line); border-radius: 6px; background: var(--panel);
+  padding: 5px 8px; text-align: left;
+}
+.fw-board-chip b { color: var(--ember); }
+.fw-swatch {
+  display: inline-block; width: 9px; height: 9px; border-radius: 2px;
+  vertical-align: -1px; margin: 0 1px;
+}
+.fw-ghost { pointer-events: none; }
+.fw-hl { animation: fw-ring 1.4s ease-in-out infinite; }
+@keyframes fw-ring {
+  0%, 100% { stroke-opacity: 0.35; }
+  50% { stroke-opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fw-hl { animation: none; stroke-opacity: 1; }
+}
