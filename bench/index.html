@@ -45,7 +45,10 @@
   .run-chip .rc-meta { color: var(--muted); font-size: 11.5px; font-variant-numeric: tabular-nums; }
   .rc-note { color: var(--muted); font-size: 12px; }
   .runs-notes { color: var(--muted); font-size: 12.5px; margin: 4px 0 0; flex-basis: 100%; }
-  #suite-sort { display: flex; align-items: center; gap: 8px; margin: 2px 0 10px; }
+  /* the two h2 siblings carry margin-top:40px inline; #per-suite was the one
+     heading without it, so the hero note crowded it */
+  #per-suite { margin-top: 48px; }
+  #suite-sort { display: flex; align-items: center; gap: 8px; margin: 14px 0 10px; }
   #suite-sort .bc-mut { font-size: 12px; }
   @media (max-width: 640px) {
     .bc-suite { grid-template-columns: 1fr 1fr; }
