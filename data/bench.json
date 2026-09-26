@@ -54,8 +54,8 @@
     "corpus_cap_mode": "registry defaults",
     "lane_sources": {
      "modelless": {
-      "git_sha": "9dbdca5",
-      "date_utc": "2026-09-26T12:02:57Z"
+      "git_sha": "754eca0",
+      "date_utc": "2026-09-26T13:33:45Z"
      },
      "laya:english": {
       "git_sha": "9dbdca5",
@@ -107,8 +107,8 @@
     "corpus_cap_mode": "registry defaults",
     "lane_sources": {
      "modelless": {
-      "git_sha": "d727196",
-      "date_utc": "2026-09-25T22:59:51Z"
+      "git_sha": "754eca0",
+      "date_utc": "2026-09-26T13:34:11Z"
      },
      "laya:english": {
       "git_sha": "d727196",
@@ -284,6 +284,64 @@
       }
      ]
     },
+    "nb_selection": {
+     "selected_scale": 0.0,
+     "selected_alpha": "off",
+     "selected_noul_domain": null,
+     "selected_view": "bag",
+     "candidates": [
+      {
+       "scale": 0.0,
+       "alpha": "off",
+       "noul_domain": null,
+       "view": "bag",
+       "cal_acc": 0.338
+      },
+      {
+       "scale": 1.0,
+       "alpha": "observed-laplace",
+       "noul_domain": null,
+       "view": "bag",
+       "cal_acc": 0.338
+      },
+      {
+       "scale": 4.0,
+       "alpha": "observed-laplace",
+       "noul_domain": null,
+       "view": "bag",
+       "cal_acc": 0.338
+      },
+      {
+       "scale": 16.0,
+       "alpha": "observed-laplace",
+       "noul_domain": null,
+       "view": "bag",
+       "cal_acc": 0.338
+      },
+      {
+       "scale": 1.0,
+       "alpha": "fixed-1",
+       "noul_domain": null,
+       "view": "bag",
+       "cal_acc": 0.338
+      },
+      {
+       "scale": 4.0,
+       "alpha": "fixed-1",
+       "noul_domain": null,
+       "view": "bag",
+       "cal_acc": 0.338
+      },
+      {
+       "scale": 16.0,
+       "alpha": "fixed-1",
+       "noul_domain": null,
+       "view": "bag",
+       "cal_acc": 0.338
+      }
+     ]
+    },
+    "transductive": null,
     "confusion": [
      {
       "gold": "Critical; requires action within the same day.",
@@ -1017,6 +1075,64 @@
         }
        ]
       },
+      "nb_selection": {
+       "selected_scale": 0.0,
+       "selected_alpha": "off",
+       "selected_noul_domain": null,
+       "selected_view": "bag",
+       "candidates": [
+        {
+         "scale": 0.0,
+         "alpha": "off",
+         "noul_domain": null,
+         "view": "bag",
+         "cal_acc": 0.338
+        },
+        {
+         "scale": 1.0,
+         "alpha": "observed-laplace",
+         "noul_domain": null,
+         "view": "bag",
+         "cal_acc": 0.338
+        },
+        {
+         "scale": 4.0,
+         "alpha": "observed-laplace",
+         "noul_domain": null,
+         "view": "bag",
+         "cal_acc": 0.338
+        },
+        {
+         "scale": 16.0,
+         "alpha": "observed-laplace",
+         "noul_domain": null,
+         "view": "bag",
+         "cal_acc": 0.338
+        },
+        {
+         "scale": 1.0,
+         "alpha": "fixed-1",
+         "noul_domain": null,
+         "view": "bag",
+         "cal_acc": 0.338
+        },
+        {
+         "scale": 4.0,
+         "alpha": "fixed-1",
+         "noul_domain": null,
+         "view": "bag",
+         "cal_acc": 0.338
+        },
+        {
+         "scale": 16.0,
+         "alpha": "fixed-1",
+         "noul_domain": null,
+         "view": "bag",
+         "cal_acc": 0.338
+        }
+       ]
+      },
+      "transductive": null,
       "confusion": [
        {
         "gold": "Critical; requires action within the same day.",
@@ -1617,32 +1733,32 @@
     "model": "modelless",
     "hard": {
      "n": 400,
-     "accuracy": 0.51,
-     "macro_f1": 0.4724708518329902,
-     "ece": 0.2493093042075634,
-     "brier": 0.7419177820054519,
-     "nll": 1.370215777284436,
-     "aurc": 0.4899191330727605,
-     "mean_confidence": 0.2606906957924366,
-     "acc_at_50_coverage": 0.535,
-     "acc_at_80_coverage": 0.53125
+     "accuracy": 0.8825,
+     "macro_f1": 0.875708077172239,
+     "ece": 0.5679461719095708,
+     "brier": 0.6383459698485189,
+     "nll": 1.1803451794443203,
+     "aurc": 0.04937458172747514,
+     "mean_confidence": 0.3145538280904293,
+     "acc_at_50_coverage": 0.935,
+     "acc_at_80_coverage": 0.94375
     },
-    "readout_ece": 0.37969298638403415,
+    "readout_ece": 0.0024999999999999953,
     "raw_abstain": {
-     "abstain_rate": 0.495,
-     "selective_accuracy": 0.5792079207920792,
-     "selective_n": 202
+     "abstain_rate": 0.33,
+     "selective_accuracy": 0.9552238805970149,
+     "selective_n": 268
     },
     "calibrated_abstain": {
-     "abstain_rate": 0.255,
-     "selective_accuracy": 0.5436241610738255,
-     "selective_n": 298
+     "abstain_rate": 0.8775,
+     "selective_accuracy": 1.0,
+     "selective_n": 49
     },
-    "readout_ece_raw": 0.5093436171114445,
-    "readout_ece_calibrated": 0.37969298638403415,
-    "floor_ece": 0.25059701492537306,
-    "g1_pass": false,
-    "g1_verdict": "fail",
+    "readout_ece_raw": 0.8726663269102573,
+    "readout_ece_calibrated": 0.0024999999999999953,
+    "floor_ece": 0.15500000000000017,
+    "g1_pass": true,
+    "g1_verdict": "pass",
     "by_question_type": null,
     "soft_acc": null,
     "brier_soft": null,
@@ -1660,7 +1776,7 @@
     "seconds": 0.206291917,
     "n_cases": 400,
     "n_questions": 400,
-    "score_threshold": 0.000113248825,
+    "score_threshold": 0.0013822317,
     "distance_threshold": 0.37085578,
     "threshold_recommendation": {
      "posture": {
@@ -1668,9 +1784,9 @@
       "rho": 0.3
      },
      "score": {
-      "threshold": 0.000113248825,
+      "threshold": 0.0013822317,
       "status": "fitted",
-      "targetAccuracy": 0.14285715,
+      "targetAccuracy": 0.74285716,
       "support": {
        "n": 200,
        "nPass": 140,
@@ -1680,7 +1796,7 @@
      "distance": {
       "threshold": 0.37085578,
       "status": "fitted",
-      "targetAccuracy": 0.07857143,
+      "targetAccuracy": 0.64285713,
       "support": {
        "n": 200,
        "nPass": 140,
@@ -1714,82 +1830,144 @@
       }
      ]
     },
+    "nb_selection": {
+     "selected_scale": 1.0,
+     "selected_alpha": "observed-laplace",
+     "selected_noul_domain": null,
+     "selected_view": "bag",
+     "candidates": [
+      {
+       "scale": 0.0,
+       "alpha": "off",
+       "noul_domain": null,
+       "view": "bag",
+       "cal_acc": 0.48
+      },
+      {
+       "scale": 1.0,
+       "alpha": "observed-laplace",
+       "noul_domain": null,
+       "view": "bag",
+       "cal_acc": 0.845
+      },
+      {
+       "scale": 4.0,
+       "alpha": "observed-laplace",
+       "noul_domain": null,
+       "view": "bag",
+       "cal_acc": 0.845
+      },
+      {
+       "scale": 16.0,
+       "alpha": "observed-laplace",
+       "noul_domain": null,
+       "view": "bag",
+       "cal_acc": 0.845
+      },
+      {
+       "scale": 1.0,
+       "alpha": "fixed-1",
+       "noul_domain": null,
+       "view": "bag",
+       "cal_acc": 0.845
+      },
+      {
+       "scale": 4.0,
+       "alpha": "fixed-1",
+       "noul_domain": null,
+       "view": "bag",
+       "cal_acc": 0.845
+      },
+      {
+       "scale": 16.0,
+       "alpha": "fixed-1",
+       "noul_domain": null,
+       "view": "bag",
+       "cal_acc": 0.84
+      }
+     ]
+    },
+    "transductive": {
+     "accuracy": 0.88,
+     "honest_accuracy": 0.8825,
+     "n_pseudo": 400,
+     "protocol": "TRANSDUCTIVE \u2014 unlabeled TEST text joins the count tables, labelled by the honest engine's own forced picks (gold never read); 2-fold cross-fit (half A's pseudo-docs re-score half B and vice versa, so no case scores against its own text); drafter corpora, route, heads and posture unchanged. Not comparable to the headline acc"
+    },
     "confusion": [
      {
+      "gold": "business",
+      "pred": "sci_tech",
+      "count": 9,
+      "share_of_errors": 0.19148936170212766
+     },
+     {
       "gold": "sci_tech",
-      "pred": "world",
-      "count": 48,
-      "share_of_errors": 0.24489795918367346
+      "pred": "business",
+      "count": 7,
+      "share_of_errors": 0.14893617021276595
+     },
+     {
+      "gold": "world",
+      "pred": "sports",
+      "count": 7,
+      "share_of_errors": 0.14893617021276595
      },
      {
       "gold": "sports",
       "pred": "world",
-      "count": 35,
-      "share_of_errors": 0.17857142857142858
-     },
-     {
-      "gold": "business",
-      "pred": "world",
-      "count": 24,
-      "share_of_errors": 0.12244897959183673
-     },
-     {
-      "gold": "business",
-      "pred": "sports",
-      "count": 19,
-      "share_of_errors": 0.09693877551020408
-     },
-     {
-      "gold": "sci_tech",
-      "pred": "sports",
-      "count": 19,
-      "share_of_errors": 0.09693877551020408
-     },
-     {
-      "gold": "world",
-      "pred": "sports",
-      "count": 14,
-      "share_of_errors": 0.07142857142857142
-     },
-     {
-      "gold": "sci_tech",
-      "pred": "business",
-      "count": 12,
-      "share_of_errors": 0.061224489795918366
-     },
-     {
-      "gold": "world",
-      "pred": "business",
-      "count": 8,
-      "share_of_errors": 0.04081632653061224
-     },
-     {
-      "gold": "business",
-      "pred": "sci_tech",
       "count": 6,
-      "share_of_errors": 0.030612244897959183
+      "share_of_errors": 0.1276595744680851
      },
      {
-      "gold": "sports",
-      "pred": "sci_tech",
-      "count": 5,
-      "share_of_errors": 0.025510204081632654
-     },
-     {
-      "gold": "sports",
+      "gold": "world",
       "pred": "business",
-      "count": 3,
-      "share_of_errors": 0.015306122448979591
+      "count": 6,
+      "share_of_errors": 0.1276595744680851
      },
      {
       "gold": "world",
       "pred": "sci_tech",
       "count": 3,
-      "share_of_errors": 0.015306122448979591
+      "share_of_errors": 0.06382978723404255
+     },
+     {
+      "gold": "business",
+      "pred": "world",
+      "count": 2,
+      "share_of_errors": 0.0425531914893617
+     },
+     {
+      "gold": "sci_tech",
+      "pred": "sports",
+      "count": 2,
+      "share_of_errors": 0.0425531914893617
+     },
+     {
+      "gold": "sci_tech",
+      "pred": "world",
+      "count": 2,
+      "share_of_errors": 0.0425531914893617
+     },
+     {
+      "gold": "business",
+      "pred": "sports",
+      "count": 1,
+      "share_of_errors": 0.02127659574468085
+     },
+     {
+      "gold": "sports",
+      "pred": "business",
+      "count": 1,
+      "share_of_errors": 0.02127659574468085
+     },
+     {
+      "gold": "sports",
+      "pred": "sci_tech",
+      "count": 1,
+      "share_of_errors": 0.02127659574468085
      }
     ],
     "pair_head_ab": null,
-    "acc_deleaked": 0.5067024128686327,
     "latency_provenance": {
      "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
     }
@@ -1952,32 +2130,32 @@
       "model": "modelless",
       "hard": {
        "n": 400,
-       "accuracy": 0.51,
-       "macro_f1": 0.4724708518329902,
-       "ece": 0.2493093042075634,
-       "brier": 0.7419177820644117,
-       "nll": 1.3702157774629753,
-       "aurc": 0.4899191330727605,
-       "mean_confidence": 0.2606906957924366,
-       "acc_at_50_coverage": 0.535,
-       "acc_at_80_coverage": 0.53125
+       "accuracy": 0.8825,
+       "macro_f1": 0.875708077172239,
+       "ece": 0.5679461719095708,
+       "brier": 0.6383459698152059,
+       "nll": 1.1803451794443203,
+       "aurc": 0.04937458172747514,
+       "mean_confidence": 0.3145538280904293,
+       "acc_at_50_coverage": 0.935,
+       "acc_at_80_coverage": 0.94375
       },
-      "readout_ece": 0.37969298638403415,
+      "readout_ece": 0.0024999999999999953,
       "raw_abstain": {
-       "abstain_rate": 0.495,
-       "selective_accuracy": 0.5792079207920792,
-       "selective_n": 202
+       "abstain_rate": 0.33,
+       "selective_accuracy": 0.9552238805970149,
+       "selective_n": 268
       },
       "calibrated_abstain": {
-       "abstain_rate": 0.255,
-       "selective_accuracy": 0.5436241610738255,
-       "selective_n": 298
+       "abstain_rate": 0.8775,
+       "selective_accuracy": 1.0,
+       "selective_n": 49
       },
-      "readout_ece_raw": 0.5093436171114445,
-      "readout_ece_calibrated": 0.37969298638403415,
-      "floor_ece": 0.25059701492537306,
-      "g1_pass": false,
-      "g1_verdict": "fail",
+      "readout_ece_raw": 0.8726663269102573,
+      "readout_ece_calibrated": 0.0024999999999999953,
+      "floor_ece": 0.15500000000000017,
+      "g1_pass": true,
+      "g1_verdict": "pass",
       "by_question_type": null,
       "soft_acc": null,
       "brier_soft": null,
@@ -1995,7 +2173,7 @@
       "seconds": 0.2119005,
       "n_cases": 400,
       "n_questions": 400,
-      "score_threshold": 0.000113248825,
+      "score_threshold": 0.0013822317,
       "distance_threshold": 0.37085578,
       "threshold_recommendation": {
        "posture": {
@@ -2003,9 +2181,9 @@
         "rho": 0.3
        },
        "score": {
-        "threshold": 0.000113248825,
+        "threshold": 0.0013822317,
         "status": "fitted",
-        "targetAccuracy": 0.14285715,
+        "targetAccuracy": 0.74285716,
         "support": {
          "n": 200,
          "nPass": 140,
@@ -2015,7 +2193,7 @@
        "distance": {
         "threshold": 0.37085578,
         "status": "fitted",
-        "targetAccuracy": 0.07857143,
+        "targetAccuracy": 0.64285713,
         "support": {
          "n": 200,
          "nPass": 140,
@@ -2049,82 +2227,144 @@
         }
        ]
       },
+      "nb_selection": {
+       "selected_scale": 1.0,
+       "selected_alpha": "observed-laplace",
+       "selected_noul_domain": null,
+       "selected_view": "bag",
+       "candidates": [
+        {
+         "scale": 0.0,
+         "alpha": "off",
+         "noul_domain": null,
+         "view": "bag",
+         "cal_acc": 0.48
+        },
+        {
+         "scale": 1.0,
+         "alpha": "observed-laplace",
+         "noul_domain": null,
+         "view": "bag",
+         "cal_acc": 0.845
+        },
+        {
+         "scale": 4.0,
+         "alpha": "observed-laplace",
+         "noul_domain": null,
+         "view": "bag",
+         "cal_acc": 0.845
+        },
+        {
+         "scale": 16.0,
+         "alpha": "observed-laplace",
+         "noul_domain": null,
+         "view": "bag",
+         "cal_acc": 0.845
+        },
+        {
+         "scale": 1.0,
+         "alpha": "fixed-1",
+         "noul_domain": null,
+         "view": "bag",
+         "cal_acc": 0.845
+        },
+        {
+         "scale": 4.0,
+         "alpha": "fixed-1",
+         "noul_domain": null,
+         "view": "bag",
+         "cal_acc": 0.845
+        },
+        {
+         "scale": 16.0,
+         "alpha": "fixed-1",
+         "noul_domain": null,
+         "view": "bag",
+         "cal_acc": 0.84
+        }
+       ]
+      },
+      "transductive": {
+       "accuracy": 0.88,
+       "honest_accuracy": 0.8825,
+       "n_pseudo": 400,
+       "protocol": "TRANSDUCTIVE \u2014 unlabeled TEST text joins the count tables, labelled by the honest engine's own forced picks (gold never read); 2-fold cross-fit (half A's pseudo-docs re-score half B and vice versa, so no case scores against its own text); drafter corpora, route, heads and posture unchanged. Not comparable to the headline acc"
+      },
       "confusion": [
        {
+        "gold": "business",
+        "pred": "sci_tech",
+        "count": 9,
+        "share_of_errors": 0.19148936170212766
+       },
+       {
         "gold": "sci_tech",
-        "pred": "world",
-        "count": 48,
-        "share_of_errors": 0.24489795918367346
+        "pred": "business",
+        "count": 7,
+        "share_of_errors": 0.14893617021276595
+       },
+       {
+        "gold": "world",
+        "pred": "sports",
+        "count": 7,
+        "share_of_errors": 0.14893617021276595
        },
        {
         "gold": "sports",
         "pred": "world",
-        "count": 35,
-        "share_of_errors": 0.17857142857142858
-       },
-       {
-        "gold": "business",
-        "pred": "world",
-        "count": 24,
-        "share_of_errors": 0.12244897959183673
-       },
-       {
-        "gold": "business",
-        "pred": "sports",
-        "count": 19,
-        "share_of_errors": 0.09693877551020408
-       },
-       {
-        "gold": "sci_tech",
-        "pred": "sports",
-        "count": 19,
-        "share_of_errors": 0.09693877551020408
-       },
-       {
-        "gold": "world",
-        "pred": "sports",
-        "count": 14,
-        "share_of_errors": 0.07142857142857142
-       },
-       {
-        "gold": "sci_tech",
-        "pred": "business",
-        "count": 12,
-        "share_of_errors": 0.061224489795918366
-       },
-       {
-        "gold": "world",
-        "pred": "business",
-        "count": 8,
-        "share_of_errors": 0.04081632653061224
-       },
-       {
-        "gold": "business",
-        "pred": "sci_tech",
         "count": 6,
-        "share_of_errors": 0.030612244897959183
+        "share_of_errors": 0.1276595744680851
        },
        {
-        "gold": "sports",
-        "pred": "sci_tech",
-        "count": 5,
-        "share_of_errors": 0.025510204081632654
-       },
-       {
-        "gold": "sports",
+        "gold": "world",
         "pred": "business",
-        "count": 3,
-        "share_of_errors": 0.015306122448979591
+        "count": 6,
+        "share_of_errors": 0.1276595744680851
        },
        {
         "gold": "world",
         "pred": "sci_tech",
         "count": 3,
-        "share_of_errors": 0.015306122448979591
+        "share_of_errors": 0.06382978723404255
+       },
+       {
+        "gold": "business",
+        "pred": "world",
+        "count": 2,
+        "share_of_errors": 0.0425531914893617
+       },
+       {
+        "gold": "sci_tech",
+        "pred": "sports",
+        "count": 2,
+        "share_of_errors": 0.0425531914893617
+       },
+       {
+        "gold": "sci_tech",
+        "pred": "world",
+        "count": 2,
+        "share_of_errors": 0.0425531914893617
+       },
+       {
+        "gold": "business",
+        "pred": "sports",
+        "count": 1,
+        "share_of_errors": 0.02127659574468085
+       },
+       {
+        "gold": "sports",
+        "pred": "business",
+        "count": 1,
+        "share_of_errors": 0.02127659574468085
+       },
+       {
+        "gold": "sports",
+        "pred": "sci_tech",
+        "count": 1,
+        "share_of_errors": 0.02127659574468085
        }
       ],
       "pair_head_ab": null,
-      "acc_deleaked": 0.5067024128686327,
       "latency_provenance": {
        "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
       }
@@ -2341,30 +2581,30 @@
     "model": "modelless",
     "hard": {
      "n": 400,
-     "accuracy": 0.2825,
-     "macro_f1": 0.15111162181076926,
-     "ece": 0.11283036664128301,
-     "brier": 0.831889033806036,
-     "nll": 1.7873883608711258,
-     "aurc": 0.7236402674004785,
-     "mean_confidence": 0.16966963335871696,
-     "acc_at_50_coverage": 0.285,
-     "acc_at_80_coverage": 0.2875
+     "accuracy": 0.7375,
+     "macro_f1": 0.6123709020689516,
+     "ece": 0.4686022584885358,
+     "brier": 0.6758644831015572,
+     "nll": 1.4045622252200087,
+     "aurc": 0.1199160326672923,
+     "mean_confidence": 0.2688977415114641,
+     "acc_at_50_coverage": 0.9,
+     "acc_at_80_coverage": 0.79375
     },
-    "readout_ece": 0.022599939852953,
+    "readout_ece": 0.0,
     "raw_abstain": {
-     "abstain_rate": 0.62,
-     "selective_accuracy": 0.28289473684210525,
-     "selective_n": 152
+     "abstain_rate": 0.52,
+     "selective_accuracy": 0.7760416666666666,
+     "selective_n": 192
     },
     "calibrated_abstain": {
-     "abstain_rate": 0.36,
-     "selective_accuracy": 0.27734375,
-     "selective_n": 256
+     "abstain_rate": 0.9925,
+     "selective_accuracy": 1.0,
+     "selective_n": 3
     },
-    "readout_ece_raw": 0.2824219711124897,
-    "readout_ece_calibrated": 0.022599939852953,
-    "floor_ece": 0.2930721393034826,
+    "readout_ece_raw": 0.7055136701464653,
+    "readout_ece_calibrated": 0.0,
+    "floor_ece": 0.1932587064676617,
     "g1_pass": true,
     "g1_verdict": "pass",
     "by_question_type": null,
@@ -2384,7 +2624,7 @@
     "seconds": 0.144268833,
     "n_cases": 400,
     "n_questions": 400,
-    "score_threshold": 2.592802e-05,
+    "score_threshold": 0.009778738,
     "distance_threshold": 0.41526416,
     "threshold_recommendation": {
      "posture": {
@@ -2392,9 +2632,9 @@
       "rho": 0.3
      },
      "score": {
-      "threshold": 2.592802e-05,
+      "threshold": 0.009778738,
       "status": "fitted",
-      "targetAccuracy": 0.31428573,
+      "targetAccuracy": 0.8,
       "support": {
        "n": 200,
        "nPass": 140,
@@ -2404,7 +2644,7 @@
      "distance": {
       "threshold": 0.41526416,
       "status": "fitted",
-      "targetAccuracy": 0.31428573,
+      "targetAccuracy": 0.67142856,
       "support": {
        "n": 200,
        "nPass": 140,
@@ -2438,82 +2678,144 @@
       }
      ]
     },
+    "nb_selection": {
+     "selected_scale": 16.0,
+     "selected_alpha": "observed-laplace",
+     "selected_noul_domain": null,
+     "selected_view": "bag",
+     "candidates": [
+      {
+       "scale": 0.0,
+       "alpha": "off",
+       "noul_domain": null,
+       "view": "bag",
+       "cal_acc": 0.185
+      },
+      {
+       "scale": 1.0,
+       "alpha": "observed-laplace",
+       "noul_domain": null,
+       "view": "bag",
+       "cal_acc": 0.575
+      },
+      {
+       "scale": 4.0,
+       "alpha": "observed-laplace",
+       "noul_domain": null,
+       "view": "bag",
+       "cal_acc": 0.58
+      },
+      {
+       "scale": 16.0,
+       "alpha": "observed-laplace",
+       "noul_domain": null,
+       "view": "bag",
+       "cal_acc": 0.585
+      },
+      {
+       "scale": 1.0,
+       "alpha": "fixed-1",
+       "noul_domain": null,
+       "view": "bag",
+       "cal_acc": 0.49
+      },
+      {
+       "scale": 4.0,
+       "alpha": "fixed-1",
+       "noul_domain": null,
+       "view": "bag",
+       "cal_acc": 0.51
+      },
+      {
+       "scale": 16.0,
+       "alpha": "fixed-1",
+       "noul_domain": null,
+       "view": "bag",
+       "cal_acc": 0.515
+      }
+     ]
+    },
+    "transductive": {
+     "accuracy": 0.73,
+     "honest_accuracy": 0.7375,
+     "n_pseudo": 400,
+     "protocol": "TRANSDUCTIVE \u2014 unlabeled TEST text joins the count tables, labelled by the honest engine's own forced picks (gold never read); 2-fold cross-fit (half A's pseudo-docs re-score half B and vice versa, so no case scores against its own text); drafter corpora, route, heads and posture unchanged. Not comparable to the headline acc"
+    },
     "confusion": [
      {
-      "gold": "sadness",
+      "gold": "love",
       "pred": "joy",
-      "count": 98,
-      "share_of_errors": 0.34146341463414637
+      "count": 21,
+      "share_of_errors": 0.2
+     },
+     {
+      "gold": "anger",
+      "pred": "sadness",
+      "count": 18,
+      "share_of_errors": 0.17142857142857143
+     },
+     {
+      "gold": "fear",
+      "pred": "sadness",
+      "count": 12,
+      "share_of_errors": 0.11428571428571428
      },
      {
       "gold": "anger",
       "pred": "joy",
-      "count": 49,
-      "share_of_errors": 0.17073170731707318
+      "count": 11,
+      "share_of_errors": 0.10476190476190476
      },
      {
       "gold": "fear",
       "pred": "joy",
-      "count": 32,
-      "share_of_errors": 0.11149825783972125
+      "count": 8,
+      "share_of_errors": 0.0761904761904762
+     },
+     {
+      "gold": "joy",
+      "pred": "sadness",
+      "count": 8,
+      "share_of_errors": 0.0761904761904762
      },
      {
       "gold": "love",
-      "pred": "joy",
-      "count": 31,
-      "share_of_errors": 0.10801393728222997
-     },
-     {
-      "gold": "joy",
-      "pred": "love",
-      "count": 13,
-      "share_of_errors": 0.04529616724738676
-     },
-     {
-      "gold": "joy",
-      "pred": "fear",
-      "count": 9,
-      "share_of_errors": 0.0313588850174216
-     },
-     {
-      "gold": "anger",
-      "pred": "love",
-      "count": 8,
-      "share_of_errors": 0.027874564459930314
-     },
-     {
-      "gold": "sadness",
-      "pred": "love",
-      "count": 8,
-      "share_of_errors": 0.027874564459930314
-     },
-     {
-      "gold": "sadness",
-      "pred": "fear",
+      "pred": "sadness",
       "count": 7,
-      "share_of_errors": 0.024390243902439025
+      "share_of_errors": 0.06666666666666667
+     },
+     {
+      "gold": "sadness",
+      "pred": "joy",
+      "count": 6,
+      "share_of_errors": 0.05714285714285714
      },
      {
       "gold": "surprise",
       "pred": "joy",
-      "count": 5,
-      "share_of_errors": 0.017421602787456445
-     },
-     {
-      "gold": "anger",
-      "pred": "fear",
       "count": 4,
-      "share_of_errors": 0.013937282229965157
+      "share_of_errors": 0.0380952380952381
      },
      {
       "gold": "fear",
       "pred": "anger",
-      "count": 4,
-      "share_of_errors": 0.013937282229965157
+      "count": 2,
+      "share_of_errors": 0.01904761904761905
+     },
+     {
+      "gold": "joy",
+      "pred": "love",
+      "count": 2,
+      "share_of_errors": 0.01904761904761905
+     },
+     {
+      "gold": "surprise",
+      "pred": "fear",
+      "count": 2,
+      "share_of_errors": 0.01904761904761905
      }
     ],
     "pair_head_ab": null,
-    "acc_deleaked": 0.2825,
     "latency_provenance": {
      "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
     }
@@ -2676,30 +2978,30 @@
       "model": "modelless",
       "hard": {
        "n": 400,
-       "accuracy": 0.2825,
-       "macro_f1": 0.15111162181076926,
-       "ece": 0.11283036664128301,
-       "brier": 0.8318890337936673,
-       "nll": 1.7873883608711258,
-       "aurc": 0.7236402674004785,
-       "mean_confidence": 0.16966963335871696,
-       "acc_at_50_coverage": 0.285,
-       "acc_at_80_coverage": 0.2875
+       "accuracy": 0.7375,
+       "macro_f1": 0.6123709020689516,
+       "ece": 0.46860225841403,
+       "brier": 0.6758644830310259,
+       "nll": 1.4045622249498069,
+       "aurc": 0.1199160326672923,
+       "mean_confidence": 0.2688977415859699,
+       "acc_at_50_coverage": 0.9,
+       "acc_at_80_coverage": 0.79375
       },
-      "readout_ece": 0.022599939852953,
+      "readout_ece": 0.0,
       "raw_abstain": {
-       "abstain_rate": 0.62,
-       "selective_accuracy": 0.28289473684210525,
-       "selective_n": 152
+       "abstain_rate": 0.52,
+       "selective_accuracy": 0.7760416666666666,
+       "selective_n": 192
       },
       "calibrated_abstain": {
-       "abstain_rate": 0.36,
-       "selective_accuracy": 0.27734375,
-       "selective_n": 256
+       "abstain_rate": 0.9925,
+       "selective_accuracy": 1.0,
+       "selective_n": 3
       },
-      "readout_ece_raw": 0.2824219711124897,
-      "readout_ece_calibrated": 0.022599939852953,
-      "floor_ece": 0.2930721393034826,
+      "readout_ece_raw": 0.7055136701464653,
+      "readout_ece_calibrated": 0.0,
+      "floor_ece": 0.1932587064676617,
       "g1_pass": true,
       "g1_verdict": "pass",
       "by_question_type": null,
@@ -2719,7 +3021,7 @@
       "seconds": 0.1283859,
       "n_cases": 400,
       "n_questions": 400,
-      "score_threshold": 2.592802e-05,
+      "score_threshold": 0.009778738,
       "distance_threshold": 0.41526416,
       "threshold_recommendation": {
        "posture": {
@@ -2727,9 +3029,9 @@
         "rho": 0.3
        },
        "score": {
-        "threshold": 2.592802e-05,
+        "threshold": 0.009778738,
         "status": "fitted",
-        "targetAccuracy": 0.31428573,
+        "targetAccuracy": 0.8,
         "support": {
          "n": 200,
          "nPass": 140,
@@ -2739,7 +3041,7 @@
        "distance": {
         "threshold": 0.41526416,
         "status": "fitted",
-        "targetAccuracy": 0.31428573,
+        "targetAccuracy": 0.67142856,
         "support": {
          "n": 200,
          "nPass": 140,
@@ -2773,82 +3075,144 @@
         }
        ]
       },
+      "nb_selection": {
+       "selected_scale": 16.0,
+       "selected_alpha": "observed-laplace",
+       "selected_noul_domain": null,
+       "selected_view": "bag",
+       "candidates": [
+        {
+         "scale": 0.0,
+         "alpha": "off",
+         "noul_domain": null,
+         "view": "bag",
+         "cal_acc": 0.185
+        },
+        {
+         "scale": 1.0,
+         "alpha": "observed-laplace",
+         "noul_domain": null,
+         "view": "bag",
+         "cal_acc": 0.575
+        },
+        {
+         "scale": 4.0,
+         "alpha": "observed-laplace",
+         "noul_domain": null,
+         "view": "bag",
+         "cal_acc": 0.58
+        },
+        {
+         "scale": 16.0,
+         "alpha": "observed-laplace",
+         "noul_domain": null,
+         "view": "bag",
+         "cal_acc": 0.585
+        },
+        {
+         "scale": 1.0,
+         "alpha": "fixed-1",
+         "noul_domain": null,
+         "view": "bag",
+         "cal_acc": 0.49
+        },
+        {
+         "scale": 4.0,
+         "alpha": "fixed-1",
+         "noul_domain": null,
+         "view": "bag",
+         "cal_acc": 0.51
+        },
+        {
+         "scale": 16.0,
+         "alpha": "fixed-1",
+         "noul_domain": null,
+         "view": "bag",
+         "cal_acc": 0.515
+        }
+       ]
+      },
+      "transductive": {
+       "accuracy": 0.73,
+       "honest_accuracy": 0.7375,
+       "n_pseudo": 400,
+       "protocol": "TRANSDUCTIVE \u2014 unlabeled TEST text joins the count tables, labelled by the honest engine's own forced picks (gold never read); 2-fold cross-fit (half A's pseudo-docs re-score half B and vice versa, so no case scores against its own text); drafter corpora, route, heads and posture unchanged. Not comparable to the headline acc"
+      },
       "confusion": [
        {
-        "gold": "sadness",
+        "gold": "love",
         "pred": "joy",
-        "count": 98,
-        "share_of_errors": 0.34146341463414637
+        "count": 21,
+        "share_of_errors": 0.2
+       },
+       {
+        "gold": "anger",
+        "pred": "sadness",
+        "count": 18,
+        "share_of_errors": 0.17142857142857143
+       },
+       {
+        "gold": "fear",
+        "pred": "sadness",
+        "count": 12,
+        "share_of_errors": 0.11428571428571428
        },
        {
         "gold": "anger",
         "pred": "joy",
-        "count": 49,
-        "share_of_errors": 0.17073170731707318
+        "count": 11,
+        "share_of_errors": 0.10476190476190476
        },
        {
         "gold": "fear",
         "pred": "joy",
-        "count": 32,
-        "share_of_errors": 0.11149825783972125
+        "count": 8,
+        "share_of_errors": 0.0761904761904762
+       },
+       {
+        "gold": "joy",
+        "pred": "sadness",
+        "count": 8,
+        "share_of_errors": 0.0761904761904762
        },
        {
         "gold": "love",
-        "pred": "joy",
-        "count": 31,
-        "share_of_errors": 0.10801393728222997
-       },
-       {
-        "gold": "joy",
-        "pred": "love",
-        "count": 13,
-        "share_of_errors": 0.04529616724738676
-       },
-       {
-        "gold": "joy",
-        "pred": "fear",
-        "count": 9,
-        "share_of_errors": 0.0313588850174216
-       },
-       {
-        "gold": "anger",
-        "pred": "love",
-        "count": 8,
-        "share_of_errors": 0.027874564459930314
-       },
-       {
-        "gold": "sadness",
-        "pred": "love",
-        "count": 8,
-        "share_of_errors": 0.027874564459930314
-       },
-       {
-        "gold": "sadness",
-        "pred": "fear",
+        "pred": "sadness",
         "count": 7,
-        "share_of_errors": 0.024390243902439025
+        "share_of_errors": 0.06666666666666667
+       },
+       {
+        "gold": "sadness",
+        "pred": "joy",
+        "count": 6,
+        "share_of_errors": 0.05714285714285714
        },
        {
         "gold": "surprise",
         "pred": "joy",
-        "count": 5,
-        "share_of_errors": 0.017421602787456445
-       },
-       {
-        "gold": "anger",
-        "pred": "fear",
         "count": 4,
-        "share_of_errors": 0.013937282229965157
+        "share_of_errors": 0.0380952380952381
        },
        {
         "gold": "fear",
         "pred": "anger",
-        "count": 4,
-        "share_of_errors": 0.013937282229965157
+        "count": 2,
+        "share_of_errors": 0.01904761904761905
+       },
+       {
+        "gold": "joy",
+        "pred": "love",
+        "count": 2,
+        "share_of_errors": 0.01904761904761905
+       },
+       {
+        "gold": "surprise",
+        "pred": "fear",
+        "count": 2,
+        "share_of_errors": 0.01904761904761905
        }
       ],
       "pair_head_ab": null,
-      "acc_deleaked": 0.2825,
       "latency_provenance": {
        "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
       }
@@ -3065,37 +3429,37 @@
     "model": "modelless",
     "hard": {
      "n": 600,
-     "accuracy": 0.21666666666666667,
-     "macro_f1": 0.21644209435416006,
-     "ece": 0.0019752679516871798,
-     "brier": 0.7991945661583396,
-     "nll": 1.607280233965262,
-     "aurc": 0.7984710138714025,
-     "mean_confidence": 0.2156042873611053,
-     "acc_at_50_coverage": 0.17666666666666667,
-     "acc_at_80_coverage": 0.2125
+     "accuracy": 0.39166666666666666,
+     "macro_f1": 0.3188583803122123,
+     "ece": 0.13676817685365678,
+     "brier": 0.762085527083275,
+     "nll": 1.519409070108451,
+     "aurc": 0.5377755558541742,
+     "mean_confidence": 0.2548984898130099,
+     "acc_at_50_coverage": 0.4766666666666667,
+     "acc_at_80_coverage": 0.4166666666666667
     },
-    "readout_ece": 0.02148964275916418,
+    "readout_ece": 0.005,
     "raw_abstain": {
-     "abstain_rate": 0.54,
-     "selective_accuracy": 0.18478260869565216,
-     "selective_n": 276
+     "abstain_rate": 0.5533333333333333,
+     "selective_accuracy": 0.4141791044776119,
+     "selective_n": 268
     },
     "calibrated_abstain": {
-     "abstain_rate": 0.315,
-     "selective_accuracy": 0.20437956204379562,
-     "selective_n": 411
+     "abstain_rate": 0.9916666666666667,
+     "selective_accuracy": 0.8,
+     "selective_n": 5
     },
-    "readout_ece_raw": 0.2155029884974162,
-    "readout_ece_calibrated": 0.02148964275916418,
-    "floor_ece": 0.3461691542288557,
+    "readout_ece_raw": 0.38101564804712934,
+    "readout_ece_calibrated": 0.005,
+    "floor_ece": 0.2037810945273632,
     "g1_pass": true,
     "g1_verdict": "pass",
     "by_question_type": null,
     "soft_acc": null,
     "brier_soft": null,
-    "score_mae": 1.178447996104757,
-    "within_1": 0.43166666666666664,
+    "score_mae": 1.1198088852440318,
+    "within_1": 0.5433333333333333,
     "latency_p50_ms": 0.097,
     "latency_p99_ms": 0.122,
     "latency_tail_support": 7,
@@ -3108,7 +3472,7 @@
     "seconds": 0.161600834,
     "n_cases": 600,
     "n_questions": 600,
-    "score_threshold": 0.0004144907,
+    "score_threshold": 0.00436908,
     "distance_threshold": 0.39729577,
     "threshold_recommendation": {
      "posture": {
@@ -3116,9 +3480,9 @@
       "rho": 0.3
      },
      "score": {
-      "threshold": 0.0004144907,
+      "threshold": 0.00436908,
       "status": "fitted",
-      "targetAccuracy": 0.22857143,
+      "targetAccuracy": 0.39285713,
       "support": {
        "n": 200,
        "nPass": 140,
@@ -3128,7 +3492,7 @@
      "distance": {
       "threshold": 0.39729577,
       "status": "fitted",
-      "targetAccuracy": 0.19285715,
+      "targetAccuracy": 0.42142856,
       "support": {
        "n": 200,
        "nPass": 140,
@@ -3162,82 +3526,144 @@
       }
      ]
     },
+    "nb_selection": {
+     "selected_scale": 16.0,
+     "selected_alpha": "observed-laplace",
+     "selected_noul_domain": null,
+     "selected_view": "bag",
+     "candidates": [
+      {
+       "scale": 0.0,
+       "alpha": "off",
+       "noul_domain": null,
+       "view": "bag",
+       "cal_acc": 0.255
+      },
+      {
+       "scale": 1.0,
+       "alpha": "observed-laplace",
+       "noul_domain": null,
+       "view": "bag",
+       "cal_acc": 0.3
+      },
+      {
+       "scale": 4.0,
+       "alpha": "observed-laplace",
+       "noul_domain": null,
+       "view": "bag",
+       "cal_acc": 0.315
+      },
+      {
+       "scale": 16.0,
+       "alpha": "observed-laplace",
+       "noul_domain": null,
+       "view": "bag",
+       "cal_acc": 0.335
+      },
+      {
+       "scale": 1.0,
+       "alpha": "fixed-1",
+       "noul_domain": null,
+       "view": "bag",
+       "cal_acc": 0.28
+      },
+      {
+       "scale": 4.0,
+       "alpha": "fixed-1",
+       "noul_domain": null,
+       "view": "bag",
+       "cal_acc": 0.3
+      },
+      {
+       "scale": 16.0,
+       "alpha": "fixed-1",
+       "noul_domain": null,
+       "view": "bag",
+       "cal_acc": 0.32
+      }
+     ]
+    },
+    "transductive": {
+     "accuracy": 0.39166666666666666,
+     "honest_accuracy": 0.39166666666666666,
+     "n_pseudo": 0,
+     "protocol": "TRANSDUCTIVE \u2014 unlabeled TEST text joins the count tables, labelled by the honest engine's own forced picks (gold never read); 2-fold cross-fit (half A's pseudo-docs re-score half B and vice versa, so no case scores against its own text); drafter corpora, route, heads and posture unchanged. Not comparable to the headline acc"
+    },
     "confusion": [
      {
-      "gold": "negative",
-      "pred": "neutral",
-      "count": 57,
-      "share_of_errors": 0.12127659574468085
-     },
-     {
-      "gold": "positive",
-      "pred": "very negative",
-      "count": 44,
-      "share_of_errors": 0.09361702127659574
-     },
-     {
-      "gold": "very positive",
-      "pred": "neutral",
-      "count": 40,
-      "share_of_errors": 0.0851063829787234
-     },
-     {
-      "gold": "negative",
-      "pred": "very negative",
-      "count": 39,
-      "share_of_errors": 0.08297872340425531
-     },
-     {
-      "gold": "negative",
-      "pred": "positive",
-      "count": 36,
-      "share_of_errors": 0.07659574468085106
-     },
-     {
-      "gold": "positive",
-      "pred": "neutral",
-      "count": 34,
-      "share_of_errors": 0.07234042553191489
-     },
-     {
-      "gold": "very positive",
-      "pred": "very negative",
-      "count": 26,
-      "share_of_errors": 0.05531914893617021
-     },
-     {
       "gold": "very positive",
       "pred": "positive",
-      "count": 25,
-      "share_of_errors": 0.05319148936170213
+      "count": 67,
+      "share_of_errors": 0.18356164383561643
      },
      {
       "gold": "very negative",
-      "pred": "neutral",
-      "count": 24,
-      "share_of_errors": 0.05106382978723404
+      "pred": "negative",
+      "count": 49,
+      "share_of_errors": 0.13424657534246576
      },
      {
       "gold": "neutral",
-      "pred": "positive",
-      "count": 23,
-      "share_of_errors": 0.04893617021276596
-     },
-     {
-      "gold": "neutral",
-      "pred": "very negative",
-      "count": 18,
-      "share_of_errors": 0.03829787234042553
+      "pred": "negative",
+      "count": 45,
+      "share_of_errors": 0.1232876712328767
      },
      {
       "gold": "positive",
       "pred": "negative",
+      "count": 37,
+      "share_of_errors": 0.10136986301369863
+     },
+     {
+      "gold": "negative",
+      "pred": "positive",
+      "count": 29,
+      "share_of_errors": 0.07945205479452055
+     },
+     {
+      "gold": "neutral",
+      "pred": "positive",
+      "count": 27,
+      "share_of_errors": 0.07397260273972603
+     },
+     {
+      "gold": "very positive",
+      "pred": "negative",
+      "count": 21,
+      "share_of_errors": 0.057534246575342465
+     },
+     {
+      "gold": "negative",
+      "pred": "neutral",
+      "count": 19,
+      "share_of_errors": 0.052054794520547946
+     },
+     {
+      "gold": "positive",
+      "pred": "very positive",
       "count": 16,
-      "share_of_errors": 0.03404255319148936
+      "share_of_errors": 0.043835616438356165
+     },
+     {
+      "gold": "very negative",
+      "pred": "positive",
+      "count": 11,
+      "share_of_errors": 0.030136986301369864
+     },
+     {
+      "gold": "very negative",
+      "pred": "neutral",
+      "count": 10,
+      "share_of_errors": 0.0273972602739726
+     },
+     {
+      "gold": "very positive",
+      "pred": "neutral",
+      "count": 9,
+      "share_of_errors": 0.024657534246575342
      }
     ],
     "pair_head_ab": null,
-    "acc_deleaked": 0.21702838063439064,
     "latency_provenance": {
      "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
     }
@@ -3400,37 +3826,37 @@
       "model": "modelless",
       "hard": {
        "n": 600,
-       "accuracy": 0.21666666666666667,
-       "macro_f1": 0.21644209435416006,
-       "ece": 0.0019752681752046018,
-       "brier": 0.7991945659009354,
-       "nll": 1.60728023286355,
-       "aurc": 0.7984710138714025,
-       "mean_confidence": 0.21560428713758786,
-       "acc_at_50_coverage": 0.17666666666666667,
-       "acc_at_80_coverage": 0.2125
+       "accuracy": 0.39166666666666666,
+       "macro_f1": 0.3188583803122123,
+       "ece": 0.13676817707717417,
+       "brier": 0.7620855268907437,
+       "nll": 1.519409070592189,
+       "aurc": 0.5377755558541742,
+       "mean_confidence": 0.25489848958949246,
+       "acc_at_50_coverage": 0.4766666666666667,
+       "acc_at_80_coverage": 0.4166666666666667
       },
-      "readout_ece": 0.021489642808834725,
+      "readout_ece": 0.005,
       "raw_abstain": {
-       "abstain_rate": 0.54,
-       "selective_accuracy": 0.18478260869565216,
-       "selective_n": 276
+       "abstain_rate": 0.5533333333333333,
+       "selective_accuracy": 0.4141791044776119,
+       "selective_n": 268
       },
       "calibrated_abstain": {
-       "abstain_rate": 0.315,
-       "selective_accuracy": 0.20437956204379562,
-       "selective_n": 411
+       "abstain_rate": 0.9916666666666667,
+       "selective_accuracy": 0.8,
+       "selective_n": 5
       },
-      "readout_ece_raw": 0.21550298869609832,
-      "readout_ece_calibrated": 0.021489642808834725,
-      "floor_ece": 0.34616086235489213,
+      "readout_ece_raw": 0.3810156477491061,
+      "readout_ece_calibrated": 0.005,
+      "floor_ece": 0.2037810945273632,
       "g1_pass": true,
       "g1_verdict": "pass",
       "by_question_type": null,
       "soft_acc": null,
       "brier_soft": null,
-      "score_mae": 1.1784479945401352,
-      "within_1": 0.43166666666666664,
+      "score_mae": 1.1198088843002916,
+      "within_1": 0.5433333333333333,
       "latency_p50_ms": 0.087,
       "latency_p99_ms": 0.157,
       "latency_tail_support": 7,
@@ -3443,7 +3869,7 @@
       "seconds": 0.1531139,
       "n_cases": 600,
       "n_questions": 600,
-      "score_threshold": 0.0004144907,
+      "score_threshold": 0.00436908,
       "distance_threshold": 0.39729577,
       "threshold_recommendation": {
        "posture": {
@@ -3451,9 +3877,9 @@
         "rho": 0.3
        },
        "score": {
-        "threshold": 0.0004144907,
+        "threshold": 0.00436908,
         "status": "fitted",
-        "targetAccuracy": 0.22857143,
+        "targetAccuracy": 0.39285713,
         "support": {
          "n": 200,
          "nPass": 140,
@@ -3463,7 +3889,7 @@
        "distance": {
         "threshold": 0.39729577,
         "status": "fitted",
-        "targetAccuracy": 0.19285715,
+        "targetAccuracy": 0.42142856,
         "support": {
          "n": 200,
          "nPass": 140,
@@ -3497,82 +3923,144 @@
         }
        ]
       },
+      "nb_selection": {
+       "selected_scale": 16.0,
+       "selected_alpha": "observed-laplace",
+       "selected_noul_domain": null,
+       "selected_view": "bag",
+       "candidates": [
+        {
+         "scale": 0.0,
+         "alpha": "off",
+         "noul_domain": null,
+         "view": "bag",
+         "cal_acc": 0.255
+        },
+        {
+         "scale": 1.0,
+         "alpha": "observed-laplace",
+         "noul_domain": null,
+         "view": "bag",
+         "cal_acc": 0.3
+        },
+        {
+         "scale": 4.0,
+         "alpha": "observed-laplace",
+         "noul_domain": null,
+         "view": "bag",
+         "cal_acc": 0.315
+        },
+        {
+         "scale": 16.0,
+         "alpha": "observed-laplace",
+         "noul_domain": null,
+         "view": "bag",
+         "cal_acc": 0.335
+        },
+        {
+         "scale": 1.0,
+         "alpha": "fixed-1",
+         "noul_domain": null,
+         "view": "bag",
+         "cal_acc": 0.28
+        },
+        {
+         "scale": 4.0,
+         "alpha": "fixed-1",
+         "noul_domain": null,
+         "view": "bag",
+         "cal_acc": 0.3
+        },
+        {
+         "scale": 16.0,
+         "alpha": "fixed-1",
+         "noul_domain": null,
+         "view": "bag",
+         "cal_acc": 0.32
+        }
+       ]
+      },
+      "transductive": {
+       "accuracy": 0.39166666666666666,
+       "honest_accuracy": 0.39166666666666666,
+       "n_pseudo": 0,
+       "protocol": "TRANSDUCTIVE \u2014 unlabeled TEST text joins the count tables, labelled by the honest engine's own forced picks (gold never read); 2-fold cross-fit (half A's pseudo-docs re-score half B and vice versa, so no case scores against its own text); drafter corpora, route, heads and posture unchanged. Not comparable to the headline acc"
+      },
       "confusion": [
        {
-        "gold": "negative",
-        "pred": "neutral",
-        "count": 57,
-        "share_of_errors": 0.12127659574468085
-       },
-       {
-        "gold": "positive",
-        "pred": "very negative",
-        "count": 44,
-        "share_of_errors": 0.09361702127659574
-       },
-       {
-        "gold": "very positive",
-        "pred": "neutral",
-        "count": 40,
-        "share_of_errors": 0.0851063829787234
-       },
-       {
-        "gold": "negative",
-        "pred": "very negative",
-        "count": 39,
-        "share_of_errors": 0.08297872340425531
-       },
-       {
-        "gold": "negative",
-        "pred": "positive",
-        "count": 36,
-        "share_of_errors": 0.07659574468085106
-       },
-       {
-        "gold": "positive",
-        "pred": "neutral",
-        "count": 34,
-        "share_of_errors": 0.07234042553191489
-       },
-       {
-        "gold": "very positive",
-        "pred": "very negative",
-        "count": 26,
-        "share_of_errors": 0.05531914893617021
-       },
-       {
         "gold": "very positive",
         "pred": "positive",
-        "count": 25,
-        "share_of_errors": 0.05319148936170213
+        "count": 67,
+        "share_of_errors": 0.18356164383561643
        },
        {
         "gold": "very negative",
-        "pred": "neutral",
-        "count": 24,
-        "share_of_errors": 0.05106382978723404
+        "pred": "negative",
+        "count": 49,
+        "share_of_errors": 0.13424657534246576
        },
        {
         "gold": "neutral",
-        "pred": "positive",
-        "count": 23,
-        "share_of_errors": 0.04893617021276596
-       },
-       {
-        "gold": "neutral",
-        "pred": "very negative",
-        "count": 18,
-        "share_of_errors": 0.03829787234042553
+        "pred": "negative",
+        "count": 45,
+        "share_of_errors": 0.1232876712328767
        },
        {
         "gold": "positive",
         "pred": "negative",
+        "count": 37,
+        "share_of_errors": 0.10136986301369863
+       },
+       {
+        "gold": "negative",
+        "pred": "positive",
+        "count": 29,
+        "share_of_errors": 0.07945205479452055
+       },
+       {
+        "gold": "neutral",
+        "pred": "positive",
+        "count": 27,
+        "share_of_errors": 0.07397260273972603
+       },
+       {
+        "gold": "very positive",
+        "pred": "negative",
+        "count": 21,
+        "share_of_errors": 0.057534246575342465
+       },
+       {
+        "gold": "negative",
+        "pred": "neutral",
+        "count": 19,
+        "share_of_errors": 0.052054794520547946
+       },
+       {
+        "gold": "positive",
+        "pred": "very positive",
         "count": 16,
-        "share_of_errors": 0.03404255319148936
+        "share_of_errors": 0.043835616438356165
+       },
+       {
+        "gold": "very negative",
+        "pred": "positive",
+        "count": 11,
+        "share_of_errors": 0.030136986301369864
+       },
+       {
+        "gold": "very negative",
+        "pred": "neutral",
+        "count": 10,
+        "share_of_errors": 0.0273972602739726
+       },
+       {
+        "gold": "very positive",
+        "pred": "neutral",
+        "count": 9,
+        "share_of_errors": 0.024657534246575342
        }
       ],
       "pair_head_ab": null,
-      "acc_deleaked": 0.21702838063439064,
       "latency_provenance": {
        "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
       }
@@ -3886,9 +4374,108 @@
       }
      ]
     },
+    "nb_selection": {
+     "selected_scale": 0.0,
+     "selected_alpha": "off",
+     "selected_noul_domain": null,
+     "selected_view": "bag",
+     "candidates": [
+      {
+       "scale": 0.0,
+       "alpha": "off",
+       "noul_domain": null,
+       "view": "bag",
+       "cal_acc": 0.5
+      },
+      {
+       "scale": 1.0,
+       "alpha": "observed-laplace",
+       "noul_domain": 0,
+       "view": "bag",
+       "cal_acc": 0.52
+      },
+      {
+       "scale": 4.0,
+       "alpha": "observed-laplace",
+       "noul_domain": 0,
+       "view": "bag",
+       "cal_acc": 0.52
+      },
+      {
+       "scale": 16.0,
+       "alpha": "observed-laplace",
+       "noul_domain": 0,
+       "view": "bag",
+       "cal_acc": 0.52
+      },
+      {
+       "scale": 1.0,
+       "alpha": "fixed-1",
+       "noul_domain": 0,
+       "view": "bag",
+       "cal_acc": 0.5
+      },
+      {
+       "scale": 4.0,
+       "alpha": "fixed-1",
+       "noul_domain": 0,
+       "view": "bag",
+       "cal_acc": 0.5
+      },
+      {
+       "scale": 16.0,
+       "alpha": "fixed-1",
+       "noul_domain": 0,
+       "view": "bag",
+       "cal_acc": 0.5
+      },
+      {
+       "scale": 1.0,
+       "alpha": "observed-laplace",
+       "noul_domain": 1,
+       "view": "bag",
+       "cal_acc": 0.48
+      },
+      {
+       "scale": 4.0,
+       "alpha": "observed-laplace",
+       "noul_domain": 1,
+       "view": "bag",
+       "cal_acc": 0.48
+      },
+      {
+       "scale": 16.0,
+       "alpha": "observed-laplace",
+       "noul_domain": 1,
+       "view": "bag",
+       "cal_acc": 0.48
+      },
+      {
+       "scale": 1.0,
+       "alpha": "fixed-1",
+       "noul_domain": 1,
+       "view": "bag",
+       "cal_acc": 0.5
+      },
+      {
+       "scale": 4.0,
+       "alpha": "fixed-1",
+       "noul_domain": 1,
+       "view": "bag",
+       "cal_acc": 0.5
+      },
+      {
+       "scale": 16.0,
+       "alpha": "fixed-1",
+       "noul_domain": 1,
+       "view": "bag",
+       "cal_acc": 0.5
+      }
+     ]
+    },
+    "transductive": null,
     "confusion": [],
     "pair_head_ab": null,
-    "acc_deleaked": 0.47368421052631576,
     "latency_provenance": {
      "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
     }
@@ -4148,9 +4735,108 @@
         }
        ]
       },
+      "nb_selection": {
+       "selected_scale": 0.0,
+       "selected_alpha": "off",
+       "selected_noul_domain": null,
+       "selected_view": "bag",
+       "candidates": [
+        {
+         "scale": 0.0,
+         "alpha": "off",
+         "noul_domain": null,
+         "view": "bag",
+         "cal_acc": 0.5
+        },
+        {
+         "scale": 1.0,
+         "alpha": "observed-laplace",
+         "noul_domain": 0,
+         "view": "bag",
+         "cal_acc": 0.52
+        },
+        {
+         "scale": 4.0,
+         "alpha": "observed-laplace",
+         "noul_domain": 0,
+         "view": "bag",
+         "cal_acc": 0.52
+        },
+        {
+         "scale": 16.0,
+         "alpha": "observed-laplace",
+         "noul_domain": 0,
+         "view": "bag",
+         "cal_acc": 0.52
+        },
+        {
+         "scale": 1.0,
+         "alpha": "fixed-1",
+         "noul_domain": 0,
+         "view": "bag",
+         "cal_acc": 0.5
+        },
+        {
+         "scale": 4.0,
+         "alpha": "fixed-1",
+         "noul_domain": 0,
+         "view": "bag",
+         "cal_acc": 0.5
+        },
+        {
+         "scale": 16.0,
+         "alpha": "fixed-1",
+         "noul_domain": 0,
+         "view": "bag",
+         "cal_acc": 0.5
+        },
+        {
+         "scale": 1.0,
+         "alpha": "observed-laplace",
+         "noul_domain": 1,
+         "view": "bag",
+         "cal_acc": 0.48
+        },
+        {
+         "scale": 4.0,
+         "alpha": "observed-laplace",
+         "noul_domain": 1,
+         "view": "bag",
+         "cal_acc": 0.48
+        },
+        {
+         "scale": 16.0,
+         "alpha": "observed-laplace",
+         "noul_domain": 1,
+         "view": "bag",
+         "cal_acc": 0.48
+        },
+        {
+         "scale": 1.0,
+         "alpha": "fixed-1",
+         "noul_domain": 1,
+         "view": "bag",
+         "cal_acc": 0.5
+        },
+        {
+         "scale": 4.0,
+         "alpha": "fixed-1",
+         "noul_domain": 1,
+         "view": "bag",
+         "cal_acc": 0.5
+        },
+        {
+         "scale": 16.0,
+         "alpha": "fixed-1",
+         "noul_domain": 1,
+         "view": "bag",
+         "cal_acc": 0.5
+        }
+       ]
+      },
+      "transductive": null,
       "confusion": [],
       "pair_head_ab": null,
-      "acc_deleaked": 0.47368421052631576,
       "latency_provenance": {
        "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
       }
@@ -4367,30 +5053,30 @@
     "model": "modelless",
     "hard": {
      "n": 300,
-     "accuracy": 0.3466666666666667,
-     "macro_f1": 0.21509392106123304,
-     "ece": 0.0012294748425483726,
-     "brier": 0.6674267672709734,
-     "nll": 1.0996724810444833,
-     "aurc": 0.6897717467805182,
-     "mean_confidence": 0.3454371918241183,
-     "acc_at_50_coverage": 0.35333333333333333,
-     "acc_at_80_coverage": 0.32916666666666666
+     "accuracy": 0.5233333333333333,
+     "macro_f1": 0.5044650756460731,
+     "ece": 0.1380605376760165,
+     "brier": 0.617595718681135,
+     "nll": 1.0283169463337636,
+     "aurc": 0.31209696146768384,
+     "mean_confidence": 0.38527279565731687,
+     "acc_at_50_coverage": 0.6466666666666666,
+     "acc_at_80_coverage": 0.575
     },
-    "readout_ece": 0.09651749193668369,
+    "readout_ece": 0.05665152569611864,
     "raw_abstain": {
-     "abstain_rate": 0.64,
-     "selective_accuracy": 0.3333333333333333,
-     "selective_n": 108
+     "abstain_rate": 0.58,
+     "selective_accuracy": 0.6031746031746031,
+     "selective_n": 126
     },
     "calibrated_abstain": {
      "abstain_rate": 0.38333333333333336,
-     "selective_accuracy": 0.34594594594594597,
+     "selective_accuracy": 0.5297297297297298,
      "selective_n": 185
     },
-    "readout_ece_raw": 0.34608602861563365,
-    "readout_ece_calibrated": 0.09651749193668369,
-    "floor_ece": 0.3173963515754561,
+    "readout_ece_raw": 0.5131932934125264,
+    "readout_ece_calibrated": 0.05665152569611864,
+    "floor_ece": 0.1203814262023217,
     "g1_pass": true,
     "g1_verdict": "pass",
     "by_question_type": null,
@@ -4410,7 +5096,7 @@
     "seconds": 0.093859209,
     "n_cases": 300,
     "n_questions": 300,
-    "score_threshold": 8.249283e-05,
+    "score_threshold": 0.0013651252,
     "distance_threshold": 0.5123883,
     "threshold_recommendation": {
      "posture": {
@@ -4418,9 +5104,9 @@
       "rho": 0.3
      },
      "score": {
-      "threshold": 8.249283e-05,
+      "threshold": 0.0013651252,
       "status": "fitted",
-      "targetAccuracy": 0.27142859,
+      "targetAccuracy": 0.6357143,
       "support": {
        "n": 200,
        "nPass": 140,
@@ -4430,7 +5116,7 @@
      "distance": {
       "threshold": 0.5123883,
       "status": "fitted",
-      "targetAccuracy": 0.24285714,
+      "targetAccuracy": 0.5928571,
       "support": {
        "n": 200,
        "nPass": 140,
@@ -4464,34 +5150,150 @@
       }
      ]
     },
+    "nb_selection": {
+     "selected_scale": 4.0,
+     "selected_alpha": "fixed-1",
+     "selected_noul_domain": null,
+     "selected_view": "pair",
+     "candidates": [
+      {
+       "scale": 0.0,
+       "alpha": "off",
+       "noul_domain": null,
+       "view": "bag",
+       "cal_acc": 0.34
+      },
+      {
+       "scale": 1.0,
+       "alpha": "observed-laplace",
+       "noul_domain": null,
+       "view": "bag",
+       "cal_acc": 0.315
+      },
+      {
+       "scale": 4.0,
+       "alpha": "observed-laplace",
+       "noul_domain": null,
+       "view": "bag",
+       "cal_acc": 0.34
+      },
+      {
+       "scale": 16.0,
+       "alpha": "observed-laplace",
+       "noul_domain": null,
+       "view": "bag",
+       "cal_acc": 0.35
+      },
+      {
+       "scale": 1.0,
+       "alpha": "fixed-1",
+       "noul_domain": null,
+       "view": "bag",
+       "cal_acc": 0.31
+      },
+      {
+       "scale": 4.0,
+       "alpha": "fixed-1",
+       "noul_domain": null,
+       "view": "bag",
+       "cal_acc": 0.325
+      },
+      {
+       "scale": 16.0,
+       "alpha": "fixed-1",
+       "noul_domain": null,
+       "view": "bag",
+       "cal_acc": 0.355
+      },
+      {
+       "scale": 1.0,
+       "alpha": "observed-laplace",
+       "noul_domain": null,
+       "view": "pair",
+       "cal_acc": 0.58
+      },
+      {
+       "scale": 4.0,
+       "alpha": "observed-laplace",
+       "noul_domain": null,
+       "view": "pair",
+       "cal_acc": 0.585
+      },
+      {
+       "scale": 16.0,
+       "alpha": "observed-laplace",
+       "noul_domain": null,
+       "view": "pair",
+       "cal_acc": 0.59
+      },
+      {
+       "scale": 1.0,
+       "alpha": "fixed-1",
+       "noul_domain": null,
+       "view": "pair",
+       "cal_acc": 0.585
+      },
+      {
+       "scale": 4.0,
+       "alpha": "fixed-1",
+       "noul_domain": null,
+       "view": "pair",
+       "cal_acc": 0.6
+      },
+      {
+       "scale": 16.0,
+       "alpha": "fixed-1",
+       "noul_domain": null,
+       "view": "pair",
+       "cal_acc": 0.6
+      }
+     ]
+    },
+    "transductive": {
+     "accuracy": 0.5066666666666667,
+     "honest_accuracy": 0.5233333333333333,
+     "n_pseudo": 300,
+     "protocol": "TRANSDUCTIVE \u2014 unlabeled TEST text joins the count tables, labelled by the honest engine's own forced picks (gold never read); 2-fold cross-fit (half A's pseudo-docs re-score half B and vice versa, so no case scores against its own text); drafter corpora, route, heads and posture unchanged. Not comparable to the headline acc"
+    },
     "confusion": [
      {
       "gold": "entailment",
       "pred": "neutral",
-      "count": 94,
-      "share_of_errors": 0.47959183673469385
+      "count": 46,
+      "share_of_errors": 0.32167832167832167
+     },
+     {
+      "gold": "neutral",
+      "pred": "contradiction",
+      "count": 28,
+      "share_of_errors": 0.1958041958041958
+     },
+     {
+      "gold": "entailment",
+      "pred": "contradiction",
+      "count": 27,
+      "share_of_errors": 0.1888111888111888
      },
      {
       "gold": "contradiction",
       "pred": "neutral",
-      "count": 92,
-      "share_of_errors": 0.46938775510204084
-     },
-     {
-      "gold": "contradiction",
-      "pred": "entailment",
-      "count": 6,
-      "share_of_errors": 0.030612244897959183
+      "count": 21,
+      "share_of_errors": 0.14685314685314685
      },
      {
       "gold": "neutral",
       "pred": "entailment",
-      "count": 4,
-      "share_of_errors": 0.02040816326530612
+      "count": 16,
+      "share_of_errors": 0.11188811188811189
+     },
+     {
+      "gold": "contradiction",
+      "pred": "entailment",
+      "count": 5,
+      "share_of_errors": 0.03496503496503497
      }
     ],
     "pair_head_ab": null,
-    "acc_deleaked": 0.3466666666666667,
     "latency_provenance": {
      "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
     }
@@ -4654,30 +5456,30 @@
       "model": "modelless",
       "hard": {
        "n": 300,
-       "accuracy": 0.3466666666666667,
-       "macro_f1": 0.21509392106123304,
-       "ece": 0.0012294748425483726,
-       "brier": 0.6674267672709734,
-       "nll": 1.0996724810444833,
-       "aurc": 0.6897717467805182,
-       "mean_confidence": 0.3454371918241183,
-       "acc_at_50_coverage": 0.35333333333333333,
-       "acc_at_80_coverage": 0.32916666666666666
+       "accuracy": 0.5233333333333333,
+       "macro_f1": 0.5044650756460731,
+       "ece": 0.1380605376760165,
+       "brier": 0.6175957188146407,
+       "nll": 1.0283169466365925,
+       "aurc": 0.31209696146768384,
+       "mean_confidence": 0.38527279565731687,
+       "acc_at_50_coverage": 0.6466666666666666,
+       "acc_at_80_coverage": 0.575
       },
-      "readout_ece": 0.09651749193668369,
+      "readout_ece": 0.056651525894800825,
       "raw_abstain": {
-       "abstain_rate": 0.64,
-       "selective_accuracy": 0.3333333333333333,
-       "selective_n": 108
+       "abstain_rate": 0.58,
+       "selective_accuracy": 0.6031746031746031,
+       "selective_n": 126
       },
       "calibrated_abstain": {
        "abstain_rate": 0.38333333333333336,
-       "selective_accuracy": 0.34594594594594597,
+       "selective_accuracy": 0.5297297297297298,
        "selective_n": 185
       },
-      "readout_ece_raw": 0.34608602861563365,
-      "readout_ece_calibrated": 0.09651749193668369,
-      "floor_ece": 0.3173963515754561,
+      "readout_ece_raw": 0.513193293015162,
+      "readout_ece_calibrated": 0.056651525894800825,
+      "floor_ece": 0.1203814262023217,
       "g1_pass": true,
       "g1_verdict": "pass",
       "by_question_type": null,
@@ -4697,7 +5499,7 @@
       "seconds": 0.0925256,
       "n_cases": 300,
       "n_questions": 300,
-      "score_threshold": 8.249283e-05,
+      "score_threshold": 0.0013651252,
       "distance_threshold": 0.5123883,
       "threshold_recommendation": {
        "posture": {
@@ -4705,9 +5507,9 @@
         "rho": 0.3
        },
        "score": {
-        "threshold": 8.249283e-05,
+        "threshold": 0.0013651252,
         "status": "fitted",
-        "targetAccuracy": 0.27142859,
+        "targetAccuracy": 0.6357143,
         "support": {
          "n": 200,
          "nPass": 140,
@@ -4717,7 +5519,7 @@
        "distance": {
         "threshold": 0.5123883,
         "status": "fitted",
-        "targetAccuracy": 0.24285714,
+        "targetAccuracy": 0.5928571,
         "support": {
          "n": 200,
          "nPass": 140,
@@ -4751,34 +5553,150 @@
         }
        ]
       },
+      "nb_selection": {
+       "selected_scale": 4.0,
+       "selected_alpha": "fixed-1",
+       "selected_noul_domain": null,
+       "selected_view": "pair",
+       "candidates": [
+        {
+         "scale": 0.0,
+         "alpha": "off",
+         "noul_domain": null,
+         "view": "bag",
+         "cal_acc": 0.34
+        },
+        {
+         "scale": 1.0,
+         "alpha": "observed-laplace",
+         "noul_domain": null,
+         "view": "bag",
+         "cal_acc": 0.315
+        },
+        {
+         "scale": 4.0,
+         "alpha": "observed-laplace",
+         "noul_domain": null,
+         "view": "bag",
+         "cal_acc": 0.34
+        },
+        {
+         "scale": 16.0,
+         "alpha": "observed-laplace",
+         "noul_domain": null,
+         "view": "bag",
+         "cal_acc": 0.35
+        },
+        {
+         "scale": 1.0,
+         "alpha": "fixed-1",
+         "noul_domain": null,
+         "view": "bag",
+         "cal_acc": 0.31
+        },
+        {
+         "scale": 4.0,
+         "alpha": "fixed-1",
+         "noul_domain": null,
+         "view": "bag",
+         "cal_acc": 0.325
+        },
+        {
+         "scale": 16.0,
+         "alpha": "fixed-1",
+         "noul_domain": null,
+         "view": "bag",
+         "cal_acc": 0.355
+        },
+        {
+         "scale": 1.0,
+         "alpha": "observed-laplace",
+         "noul_domain": null,
+         "view": "pair",
+         "cal_acc": 0.58
+        },
+        {
+         "scale": 4.0,
+         "alpha": "observed-laplace",
+         "noul_domain": null,
+         "view": "pair",
+         "cal_acc": 0.585
+        },
+        {
+         "scale": 16.0,
+         "alpha": "observed-laplace",
+         "noul_domain": null,
+         "view": "pair",
+         "cal_acc": 0.59
+        },
+        {
+         "scale": 1.0,
+         "alpha": "fixed-1",
+         "noul_domain": null,
+         "view": "pair",
+         "cal_acc": 0.585
+        },
+        {
+         "scale": 4.0,
+         "alpha": "fixed-1",
+         "noul_domain": null,
+         "view": "pair",
+         "cal_acc": 0.6
+        },
+        {
+         "scale": 16.0,
+         "alpha": "fixed-1",
+         "noul_domain": null,
+         "view": "pair",
+         "cal_acc": 0.6
+        }
+       ]
+      },
+      "transductive": {
+       "accuracy": 0.5066666666666667,
+       "honest_accuracy": 0.5233333333333333,
+       "n_pseudo": 300,
+       "protocol": "TRANSDUCTIVE \u2014 unlabeled TEST text joins the count tables, labelled by the honest engine's own forced picks (gold never read); 2-fold cross-fit (half A's pseudo-docs re-score half B and vice versa, so no case scores against its own text); drafter corpora, route, heads and posture unchanged. Not comparable to the headline acc"
+      },
       "confusion": [
        {
         "gold": "entailment",
         "pred": "neutral",
-        "count": 94,
-        "share_of_errors": 0.47959183673469385
+        "count": 46,
+        "share_of_errors": 0.32167832167832167
+       },
+       {
+        "gold": "neutral",
+        "pred": "contradiction",
+        "count": 28,
+        "share_of_errors": 0.1958041958041958
+       },
+       {
+        "gold": "entailment",
+        "pred": "contradiction",
+        "count": 27,
+        "share_of_errors": 0.1888111888111888
        },
        {
         "gold": "contradiction",
         "pred": "neutral",
-        "count": 92,
-        "share_of_errors": 0.46938775510204084
-       },
-       {
-        "gold": "contradiction",
-        "pred": "entailment",
-        "count": 6,
-        "share_of_errors": 0.030612244897959183
+        "count": 21,
+        "share_of_errors": 0.14685314685314685
        },
        {
         "gold": "neutral",
         "pred": "entailment",
-        "count": 4,
-        "share_of_errors": 0.02040816326530612
+        "count": 16,
+        "share_of_errors": 0.11188811188811189
+       },
+       {
+        "gold": "contradiction",
+        "pred": "entailment",
+        "count": 5,
+        "share_of_errors": 0.03496503496503497
        }
       ],
       "pair_head_ab": null,
-      "acc_deleaked": 0.3466666666666667,
       "latency_provenance": {
        "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
       }
@@ -4995,32 +5913,32 @@
     "model": "modelless",
     "hard": {
      "n": 300,
-     "accuracy": 0.7933333333333333,
-     "macro_f1": 0.795499941016598,
-     "ece": 0.7111246477564175,
-     "brier": 0.8910463899088185,
-     "nll": 2.541328861795765,
-     "aurc": 0.051872561486197136,
-     "mean_confidence": 0.08220868557691574,
-     "acc_at_50_coverage": 0.9666666666666667,
-     "acc_at_80_coverage": 0.9166666666666666
+     "accuracy": 0.8966666666666666,
+     "macro_f1": 0.8882526471256215,
+     "ece": 0.7969590203960737,
+     "brier": 0.8575001585099987,
+     "nll": 2.3509155500875276,
+     "aurc": 0.01940927069664115,
+     "mean_confidence": 0.099707646270593,
+     "acc_at_50_coverage": 0.98,
+     "acc_at_80_coverage": 0.9666666666666667
     },
-    "readout_ece": 0.11340246617794036,
+    "readout_ece": 0.3316341567039489,
     "raw_abstain": {
-     "abstain_rate": 0.44666666666666666,
-     "selective_accuracy": 0.9337349397590361,
-     "selective_n": 166
+     "abstain_rate": 0.2633333333333333,
+     "selective_accuracy": 0.8959276018099548,
+     "selective_n": 221
     },
     "calibrated_abstain": {
-     "abstain_rate": 0.35333333333333333,
-     "selective_accuracy": 0.8505154639175257,
-     "selective_n": 194
+     "abstain_rate": 0.26,
+     "selective_accuracy": 0.8918918918918919,
+     "selective_n": 222
     },
-    "readout_ece_raw": 0.7111246477564175,
-    "readout_ece_calibrated": 0.11340246617794036,
-    "floor_ece": 0.21772802653399667,
-    "g1_pass": true,
-    "g1_verdict": "pass",
+    "readout_ece_raw": 0.7969590203960737,
+    "readout_ece_calibrated": 0.3316341567039489,
+    "floor_ece": 0.19321724709784407,
+    "g1_pass": false,
+    "g1_verdict": "fail",
     "by_question_type": null,
     "soft_acc": null,
     "brier_soft": null,
@@ -5038,17 +5956,17 @@
     "seconds": 0.080707083,
     "n_cases": 300,
     "n_questions": 300,
-    "score_threshold": 0.067937486,
-    "distance_threshold": 0.63190293,
+    "score_threshold": 0.057690028,
+    "distance_threshold": 0.5258432,
     "threshold_recommendation": {
      "posture": {
       "posture": "percentile",
       "rho": 0.3
      },
      "score": {
-      "threshold": 0.067937486,
+      "threshold": 0.057690028,
       "status": "fitted",
-      "targetAccuracy": 0.8357143,
+      "targetAccuracy": 0.76428574,
       "support": {
        "n": 200,
        "nPass": 140,
@@ -5056,13 +5974,13 @@
       }
      },
      "distance": {
-      "threshold": 0.63190293,
+      "threshold": 0.5258432,
       "status": "fitted",
-      "targetAccuracy": 0.70714283,
+      "targetAccuracy": 0.5460993,
       "support": {
        "n": 200,
-       "nPass": 140,
-       "nAbstain": 60
+       "nPass": 141,
+       "nAbstain": 59
       }
      }
     },
@@ -5076,98 +5994,160 @@
      "candidates": [
       {
        "scale": 0.0,
-       "cal_acc": 0.515
+       "cal_acc": 0.43
       },
       {
        "scale": 0.25,
-       "cal_acc": 0.585
+       "cal_acc": 0.485
       },
       {
        "scale": 0.5,
-       "cal_acc": 0.595
+       "cal_acc": 0.485
       },
       {
        "scale": 1.0,
-       "cal_acc": 0.61
+       "cal_acc": 0.505
       }
      ]
     },
+    "nb_selection": {
+     "selected_scale": 1.0,
+     "selected_alpha": "observed-laplace",
+     "selected_noul_domain": null,
+     "selected_view": "bag",
+     "candidates": [
+      {
+       "scale": 0.0,
+       "alpha": "off",
+       "noul_domain": null,
+       "view": "bag",
+       "cal_acc": 0.505
+      },
+      {
+       "scale": 1.0,
+       "alpha": "observed-laplace",
+       "noul_domain": null,
+       "view": "bag",
+       "cal_acc": 0.595
+      },
+      {
+       "scale": 4.0,
+       "alpha": "observed-laplace",
+       "noul_domain": null,
+       "view": "bag",
+       "cal_acc": 0.58
+      },
+      {
+       "scale": 16.0,
+       "alpha": "observed-laplace",
+       "noul_domain": null,
+       "view": "bag",
+       "cal_acc": 0.58
+      },
+      {
+       "scale": 1.0,
+       "alpha": "fixed-1",
+       "noul_domain": null,
+       "view": "bag",
+       "cal_acc": 0.57
+      },
+      {
+       "scale": 4.0,
+       "alpha": "fixed-1",
+       "noul_domain": null,
+       "view": "bag",
+       "cal_acc": 0.56
+      },
+      {
+       "scale": 16.0,
+       "alpha": "fixed-1",
+       "noul_domain": null,
+       "view": "bag",
+       "cal_acc": 0.54
+      }
+     ]
+    },
+    "transductive": {
+     "accuracy": 0.9033333333333333,
+     "honest_accuracy": 0.8966666666666666,
+     "n_pseudo": 300,
+     "protocol": "TRANSDUCTIVE \u2014 unlabeled TEST text joins the count tables, labelled by the honest engine's own forced picks (gold never read); 2-fold cross-fit (half A's pseudo-docs re-score half B and vice versa, so no case scores against its own text); drafter corpora, route, heads and posture unchanged. Not comparable to the headline acc"
+    },
     "confusion": [
      {
-      "gold": "datetime_query",
-      "pred": "news_query",
-      "count": 2,
-      "share_of_errors": 0.03225806451612903
-     },
-     {
       "gold": "news_query",
-      "pred": "play_music",
-      "count": 2,
-      "share_of_errors": 0.03225806451612903
-     },
-     {
-      "gold": "takeaway_order",
-      "pred": "iot_wemo_off",
-      "count": 2,
-      "share_of_errors": 0.03225806451612903
-     },
-     {
-      "gold": "takeaway_query",
-      "pred": "audio_volume_mute",
-      "count": 2,
-      "share_of_errors": 0.03225806451612903
+      "pred": "qa_factoid",
+      "count": 4,
+      "share_of_errors": 0.12903225806451613
      },
      {
       "gold": "alarm_query",
-      "pred": "iot_wemo_off",
+      "pred": "alarm_set",
       "count": 1,
-      "share_of_errors": 0.016129032258064516
+      "share_of_errors": 0.03225806451612903
      },
      {
-      "gold": "alarm_query",
-      "pred": "play_music",
+      "gold": "audio_volume_down",
+      "pred": "audio_volume_up",
       "count": 1,
-      "share_of_errors": 0.016129032258064516
-     },
-     {
-      "gold": "audio_volume_mute",
-      "pred": "music_query",
-      "count": 1,
-      "share_of_errors": 0.016129032258064516
+      "share_of_errors": 0.03225806451612903
      },
      {
       "gold": "audio_volume_other",
       "pred": "audio_volume_down",
       "count": 1,
-      "share_of_errors": 0.016129032258064516
+      "share_of_errors": 0.03225806451612903
      },
      {
       "gold": "audio_volume_up",
-      "pred": "audio_volume_down",
+      "pred": "social_post",
       "count": 1,
-      "share_of_errors": 0.016129032258064516
+      "share_of_errors": 0.03225806451612903
      },
      {
-      "gold": "audio_volume_up",
-      "pred": "iot_hue_lighton",
-      "count": 1,
-      "share_of_errors": 0.016129032258064516
-     },
-     {
-      "gold": "audio_volume_up",
-      "pred": "iot_hue_lightup",
-      "count": 1,
-      "share_of_errors": 0.016129032258064516
-     },
-     {
-      "gold": "audio_volume_up",
+      "gold": "general_quirky",
       "pred": "play_radio",
       "count": 1,
-      "share_of_errors": 0.016129032258064516
+      "share_of_errors": 0.03225806451612903
+     },
+     {
+      "gold": "iot_cleaning",
+      "pred": "general_quirky",
+      "count": 1,
+      "share_of_errors": 0.03225806451612903
+     },
+     {
+      "gold": "iot_cleaning",
+      "pred": "news_query",
+      "count": 1,
+      "share_of_errors": 0.03225806451612903
+     },
+     {
+      "gold": "iot_hue_lightchange",
+      "pred": "qa_maths",
+      "count": 1,
+      "share_of_errors": 0.03225806451612903
+     },
+     {
+      "gold": "iot_hue_lighton",
+      "pred": "email_query",
+      "count": 1,
+      "share_of_errors": 0.03225806451612903
+     },
+     {
+      "gold": "iot_hue_lighton",
+      "pred": "iot_hue_lightup",
+      "count": 1,
+      "share_of_errors": 0.03225806451612903
+     },
+     {
+      "gold": "iot_wemo_off",
+      "pred": "alarm_remove",
+      "count": 1,
+      "share_of_errors": 0.03225806451612903
      }
     ],
     "pair_head_ab": null,
-    "acc_deleaked": 0.7813620071684588,
     "latency_provenance": {
      "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
     }
@@ -5280,32 +6260,32 @@
       "model": "modelless",
       "hard": {
        "n": 300,
-       "accuracy": 0.7933333333333333,
-       "macro_f1": 0.795499941016598,
-       "ece": 0.7111246477564175,
-       "brier": 0.8910463899289719,
-       "nll": 2.5413288621806918,
-       "aurc": 0.051872561486197136,
-       "mean_confidence": 0.08220868557691574,
-       "acc_at_50_coverage": 0.9666666666666667,
-       "acc_at_80_coverage": 0.9166666666666666
+       "accuracy": 0.8966666666666666,
+       "macro_f1": 0.8882526471256215,
+       "ece": 0.7969590205947559,
+       "brier": 0.8575001588411302,
+       "nll": 2.3509155524114167,
+       "aurc": 0.01940927069664115,
+       "mean_confidence": 0.09970764607191086,
+       "acc_at_50_coverage": 0.98,
+       "acc_at_80_coverage": 0.9666666666666667
       },
-      "readout_ece": 0.11340246617794036,
+      "readout_ece": 0.3316341567039489,
       "raw_abstain": {
-       "abstain_rate": 0.44666666666666666,
-       "selective_accuracy": 0.9337349397590361,
-       "selective_n": 166
+       "abstain_rate": 0.2633333333333333,
+       "selective_accuracy": 0.8959276018099548,
+       "selective_n": 221
       },
       "calibrated_abstain": {
-       "abstain_rate": 0.35333333333333333,
-       "selective_accuracy": 0.8505154639175257,
-       "selective_n": 194
+       "abstain_rate": 0.26,
+       "selective_accuracy": 0.8918918918918919,
+       "selective_n": 222
       },
-      "readout_ece_raw": 0.7111246477564175,
-      "readout_ece_calibrated": 0.11340246617794036,
-      "floor_ece": 0.21772802653399667,
-      "g1_pass": true,
-      "g1_verdict": "pass",
+      "readout_ece_raw": 0.7969590205947559,
+      "readout_ece_calibrated": 0.3316341567039489,
+      "floor_ece": 0.19321724709784407,
+      "g1_pass": false,
+      "g1_verdict": "fail",
       "by_question_type": null,
       "soft_acc": null,
       "brier_soft": null,
@@ -5323,17 +6303,17 @@
       "seconds": 0.0700753,
       "n_cases": 300,
       "n_questions": 300,
-      "score_threshold": 0.067937486,
-      "distance_threshold": 0.63190293,
+      "score_threshold": 0.057690028,
+      "distance_threshold": 0.5258432,
       "threshold_recommendation": {
        "posture": {
         "posture": "percentile",
         "rho": 0.3
        },
        "score": {
-        "threshold": 0.067937486,
+        "threshold": 0.057690028,
         "status": "fitted",
-        "targetAccuracy": 0.8357143,
+        "targetAccuracy": 0.76428574,
         "support": {
          "n": 200,
          "nPass": 140,
@@ -5341,13 +6321,13 @@
         }
        },
        "distance": {
-        "threshold": 0.63190293,
+        "threshold": 0.5258432,
         "status": "fitted",
-        "targetAccuracy": 0.70714283,
+        "targetAccuracy": 0.5460993,
         "support": {
          "n": 200,
-         "nPass": 140,
-         "nAbstain": 60
+         "nPass": 141,
+         "nAbstain": 59
         }
        }
       },
@@ -5361,98 +6341,160 @@
        "candidates": [
         {
          "scale": 0.0,
-         "cal_acc": 0.515
+         "cal_acc": 0.43
         },
         {
          "scale": 0.25,
-         "cal_acc": 0.585
+         "cal_acc": 0.485
         },
         {
          "scale": 0.5,
-         "cal_acc": 0.595
+         "cal_acc": 0.485
         },
         {
          "scale": 1.0,
-         "cal_acc": 0.61
+         "cal_acc": 0.505
         }
        ]
       },
+      "nb_selection": {
+       "selected_scale": 1.0,
+       "selected_alpha": "observed-laplace",
+       "selected_noul_domain": null,
+       "selected_view": "bag",
+       "candidates": [
+        {
+         "scale": 0.0,
+         "alpha": "off",
+         "noul_domain": null,
+         "view": "bag",
+         "cal_acc": 0.505
+        },
+        {
+         "scale": 1.0,
+         "alpha": "observed-laplace",
+         "noul_domain": null,
+         "view": "bag",
+         "cal_acc": 0.595
+        },
+        {
+         "scale": 4.0,
+         "alpha": "observed-laplace",
+         "noul_domain": null,
+         "view": "bag",
+         "cal_acc": 0.58
+        },
+        {
+         "scale": 16.0,
+         "alpha": "observed-laplace",
+         "noul_domain": null,
+         "view": "bag",
+         "cal_acc": 0.58
+        },
+        {
+         "scale": 1.0,
+         "alpha": "fixed-1",
+         "noul_domain": null,
+         "view": "bag",
+         "cal_acc": 0.57
+        },
+        {
+         "scale": 4.0,
+         "alpha": "fixed-1",
+         "noul_domain": null,
+         "view": "bag",
+         "cal_acc": 0.56
+        },
+        {
+         "scale": 16.0,
+         "alpha": "fixed-1",
+         "noul_domain": null,
+         "view": "bag",
+         "cal_acc": 0.54
+        }
+       ]
+      },
+      "transductive": {
+       "accuracy": 0.9033333333333333,
+       "honest_accuracy": 0.8966666666666666,
+       "n_pseudo": 300,
+       "protocol": "TRANSDUCTIVE \u2014 unlabeled TEST text joins the count tables, labelled by the honest engine's own forced picks (gold never read); 2-fold cross-fit (half A's pseudo-docs re-score half B and vice versa, so no case scores against its own text); drafter corpora, route, heads and posture unchanged. Not comparable to the headline acc"
+      },
       "confusion": [
        {
-        "gold": "datetime_query",
-        "pred": "news_query",
-        "count": 2,
-        "share_of_errors": 0.03225806451612903
-       },
-       {
         "gold": "news_query",
-        "pred": "play_music",
-        "count": 2,
-        "share_of_errors": 0.03225806451612903
-       },
-       {
-        "gold": "takeaway_order",
-        "pred": "iot_wemo_off",
-        "count": 2,
-        "share_of_errors": 0.03225806451612903
-       },
-       {
-        "gold": "takeaway_query",
-        "pred": "audio_volume_mute",
-        "count": 2,
-        "share_of_errors": 0.03225806451612903
+        "pred": "qa_factoid",
+        "count": 4,
+        "share_of_errors": 0.12903225806451613
        },
        {
         "gold": "alarm_query",
-        "pred": "iot_wemo_off",
+        "pred": "alarm_set",
         "count": 1,
-        "share_of_errors": 0.016129032258064516
+        "share_of_errors": 0.03225806451612903
        },
        {
-        "gold": "alarm_query",
-        "pred": "play_music",
+        "gold": "audio_volume_down",
+        "pred": "audio_volume_up",
         "count": 1,
-        "share_of_errors": 0.016129032258064516
-       },
-       {
-        "gold": "audio_volume_mute",
-        "pred": "music_query",
-        "count": 1,
-        "share_of_errors": 0.016129032258064516
+        "share_of_errors": 0.03225806451612903
        },
        {
         "gold": "audio_volume_other",
         "pred": "audio_volume_down",
         "count": 1,
-        "share_of_errors": 0.016129032258064516
+        "share_of_errors": 0.03225806451612903
        },
        {
         "gold": "audio_volume_up",
-        "pred": "audio_volume_down",
+        "pred": "social_post",
         "count": 1,
-        "share_of_errors": 0.016129032258064516
+        "share_of_errors": 0.03225806451612903
        },
        {
-        "gold": "audio_volume_up",
-        "pred": "iot_hue_lighton",
-        "count": 1,
-        "share_of_errors": 0.016129032258064516
-       },
-       {
-        "gold": "audio_volume_up",
-        "pred": "iot_hue_lightup",
-        "count": 1,
-        "share_of_errors": 0.016129032258064516
-       },
-       {
-        "gold": "audio_volume_up",
+        "gold": "general_quirky",
         "pred": "play_radio",
         "count": 1,
-        "share_of_errors": 0.016129032258064516
+        "share_of_errors": 0.03225806451612903
+       },
+       {
+        "gold": "iot_cleaning",
+        "pred": "general_quirky",
+        "count": 1,
+        "share_of_errors": 0.03225806451612903
+       },
+       {
+        "gold": "iot_cleaning",
+        "pred": "news_query",
+        "count": 1,
+        "share_of_errors": 0.03225806451612903
+       },
+       {
+        "gold": "iot_hue_lightchange",
+        "pred": "qa_maths",
+        "count": 1,
+        "share_of_errors": 0.03225806451612903
+       },
+       {
+        "gold": "iot_hue_lighton",
+        "pred": "email_query",
+        "count": 1,
+        "share_of_errors": 0.03225806451612903
+       },
+       {
+        "gold": "iot_hue_lighton",
+        "pred": "iot_hue_lightup",
+        "count": 1,
+        "share_of_errors": 0.03225806451612903
+       },
+       {
+        "gold": "iot_wemo_off",
+        "pred": "alarm_remove",
+        "count": 1,
+        "share_of_errors": 0.03225806451612903
        }
       ],
       "pair_head_ab": null,
-      "acc_deleaked": 0.7813620071684588,
       "latency_provenance": {
        "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
       }
@@ -5669,32 +6711,32 @@
     "model": "modelless",
     "hard": {
      "n": 500,
-     "accuracy": 0.684,
-     "macro_f1": 0.2773170680623192,
-     "ece": 0.6612268979549408,
-     "brier": 0.9696575875155456,
-     "nll": 3.8373395460537285,
-     "aurc": 0.10498252682398163,
-     "mean_confidence": 0.022773102045059203,
-     "acc_at_50_coverage": 0.94,
-     "acc_at_80_coverage": 0.795
+     "accuracy": 0.77,
+     "macro_f1": 0.21477679933909116,
+     "ece": 0.7281914564482869,
+     "brier": 0.9354758056145519,
+     "nll": 3.355991237522037,
+     "aurc": 0.055174267724906606,
+     "mean_confidence": 0.04180854355171323,
+     "acc_at_50_coverage": 0.976,
+     "acc_at_80_coverage": 0.8875
     },
-    "readout_ece": 0.0,
+    "readout_ece": 0.1394371117359713,
     "raw_abstain": {
-     "abstain_rate": 1.0,
-     "selective_accuracy": 0.0,
-     "selective_n": 0
+     "abstain_rate": 0.274,
+     "selective_accuracy": 0.859504132231405,
+     "selective_n": 363
     },
     "calibrated_abstain": {
-     "abstain_rate": 1.0,
-     "selective_accuracy": 0.0,
-     "selective_n": 0
+     "abstain_rate": 0.294,
+     "selective_accuracy": 0.8696883852691218,
+     "selective_n": 353
     },
-    "readout_ece_raw": 0.6612268979549408,
-    "readout_ece_calibrated": 0.0,
-    "floor_ece": 0.6790248756218905,
-    "g1_pass": true,
-    "g1_verdict": "pass",
+    "readout_ece_raw": 0.7281914564482869,
+    "readout_ece_calibrated": 0.1394371117359713,
+    "floor_ece": 0.042009950248756096,
+    "g1_pass": false,
+    "g1_verdict": "fail",
     "by_question_type": null,
     "soft_acc": null,
     "brier_soft": null,
@@ -5712,17 +6754,17 @@
     "seconds": 0.454356042,
     "n_cases": 500,
     "n_questions": 500,
-    "score_threshold": 0.03900293,
-    "distance_threshold": 0.473041,
+    "score_threshold": 0.02321342,
+    "distance_threshold": 0.47976422,
     "threshold_recommendation": {
      "posture": {
       "posture": "percentile",
       "rho": 0.3
      },
      "score": {
-      "threshold": 0.03900293,
+      "threshold": 0.02321342,
       "status": "fitted",
-      "targetAccuracy": 0.27142859,
+      "targetAccuracy": 0.29285714,
       "support": {
        "n": 200,
        "nPass": 140,
@@ -5730,9 +6772,9 @@
       }
      },
      "distance": {
-      "threshold": 0.473041,
+      "threshold": 0.47976422,
       "status": "fitted",
-      "targetAccuracy": 0.27142859,
+      "targetAccuracy": 0.30714285,
       "support": {
        "n": 200,
        "nPass": 140,
@@ -5750,98 +6792,160 @@
      "candidates": [
       {
        "scale": 0.0,
-       "cal_acc": 0.49
+       "cal_acc": 0.39
       },
       {
        "scale": 0.25,
-       "cal_acc": 0.625
+       "cal_acc": 0.52
       },
       {
        "scale": 0.5,
-       "cal_acc": 0.65
+       "cal_acc": 0.535
       },
       {
        "scale": 1.0,
-       "cal_acc": 0.68
+       "cal_acc": 0.54
       }
      ]
+    },
+    "nb_selection": {
+     "selected_scale": 4.0,
+     "selected_alpha": "observed-laplace",
+     "selected_noul_domain": null,
+     "selected_view": "bag",
+     "candidates": [
+      {
+       "scale": 0.0,
+       "alpha": "off",
+       "noul_domain": null,
+       "view": "bag",
+       "cal_acc": 0.54
+      },
+      {
+       "scale": 1.0,
+       "alpha": "observed-laplace",
+       "noul_domain": null,
+       "view": "bag",
+       "cal_acc": 0.815
+      },
+      {
+       "scale": 4.0,
+       "alpha": "observed-laplace",
+       "noul_domain": null,
+       "view": "bag",
+       "cal_acc": 0.82
+      },
+      {
+       "scale": 16.0,
+       "alpha": "observed-laplace",
+       "noul_domain": null,
+       "view": "bag",
+       "cal_acc": 0.815
+      },
+      {
+       "scale": 1.0,
+       "alpha": "fixed-1",
+       "noul_domain": null,
+       "view": "bag",
+       "cal_acc": 0.74
+      },
+      {
+       "scale": 4.0,
+       "alpha": "fixed-1",
+       "noul_domain": null,
+       "view": "bag",
+       "cal_acc": 0.78
+      },
+      {
+       "scale": 16.0,
+       "alpha": "fixed-1",
+       "noul_domain": null,
+       "view": "bag",
+       "cal_acc": 0.77
+      }
+     ]
+    },
+    "transductive": {
+     "accuracy": 0.768,
+     "honest_accuracy": 0.77,
+     "n_pseudo": 500,
+     "protocol": "TRANSDUCTIVE \u2014 unlabeled TEST text joins the count tables, labelled by the honest engine's own forced picks (gold never read); 2-fold cross-fit (half A's pseudo-docs re-score half B and vice versa, so no case scores against its own text); drafter corpora, route, heads and posture unchanged. Not comparable to the headline acc"
     },
     "confusion": [
      {
       "gold": "card arrival",
-      "pred": "card linking",
-      "count": 9,
-      "share_of_errors": 0.056962025316455694
-     },
-     {
-      "gold": "card delivery estimate",
-      "pred": "card not working",
-      "count": 8,
-      "share_of_errors": 0.05063291139240506
-     },
-     {
-      "gold": "exchange via app",
-      "pred": "fiat currency support",
+      "pred": "reverted card payment?",
       "count": 6,
-      "share_of_errors": 0.0379746835443038
+      "share_of_errors": 0.05217391304347826
+     },
+     {
+      "gold": "lost or stolen card",
+      "pred": "cash withdrawal not recognised",
+      "count": 6,
+      "share_of_errors": 0.05217391304347826
+     },
+     {
+      "gold": "card not working",
+      "pred": "declined card payment",
+      "count": 5,
+      "share_of_errors": 0.043478260869565216
      },
      {
       "gold": "fiat currency support",
       "pred": "exchange via app",
-      "count": 6,
-      "share_of_errors": 0.0379746835443038
+      "count": 5,
+      "share_of_errors": 0.043478260869565216
      },
      {
-      "gold": "lost or stolen card",
-      "pred": "card not working",
-      "count": 6,
-      "share_of_errors": 0.0379746835443038
+      "gold": "card arrival",
+      "pred": "request refund",
+      "count": 4,
+      "share_of_errors": 0.034782608695652174
+     },
+     {
+      "gold": "card delivery estimate",
+      "pred": "transfer timing",
+      "count": 4,
+      "share_of_errors": 0.034782608695652174
+     },
+     {
+      "gold": "card not working",
+      "pred": "top up failed",
+      "count": 4,
+      "share_of_errors": 0.034782608695652174
+     },
+     {
+      "gold": "card arrival",
+      "pred": "card about to expire",
+      "count": 3,
+      "share_of_errors": 0.02608695652173913
      },
      {
       "gold": "card arrival",
       "pred": "card delivery estimate",
-      "count": 5,
-      "share_of_errors": 0.03164556962025317
-     },
-     {
-      "gold": "card arrival",
-      "pred": "card not working",
-      "count": 5,
-      "share_of_errors": 0.03164556962025317
-     },
-     {
-      "gold": "card delivery estimate",
-      "pred": "card linking",
-      "count": 5,
-      "share_of_errors": 0.03164556962025317
-     },
-     {
-      "gold": "card not working",
-      "pred": "lost or stolen card",
-      "count": 5,
-      "share_of_errors": 0.03164556962025317
-     },
-     {
-      "gold": "card arrival",
-      "pred": "lost or stolen card",
-      "count": 4,
-      "share_of_errors": 0.02531645569620253
-     },
-     {
-      "gold": "pending cash withdrawal",
-      "pred": "pending top up",
-      "count": 4,
-      "share_of_errors": 0.02531645569620253
-     },
-     {
-      "gold": "automatic top up",
-      "pred": "top up limits",
       "count": 3,
-      "share_of_errors": 0.0189873417721519
+      "share_of_errors": 0.02608695652173913
+     },
+     {
+      "gold": "card arrival",
+      "pred": "get physical card",
+      "count": 3,
+      "share_of_errors": 0.02608695652173913
+     },
+     {
+      "gold": "card arrival",
+      "pred": "pending card payment",
+      "count": 3,
+      "share_of_errors": 0.02608695652173913
+     },
+     {
+      "gold": "card arrival",
+      "pred": "pending top up",
+      "count": 3,
+      "share_of_errors": 0.02608695652173913
      }
     ],
     "pair_head_ab": null,
-    "acc_deleaked": 0.6832298136645962,
     "latency_provenance": {
      "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
     }
@@ -5954,32 +7058,32 @@
       "model": "modelless",
       "hard": {
        "n": 500,
-       "accuracy": 0.684,
-       "macro_f1": 0.2773170680623192,
-       "ece": 0.6612268979288638,
-       "brier": 0.9696575875089886,
-       "nll": 3.8373395456862016,
-       "aurc": 0.10498252682398163,
-       "mean_confidence": 0.022773102071136236,
-       "acc_at_50_coverage": 0.94,
-       "acc_at_80_coverage": 0.795
+       "accuracy": 0.77,
+       "macro_f1": 0.21477679933909116,
+       "ece": 0.7281914563886822,
+       "brier": 0.9354758054927712,
+       "nll": 3.355991235869907,
+       "aurc": 0.055174267724906606,
+       "mean_confidence": 0.041808543611317875,
+       "acc_at_50_coverage": 0.976,
+       "acc_at_80_coverage": 0.8875
       },
-      "readout_ece": 0.4689453021287919,
+      "readout_ece": 0.13933767628731827,
       "raw_abstain": {
-       "abstain_rate": 1.0,
-       "selective_accuracy": 0.0,
-       "selective_n": 0
+       "abstain_rate": 0.274,
+       "selective_accuracy": 0.859504132231405,
+       "selective_n": 363
       },
       "calibrated_abstain": {
-       "abstain_rate": 0.23,
-       "selective_accuracy": 0.7766233766233767,
-       "selective_n": 385
+       "abstain_rate": 0.294,
+       "selective_accuracy": 0.8696883852691218,
+       "selective_n": 353
       },
-      "readout_ece_raw": 0.6612268979288638,
-      "readout_ece_calibrated": 0.4689453021287919,
-      "floor_ece": 0.6790248756218905,
-      "g1_pass": true,
-      "g1_verdict": "pass",
+      "readout_ece_raw": 0.7281914563886822,
+      "readout_ece_calibrated": 0.13933767628731827,
+      "floor_ece": 0.042009950248756096,
+      "g1_pass": false,
+      "g1_verdict": "fail",
       "by_question_type": null,
       "soft_acc": null,
       "brier_soft": null,
@@ -5997,17 +7101,17 @@
       "seconds": 0.3643084,
       "n_cases": 500,
       "n_questions": 500,
-      "score_threshold": 0.03900293,
-      "distance_threshold": 0.473041,
+      "score_threshold": 0.023213422,
+      "distance_threshold": 0.47976422,
       "threshold_recommendation": {
        "posture": {
         "posture": "percentile",
         "rho": 0.3
        },
        "score": {
-        "threshold": 0.03900293,
+        "threshold": 0.023213422,
         "status": "fitted",
-        "targetAccuracy": 0.27142859,
+        "targetAccuracy": 0.29285714,
         "support": {
          "n": 200,
          "nPass": 140,
@@ -6015,9 +7119,9 @@
         }
        },
        "distance": {
-        "threshold": 0.473041,
+        "threshold": 0.47976422,
         "status": "fitted",
-        "targetAccuracy": 0.27142859,
+        "targetAccuracy": 0.30714285,
         "support": {
          "n": 200,
          "nPass": 140,
@@ -6035,98 +7139,160 @@
        "candidates": [
         {
          "scale": 0.0,
-         "cal_acc": 0.49
+         "cal_acc": 0.39
         },
         {
          "scale": 0.25,
-         "cal_acc": 0.625
+         "cal_acc": 0.52
         },
         {
          "scale": 0.5,
-         "cal_acc": 0.65
+         "cal_acc": 0.535
         },
         {
          "scale": 1.0,
-         "cal_acc": 0.68
+         "cal_acc": 0.54
         }
        ]
+      },
+      "nb_selection": {
+       "selected_scale": 4.0,
+       "selected_alpha": "observed-laplace",
+       "selected_noul_domain": null,
+       "selected_view": "bag",
+       "candidates": [
+        {
+         "scale": 0.0,
+         "alpha": "off",
+         "noul_domain": null,
+         "view": "bag",
+         "cal_acc": 0.54
+        },
+        {
+         "scale": 1.0,
+         "alpha": "observed-laplace",
+         "noul_domain": null,
+         "view": "bag",
+         "cal_acc": 0.815
+        },
+        {
+         "scale": 4.0,
+         "alpha": "observed-laplace",
+         "noul_domain": null,
+         "view": "bag",
+         "cal_acc": 0.82
+        },
+        {
+         "scale": 16.0,
+         "alpha": "observed-laplace",
+         "noul_domain": null,
+         "view": "bag",
+         "cal_acc": 0.815
+        },
+        {
+         "scale": 1.0,
+         "alpha": "fixed-1",
+         "noul_domain": null,
+         "view": "bag",
+         "cal_acc": 0.74
+        },
+        {
+         "scale": 4.0,
+         "alpha": "fixed-1",
+         "noul_domain": null,
+         "view": "bag",
+         "cal_acc": 0.78
+        },
+        {
+         "scale": 16.0,
+         "alpha": "fixed-1",
+         "noul_domain": null,
+         "view": "bag",
+         "cal_acc": 0.77
+        }
+       ]
+      },
+      "transductive": {
+       "accuracy": 0.768,
+       "honest_accuracy": 0.77,
+       "n_pseudo": 500,
+       "protocol": "TRANSDUCTIVE \u2014 unlabeled TEST text joins the count tables, labelled by the honest engine's own forced picks (gold never read); 2-fold cross-fit (half A's pseudo-docs re-score half B and vice versa, so no case scores against its own text); drafter corpora, route, heads and posture unchanged. Not comparable to the headline acc"
       },
       "confusion": [
        {
         "gold": "card arrival",
-        "pred": "card linking",
-        "count": 9,
-        "share_of_errors": 0.056962025316455694
-       },
-       {
-        "gold": "card delivery estimate",
-        "pred": "card not working",
-        "count": 8,
-        "share_of_errors": 0.05063291139240506
-       },
-       {
-        "gold": "exchange via app",
-        "pred": "fiat currency support",
+        "pred": "reverted card payment?",
         "count": 6,
-        "share_of_errors": 0.0379746835443038
+        "share_of_errors": 0.05217391304347826
+       },
+       {
+        "gold": "lost or stolen card",
+        "pred": "cash withdrawal not recognised",
+        "count": 6,
+        "share_of_errors": 0.05217391304347826
+       },
+       {
+        "gold": "card not working",
+        "pred": "declined card payment",
+        "count": 5,
+        "share_of_errors": 0.043478260869565216
        },
        {
         "gold": "fiat currency support",
         "pred": "exchange via app",
-        "count": 6,
-        "share_of_errors": 0.0379746835443038
+        "count": 5,
+        "share_of_errors": 0.043478260869565216
        },
        {
-        "gold": "lost or stolen card",
-        "pred": "card not working",
-        "count": 6,
-        "share_of_errors": 0.0379746835443038
+        "gold": "card arrival",
+        "pred": "request refund",
+        "count": 4,
+        "share_of_errors": 0.034782608695652174
+       },
+       {
+        "gold": "card delivery estimate",
+        "pred": "transfer timing",
+        "count": 4,
+        "share_of_errors": 0.034782608695652174
+       },
+       {
+        "gold": "card not working",
+        "pred": "top up failed",
+        "count": 4,
+        "share_of_errors": 0.034782608695652174
+       },
+       {
+        "gold": "card arrival",
+        "pred": "card about to expire",
+        "count": 3,
+        "share_of_errors": 0.02608695652173913
        },
        {
         "gold": "card arrival",
         "pred": "card delivery estimate",
-        "count": 5,
-        "share_of_errors": 0.03164556962025317
-       },
-       {
-        "gold": "card arrival",
-        "pred": "card not working",
-        "count": 5,
-        "share_of_errors": 0.03164556962025317
-       },
-       {
-        "gold": "card delivery estimate",
-        "pred": "card linking",
-        "count": 5,
-        "share_of_errors": 0.03164556962025317
-       },
-       {
-        "gold": "card not working",
-        "pred": "lost or stolen card",
-        "count": 5,
-        "share_of_errors": 0.03164556962025317
-       },
-       {
-        "gold": "card arrival",
-        "pred": "lost or stolen card",
-        "count": 4,
-        "share_of_errors": 0.02531645569620253
-       },
-       {
-        "gold": "pending cash withdrawal",
-        "pred": "pending top up",
-        "count": 4,
-        "share_of_errors": 0.02531645569620253
-       },
-       {
-        "gold": "automatic top up",
-        "pred": "top up limits",
         "count": 3,
-        "share_of_errors": 0.0189873417721519
+        "share_of_errors": 0.02608695652173913
+       },
+       {
+        "gold": "card arrival",
+        "pred": "get physical card",
+        "count": 3,
+        "share_of_errors": 0.02608695652173913
+       },
+       {
+        "gold": "card arrival",
+        "pred": "pending card payment",
+        "count": 3,
+        "share_of_errors": 0.02608695652173913
+       },
+       {
+        "gold": "card arrival",
+        "pred": "pending top up",
+        "count": 3,
+        "share_of_errors": 0.02608695652173913
        }
       ],
       "pair_head_ab": null,
-      "acc_deleaked": 0.6832298136645962,
       "latency_provenance": {
        "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
       }
@@ -6343,32 +7509,32 @@
     "model": "modelless",
     "hard": {
      "n": 24,
-     "accuracy": 0.3333333333333333,
-     "macro_f1": 0.22416756176154676,
-     "ece": 0.09284805692732333,
-     "brier": 0.6852542497589112,
-     "nll": 1.3718617195582004,
-     "aurc": 0.694046455893819,
-     "mean_confidence": 0.3306941992292802,
-     "acc_at_50_coverage": 0.4166666666666667,
-     "acc_at_80_coverage": 0.3157894736842105
+     "accuracy": 0.25,
+     "macro_f1": 0.15172735760971054,
+     "ece": 0.09200674605866276,
+     "brier": 0.688146781821489,
+     "nll": 1.3863941146380425,
+     "aurc": 0.7148058024526088,
+     "mean_confidence": 0.3306045352170865,
+     "acc_at_50_coverage": 0.3333333333333333,
+     "acc_at_80_coverage": 0.2631578947368421
     },
-    "readout_ece": 0.19440131386121112,
+    "readout_ece": 0.27852428456147516,
     "raw_abstain": {
-     "abstain_rate": 0.2916666666666667,
-     "selective_accuracy": 0.4117647058823529,
-     "selective_n": 17
+     "abstain_rate": 0.375,
+     "selective_accuracy": 0.26666666666666666,
+     "selective_n": 15
     },
     "calibrated_abstain": {
-     "abstain_rate": 0.2916666666666667,
-     "selective_accuracy": 0.4117647058823529,
-     "selective_n": 17
+     "abstain_rate": 0.375,
+     "selective_accuracy": 0.26666666666666666,
+     "selective_n": 15
     },
-    "readout_ece_raw": 0.3296731486916542,
-    "readout_ece_calibrated": 0.19440131386121112,
-    "floor_ece": 0.4092465753424658,
-    "g1_pass": true,
-    "g1_verdict": "pass",
+    "readout_ece_raw": 0.24567551910877228,
+    "readout_ece_calibrated": 0.27852428456147516,
+    "floor_ece": 0.386737089201878,
+    "g1_pass": false,
+    "g1_verdict": "fail",
     "by_question_type": null,
     "soft_acc": null,
     "brier_soft": null,
@@ -6387,7 +7553,7 @@
     "n_cases": 12,
     "n_questions": 24,
     "score_threshold": 8.660555e-05,
-    "distance_threshold": 0.25430378,
+    "distance_threshold": 0.31694862,
     "threshold_recommendation": {
      "posture": {
       "posture": "percentile",
@@ -6396,20 +7562,20 @@
      "score": {
       "threshold": 8.660555e-05,
       "status": "fitted",
-      "targetAccuracy": 0.64705884,
+      "targetAccuracy": 0.61764705,
       "support": {
-       "n": 36,
+       "n": 35,
        "nPass": 34,
-       "nAbstain": 2
+       "nAbstain": 1
       }
      },
      "distance": {
-      "threshold": 0.25430378,
+      "threshold": 0.31694862,
       "status": "fitted",
-      "targetAccuracy": 0.6923077,
+      "targetAccuracy": 0.56,
       "support": {
-       "n": 36,
-       "nPass": 26,
+       "n": 35,
+       "nPass": 25,
        "nAbstain": 10
       }
      }
@@ -6420,54 +7586,56 @@
      "selection": null
     },
     "head_selection": null,
+    "nb_selection": null,
+    "transductive": null,
     "confusion": [
+     {
+      "gold": "embed",
+      "pred": "engine",
+      "count": 2,
+      "share_of_errors": 0.2
+     },
      {
       "gold": "readout",
       "pred": "engine",
       "count": 2,
-      "share_of_errors": 0.2222222222222222
-     },
-     {
-      "gold": "embed",
-      "pred": "engine",
-      "count": 1,
-      "share_of_errors": 0.1111111111111111
-     },
-     {
-      "gold": "embed",
-      "pred": "harness::metrics",
-      "count": 1,
-      "share_of_errors": 0.1111111111111111
+      "share_of_errors": 0.2
      },
      {
       "gold": "engine",
       "pred": "serve",
       "count": 1,
-      "share_of_errors": 0.1111111111111111
+      "share_of_errors": 0.1
      },
      {
       "gold": "harness::metrics",
       "pred": "engine",
       "count": 1,
-      "share_of_errors": 0.1111111111111111
+      "share_of_errors": 0.1
      },
      {
       "gold": "harness::metrics",
       "pred": "serve",
       "count": 1,
-      "share_of_errors": 0.1111111111111111
+      "share_of_errors": 0.1
      },
      {
       "gold": "harness::suites",
       "pred": "laya::router",
       "count": 1,
-      "share_of_errors": 0.1111111111111111
+      "share_of_errors": 0.1
+     },
+     {
+      "gold": "serve",
+      "pred": "engine",
+      "count": 1,
+      "share_of_errors": 0.1
      },
      {
       "gold": "serve",
       "pred": "harness::suites",
       "count": 1,
-      "share_of_errors": 0.1111111111111111
+      "share_of_errors": 0.1
      }
     ],
     "pair_head_ab": null,
@@ -6631,32 +7799,32 @@
       "model": "modelless",
       "hard": {
        "n": 24,
-       "accuracy": 0.3333333333333333,
-       "macro_f1": 0.22416756176154676,
-       "ece": 0.09284805692732333,
-       "brier": 0.6852542497589112,
-       "nll": 1.3718617195582004,
-       "aurc": 0.694046455893819,
-       "mean_confidence": 0.3306941992292802,
-       "acc_at_50_coverage": 0.4166666666666667,
-       "acc_at_80_coverage": 0.3157894736842105
+       "accuracy": 0.25,
+       "macro_f1": 0.15172735760971054,
+       "ece": 0.09200674605866276,
+       "brier": 0.688146781821489,
+       "nll": 1.3863941146380425,
+       "aurc": 0.7148058024526088,
+       "mean_confidence": 0.3306045352170865,
+       "acc_at_50_coverage": 0.3333333333333333,
+       "acc_at_80_coverage": 0.2631578947368421
       },
-      "readout_ece": 0.19440131386121112,
+      "readout_ece": 0.27852428456147516,
       "raw_abstain": {
-       "abstain_rate": 0.2916666666666667,
-       "selective_accuracy": 0.4117647058823529,
-       "selective_n": 17
+       "abstain_rate": 0.375,
+       "selective_accuracy": 0.26666666666666666,
+       "selective_n": 15
       },
       "calibrated_abstain": {
-       "abstain_rate": 0.2916666666666667,
-       "selective_accuracy": 0.4117647058823529,
-       "selective_n": 17
+       "abstain_rate": 0.375,
+       "selective_accuracy": 0.26666666666666666,
+       "selective_n": 15
       },
-      "readout_ece_raw": 0.3296731486916542,
-      "readout_ece_calibrated": 0.19440131386121112,
-      "floor_ece": 0.4092465753424658,
-      "g1_pass": true,
-      "g1_verdict": "pass",
+      "readout_ece_raw": 0.24567551910877228,
+      "readout_ece_calibrated": 0.27852428456147516,
+      "floor_ece": 0.386737089201878,
+      "g1_pass": false,
+      "g1_verdict": "fail",
       "by_question_type": null,
       "soft_acc": null,
       "brier_soft": null,
@@ -6675,7 +7843,7 @@
       "n_cases": 12,
       "n_questions": 24,
       "score_threshold": 8.660555e-05,
-      "distance_threshold": 0.25430378,
+      "distance_threshold": 0.31694862,
       "threshold_recommendation": {
        "posture": {
         "posture": "percentile",
@@ -6684,20 +7852,20 @@
        "score": {
         "threshold": 8.660555e-05,
         "status": "fitted",
-        "targetAccuracy": 0.64705884,
+        "targetAccuracy": 0.61764705,
         "support": {
-         "n": 36,
+         "n": 35,
          "nPass": 34,
-         "nAbstain": 2
+         "nAbstain": 1
         }
        },
        "distance": {
-        "threshold": 0.25430378,
+        "threshold": 0.31694862,
         "status": "fitted",
-        "targetAccuracy": 0.6923077,
+        "targetAccuracy": 0.56,
         "support": {
-         "n": 36,
-         "nPass": 26,
+         "n": 35,
+         "nPass": 25,
          "nAbstain": 10
         }
        }
@@ -6708,54 +7876,56 @@
        "selection": null
       },
       "head_selection": null,
+      "nb_selection": null,
+      "transductive": null,
       "confusion": [
+       {
+        "gold": "embed",
+        "pred": "engine",
+        "count": 2,
+        "share_of_errors": 0.2
+       },
        {
         "gold": "readout",
         "pred": "engine",
         "count": 2,
-        "share_of_errors": 0.2222222222222222
-       },
-       {
-        "gold": "embed",
-        "pred": "engine",
-        "count": 1,
-        "share_of_errors": 0.1111111111111111
-       },
-       {
-        "gold": "embed",
-        "pred": "harness::metrics",
-        "count": 1,
-        "share_of_errors": 0.1111111111111111
+        "share_of_errors": 0.2
        },
        {
         "gold": "engine",
         "pred": "serve",
         "count": 1,
-        "share_of_errors": 0.1111111111111111
+        "share_of_errors": 0.1
        },
        {
         "gold": "harness::metrics",
         "pred": "engine",
         "count": 1,
-        "share_of_errors": 0.1111111111111111
+        "share_of_errors": 0.1
        },
        {
         "gold": "harness::metrics",
         "pred": "serve",
         "count": 1,
-        "share_of_errors": 0.1111111111111111
+        "share_of_errors": 0.1
        },
        {
         "gold": "harness::suites",
         "pred": "laya::router",
         "count": 1,
-        "share_of_errors": 0.1111111111111111
+        "share_of_errors": 0.1
+       },
+       {
+        "gold": "serve",
+        "pred": "engine",
+        "count": 1,
+        "share_of_errors": 0.1
        },
        {
         "gold": "serve",
         "pred": "harness::suites",
         "count": 1,
-        "share_of_errors": 0.1111111111111111
+        "share_of_errors": 0.1
        }
       ],
       "pair_head_ab": null,
@@ -7043,6 +8213,8 @@
      "selection": null
     },
     "head_selection": null,
+    "nb_selection": null,
+    "transductive": null,
     "confusion": [
      {
       "gold": "long",
@@ -7313,6 +8485,8 @@
        "selection": null
       },
       "head_selection": null,
+      "nb_selection": null,
+      "transductive": null,
       "confusion": [
        {
         "gold": "long",
@@ -7630,6 +8804,8 @@
      "selection": null
     },
     "head_selection": null,
+    "nb_selection": null,
+    "transductive": null,
     "confusion": [
      {
       "gold": "ask",
@@ -7888,6 +9064,8 @@
        "selection": null
       },
       "head_selection": null,
+      "nb_selection": null,
+      "transductive": null,
       "confusion": [
        {
         "gold": "ask",
@@ -8193,6 +9371,8 @@
      "selection": null
     },
     "head_selection": null,
+    "nb_selection": null,
+    "transductive": null,
     "confusion": [
      {
       "gold": "ast_grep",
@@ -8469,6 +9649,8 @@
        "selection": null
       },
       "head_selection": null,
+      "nb_selection": null,
+      "transductive": null,
       "confusion": [
        {
         "gold": "ast_grep",
@@ -8792,6 +9974,8 @@
      "selection": null
     },
     "head_selection": null,
+    "nb_selection": null,
+    "transductive": null,
     "confusion": [
      {
       "gold": "background_batch",
@@ -9062,6 +10246,8 @@
        "selection": null
       },
       "head_selection": null,
+      "nb_selection": null,
+      "transductive": null,
       "confusion": [
        {
         "gold": "background_batch",
@@ -9379,6 +10565,8 @@
      "selection": null
     },
     "head_selection": null,
+    "nb_selection": null,
+    "transductive": null,
     "confusion": [
      {
       "gold": "1 open dependency",
@@ -9661,6 +10849,8 @@
        "selection": null
       },
       "head_selection": null,
+      "nb_selection": null,
+      "transductive": null,
       "confusion": [
        {
         "gold": "1 open dependency",

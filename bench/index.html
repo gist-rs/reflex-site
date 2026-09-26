@@ -146,6 +146,13 @@
       <p>It is corpus-bound by design: out-of-domain text lands near chance, and those rows are published rather than
         trimmed. Its axes are latency and selective accuracy — how right it is on the questions it chooses to answer
         (acc@50cov, abstain / sel-acc) — not raw accuracy against a neural model.</p>
+      <p>Where the gap was the scorer rather than the domain, it closes. Per-label count tables (naive-Bayes log-odds
+        over the train rows, plus a sentence-pair view for premise/hypothesis tasks) are cal-selected per suite, and
+        the test split is read once. That took several suites to or past the laya lanes at the same sub-millisecond
+        latency (riir-reflex Bench 051). The test split never enters a corpus. A separate
+        <em>transductive</em> line under each table shows what happens if the engine may also read the test
+        <em>text</em> (self-labelled, gold never read): it adds nothing, because the train rows already carry the
+        vocabulary.</p>
       </details>
       <details class="faq">
         <summary>Why are the rust and python bars the same length on accuracy?</summary>
@@ -312,6 +319,28 @@ function gateFit(m) {
   return `<p class="g1">Gate fit (ρ=${tr.posture.rho}): score ${axis(tr.score)} · distance ${axis(tr.distance)}</p>`;
 }
 
+// Count tables (riir-reflex Issue 038 / Bench 051): the cal-selected
+// naive-Bayes posture, plus the TRANSDUCTIVE column — a different protocol
+// (test TEXT self-labelled by the honest engine, 2-fold cross-fit, gold
+// never read), so it renders beside the headline acc, never as it.
+function nbLines(m) {
+  if (!m) return "";
+  let out = "";
+  const ns = m.nb_selection;
+  if (ns) {
+    const sel = ns.selected_scale > 0
+      ? `scale ${ns.selected_scale} · α ${ns.selected_alpha} · view ${ns.selected_view || "bag"}${ns.selected_noul_domain != null ? ` · noul yes→domain ${ns.selected_noul_domain}` : ""}`
+      : "off (no candidate cleared +5 pt on the selection slice)";
+    out += `<p class="g1">Count tables (cal-selected on train rows, test read once): ${sel}</p>`;
+  }
+  const t = m.transductive;
+  if (t) {
+    const d = (t.accuracy - t.honest_accuracy) * 100;
+    out += `<p class="cases">transductive column — NOT the headline: acc ${fmt(t.accuracy, 4)} vs honest ${fmt(t.honest_accuracy, 4)} (${d >= 0 ? "+" : ""}${d.toFixed(1)} pt; ${t.n_pseudo} test texts self-labelled by the engine, 2-fold cross-fit, gold never read)</p>`;
+  }
+  return out;
+}
+
 // The short device word for a host row ("metal (LAYA_DEVICE …)" → "metal").
 const deviceWord = (d) => (d || "").split(" ")[0] || "?";
 
@@ -371,7 +400,7 @@ function suiteSection(s) {
   ${window.BenchCharts ? BenchCharts.suite(s) : ""}<details class="more"><summary>Table · calibration · gate fit${g1Word ? ` <span class="chip ${v === "pass" ? "pass" : v === "fail" ? "fail" : ""}">G1 ${g1Word}</span>` : ""}</summary><div class="scroll"><table class="bench">
     <thead><tr><th>lane · model</th><th>acc</th><th>macro F1</th><th>ECE(maxp)</th><th>Brier</th><th>acc@50cov</th><th>rECE cal (raw)</th><th>abst / sel-acc</th><th>p50</th><th>p99</th><th>det</th></tr></thead>
     <tbody>${shown.map((l) => laneRow(l, bestAcc, PRIMARY_HOST)).join("")}${shownExtra.map(([l, host]) => laneRow(l, bestAcc, host)).join("")}</tbody>
-  </table></div>${leakLine}${g1}${gateFit(s.modelless)}</details>`;
+  </table></div>${leakLine}${g1}${gateFit(s.modelless)}${nbLines(s.modelless)}</details>`;
 }
 
 function render(d) {
