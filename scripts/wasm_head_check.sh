@@ -16,9 +16,11 @@
 # changing is exactly when the behaviour needs re-proving.
 set -euo pipefail
 
-HERE="$(cd "$(dirname "$0")/.." && pwd)"
-MANIFEST="$HERE/wasm-head/Cargo.toml"
-SHIPPED="$HERE/assets/arena_head.wasm"
+cd "$(dirname "$0")/.."
+# LITERAL manifest path on every row, never a variable: the workspace's wasm32
+# surface audit reads a variable row as DERIVED (unresolved), a literal one
+# as naming this package.
+SHIPPED="assets/arena_head.wasm"
 export CARGO_TARGET_DIR="${CARGO_TARGET_DIR:-/tmp/reflex_site_wasm_head}"
 RAW="$CARGO_TARGET_DIR/wasm32-unknown-unknown/release/arena_head_wasm.wasm"
 OPT="$CARGO_TARGET_DIR/arena_head_oz.wasm"
@@ -26,16 +28,16 @@ WRITE=0
 [ "${1:-}" = "--write" ] && WRITE=1
 
 echo "▸ clippy (wasm32 arm, the shipped one)"
-cargo clippy --manifest-path "$MANIFEST" --target wasm32-unknown-unknown --lib -- -D warnings
+cargo clippy --manifest-path wasm-head/Cargo.toml --target wasm32-unknown-unknown --lib -- -D warnings
 
 echo "▸ clippy (host arm, all targets)"
-cargo clippy --manifest-path "$MANIFEST" --all-targets -- -D warnings
+cargo clippy --manifest-path wasm-head/Cargo.toml --all-targets -- -D warnings
 
 echo "▸ host tests (recipes + anchors + digests + blob regen)"
-cargo test --manifest-path "$MANIFEST"
+cargo test --manifest-path wasm-head/Cargo.toml
 
 echo "▸ release build + wasm-opt"
-cargo build --manifest-path "$MANIFEST" --release --target wasm32-unknown-unknown --lib
+cargo build --manifest-path wasm-head/Cargo.toml --release --target wasm32-unknown-unknown --lib
 npm exec --yes -- wasm-opt -Oz --enable-bulk-memory -o "$OPT" "$RAW"
 
 if cmp -s "$OPT" "$SHIPPED"; then
