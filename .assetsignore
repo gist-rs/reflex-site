@@ -3,6 +3,7 @@
 # Everything else is repo plumbing — never ship it as public assets.
 .git
 README.md
+BOUNDARY.md
 wrangler.toml
 scripts
 .DS_Store
