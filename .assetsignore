@@ -15,3 +15,4 @@ wasm-head
 tests
 .issues
 node_modules
+CLAUDE.md

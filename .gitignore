@@ -4,3 +4,6 @@ wasm-head/target
 __pycache__/
 node_modules/
 .heal/
+
+# Agent-instructions symlink (CLAUDE.md -> AGENTS.md), local only
+CLAUDE.md
