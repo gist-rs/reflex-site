@@ -42,6 +42,10 @@ checkpoint compared = english.
   is the owner's "bug" case and is already tracked as **riir-reflex Issue 020**
   (the riir Metal lane must beat the torch MPS oracle on every published cell) —
   this site issue surfaces it, it does not fix it.
+  ⚑ **Closed upstream 2026-09-26**: riir-reflex Issue 020 closed by the
+  MPS GEMM arm (riir-infer `b0de034` + `5e18da4`, riir-reflex Bench 050).
+  The republish (`6074b2b`) shows Rust faster than the torch MPS oracle on
+  17/17 p50 and 17/17 p99 cells; typed_decisions english is 190 vs 334 ms.
 - **laya (Rust) vs laya (Python) — accuracy is IDENTICAL on 14/14.** The correct
   outcome for a parity port (G5: top-1 agreement 1.000); "Rust > Python on accuracy"
   cannot hold for a faithful port and equality is not a bug.
