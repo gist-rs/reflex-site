@@ -40,7 +40,7 @@ nav a { margin-left: 22px; color: var(--muted); font-size: 15px; }
 nav a:hover { color: var(--ember); }
 
 /* GitHub icon — the nav's one non-text row. */
-nav a.gh { display: inline-flex; align-items: center; }
+nav a.gh { display: inline-flex; align-items: center; vertical-align: -3px; }
 nav a.gh svg { display: block; }
 
 .hero { padding: 64px 0 40px; }

@@ -103,6 +103,16 @@ const server = http.createServer((req, res) => {
   if (!dlInFoot.length) fail("Download missing from the footer");
   else console.log("ok: nav has the GitHub icon, Download moved to the footer");
 
+  // nav: the GitHub icon is vertically centered against its text neighbors
+  // (the 18px svg rode the text baseline 3px high; pinned by pixel box)
+  const dy = await page.evaluate(() => {
+    const t = document.querySelector('header.site nav a[href="/#skill"]').getBoundingClientRect();
+    const i = document.querySelector("header.site nav a.gh svg").getBoundingClientRect();
+    return (t.top + t.bottom) / 2 - (i.top + i.bottom) / 2;
+  });
+  if (Math.abs(dy) > 1) fail(`GitHub icon not vertically centered: |dy|=${Math.abs(dy).toFixed(2)}px`);
+  else console.log(`ok: GitHub icon centered against the nav text (dy=${dy.toFixed(2)}px)`);
+
   // 5. no page errors
   if (errs.length) fail("page errors: " + errs.join("; "));
   else console.log("ok: no page errors");
