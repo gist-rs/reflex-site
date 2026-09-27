@@ -42,12 +42,21 @@ lines now name the newest run, not `meta` (which is Bench 001's).
   would time a different engine. Do T1 as part of that lane's next publish,
   under preflight, alone on the box. T2 must land first or the carry
   discards the fresh timing.
-- [ ] T2 — a publish path that lets a QUOTABLE run replace a carried lane's
+- [x] T2 — a publish path that lets a QUOTABLE run replace a carried lane's
   timing. LANE_CARRY exists so an update never swaps validated timing for
   invalidated timing. Here the incumbent is the invalidated one, so carrying
-  it defeats the law's own purpose. Proposed: carry only while the incumbent
-  is not `latency_quotable: false`, or when the update is not `true`.
-  The wall already refuses an unfit update.
+  it defeats the law's own purpose. LANDED 2026-09-27: `carry_beats_incumbent`
+  in `scripts/publish_bench.py` — the carry is SUPPRESSED exactly when the
+  incumbent lane's verdict is False and the update's own verdict is True
+  (narrow on purpose: absent/None stays a carry; a False update stays the
+  wall's business), with a loud per-slot disclosure. `_latency_slots` follows
+  the same predicate, so a suppressed carry's own timing is wall-JUDGED, not
+  silently exempt. Verified: 44/44 self-test cases (4 new: quotable-replaces-
+  unfit, unquotable-still-carried, unjudged-still-carried, wall-judges);
+  dry-run against the REAL `data/bench.json` + a synthetic quotable m3 doc
+  rc=0 — all 13 unfit row-level m3 modelless cells flip to fresh quotable
+  own-timing, the validated-True incumbent stays carried (Issue-032 law
+  intact), 4090 unjudged carries untouched. The real remedy remains T1.
 - [ ] T3 — re-measure or drop the m3-max-ane laya:english timing (ANE lane).
 - [ ] T4 — `lane_sources` is keyed per (host, lane), not per suite. A
   one-suite update re-labels the source on every suite: the Bench 067

@@ -60,7 +60,9 @@ env acknowledges by host (a stale ack refuses too). UNJUDGED docs (no
 readable box_state — the 4090 harness has no probes) publish with a loud
 note. Every lane cell carries `latency_quotable` (true / false / null) from
 the run its TIMING came from — stamped at merge, copied with the timing by
-LANE_CARRY, stripped by :acc-only; absent = unknown. meta.box_state is the
+LANE_CARRY (except when the incumbent's verdict is False and the update's
+own is True: the Issue-003 T2 suppression lets the quotable run replace an
+unfit incumbent's carried timing), stripped by :acc-only; absent = unknown. meta.box_state is the
 table's ORIGINAL run's and describes no later-updated cell.
 
 PUBLISH_BENCH_POPULATION_RESET="<suite>[,<suite>]" (2026-09-27, the reflex
@@ -161,6 +163,14 @@ LANE_FACT_META_KEYS = ("head_posture", "latency_carried")
 # and gains `latency_provenance` naming that source run. Without this law
 # a lane-scoped update would silently replace validated latency cells with
 # box-invalidated ones (the accuracy bit-identity gate cannot see timing).
+# Issue-003 T2 (2026-09-27): the law is DIRECTIONAL — it must never serve
+# the opposite trade, keeping an INVALIDATED incumbent's timing over a
+# fresh QUOTABLE update's. When the incumbent lane's verdict is False and
+# the update's own verdict is True, the carry is suppressed and the
+# update's own timing publishes (carry_beats_incumbent, applied in
+# apply_lane_carry; the publish-wall exemption in _latency_slots follows
+# the same predicate, because a suppressed carry publishes the update's
+# own timing and the wall must judge it).
 LANE_CARRY = {"latency": ("modelless",)}
 
 # The five timing fields a carried lane inherits from its incumbent (the
@@ -848,8 +858,20 @@ def apply_lane_carry(d, incumbent_snapshot, extras):
         for lane_key in LANE_CARRY["latency"]:
             for host, target in _host_lane_slots(s, lane_key, phost):
                 src_lane = _host_lane_slot(snap, host, lane_key)
-                if src_lane is not None:
-                    _carry_into(target, src_lane)
+                if src_lane is None:
+                    continue
+                if carry_beats_incumbent(src_lane, target.get("latency_quotable")):
+                    print(
+                        f"note: LANE_CARRY suppressed — {lane_key}@{host}/"
+                        f"{s['name']}: the incumbent timing is judged NOT "
+                        "QUOTABLE and this update's own timing is quotable; "
+                        "the fresh timing publishes (Issue-003 T2 — a carry "
+                        "that kept the unfit incumbent would defeat the "
+                        "law's own purpose)",
+                        file=sys.stderr,
+                    )
+                    continue
+                _carry_into(target, src_lane)
 
 
 def _host_lane_slots(suite, lane_key, phost):
@@ -874,6 +896,24 @@ def _host_lane_slot(snapshot_suite, host, lane_key):
         return snapshot_suite.get(lane_key)
     hl = (snapshot_suite.get("extra_host_lanes") or {}).get(host)
     return (hl or {}).get(lane_key)
+
+
+def carry_beats_incumbent(incumbent_lane, update_quotable):
+    """Issue-003 T2: the one case LANE_CARRY must refuse. The law exists
+    so an update never swaps VALIDATED timing for INVALIDATED timing; when
+    the INCUMBENT is the invalidated side (verdict False) and the update's
+    own fresh timing is quotable (verdict True), carrying would preserve
+    exactly that defect forever — an unfit carry could never be replaced.
+    Narrow on purpose: an absent/None verdict on either side stays a carry
+    (UNKNOWN is not a claim), and a False update is handled by the publish
+    wall, not here. `update_quotable` is the UPDATE RUN's verdict — read
+    from the merged cell's own stamp in apply_lane_carry (stamped at merge
+    from the run that produced the timing the carry would discard), and
+    from the raw doc's meta in _latency_slots, whose cells are not stamped
+    until merge."""
+    return (isinstance(incumbent_lane, dict)
+            and incumbent_lane.get("latency_quotable") is False
+            and update_quotable is True)
 
 
 def _carry_into(lane, incumbent):
@@ -1066,6 +1106,7 @@ def _latency_slots(d, incumbent=None):
     the primary — a raw primary carries nothing forward."""
     host = (d.get("meta") or {}).get("host") or "(?)"
     variant = host in DEVICE_VARIANT_HOSTS
+    doc_q = doc_latency_quotable(d.get("meta"))
     snaps = {r["name"]: r for r in (incumbent or {}).get("suites", [])}
     out = []
     for s in d.get("suites", []):
@@ -1080,9 +1121,10 @@ def _latency_slots(d, incumbent=None):
                     continue
                 if variant and k not in DEVICE_VARIANT_KEEP:
                     continue
-                if (snap is not None and k in LANE_CARRY["latency"]
-                        and _host_lane_slot(snap, host, k) is not None):
-                    continue
+                if snap is not None and k in LANE_CARRY["latency"]:
+                    src = _host_lane_slot(snap, host, k)
+                    if src is not None and not carry_beats_incumbent(src, doc_q):
+                        continue
                 label = k if ck is None else f"laya:{ck}"
                 out.append(f"{label}@{host}/{s['name']}")
     return out

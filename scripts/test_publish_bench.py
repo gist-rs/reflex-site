@@ -1249,6 +1249,103 @@ def case_carried_timing_keeps_the_incumbents_verdict():
             assert cell["latency_quotable"] is want
 
 
+def case_quotable_update_replaces_unfit_incumbent_carry():
+    """Issue-003 T2: LANE_CARRY is DIRECTIONAL. The law keeps an update
+    from swapping VALIDATED timing for INVALIDATED timing — so when the
+    INCUMBENT is the invalidated side (verdict False, the 26 published
+    not-quotable carries) and the update's own timing is quotable, the
+    carry must be suppressed: the fresh timing and verdict publish, and
+    the carry disclosure must NOT claim them."""
+    primary = doc("m3", "sha-base", {"s1": {"modelless_acc": 0.5}})
+    primary["meta"]["hosts"] = [{"host": "m3-max-metal"}]
+    primary["suites"][0]["modelless"]["latency_p50_ms"] = 0.35
+    primary["suites"][0]["modelless"]["latency_quotable"] = False
+    primary["suites"][0]["modelless"]["latency_provenance"] = {"note": "carried"}
+    pb.rename_hosts(primary)
+    upd = doc("m3", "sha-fit", {"s1": {"modelless_acc": 0.7}})
+    upd["meta"]["box_state"] = _box(True, True)
+    upd["suites"][0]["modelless"]["latency_p50_ms"] = 0.20
+    pb.rename_hosts(upd)
+    merged, err = merge_refusing(primary, upd)
+    assert merged is not None, err
+    cell = merged["suites"][0]["modelless"]
+    assert cell["latency_p50_ms"] == 0.20, \
+        "a quotable update must replace an unfit incumbent's carried timing"
+    assert cell["hard"]["accuracy"] == 0.7
+    assert cell["latency_quotable"] is True, \
+        "the verdict travels with the FRESH timing now"
+    assert "latency_provenance" not in cell, \
+        "the fresh timing is the update's own — no carry disclosure may claim it"
+    assert "LANE_CARRY suppressed" in err, "the suppression is loud"
+
+
+def case_carry_still_serves_an_unquotable_update():
+    """The directionality is one-way: a False update never beats ANY
+    incumbent. Unfit incumbent + unfit update = the wall's remedy shape —
+    the carry replaces the update's timing, verdict and provenance travel
+    from the incumbent exactly as before T2."""
+    primary = doc("m3", "sha-base", {"s1": {"modelless_acc": 0.5}})
+    primary["meta"]["hosts"] = [{"host": "m3-max-metal"}]
+    primary["suites"][0]["modelless"]["latency_p50_ms"] = 0.35
+    primary["suites"][0]["modelless"]["latency_quotable"] = False
+    pb.rename_hosts(primary)
+    upd = doc("m3", "sha-loaded", {"s1": {"modelless_acc": 0.7}})
+    upd["meta"]["box_state"] = _box(False, False)
+    upd["suites"][0]["modelless"]["latency_p50_ms"] = 9.99
+    pb.rename_hosts(upd)
+    merged, err = merge_refusing(primary, upd)
+    assert merged is not None, err
+    cell = merged["suites"][0]["modelless"]
+    assert cell["latency_p50_ms"] == 0.35, "unfit update timing is still carried over"
+    assert cell["latency_quotable"] is False
+    assert "latency_provenance" in cell
+    assert "LANE_CARRY suppressed" not in err
+
+
+def case_carry_still_serves_an_unjudged_update():
+    """UNKNOWN is not a claim: an update with no readable box_state (the
+    4090 class) never beats an incumbent, even an unfit one — the verdict
+    must not silently improve on no evidence."""
+    primary = doc("m3", "sha-base", {"s1": {"modelless_acc": 0.5}})
+    primary["meta"]["hosts"] = [{"host": "m3-max-metal"}]
+    primary["suites"][0]["modelless"]["latency_p50_ms"] = 0.35
+    primary["suites"][0]["modelless"]["latency_quotable"] = False
+    pb.rename_hosts(primary)
+    upd = doc("m3", "sha-4090-style", {"s1": {"modelless_acc": 0.7}})
+    # no box_state at all — the UNJUDGED class
+    upd["suites"][0]["modelless"]["latency_p50_ms"] = 0.11
+    pb.rename_hosts(upd)
+    merged, err = merge_refusing(primary, upd)
+    assert merged is not None, err
+    cell = merged["suites"][0]["modelless"]
+    assert cell["latency_p50_ms"] == 0.35, "an unjudged update never beats the incumbent"
+    assert cell["latency_quotable"] is False
+    assert "latency_provenance" in cell
+    assert "LANE_CARRY suppressed" not in err
+
+
+def case_wall_judges_a_quotable_update_over_an_unfit_incumbent():
+    """The wall exemption follows the same predicate: when the carry WILL
+    be suppressed (unfit incumbent + quotable update), the update's own
+    timing publishes — the wall must SEE that slot (and it passes, being
+    quotable), never silently exempt it. The incumbent-side shapes keep
+    their exemption via case_carried_lane_is_exempt_from_the_wall."""
+    primary = doc("m3", "sha-base", {"s1": {"modelless_acc": 0.5}})
+    primary["meta"]["hosts"] = [{"host": "m3-max-metal"}]
+    primary["suites"][0]["modelless"]["latency_p50_ms"] = 1.0
+    primary["suites"][0]["modelless"]["latency_quotable"] = False
+    pb.rename_hosts(primary)
+    extra = doc("m3", "sha-fit", {"s1": {"modelless_acc": 0.5}})
+    extra["meta"]["box_state"] = _box(True, True)
+    extra["suites"][0]["modelless"]["latency_p50_ms"] = 9.0
+    pb.rename_hosts(extra)
+    incumbent = copy.deepcopy(primary)
+    for row in incumbent["suites"]:
+        row["_phost"] = "m3-max-metal"
+    assert pb._latency_slots(extra, incumbent) == ["modelless@m3-max-metal/s1"], \
+        "a suppressed carry publishes the update's own timing — the wall must judge it"
+
+
 def case_published_primary_meta_verdict_is_not_stamped():
     """A published bench.json primary's meta.box_state is the table's
     ORIGINAL run's — it must never be stamped onto cells; a RAW primary's
@@ -1304,6 +1401,10 @@ CASES = [
     case_carried_lane_is_exempt_from_the_wall,
     case_carried_timing_keeps_the_incumbents_verdict,
     case_published_primary_meta_verdict_is_not_stamped,
+    case_quotable_update_replaces_unfit_incumbent_carry,
+    case_carry_still_serves_an_unquotable_update,
+    case_carry_still_serves_an_unjudged_update,
+    case_wall_judges_a_quotable_update_over_an_unfit_incumbent,
 ]
 
 def main() -> int:
