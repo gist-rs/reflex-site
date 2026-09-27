@@ -58,28 +58,28 @@
       "date_utc": "2026-09-27T03:27:37Z"
      },
      "laya:english": {
-      "git_sha": "b1aee72",
-      "date_utc": "2026-09-26T15:34:14Z"
+      "git_sha": "6199e5e",
+      "date_utc": "2026-09-27T04:13:29Z"
      },
      "laya:multilingual": {
-      "git_sha": "b1aee72",
-      "date_utc": "2026-09-26T15:34:14Z"
+      "git_sha": "6199e5e",
+      "date_utc": "2026-09-27T04:13:29Z"
      },
      "laya:py/english": {
-      "git_sha": "9dbdca5",
-      "date_utc": "2026-09-26T12:02:57Z"
+      "git_sha": "6199e5e",
+      "date_utc": "2026-09-27T04:13:29Z"
      },
      "laya:py/multilingual": {
-      "git_sha": "9dbdca5",
-      "date_utc": "2026-09-26T12:02:57Z"
+      "git_sha": "6199e5e",
+      "date_utc": "2026-09-27T04:13:29Z"
      },
      "laya:py/typed": {
-      "git_sha": "9dbdca5",
-      "date_utc": "2026-09-26T12:02:57Z"
+      "git_sha": "6199e5e",
+      "date_utc": "2026-09-27T04:13:29Z"
      },
      "laya:typed": {
-      "git_sha": "b1aee72",
-      "date_utc": "2026-09-26T15:34:14Z"
+      "git_sha": "6199e5e",
+      "date_utc": "2026-09-27T04:13:29Z"
      },
      "hybrid": {
       "git_sha": "0959928",
@@ -617,16 +617,16 @@
      "brier_soft": 0.3348088366904328,
      "score_mae": 0.6937235449999997,
      "within_1": 0.7525,
-     "latency_p50_ms": 198.0,
-     "latency_p99_ms": 395.0,
+     "latency_p50_ms": 406.0,
+     "latency_p99_ms": 612.0,
      "latency_tail_support": 5,
      "latency_extremes": {
-      "first_ms": 97.0,
-      "max_ms": 472.0,
-      "argmax_case": 144
+      "first_ms": 237.0,
+      "max_ms": 631.0,
+      "argmax_case": 183
      },
      "determinism_ok": true,
-     "seconds": 88.236938458,
+     "seconds": 166.570083167,
      "n_cases": 400,
      "n_questions": 2000,
      "score_threshold": null,
@@ -635,9 +635,12 @@
      "corpus_cap": null,
      "head_selection": null,
      "nb_selection": null,
+     "oc_selection": null,
+     "ridge_selection": null,
      "transductive": null,
      "confusion": null,
-     "pair_head_ab": null
+     "pair_head_ab": null,
+     "cases_digest": "fnv1a64-6e37760ee2a5b6c9"
     },
     "multilingual": {
      "lane": "laya (rust)",
@@ -704,16 +707,16 @@
      "brier_soft": 0.4737295325604735,
      "score_mae": 0.7603941325000002,
      "within_1": 0.7,
-     "latency_p50_ms": 81.0,
-     "latency_p99_ms": 142.0,
+     "latency_p50_ms": 181.0,
+     "latency_p99_ms": 361.0,
      "latency_tail_support": 5,
      "latency_extremes": {
-      "first_ms": 40.0,
-      "max_ms": 153.0,
-      "argmax_case": 119
+      "first_ms": 160.0,
+      "max_ms": 393.0,
+      "argmax_case": 151
      },
      "determinism_ok": true,
-     "seconds": 33.640541208,
+     "seconds": 78.315555042,
      "n_cases": 400,
      "n_questions": 2000,
      "score_threshold": null,
@@ -722,9 +725,12 @@
      "corpus_cap": null,
      "head_selection": null,
      "nb_selection": null,
+     "oc_selection": null,
+     "ridge_selection": null,
      "transductive": null,
      "confusion": null,
-     "pair_head_ab": null
+     "pair_head_ab": null,
+     "cases_digest": "fnv1a64-6e37760ee2a5b6c9"
     },
     "typed": {
      "lane": "laya (rust)",
@@ -791,16 +797,16 @@
      "brier_soft": 0.06772113657369036,
      "score_mae": 0.24240826250000005,
      "within_1": 0.995,
-     "latency_p50_ms": 246.0,
-     "latency_p99_ms": 501.0,
+     "latency_p50_ms": 442.0,
+     "latency_p99_ms": 726.0,
      "latency_tail_support": 5,
      "latency_extremes": {
-      "first_ms": 109.0,
-      "max_ms": 551.0,
-      "argmax_case": 119
+      "first_ms": 110.0,
+      "max_ms": 761.0,
+      "argmax_case": 151
      },
      "determinism_ok": true,
-     "seconds": 102.429349916,
+     "seconds": 162.743427458,
      "n_cases": 400,
      "n_questions": 2000,
      "score_threshold": null,
@@ -809,9 +815,12 @@
      "corpus_cap": null,
      "head_selection": null,
      "nb_selection": null,
+     "oc_selection": null,
+     "ridge_selection": null,
      "transductive": null,
      "confusion": null,
-     "pair_head_ab": null
+     "pair_head_ab": null,
+     "cases_digest": "fnv1a64-6e37760ee2a5b6c9"
     },
     "py/english": {
      "lane": "laya (python)",
@@ -878,16 +887,16 @@
      "brier_soft": 0.334808769875873,
      "score_mae": 0.6937230449999998,
      "within_1": 0.7525,
-     "latency_p50_ms": 334.0,
-     "latency_p99_ms": 540.0,
+     "latency_p50_ms": 362.0,
+     "latency_p99_ms": 606.0,
      "latency_tail_support": 5,
      "latency_extremes": {
-      "first_ms": 103.0,
-      "max_ms": 580.0,
-      "argmax_case": 112
+      "first_ms": 116.0,
+      "max_ms": 629.0,
+      "argmax_case": 119
      },
      "determinism_ok": true,
-     "seconds": 134.455660042,
+     "seconds": 159.587257584,
      "n_cases": 400,
      "n_questions": 2000,
      "score_threshold": null,
@@ -895,8 +904,13 @@
      "threshold_recommendation": null,
      "corpus_cap": null,
      "head_selection": null,
+     "nb_selection": null,
+     "oc_selection": null,
+     "ridge_selection": null,
+     "transductive": null,
      "confusion": null,
-     "pair_head_ab": null
+     "pair_head_ab": null,
+     "cases_digest": "fnv1a64-6e37760ee2a5b6c9"
     },
     "py/multilingual": {
      "lane": "laya (python)",
@@ -963,16 +977,16 @@
      "brier_soft": 0.47372954021453173,
      "score_mae": 0.7603942575000003,
      "within_1": 0.7,
-     "latency_p50_ms": 155.0,
-     "latency_p99_ms": 309.0,
+     "latency_p50_ms": 185.0,
+     "latency_p99_ms": 329.0,
      "latency_tail_support": 5,
      "latency_extremes": {
-      "first_ms": 50.0,
-      "max_ms": 337.0,
-      "argmax_case": 119
+      "first_ms": 53.0,
+      "max_ms": 373.0,
+      "argmax_case": 285
      },
      "determinism_ok": true,
-     "seconds": 67.823182625,
+     "seconds": 82.3661855,
      "n_cases": 400,
      "n_questions": 2000,
      "score_threshold": null,
@@ -980,8 +994,13 @@
      "threshold_recommendation": null,
      "corpus_cap": null,
      "head_selection": null,
+     "nb_selection": null,
+     "oc_selection": null,
+     "ridge_selection": null,
+     "transductive": null,
      "confusion": null,
-     "pair_head_ab": null
+     "pair_head_ab": null,
+     "cases_digest": "fnv1a64-6e37760ee2a5b6c9"
     },
     "py/typed": {
      "lane": "laya (python)",
@@ -1048,16 +1067,16 @@
      "brier_soft": 0.06772116115371934,
      "score_mae": 0.2424075125000001,
      "within_1": 0.995,
-     "latency_p50_ms": 350.0,
-     "latency_p99_ms": 706.0,
+     "latency_p50_ms": 442.0,
+     "latency_p99_ms": 953.0,
      "latency_tail_support": 5,
      "latency_extremes": {
-      "first_ms": 147.0,
-      "max_ms": 794.0,
+      "first_ms": 283.0,
+      "max_ms": 1041.0,
       "argmax_case": 119
      },
      "determinism_ok": true,
-     "seconds": 143.285912,
+     "seconds": 192.370775709,
      "n_cases": 400,
      "n_questions": 2000,
      "score_threshold": null,
@@ -1065,8 +1084,13 @@
      "threshold_recommendation": null,
      "corpus_cap": null,
      "head_selection": null,
+     "nb_selection": null,
+     "oc_selection": null,
+     "ridge_selection": null,
+     "transductive": null,
      "confusion": null,
-     "pair_head_ab": null
+     "pair_head_ab": null,
+     "cases_digest": "fnv1a64-6e37760ee2a5b6c9"
     }
    },
    "extra_host_lanes": {
@@ -1986,14 +2010,14 @@
    "pairing": {
     "rust_vs_py": {
      "rust": {
-      "kind": "run",
-      "id": "b1aee72 2026-09-26T15:34:14Z"
+      "kind": "digest",
+      "id": "fnv1a64-6e37760ee2a5b6c9"
      },
      "py": {
-      "kind": "run",
-      "id": "9dbdca5 2026-09-26T12:02:57Z"
+      "kind": "digest",
+      "id": "fnv1a64-6e37760ee2a5b6c9"
      },
-     "status": "same_results"
+     "status": "same"
     },
     "km_vs_laya": {
      "modelless": {
@@ -2001,10 +2025,10 @@
       "id": "fnv1a64-6e37760ee2a5b6c9"
      },
      "rust": {
-      "kind": "run",
-      "id": "b1aee72 2026-09-26T15:34:14Z"
+      "kind": "digest",
+      "id": "fnv1a64-6e37760ee2a5b6c9"
      },
-     "status": "unknown"
+     "status": "same"
     }
    }
   },
@@ -2368,16 +2392,16 @@
      "brier_soft": null,
      "score_mae": null,
      "within_1": null,
-     "latency_p50_ms": 20.0,
-     "latency_p99_ms": 31.0,
+     "latency_p50_ms": 23.0,
+     "latency_p99_ms": 76.0,
      "latency_tail_support": 5,
      "latency_extremes": {
-      "first_ms": 15.0,
-      "max_ms": 43.0,
-      "argmax_case": 301
+      "first_ms": 39.0,
+      "max_ms": 95.0,
+      "argmax_case": 333
      },
      "determinism_ok": true,
-     "seconds": 12.141674333,
+     "seconds": 18.214984708,
      "n_cases": 400,
      "n_questions": 400,
      "score_threshold": null,
@@ -2386,9 +2410,12 @@
      "corpus_cap": null,
      "head_selection": null,
      "nb_selection": null,
+     "oc_selection": null,
+     "ridge_selection": null,
      "transductive": null,
      "confusion": null,
-     "pair_head_ab": null
+     "pair_head_ab": null,
+     "cases_digest": "fnv1a64-07eff23c06505584"
     },
     "py/english": {
      "lane": "laya (python)",
@@ -2418,16 +2445,16 @@
      "brier_soft": null,
      "score_mae": null,
      "within_1": null,
-     "latency_p50_ms": 33.0,
-     "latency_p99_ms": 80.0,
+     "latency_p50_ms": 34.0,
+     "latency_p99_ms": 84.0,
      "latency_tail_support": 5,
      "latency_extremes": {
-      "first_ms": 21.0,
-      "max_ms": 87.0,
-      "argmax_case": 6
+      "first_ms": 20.0,
+      "max_ms": 98.0,
+      "argmax_case": 33
      },
      "determinism_ok": true,
-     "seconds": 22.035517292,
+     "seconds": 22.166054834,
      "n_cases": 400,
      "n_questions": 400,
      "score_threshold": null,
@@ -2435,9 +2462,13 @@
      "threshold_recommendation": null,
      "corpus_cap": null,
      "head_selection": null,
+     "nb_selection": null,
+     "oc_selection": null,
+     "ridge_selection": null,
+     "transductive": null,
      "confusion": null,
      "pair_head_ab": null,
-     "acc_deleaked": 0.9490616621983914
+     "cases_digest": "fnv1a64-07eff23c06505584"
     }
    },
    "extra_host_lanes": {
@@ -3091,14 +3122,14 @@
    "pairing": {
     "rust_vs_py": {
      "rust": {
-      "kind": "run",
-      "id": "b1aee72 2026-09-26T15:34:14Z"
+      "kind": "digest",
+      "id": "fnv1a64-07eff23c06505584"
      },
      "py": {
-      "kind": "run",
-      "id": "9dbdca5 2026-09-26T12:02:57Z"
+      "kind": "digest",
+      "id": "fnv1a64-07eff23c06505584"
      },
-     "status": "same_results"
+     "status": "same"
     },
     "km_vs_laya": {
      "modelless": {
@@ -3106,10 +3137,10 @@
       "id": "fnv1a64-07eff23c06505584"
      },
      "rust": {
-      "kind": "run",
-      "id": "b1aee72 2026-09-26T15:34:14Z"
+      "kind": "digest",
+      "id": "fnv1a64-07eff23c06505584"
      },
-     "status": "unknown"
+     "status": "same"
     }
    }
   },
@@ -3474,15 +3505,15 @@
      "score_mae": null,
      "within_1": null,
      "latency_p50_ms": 14.0,
-     "latency_p99_ms": 21.0,
+     "latency_p99_ms": 20.0,
      "latency_tail_support": 5,
      "latency_extremes": {
-      "first_ms": 11.0,
-      "max_ms": 24.0,
+      "first_ms": 12.0,
+      "max_ms": 23.0,
       "argmax_case": 22
      },
      "determinism_ok": true,
-     "seconds": 9.56076175,
+     "seconds": 9.871729916,
      "n_cases": 400,
      "n_questions": 400,
      "score_threshold": null,
@@ -3491,9 +3522,12 @@
      "corpus_cap": null,
      "head_selection": null,
      "nb_selection": null,
+     "oc_selection": null,
+     "ridge_selection": null,
      "transductive": null,
      "confusion": null,
-     "pair_head_ab": null
+     "pair_head_ab": null,
+     "cases_digest": "fnv1a64-6feefd1c947dd008"
     },
     "py/english": {
      "lane": "laya (python)",
@@ -3523,16 +3557,16 @@
      "brier_soft": null,
      "score_mae": null,
      "within_1": null,
-     "latency_p50_ms": 23.0,
-     "latency_p99_ms": 61.0,
+     "latency_p50_ms": 24.0,
+     "latency_p99_ms": 58.0,
      "latency_tail_support": 5,
      "latency_extremes": {
-      "first_ms": 15.0,
-      "max_ms": 68.0,
-      "argmax_case": 7
+      "first_ms": 17.0,
+      "max_ms": 67.0,
+      "argmax_case": 143
      },
      "determinism_ok": true,
-     "seconds": 15.946402917,
+     "seconds": 16.902667542,
      "n_cases": 400,
      "n_questions": 400,
      "score_threshold": null,
@@ -3540,9 +3574,13 @@
      "threshold_recommendation": null,
      "corpus_cap": null,
      "head_selection": null,
+     "nb_selection": null,
+     "oc_selection": null,
+     "ridge_selection": null,
+     "transductive": null,
      "confusion": null,
      "pair_head_ab": null,
-     "acc_deleaked": 0.5925
+     "cases_digest": "fnv1a64-6feefd1c947dd008"
     }
    },
    "extra_host_lanes": {
@@ -4198,14 +4236,14 @@
    "pairing": {
     "rust_vs_py": {
      "rust": {
-      "kind": "run",
-      "id": "b1aee72 2026-09-26T15:34:14Z"
+      "kind": "digest",
+      "id": "fnv1a64-6feefd1c947dd008"
      },
      "py": {
-      "kind": "run",
-      "id": "9dbdca5 2026-09-26T12:02:57Z"
+      "kind": "digest",
+      "id": "fnv1a64-6feefd1c947dd008"
      },
-     "status": "same_results"
+     "status": "same"
     },
     "km_vs_laya": {
      "modelless": {
@@ -4213,10 +4251,10 @@
       "id": "fnv1a64-6feefd1c947dd008"
      },
      "rust": {
-      "kind": "run",
-      "id": "b1aee72 2026-09-26T15:34:14Z"
+      "kind": "digest",
+      "id": "fnv1a64-6feefd1c947dd008"
      },
-     "status": "unknown"
+     "status": "same"
     }
    }
   },
@@ -4580,16 +4618,16 @@
      "brier_soft": null,
      "score_mae": null,
      "within_1": null,
-     "latency_p50_ms": 17.0,
-     "latency_p99_ms": 22.0,
+     "latency_p50_ms": 18.0,
+     "latency_p99_ms": 24.0,
      "latency_tail_support": 7,
      "latency_extremes": {
-      "first_ms": 12.0,
+      "first_ms": 14.0,
       "max_ms": 26.0,
-      "argmax_case": 22
+      "argmax_case": 19
      },
      "determinism_ok": true,
-     "seconds": 13.761783167,
+     "seconds": 14.787980458,
      "n_cases": 600,
      "n_questions": 600,
      "score_threshold": null,
@@ -4598,9 +4636,12 @@
      "corpus_cap": null,
      "head_selection": null,
      "nb_selection": null,
+     "oc_selection": null,
+     "ridge_selection": null,
      "transductive": null,
      "confusion": null,
-     "pair_head_ab": null
+     "pair_head_ab": null,
+     "cases_digest": "fnv1a64-ad64a6cb0039e916"
     },
     "py/english": {
      "lane": "laya (python)",
@@ -4631,15 +4672,15 @@
      "score_mae": null,
      "within_1": null,
      "latency_p50_ms": 27.0,
-     "latency_p99_ms": 65.0,
+     "latency_p99_ms": 63.0,
      "latency_tail_support": 7,
      "latency_extremes": {
       "first_ms": 16.0,
-      "max_ms": 75.0,
-      "argmax_case": 278
+      "max_ms": 70.0,
+      "argmax_case": 85
      },
      "determinism_ok": true,
-     "seconds": 22.936643166,
+     "seconds": 23.306305667,
      "n_cases": 600,
      "n_questions": 600,
      "score_threshold": null,
@@ -4647,9 +4688,13 @@
      "threshold_recommendation": null,
      "corpus_cap": null,
      "head_selection": null,
+     "nb_selection": null,
+     "oc_selection": null,
+     "ridge_selection": null,
+     "transductive": null,
      "confusion": null,
      "pair_head_ab": null,
-     "acc_deleaked": 0.3722871452420701
+     "cases_digest": "fnv1a64-ad64a6cb0039e916"
     }
    },
    "extra_host_lanes": {
@@ -5303,14 +5348,14 @@
    "pairing": {
     "rust_vs_py": {
      "rust": {
-      "kind": "run",
-      "id": "b1aee72 2026-09-26T15:34:14Z"
+      "kind": "digest",
+      "id": "fnv1a64-ad64a6cb0039e916"
      },
      "py": {
-      "kind": "run",
-      "id": "9dbdca5 2026-09-26T12:02:57Z"
+      "kind": "digest",
+      "id": "fnv1a64-ad64a6cb0039e916"
      },
-     "status": "same_results"
+     "status": "same"
     },
     "km_vs_laya": {
      "modelless": {
@@ -5318,10 +5363,10 @@
       "id": "fnv1a64-ad64a6cb0039e916"
      },
      "rust": {
-      "kind": "run",
-      "id": "b1aee72 2026-09-26T15:34:14Z"
+      "kind": "digest",
+      "id": "fnv1a64-ad64a6cb0039e916"
      },
-     "status": "unknown"
+     "status": "same"
     }
    }
   },
@@ -5683,15 +5728,15 @@
      "score_mae": null,
      "within_1": null,
      "latency_p50_ms": 18.0,
-     "latency_p99_ms": 36.0,
+     "latency_p99_ms": 37.0,
      "latency_tail_support": 2,
      "latency_extremes": {
       "first_ms": 22.0,
-      "max_ms": 41.0,
+      "max_ms": 38.0,
       "argmax_case": 37
      },
      "determinism_ok": true,
-     "seconds": 5.8346642079999995,
+     "seconds": 6.029472583,
      "n_cases": 116,
      "n_questions": 116,
      "score_threshold": null,
@@ -5700,9 +5745,12 @@
      "corpus_cap": null,
      "head_selection": null,
      "nb_selection": null,
+     "oc_selection": null,
+     "ridge_selection": null,
      "transductive": null,
      "confusion": null,
-     "pair_head_ab": null
+     "pair_head_ab": null,
+     "cases_digest": "fnv1a64-5080803ec29f2423"
     },
     "py/english": {
      "lane": "laya (python)",
@@ -5733,15 +5781,15 @@
      "score_mae": null,
      "within_1": null,
      "latency_p50_ms": 30.0,
-     "latency_p99_ms": 71.0,
+     "latency_p99_ms": 73.0,
      "latency_tail_support": 2,
      "latency_extremes": {
       "first_ms": 30.0,
-      "max_ms": 72.0,
-      "argmax_case": 45
+      "max_ms": 84.0,
+      "argmax_case": 84
      },
      "determinism_ok": true,
-     "seconds": 10.204475416,
+     "seconds": 10.115332209,
      "n_cases": 116,
      "n_questions": 116,
      "score_threshold": null,
@@ -5749,9 +5797,13 @@
      "threshold_recommendation": null,
      "corpus_cap": null,
      "head_selection": null,
+     "nb_selection": null,
+     "oc_selection": null,
+     "ridge_selection": null,
+     "transductive": null,
      "confusion": null,
      "pair_head_ab": null,
-     "acc_deleaked": 0.6929824561403509
+     "cases_digest": "fnv1a64-5080803ec29f2423"
     }
    },
    "extra_host_lanes": {
@@ -6337,14 +6389,14 @@
    "pairing": {
     "rust_vs_py": {
      "rust": {
-      "kind": "run",
-      "id": "b1aee72 2026-09-26T15:34:14Z"
+      "kind": "digest",
+      "id": "fnv1a64-5080803ec29f2423"
      },
      "py": {
-      "kind": "run",
-      "id": "9dbdca5 2026-09-26T12:02:57Z"
+      "kind": "digest",
+      "id": "fnv1a64-5080803ec29f2423"
      },
-     "status": "same_results"
+     "status": "same"
     },
     "km_vs_laya": {
      "modelless": {
@@ -6352,10 +6404,10 @@
       "id": "fnv1a64-5080803ec29f2423"
      },
      "rust": {
-      "kind": "run",
-      "id": "b1aee72 2026-09-26T15:34:14Z"
+      "kind": "digest",
+      "id": "fnv1a64-5080803ec29f2423"
      },
-     "status": "unknown"
+     "status": "same"
     }
    }
   },
@@ -6753,16 +6805,16 @@
      "brier_soft": null,
      "score_mae": null,
      "within_1": null,
-     "latency_p50_ms": 24.0,
-     "latency_p99_ms": 33.0,
+     "latency_p50_ms": 19.0,
+     "latency_p99_ms": 25.0,
      "latency_tail_support": 4,
      "latency_extremes": {
-      "first_ms": 16.0,
-      "max_ms": 35.0,
-      "argmax_case": 275
+      "first_ms": 17.0,
+      "max_ms": 27.0,
+      "argmax_case": 13
      },
      "determinism_ok": true,
-     "seconds": 10.860202667,
+     "seconds": 9.95162,
      "n_cases": 300,
      "n_questions": 300,
      "score_threshold": null,
@@ -6771,9 +6823,12 @@
      "corpus_cap": null,
      "head_selection": null,
      "nb_selection": null,
+     "oc_selection": null,
+     "ridge_selection": null,
      "transductive": null,
      "confusion": null,
-     "pair_head_ab": null
+     "pair_head_ab": null,
+     "cases_digest": "fnv1a64-b136750e5af1d412"
     },
     "py/english": {
      "lane": "laya (python)",
@@ -6803,16 +6858,16 @@
      "brier_soft": null,
      "score_mae": null,
      "within_1": null,
-     "latency_p50_ms": 31.0,
-     "latency_p99_ms": 62.0,
+     "latency_p50_ms": 32.0,
+     "latency_p99_ms": 71.0,
      "latency_tail_support": 4,
      "latency_extremes": {
       "first_ms": 23.0,
       "max_ms": 83.0,
-      "argmax_case": 101
+      "argmax_case": 209
      },
      "determinism_ok": true,
-     "seconds": 16.069624083,
+     "seconds": 16.605432417,
      "n_cases": 300,
      "n_questions": 300,
      "score_threshold": null,
@@ -6820,9 +6875,13 @@
      "threshold_recommendation": null,
      "corpus_cap": null,
      "head_selection": null,
+     "nb_selection": null,
+     "oc_selection": null,
+     "ridge_selection": null,
+     "transductive": null,
      "confusion": null,
      "pair_head_ab": null,
-     "acc_deleaked": 0.86
+     "cases_digest": "fnv1a64-b136750e5af1d412"
     }
    },
    "extra_host_lanes": {
@@ -7445,14 +7504,14 @@
    "pairing": {
     "rust_vs_py": {
      "rust": {
-      "kind": "run",
-      "id": "b1aee72 2026-09-26T15:34:14Z"
+      "kind": "digest",
+      "id": "fnv1a64-b136750e5af1d412"
      },
      "py": {
-      "kind": "run",
-      "id": "9dbdca5 2026-09-26T12:02:57Z"
+      "kind": "digest",
+      "id": "fnv1a64-b136750e5af1d412"
      },
-     "status": "same_results"
+     "status": "same"
     },
     "km_vs_laya": {
      "modelless": {
@@ -7460,10 +7519,10 @@
       "id": "fnv1a64-b136750e5af1d412"
      },
      "rust": {
-      "kind": "run",
-      "id": "b1aee72 2026-09-26T15:34:14Z"
+      "kind": "digest",
+      "id": "fnv1a64-b136750e5af1d412"
      },
-     "status": "unknown"
+     "status": "same"
     }
    }
   },
@@ -7828,15 +7887,15 @@
      "score_mae": null,
      "within_1": null,
      "latency_p50_ms": 31.0,
-     "latency_p99_ms": 44.0,
+     "latency_p99_ms": 38.0,
      "latency_tail_support": 4,
      "latency_extremes": {
-      "first_ms": 24.0,
-      "max_ms": 49.0,
-      "argmax_case": 7
+      "first_ms": 25.0,
+      "max_ms": 40.0,
+      "argmax_case": 6
      },
      "determinism_ok": true,
-     "seconds": 13.499785833,
+     "seconds": 13.264258166,
      "n_cases": 300,
      "n_questions": 300,
      "score_threshold": null,
@@ -7845,26 +7904,29 @@
      "corpus_cap": null,
      "head_selection": null,
      "nb_selection": null,
+     "oc_selection": null,
+     "ridge_selection": null,
      "transductive": null,
      "confusion": null,
-     "pair_head_ab": null
+     "pair_head_ab": null,
+     "cases_digest": "fnv1a64-49390c8b80475849"
     },
     "py/english": {
      "lane": "laya (python)",
      "model": "english",
      "hard": {
       "n": 300,
-      "accuracy": 0.75,
-      "macro_f1": 0.7512148432458732,
-      "ece": 0.2046963333333332,
-      "brier": 0.43243263840000007,
-      "nll": 2.9079302390869746,
-      "aurc": 0.1021558189191745,
-      "mean_confidence": 0.9546963333333338,
-      "acc_at_50_coverage": 0.9333333333333333,
-      "acc_at_80_coverage": 0.8708333333333333
+      "accuracy": 0.6933333333333334,
+      "macro_f1": 0.6936125577989888,
+      "ece": 0.24830299999999972,
+      "brier": 0.5405290377000004,
+      "nll": 3.5499541563128743,
+      "aurc": 0.14436891325283494,
+      "mean_confidence": 0.9300263333333335,
+      "acc_at_50_coverage": 0.9133333333333333,
+      "acc_at_80_coverage": 0.775
      },
-     "readout_ece": 0.2076326666666662,
+     "readout_ece": 0.2440686666666666,
      "raw_abstain": null,
      "calibrated_abstain": null,
      "readout_ece_raw": null,
@@ -7882,11 +7944,11 @@
      "latency_tail_support": 4,
      "latency_extremes": {
       "first_ms": 33.0,
-      "max_ms": 85.0,
-      "argmax_case": 6
+      "max_ms": 89.0,
+      "argmax_case": 42
      },
      "determinism_ok": true,
-     "seconds": 22.017893708,
+     "seconds": 21.45423025,
      "n_cases": 300,
      "n_questions": 300,
      "score_threshold": null,
@@ -7894,9 +7956,13 @@
      "threshold_recommendation": null,
      "corpus_cap": null,
      "head_selection": null,
+     "nb_selection": null,
+     "oc_selection": null,
+     "ridge_selection": null,
+     "transductive": null,
      "confusion": null,
      "pair_head_ab": null,
-     "acc_deleaked": 0.7634408602150538
+     "cases_digest": "fnv1a64-49390c8b80475849"
     }
    },
    "extra_host_lanes": {
@@ -8450,14 +8516,14 @@
    "pairing": {
     "rust_vs_py": {
      "rust": {
-      "kind": "run",
-      "id": "b1aee72 2026-09-26T15:34:14Z"
+      "kind": "digest",
+      "id": "fnv1a64-49390c8b80475849"
      },
      "py": {
-      "kind": "run",
-      "id": "9dbdca5 2026-09-26T12:02:57Z"
+      "kind": "digest",
+      "id": "fnv1a64-49390c8b80475849"
      },
-     "status": "differs"
+     "status": "same"
     },
     "km_vs_laya": {
      "modelless": {
@@ -8465,10 +8531,10 @@
       "id": "fnv1a64-49390c8b80475849"
      },
      "rust": {
-      "kind": "run",
-      "id": "b1aee72 2026-09-26T15:34:14Z"
+      "kind": "digest",
+      "id": "fnv1a64-49390c8b80475849"
      },
-     "status": "unknown"
+     "status": "same"
     }
    }
   },
@@ -8832,16 +8898,16 @@
      "brier_soft": null,
      "score_mae": null,
      "within_1": null,
-     "latency_p50_ms": 47.0,
-     "latency_p99_ms": 60.0,
+     "latency_p50_ms": 48.0,
+     "latency_p99_ms": 58.0,
      "latency_tail_support": 6,
      "latency_extremes": {
-      "first_ms": 36.0,
-      "max_ms": 64.0,
+      "first_ms": 37.0,
+      "max_ms": 66.0,
       "argmax_case": 4
      },
      "determinism_ok": true,
-     "seconds": 28.197795792,
+     "seconds": 28.820647875,
      "n_cases": 500,
      "n_questions": 500,
      "score_threshold": null,
@@ -8850,26 +8916,29 @@
      "corpus_cap": null,
      "head_selection": null,
      "nb_selection": null,
+     "oc_selection": null,
+     "ridge_selection": null,
      "transductive": null,
      "confusion": null,
-     "pair_head_ab": null
+     "pair_head_ab": null,
+     "cases_digest": "fnv1a64-dd8ab35333abb82a"
     },
     "py/english": {
      "lane": "laya (python)",
      "model": "english",
      "hard": {
       "n": 500,
-      "accuracy": 0.498,
-      "macro_f1": 0.15191500821572465,
-      "ece": 0.3157606000000001,
-      "brier": 0.7995899373000378,
-      "nll": 5.37511158155054,
-      "aurc": 0.31412179374059435,
-      "mean_confidence": 0.8089594000000004,
-      "acc_at_50_coverage": 0.688,
-      "acc_at_80_coverage": 0.5725
+      "accuracy": 0.422,
+      "macro_f1": 0.37652146392023184,
+      "ece": 0.3813438000000001,
+      "brier": 0.9326873171600369,
+      "nll": 6.121874967045045,
+      "aurc": 0.4066392903778559,
+      "mean_confidence": 0.7951097999999999,
+      "acc_at_50_coverage": 0.6,
+      "acc_at_80_coverage": 0.475
      },
-     "readout_ece": 0.3314097999999997,
+     "readout_ece": 0.3940095999999995,
      "raw_abstain": null,
      "calibrated_abstain": null,
      "readout_ece_raw": null,
@@ -8882,16 +8951,16 @@
      "brier_soft": null,
      "score_mae": null,
      "within_1": null,
-     "latency_p50_ms": 73.0,
-     "latency_p99_ms": 104.0,
+     "latency_p50_ms": 76.0,
+     "latency_p99_ms": 110.0,
      "latency_tail_support": 6,
      "latency_extremes": {
-      "first_ms": 53.0,
-      "max_ms": 110.0,
-      "argmax_case": 189
+      "first_ms": 52.0,
+      "max_ms": 172.0,
+      "argmax_case": 120
      },
      "determinism_ok": true,
-     "seconds": 44.121761167,
+     "seconds": 46.196261833,
      "n_cases": 500,
      "n_questions": 500,
      "score_threshold": null,
@@ -8899,9 +8968,13 @@
      "threshold_recommendation": null,
      "corpus_cap": null,
      "head_selection": null,
+     "nb_selection": null,
+     "oc_selection": null,
+     "ridge_selection": null,
+     "transductive": null,
      "confusion": null,
      "pair_head_ab": null,
-     "acc_deleaked": 0.494824016563147
+     "cases_digest": "fnv1a64-dd8ab35333abb82a"
     }
    },
    "extra_host_lanes": {
@@ -9523,14 +9596,14 @@
    "pairing": {
     "rust_vs_py": {
      "rust": {
-      "kind": "run",
-      "id": "b1aee72 2026-09-26T15:34:14Z"
+      "kind": "digest",
+      "id": "fnv1a64-dd8ab35333abb82a"
      },
      "py": {
-      "kind": "run",
-      "id": "9dbdca5 2026-09-26T12:02:57Z"
+      "kind": "digest",
+      "id": "fnv1a64-dd8ab35333abb82a"
      },
-     "status": "differs"
+     "status": "same"
     },
     "km_vs_laya": {
      "modelless": {
@@ -9538,10 +9611,10 @@
       "id": "fnv1a64-dd8ab35333abb82a"
      },
      "rust": {
-      "kind": "run",
-      "id": "b1aee72 2026-09-26T15:34:14Z"
+      "kind": "digest",
+      "id": "fnv1a64-dd8ab35333abb82a"
      },
-     "status": "unknown"
+     "status": "same"
     }
    }
   },
@@ -9743,16 +9816,16 @@
      "brier_soft": null,
      "score_mae": null,
      "within_1": null,
-     "latency_p50_ms": 63.0,
-     "latency_p99_ms": 180.0,
+     "latency_p50_ms": 59.0,
+     "latency_p99_ms": 169.0,
      "latency_tail_support": 1,
      "latency_extremes": {
-      "first_ms": 29.0,
-      "max_ms": 180.0,
+      "first_ms": 30.0,
+      "max_ms": 169.0,
       "argmax_case": 3
      },
      "determinism_ok": true,
-     "seconds": 5.021994042,
+     "seconds": 5.295615,
      "n_cases": 12,
      "n_questions": 24,
      "score_threshold": null,
@@ -9761,26 +9834,29 @@
      "corpus_cap": null,
      "head_selection": null,
      "nb_selection": null,
+     "oc_selection": null,
+     "ridge_selection": null,
      "transductive": null,
      "confusion": null,
-     "pair_head_ab": null
+     "pair_head_ab": null,
+     "cases_digest": "fnv1a64-d3e1184c4720e3af"
     },
     "py/english": {
      "lane": "laya (python)",
      "model": "english",
      "hard": {
       "n": 24,
-      "accuracy": 0.5833333333333334,
-      "macro_f1": 0.48744588744588746,
-      "ece": 0.26657499999999995,
-      "brier": 0.6111529754166662,
-      "nll": 1.5034389657841654,
-      "aurc": 0.4046804543620232,
-      "mean_confidence": 0.7004333333333334,
-      "acc_at_50_coverage": 0.75,
-      "acc_at_80_coverage": 0.6842105263157895
+      "accuracy": 0.6666666666666666,
+      "macro_f1": 0.5517006802721088,
+      "ece": 0.18182916666666668,
+      "brier": 0.5064034974999998,
+      "nll": 1.170981411841484,
+      "aurc": 0.2826953872518551,
+      "mean_confidence": 0.7222791666666667,
+      "acc_at_50_coverage": 0.8333333333333334,
+      "acc_at_80_coverage": 0.7894736842105263
      },
-     "readout_ece": 0.26294583333333327,
+     "readout_ece": 0.2182,
      "raw_abstain": null,
      "calibrated_abstain": null,
      "readout_ece_raw": null,
@@ -9793,16 +9869,16 @@
      "brier_soft": null,
      "score_mae": null,
      "within_1": null,
-     "latency_p50_ms": 79.0,
-     "latency_p99_ms": 230.0,
+     "latency_p50_ms": 105.0,
+     "latency_p99_ms": 211.0,
      "latency_tail_support": 1,
      "latency_extremes": {
-      "first_ms": 49.0,
-      "max_ms": 230.0,
-      "argmax_case": 3
+      "first_ms": 36.0,
+      "max_ms": 211.0,
+      "argmax_case": 9
      },
      "determinism_ok": true,
-     "seconds": 9.130851,
+     "seconds": 8.200057916,
      "n_cases": 12,
      "n_questions": 24,
      "score_threshold": null,
@@ -9810,8 +9886,13 @@
      "threshold_recommendation": null,
      "corpus_cap": null,
      "head_selection": null,
+     "nb_selection": null,
+     "oc_selection": null,
+     "ridge_selection": null,
+     "transductive": null,
      "confusion": null,
-     "pair_head_ab": null
+     "pair_head_ab": null,
+     "cases_digest": "fnv1a64-d3e1184c4720e3af"
     }
    },
    "extra_host_lanes": {
@@ -10230,14 +10311,14 @@
    "pairing": {
     "rust_vs_py": {
      "rust": {
-      "kind": "run",
-      "id": "b1aee72 2026-09-26T15:34:14Z"
+      "kind": "digest",
+      "id": "fnv1a64-d3e1184c4720e3af"
      },
      "py": {
-      "kind": "run",
-      "id": "9dbdca5 2026-09-26T12:02:57Z"
+      "kind": "digest",
+      "id": "fnv1a64-d3e1184c4720e3af"
      },
-     "status": "differs"
+     "status": "same"
     },
     "km_vs_laya": {
      "modelless": {
@@ -10245,10 +10326,10 @@
       "id": "fnv1a64-d3e1184c4720e3af"
      },
      "rust": {
-      "kind": "run",
-      "id": "b1aee72 2026-09-26T15:34:14Z"
+      "kind": "digest",
+      "id": "fnv1a64-d3e1184c4720e3af"
      },
-     "status": "unknown"
+     "status": "same"
     }
    }
   },
@@ -10410,15 +10491,15 @@
      "score_mae": null,
      "within_1": null,
      "latency_p50_ms": 16.0,
-     "latency_p99_ms": 31.0,
+     "latency_p99_ms": 20.0,
      "latency_tail_support": 1,
      "latency_extremes": {
-      "first_ms": 13.0,
-      "max_ms": 31.0,
-      "argmax_case": 15
+      "first_ms": 14.0,
+      "max_ms": 20.0,
+      "argmax_case": 14
      },
      "determinism_ok": true,
-     "seconds": 3.873297542,
+     "seconds": 3.9995845,
      "n_cases": 16,
      "n_questions": 16,
      "score_threshold": null,
@@ -10427,9 +10508,12 @@
      "corpus_cap": null,
      "head_selection": null,
      "nb_selection": null,
+     "oc_selection": null,
+     "ridge_selection": null,
      "transductive": null,
      "confusion": null,
-     "pair_head_ab": null
+     "pair_head_ab": null,
+     "cases_digest": "fnv1a64-6256f41a5d45104d"
     },
     "py/english": {
      "lane": "laya (python)",
@@ -10459,16 +10543,16 @@
      "brier_soft": null,
      "score_mae": null,
      "within_1": null,
-     "latency_p50_ms": 25.0,
-     "latency_p99_ms": 50.0,
+     "latency_p50_ms": 24.0,
+     "latency_p99_ms": 54.0,
      "latency_tail_support": 1,
      "latency_extremes": {
-      "first_ms": 19.0,
-      "max_ms": 50.0,
-      "argmax_case": 8
+      "first_ms": 21.0,
+      "max_ms": 54.0,
+      "argmax_case": 3
      },
      "determinism_ok": true,
-     "seconds": 6.18676025,
+     "seconds": 6.796076833,
      "n_cases": 16,
      "n_questions": 16,
      "score_threshold": null,
@@ -10476,8 +10560,13 @@
      "threshold_recommendation": null,
      "corpus_cap": null,
      "head_selection": null,
+     "nb_selection": null,
+     "oc_selection": null,
+     "ridge_selection": null,
+     "transductive": null,
      "confusion": null,
-     "pair_head_ab": null
+     "pair_head_ab": null,
+     "cases_digest": "fnv1a64-6256f41a5d45104d"
     }
    },
    "extra_host_lanes": {
@@ -10855,14 +10944,14 @@
    "pairing": {
     "rust_vs_py": {
      "rust": {
-      "kind": "run",
-      "id": "b1aee72 2026-09-26T15:34:14Z"
+      "kind": "digest",
+      "id": "fnv1a64-6256f41a5d45104d"
      },
      "py": {
-      "kind": "run",
-      "id": "9dbdca5 2026-09-26T12:02:57Z"
+      "kind": "digest",
+      "id": "fnv1a64-6256f41a5d45104d"
      },
-     "status": "same_results"
+     "status": "same"
     },
     "km_vs_laya": {
      "modelless": {
@@ -10870,10 +10959,10 @@
       "id": "fnv1a64-6256f41a5d45104d"
      },
      "rust": {
-      "kind": "run",
-      "id": "b1aee72 2026-09-26T15:34:14Z"
+      "kind": "digest",
+      "id": "fnv1a64-6256f41a5d45104d"
      },
-     "status": "unknown"
+     "status": "same"
     }
    }
   },
@@ -11023,15 +11112,15 @@
      "score_mae": null,
      "within_1": null,
      "latency_p50_ms": 15.0,
-     "latency_p99_ms": 20.0,
+     "latency_p99_ms": 18.0,
      "latency_tail_support": 1,
      "latency_extremes": {
       "first_ms": 14.0,
-      "max_ms": 20.0,
+      "max_ms": 18.0,
       "argmax_case": 11
      },
      "determinism_ok": true,
-     "seconds": 3.733709583,
+     "seconds": 3.937799083,
      "n_cases": 12,
      "n_questions": 12,
      "score_threshold": null,
@@ -11040,9 +11129,12 @@
      "corpus_cap": null,
      "head_selection": null,
      "nb_selection": null,
+     "oc_selection": null,
+     "ridge_selection": null,
      "transductive": null,
      "confusion": null,
-     "pair_head_ab": null
+     "pair_head_ab": null,
+     "cases_digest": "fnv1a64-12ee83a1c6493b29"
     },
     "py/english": {
      "lane": "laya (python)",
@@ -11072,16 +11164,16 @@
      "brier_soft": null,
      "score_mae": null,
      "within_1": null,
-     "latency_p50_ms": 26.0,
-     "latency_p99_ms": 55.0,
+     "latency_p50_ms": 25.0,
+     "latency_p99_ms": 54.0,
      "latency_tail_support": 1,
      "latency_extremes": {
-      "first_ms": 18.0,
-      "max_ms": 55.0,
+      "first_ms": 20.0,
+      "max_ms": 54.0,
       "argmax_case": 9
      },
      "determinism_ok": true,
-     "seconds": 6.138196958,
+     "seconds": 6.218658416,
      "n_cases": 12,
      "n_questions": 12,
      "score_threshold": null,
@@ -11089,8 +11181,13 @@
      "threshold_recommendation": null,
      "corpus_cap": null,
      "head_selection": null,
+     "nb_selection": null,
+     "oc_selection": null,
+     "ridge_selection": null,
+     "transductive": null,
      "confusion": null,
-     "pair_head_ab": null
+     "pair_head_ab": null,
+     "cases_digest": "fnv1a64-12ee83a1c6493b29"
     }
    },
    "extra_host_lanes": {
@@ -11456,14 +11553,14 @@
    "pairing": {
     "rust_vs_py": {
      "rust": {
-      "kind": "run",
-      "id": "b1aee72 2026-09-26T15:34:14Z"
+      "kind": "digest",
+      "id": "fnv1a64-12ee83a1c6493b29"
      },
      "py": {
-      "kind": "run",
-      "id": "9dbdca5 2026-09-26T12:02:57Z"
+      "kind": "digest",
+      "id": "fnv1a64-12ee83a1c6493b29"
      },
-     "status": "same_results"
+     "status": "same"
     },
     "km_vs_laya": {
      "modelless": {
@@ -11471,10 +11568,10 @@
       "id": "fnv1a64-12ee83a1c6493b29"
      },
      "rust": {
-      "kind": "run",
-      "id": "b1aee72 2026-09-26T15:34:14Z"
+      "kind": "digest",
+      "id": "fnv1a64-12ee83a1c6493b29"
      },
-     "status": "unknown"
+     "status": "same"
     }
    }
   },
@@ -11642,15 +11739,15 @@
      "score_mae": null,
      "within_1": null,
      "latency_p50_ms": 12.0,
-     "latency_p99_ms": 14.0,
+     "latency_p99_ms": 15.0,
      "latency_tail_support": 1,
      "latency_extremes": {
-      "first_ms": 12.0,
-      "max_ms": 14.0,
-      "argmax_case": 11
+      "first_ms": 15.0,
+      "max_ms": 15.0,
+      "argmax_case": 0
      },
      "determinism_ok": true,
-     "seconds": 3.740131458,
+     "seconds": 3.921596542,
      "n_cases": 12,
      "n_questions": 12,
      "score_threshold": null,
@@ -11659,9 +11756,12 @@
      "corpus_cap": null,
      "head_selection": null,
      "nb_selection": null,
+     "oc_selection": null,
+     "ridge_selection": null,
      "transductive": null,
      "confusion": null,
-     "pair_head_ab": null
+     "pair_head_ab": null,
+     "cases_digest": "fnv1a64-f8aa91cdb65abf34"
     },
     "py/english": {
      "lane": "laya (python)",
@@ -11691,16 +11791,16 @@
      "brier_soft": null,
      "score_mae": null,
      "within_1": null,
-     "latency_p50_ms": 19.0,
-     "latency_p99_ms": 45.0,
+     "latency_p50_ms": 20.0,
+     "latency_p99_ms": 46.0,
      "latency_tail_support": 1,
      "latency_extremes": {
       "first_ms": 16.0,
-      "max_ms": 45.0,
-      "argmax_case": 2
+      "max_ms": 46.0,
+      "argmax_case": 10
      },
      "determinism_ok": true,
-     "seconds": 6.097882084,
+     "seconds": 6.241498208,
      "n_cases": 12,
      "n_questions": 12,
      "score_threshold": null,
@@ -11708,8 +11808,13 @@
      "threshold_recommendation": null,
      "corpus_cap": null,
      "head_selection": null,
+     "nb_selection": null,
+     "oc_selection": null,
+     "ridge_selection": null,
+     "transductive": null,
      "confusion": null,
-     "pair_head_ab": null
+     "pair_head_ab": null,
+     "cases_digest": "fnv1a64-f8aa91cdb65abf34"
     }
    },
    "extra_host_lanes": {
@@ -12093,14 +12198,14 @@
    "pairing": {
     "rust_vs_py": {
      "rust": {
-      "kind": "run",
-      "id": "b1aee72 2026-09-26T15:34:14Z"
+      "kind": "digest",
+      "id": "fnv1a64-f8aa91cdb65abf34"
      },
      "py": {
-      "kind": "run",
-      "id": "9dbdca5 2026-09-26T12:02:57Z"
+      "kind": "digest",
+      "id": "fnv1a64-f8aa91cdb65abf34"
      },
-     "status": "same_results"
+     "status": "same"
     },
     "km_vs_laya": {
      "modelless": {
@@ -12108,10 +12213,10 @@
       "id": "fnv1a64-f8aa91cdb65abf34"
      },
      "rust": {
-      "kind": "run",
-      "id": "b1aee72 2026-09-26T15:34:14Z"
+      "kind": "digest",
+      "id": "fnv1a64-f8aa91cdb65abf34"
      },
-     "status": "unknown"
+     "status": "same"
     }
    }
   },
@@ -12272,16 +12377,16 @@
      "brier_soft": null,
      "score_mae": null,
      "within_1": null,
-     "latency_p50_ms": 19.0,
-     "latency_p99_ms": 27.0,
+     "latency_p50_ms": 18.0,
+     "latency_p99_ms": 23.0,
      "latency_tail_support": 1,
      "latency_extremes": {
-      "first_ms": 15.0,
-      "max_ms": 27.0,
+      "first_ms": 16.0,
+      "max_ms": 23.0,
       "argmax_case": 15
      },
      "determinism_ok": true,
-     "seconds": 3.995417333,
+     "seconds": 4.093022625,
      "n_cases": 16,
      "n_questions": 16,
      "score_threshold": null,
@@ -12290,9 +12395,12 @@
      "corpus_cap": null,
      "head_selection": null,
      "nb_selection": null,
+     "oc_selection": null,
+     "ridge_selection": null,
      "transductive": null,
      "confusion": null,
-     "pair_head_ab": null
+     "pair_head_ab": null,
+     "cases_digest": "fnv1a64-2e568b9aa695d41c"
     },
     "py/english": {
      "lane": "laya (python)",
@@ -12323,15 +12431,15 @@
      "score_mae": null,
      "within_1": null,
      "latency_p50_ms": 28.0,
-     "latency_p99_ms": 57.0,
+     "latency_p99_ms": 59.0,
      "latency_tail_support": 1,
      "latency_extremes": {
       "first_ms": 21.0,
-      "max_ms": 57.0,
-      "argmax_case": 8
+      "max_ms": 59.0,
+      "argmax_case": 12
      },
      "determinism_ok": true,
-     "seconds": 6.333763125,
+     "seconds": 6.553193542,
      "n_cases": 16,
      "n_questions": 16,
      "score_threshold": null,
@@ -12339,8 +12447,13 @@
      "threshold_recommendation": null,
      "corpus_cap": null,
      "head_selection": null,
+     "nb_selection": null,
+     "oc_selection": null,
+     "ridge_selection": null,
+     "transductive": null,
      "confusion": null,
-     "pair_head_ab": null
+     "pair_head_ab": null,
+     "cases_digest": "fnv1a64-2e568b9aa695d41c"
     }
    },
    "extra_host_lanes": {
@@ -12718,14 +12831,14 @@
    "pairing": {
     "rust_vs_py": {
      "rust": {
-      "kind": "run",
-      "id": "b1aee72 2026-09-26T15:34:14Z"
+      "kind": "digest",
+      "id": "fnv1a64-2e568b9aa695d41c"
      },
      "py": {
-      "kind": "run",
-      "id": "9dbdca5 2026-09-26T12:02:57Z"
+      "kind": "digest",
+      "id": "fnv1a64-2e568b9aa695d41c"
      },
-     "status": "same_results"
+     "status": "same"
     },
     "km_vs_laya": {
      "modelless": {
@@ -12733,10 +12846,10 @@
       "id": "fnv1a64-2e568b9aa695d41c"
      },
      "rust": {
-      "kind": "run",
-      "id": "b1aee72 2026-09-26T15:34:14Z"
+      "kind": "digest",
+      "id": "fnv1a64-2e568b9aa695d41c"
      },
-     "status": "unknown"
+     "status": "same"
     }
    }
   },
@@ -12910,15 +13023,15 @@
      "score_mae": null,
      "within_1": null,
      "latency_p50_ms": 17.0,
-     "latency_p99_ms": 30.0,
+     "latency_p99_ms": 22.0,
      "latency_tail_support": 1,
      "latency_extremes": {
-      "first_ms": 14.0,
-      "max_ms": 30.0,
-      "argmax_case": 14
+      "first_ms": 16.0,
+      "max_ms": 22.0,
+      "argmax_case": 13
      },
      "determinism_ok": true,
-     "seconds": 3.908906,
+     "seconds": 4.036366625,
      "n_cases": 15,
      "n_questions": 15,
      "score_threshold": null,
@@ -12927,9 +13040,12 @@
      "corpus_cap": null,
      "head_selection": null,
      "nb_selection": null,
+     "oc_selection": null,
+     "ridge_selection": null,
      "transductive": null,
      "confusion": null,
-     "pair_head_ab": null
+     "pair_head_ab": null,
+     "cases_digest": "fnv1a64-c0bd4e4084dd9e3f"
     },
     "py/english": {
      "lane": "laya (python)",
@@ -12959,16 +13075,16 @@
      "brier_soft": null,
      "score_mae": null,
      "within_1": null,
-     "latency_p50_ms": 29.0,
-     "latency_p99_ms": 61.0,
+     "latency_p50_ms": 30.0,
+     "latency_p99_ms": 62.0,
      "latency_tail_support": 1,
      "latency_extremes": {
-      "first_ms": 22.0,
-      "max_ms": 61.0,
+      "first_ms": 20.0,
+      "max_ms": 62.0,
       "argmax_case": 12
      },
      "determinism_ok": true,
-     "seconds": 6.608995209,
+     "seconds": 6.469202875,
      "n_cases": 15,
      "n_questions": 15,
      "score_threshold": null,
@@ -12976,8 +13092,13 @@
      "threshold_recommendation": null,
      "corpus_cap": null,
      "head_selection": null,
+     "nb_selection": null,
+     "oc_selection": null,
+     "ridge_selection": null,
+     "transductive": null,
      "confusion": null,
-     "pair_head_ab": null
+     "pair_head_ab": null,
+     "cases_digest": "fnv1a64-c0bd4e4084dd9e3f"
     }
    },
    "extra_host_lanes": {
@@ -13367,14 +13488,14 @@
    "pairing": {
     "rust_vs_py": {
      "rust": {
-      "kind": "run",
-      "id": "b1aee72 2026-09-26T15:34:14Z"
+      "kind": "digest",
+      "id": "fnv1a64-c0bd4e4084dd9e3f"
      },
      "py": {
-      "kind": "run",
-      "id": "9dbdca5 2026-09-26T12:02:57Z"
+      "kind": "digest",
+      "id": "fnv1a64-c0bd4e4084dd9e3f"
      },
-     "status": "same_results"
+     "status": "same"
     },
     "km_vs_laya": {
      "modelless": {
@@ -13382,10 +13503,10 @@
       "id": "fnv1a64-c0bd4e4084dd9e3f"
      },
      "rust": {
-      "kind": "run",
-      "id": "b1aee72 2026-09-26T15:34:14Z"
+      "kind": "digest",
+      "id": "fnv1a64-c0bd4e4084dd9e3f"
      },
-     "status": "unknown"
+     "status": "same"
     }
    }
   },
@@ -13424,15 +13545,15 @@
      "score_mae": null,
      "within_1": null,
      "latency_p50_ms": 18.0,
-     "latency_p99_ms": 31.0,
+     "latency_p99_ms": 20.0,
      "latency_tail_support": 1,
      "latency_extremes": {
       "first_ms": 15.0,
-      "max_ms": 31.0,
+      "max_ms": 20.0,
       "argmax_case": 11
      },
      "determinism_ok": true,
-     "seconds": 3.898885375,
+     "seconds": 4.03372925,
      "n_cases": 12,
      "n_questions": 12,
      "score_threshold": null,
@@ -13441,9 +13562,12 @@
      "corpus_cap": null,
      "head_selection": null,
      "nb_selection": null,
+     "oc_selection": null,
+     "ridge_selection": null,
      "transductive": null,
      "confusion": null,
-     "pair_head_ab": null
+     "pair_head_ab": null,
+     "cases_digest": "fnv1a64-7340affffa39fcad"
     },
     "py/english": {
      "lane": "laya (python)",
@@ -13473,16 +13597,16 @@
      "brier_soft": null,
      "score_mae": null,
      "within_1": null,
-     "latency_p50_ms": 48.0,
-     "latency_p99_ms": 55.0,
+     "latency_p50_ms": 45.0,
+     "latency_p99_ms": 67.0,
      "latency_tail_support": 1,
      "latency_extremes": {
-      "first_ms": 21.0,
-      "max_ms": 55.0,
+      "first_ms": 22.0,
+      "max_ms": 67.0,
       "argmax_case": 9
      },
      "determinism_ok": true,
-     "seconds": 6.196968708,
+     "seconds": 6.4964585,
      "n_cases": 12,
      "n_questions": 12,
      "score_threshold": null,
@@ -13490,8 +13614,13 @@
      "threshold_recommendation": null,
      "corpus_cap": null,
      "head_selection": null,
+     "nb_selection": null,
+     "oc_selection": null,
+     "ridge_selection": null,
+     "transductive": null,
      "confusion": null,
-     "pair_head_ab": null
+     "pair_head_ab": null,
+     "cases_digest": "fnv1a64-7340affffa39fcad"
     }
    },
    "extra_host_lanes": {
@@ -13698,14 +13827,14 @@
    "pairing": {
     "rust_vs_py": {
      "rust": {
-      "kind": "run",
-      "id": "b1aee72 2026-09-26T15:34:14Z"
+      "kind": "digest",
+      "id": "fnv1a64-7340affffa39fcad"
      },
      "py": {
-      "kind": "run",
-      "id": "9dbdca5 2026-09-26T12:02:57Z"
+      "kind": "digest",
+      "id": "fnv1a64-7340affffa39fcad"
      },
-     "status": "same_results"
+     "status": "same"
     }
    }
   }
