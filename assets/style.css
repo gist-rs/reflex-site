@@ -264,7 +264,7 @@ a.brand:hover { text-decoration: underline; text-decoration-color: var(--line); 
 .bc-axis span:last-child { transform: translateX(-100%); }
 .bc-note { font-size: 12px; color: var(--muted); margin: 10px 0 0; }
 .bc-mut { color: var(--muted); font-weight: 400; }
-.bc-tip { position: fixed; display: none; z-index: 20; pointer-events: none; background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 7px 10px; font-size: 12px; line-height: 1.5; color: var(--text); box-shadow: 0 4px 18px rgba(0,0,0,.45); max-width: 320px; }
+.bc-tip { position: fixed; display: none; z-index: 20; pointer-events: none; background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 7px 10px; font-size: 12px; line-height: 1.5; color: var(--text); box-shadow: 0 4px 18px rgba(0,0,0,.45); max-width: min(360px, calc(100vw - 16px)); overflow-wrap: anywhere; }
 @media (max-width: 640px) {
   .bc-hgrid { grid-template-columns: 96px 1fr; }
 }
@@ -322,10 +322,12 @@ h1.page-title { font-size: 36px; margin: 44px 0 8px; }
 .sz-chips { display: flex; flex-wrap: wrap; gap: 4px; justify-content: flex-end; }
 .sz-chip { font-size: 10px; line-height: 1.5; color: var(--muted); border: 1px solid var(--line); border-radius: 4px; padding: 0 5px; white-space: nowrap; }
 .sz-total { text-align: right; font-variant-numeric: tabular-nums; }
-.sz-stack { height: 14px; gap: 0; }
-.sz-stack i { border-radius: 0; outline: none; }
+.sz-stack { height: 20px; gap: 0; }
+.sz-bar { display: flex; height: 100%; }
+.sz-stack i { border-radius: 0; outline: none; min-width: 2px; position: relative; overflow: hidden; display: flex; align-items: center; }
 .sz-stack i:last-child { border-radius: 0 4px 4px 0; }
 .sz-stack i + i { box-shadow: inset 2px 0 0 var(--bg2); }
+.sz-lbl { padding: 0 6px; font-size: 10.5px; font-style: normal; line-height: 1; color: #fff; white-space: nowrap; font-variant-numeric: tabular-nums; text-shadow: 0 1px 1px rgba(0,0,0,.35); pointer-events: none; }
 .sz-stack:hover i { filter: none; }
 .sz-stack i:hover, .sz-stack i:focus { filter: brightness(1.25); }
 .sz-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 10px; margin-bottom: 8px; }

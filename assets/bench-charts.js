@@ -409,9 +409,13 @@
 
   function summaryBody() {
     const d = summaryData, m = summaryMetric, M = METRICS[m], f = fmtOf(m);
-    const rows = LANES.map((lane) => {
-      const a = laneStats(d, m, lane);
-      if (!a) return "";
+    // rows sorted best-average-first for the active metric: highest mean
+    // accuracy first, fastest geometric-mean latency first (Array.sort is
+    // stable, so ties keep LANES order); lanes with no cell are dropped
+    const ranked = LANES.map((lane) => [lane, laneStats(d, m, lane)])
+      .filter(([, a]) => a)
+      .sort(([, x], [, y]) => (M.log ? x.value - y.value : y.value - x.value));
+    const rows = ranked.map(([lane, a]) => {
       const fLo = frac(m, a.min), fHi = frac(m, a.max), fAv = frac(m, a.value);
       const how = M.log ? "geometric mean" : "macro-average";
       const spread = a.n > 1 ? `min <b>${f(a.min)}</b> · max <b>${f(a.max)}</b>` : "single suite";
@@ -439,6 +443,7 @@
     const note = (M.log
       ? "Band = min → max suite p50; tick = geometric mean; each gridline 10×, shorter is faster. "
       : "Band = min → max suite accuracy; tick = macro-average; chance differs per suite — compare lanes, not suites. ") +
+      `Rows sorted ${M.log ? "fastest" : "best"} average first. ` +
       `Over ${(d.suites || []).length} published suites — hover a bar for per-suite values.`;
     return `<div class="bc-hgrid"><div></div>${axis(m)}${rows}<div></div>${axis(m)}</div><p class="bc-note">${esc(note)}</p>`;
   }

@@ -70,6 +70,20 @@ function checkMetric(metric, bodySel) {
     const val = a.match(/averaged: (.+?) over (\d+) suites/);
     if (!val) { console.error(`FAIL[${metric}]: unparseable aria-label: ${a}`); process.exit(1); }
   }
+  // Rows sort best-average-first: accuracy descending, latency ascending.
+  const toNum = (t) => {
+    const m = t.trim().match(/^([\d.]+)\s*(%|µs|ms|s)$/);
+    if (!m) { console.error(`FAIL[${metric}]: unparseable average "${t}"`); process.exit(1); }
+    return +m[1] * ({ "%": 1, "µs": 1e-3, ms: 1, s: 1e3 })[m[2]];
+  };
+  const avgs = [...html.matchAll(/aria-label="[^"]+ averaged: (.+?) over \d+ suites/g)].map((m) => toNum(m[1]));
+  const lowerBetter = metric === "p50";
+  for (let i = 1; i < avgs.length; i++) {
+    if (lowerBetter ? avgs[i] < avgs[i - 1] : avgs[i] > avgs[i - 1]) {
+      console.error(`FAIL[${metric}]: rows not sorted best-first at row ${i}: ${avgs.join(", ")}`);
+      process.exit(1);
+    }
+  }
   return { bands: bands.length, labels: labels.length };
 }
 
@@ -82,6 +96,13 @@ toggle.handlers.click({
   target: { closest: (s) => (s === "button[data-metric]" ? { dataset: { metric: "acc" } } : null) },
 });
 const acc = checkMetric("acc", ".bc-summary-body");
+toggle.handlers.click({
+  target: { closest: (s) => (s === "button[data-metric]" ? { dataset: { metric: "acc50" } } : null) },
+});
+checkMetric("acc50", ".bc-summary-body");
+toggle.handlers.click({
+  target: { closest: (s) => (s === "button[data-metric]" ? { dataset: { metric: "acc" } } : null) },
+});
 
 // Regression arm: the OLD markup (a plain width-fill bar with no band) must
 // be gone from the summary — the fill <i> carried no class in the old chart.

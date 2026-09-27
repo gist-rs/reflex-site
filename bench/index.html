@@ -31,7 +31,7 @@
   .bc-cell i { height: 9px; }
   .bc-cell span { color: var(--muted); font-size: 11.5px; white-space: nowrap; font-variant-numeric: tabular-nums; }
   .bc-cell.bc-none { color: var(--muted); }
-  .bc-tip { position: fixed; display: none; z-index: 20; pointer-events: none; background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 7px 10px; font-size: 12px; line-height: 1.5; color: var(--text); box-shadow: 0 4px 18px rgba(0,0,0,.45); max-width: 320px; }
+  .bc-tip { position: fixed; display: none; z-index: 20; pointer-events: none; background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 7px 10px; font-size: 12px; line-height: 1.5; color: var(--text); box-shadow: 0 4px 18px rgba(0,0,0,.45); max-width: min(360px, calc(100vw - 16px)); overflow-wrap: anywhere; }
   .lf-bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 10px 12px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; margin: 12px 0 4px; }
   .lf-chip { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--text); border: 1px solid var(--line); border-radius: 999px; padding: 4px 10px 4px 8px; cursor: pointer; user-select: none; }
   .lf-chip:has(input:checked) { border-color: color-mix(in srgb, var(--accent, #d95926) 55%, var(--line)); }

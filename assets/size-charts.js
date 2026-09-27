@@ -7,14 +7,17 @@
 //   SizeCharts.render(d, el)  → one STACKED bar per candidate on a shared
 //                               log axis (92 KB … 47 GB is six decades — a
 //                               linear axis would flatten everything but the
-//                               largest), data order = ascending total. On a
-//                               log axis a stack is drawn by its CUMULATIVE
-//                               edges: the engine segment ends at the engine
-//                               bytes, the model segment continues to
-//                               engine + model — so the bar's right edge IS
-//                               the total, and each segment's tooltip carries
-//                               its own bytes (a log segment's LENGTH is not
-//                               proportional to its bytes).
+//                               largest), data order = ascending total. The
+//                               bar's right edge IS the total on the log
+//                               axis; WITHIN the bar the segments split by
+//                               byte SHARE (linear), so an 846 MB model on a
+//                               5 MB engine reads as ~99% of its bar. (The
+//                               earlier cumulative-edge split gave the engine
+//                               every decade from the axis floor up to its own
+//                               bytes, so a 5 MB engine out-drew an 846 MB
+//                               model.) Each segment carries its bytes as an
+//                               on-bar label when the label fits, and in its
+//                               tooltip always.
 //
 // Palette: engine = the site's ember (the Reflex · modelless lane color), model = the
 // laya lane blue — both already validated on the dark surfaces. Each
@@ -100,6 +103,18 @@
       `<br><span class="bc-mut">total (engine + model): ${human((c.engine_bytes || 0) + (c.model_bytes || 0))}</span>`;
   };
 
+  // Hide an on-bar label that does not fit its segment (a clipped "8…" reads
+  // as a different number); the tooltip still carries it. Re-run on resize.
+  function fitLabels(el) {
+    if (typeof el.querySelectorAll !== "function") return;
+    for (const l of el.querySelectorAll(".sz-lbl")) {
+      l.style.visibility = "";
+      const seg = l.parentElement;
+      l.style.visibility = l.scrollWidth + 6 <= seg.clientWidth ? "" : "hidden";
+    }
+  }
+  const observed = new WeakSet();
+
   function render(d, el) {
     if (!d || !Array.isArray(d.candidates) || !d.candidates.length) {
       el.innerHTML = '<p class="sub">size data unavailable</p>';
@@ -113,19 +128,20 @@
     const rows = (d.candidates || []).map((c) => {
       const total = (c.engine_bytes || 0) + (c.model_bytes || 0);
       const chips = (c.targets || []).map((t) => `<span class="sz-chip">${esc(t)}</span>`).join("");
-      // cumulative edges on the log axis: engine → [0, engine], model →
-      // [engine, engine + model]; widths are the edge differences.
-      const engineEdge = c.engine_bytes > 0 ? frac(c.engine_bytes, dom) : 0;
+      // bar length = log position of the total; segments split it by byte
+      // share (see header). A non-zero segment keeps a 2px floor (CSS
+      // min-width) so a sliver stays hoverable.
       const totalEdge = frac(total, dom);
-      const seg = (which, bytes, width) =>
+      const seg = (which, bytes) =>
         `<i class="sz-seg" tabindex="0" data-sztip="${esc(tipHtml(c, which))}" ` +
         `aria-label="${esc(`${c.name}: ${which === "engine" ? "runtime" : "model"} ${human(bytes)}`)}" ` +
-        `style="width:${(width * 100).toFixed(2)}%;background:${which === "engine" ? ENGINE_COLOR : MODEL_COLOR}"></i>`;
+        `style="width:${((bytes / total) * 100).toFixed(3)}%;background:${which === "engine" ? ENGINE_COLOR : MODEL_COLOR}">` +
+        `<span class="sz-lbl">${human(bytes)}</span></i>`;
       const stack =
-        `<div class="bc-hbar sz-stack">` +
-        (c.engine_bytes > 0 ? seg("engine", c.engine_bytes, engineEdge) : "") +
-        (c.model_bytes > 0 ? seg("model", c.model_bytes, Math.max(0.002, totalEdge - engineEdge)) : "") +
-        `</div>`;
+        `<div class="bc-hbar sz-stack"><div class="sz-bar" style="width:${(totalEdge * 100).toFixed(2)}%">` +
+        (c.engine_bytes > 0 ? seg("engine", c.engine_bytes) : "") +
+        (c.model_bytes > 0 ? seg("model", c.model_bytes) : "") +
+        `</div></div>`;
       return `<div class="sz-row">` +
         `<div class="bc-hlabel sz-label"><span class="sz-name">${esc(c.name)}</span><span class="sz-chips">${chips}</span></div>` +
         `<div class="bc-htrack">${grid}${stack}</div>` +
@@ -143,7 +159,14 @@
         ? `<p class="bc-note">reflex release <a href="${esc(d.meta.release.url)}">${esc(d.meta.release.tag)}</a> — ` +
           `archives ${human(Math.min(...Object.values(d.meta.release.archives || { x: 0 })))}–${human(Math.max(...Object.values(d.meta.release.archives || { x: 0 })))}` +
           ` · generated ${esc(String(d.meta.date_utc || "").slice(0, 10))}</p>`
-        : "");
+        : "") +
+      `<p class="bc-note">Axis is log-scale (each gridline 10×): a bar ends at its total. ` +
+      `Inside a bar, runtime and model split by their share of the bytes.</p>`;
+    fitLabels(el);
+    if (typeof ResizeObserver !== "undefined" && !observed.has(el)) {
+      observed.add(el);
+      new ResizeObserver(() => fitLabels(el)).observe(el);
+    }
   }
 
   window.SizeCharts = { render, domain, frac, human };
