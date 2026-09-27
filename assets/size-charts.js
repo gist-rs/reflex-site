@@ -4,20 +4,23 @@
 // bench.json law: a hand-typed number on this site is a defect), so a
 // re-published sizes.json re-draws the chart with no edit here.
 //
-//   SizeCharts.render(d, el)  → one STACKED bar per candidate on a shared
-//                               log axis (92 KB … 47 GB is six decades — a
-//                               linear axis would flatten everything but the
-//                               largest), data order = ascending total. The
-//                               bar's right edge IS the total on the log
-//                               axis; WITHIN the bar the segments split by
-//                               byte SHARE (linear), so an 846 MB model on a
-//                               5 MB engine reads as ~99% of its bar. (The
-//                               earlier cumulative-edge split gave the engine
-//                               every decade from the axis floor up to its own
-//                               bytes, so a 5 MB engine out-drew an 846 MB
-//                               model.) Each segment carries its bytes as an
-//                               on-bar label when the label fits, and in its
-//                               tooltip always.
+//   SizeCharts.render(d, el)  → one STACKED bar per candidate (the Apple
+//                               storage-bar idiom), data order = ascending
+//                               total. The axis is a BROKEN LINEAR axis:
+//                               0 … BREAK_AT (1 GB) is linear over the first
+//                               LIN_SPAN of the track, so every bar at or
+//                               under 1 GB ends exactly at its total and the
+//                               small lanes read as small as they are. A
+//                               total over BREAK_AT crosses the break — the
+//                               bar carries a break sign at the 1 GB line and
+//                               its tail runs on a compressed LOG scale
+//                               (1 GB … the largest total) over the rest of
+//                               the track, so 1.5 GB and 47 GB still read
+//                               apart. WITHIN a bar the segments
+//                               split by byte SHARE. Each bar's byte labels
+//                               sit UNDER it, right-aligned to its end, in
+//                               the segment's color; the tooltip carries the
+//                               provenance.
 //
 // Palette: engine = the site's ember (the Reflex · modelless lane color), model = the
 // laya lane blue — both already validated on the dark surfaces. Each
@@ -42,26 +45,41 @@
   const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) =>
     ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
-  // ── the log axis: ticks at each decade spanning the data ────────────────
-  function domain(d) {
-    let lo = Infinity, hi = 0;
-    for (const c of d.candidates || []) {
-      for (const v of [c.engine_bytes, c.model_bytes]) {
-        if (v > 0) { lo = Math.min(lo, v); hi = Math.max(hi, v); }
-      }
-      hi = Math.max(hi, (c.engine_bytes || 0) + (c.model_bytes || 0));
-    }
-    if (!isFinite(lo) || lo <= 0) lo = 1;
-    if (hi <= lo) hi = lo * 1000;
-    return [Math.floor(Math.log10(lo)), Math.ceil(Math.log10(hi))];
+  // ── the broken linear axis ───────────────────────────────────────────
+  // BREAK_AT is a design threshold (the owner's "over 1 GB earns the break
+  // sign"), not a measured number — every byte count still comes from data.
+  const BREAK_AT = 1e9;
+  const LIN_SPAN = 0.8;                    // share of the track the linear 0…BREAK_AT part gets
+  const TAIL_FLOOR = 0.12;                 // min share of the tail zone a past-the-break bar draws
+  const totalOf = (c) => (c.engine_bytes || 0) + (c.model_bytes || 0);
+
+  // A 1-2-2.5-5 ceiling, so an all-small data set still gets round ticks.
+  function niceCeil(v) {
+    if (!(v > 0)) return 1;
+    const e = Math.pow(10, Math.floor(Math.log10(v)));
+    for (const m of [1, 2, 2.5, 5, 10]) if (v <= m * e) return m * e;
+    return 10 * e;
   }
-  const frac = (v, [lo, hi]) =>
-    v <= 0 ? 0 : Math.max(0.004, Math.min(1, (Math.log10(v) - lo) / (hi - lo)));
-  const tickVals = ([lo, hi]) => {
-    const out = [];
-    for (let e = lo; e <= hi; e++) out.push(Math.pow(10, e));
-    return out;
-  };
+
+  function scale(d) {
+    const max = Math.max(0, ...(d.candidates || []).map(totalOf));
+    const broken = max > BREAK_AT;
+    const linMax = broken ? BREAK_AT : niceCeil(max);
+    const span = broken ? LIN_SPAN : 1;
+    const pos = (v) => {
+      if (!(v > 0)) return 0;
+      if (v <= linMax) return (v / linMax) * span;
+      // past the break: a compressed LOG tail over 1 GB … max, floored so the
+      // break sign always sits inside the bar (a tail too short to see
+      // would put the sign on the bar's tip)
+      return span + (1 - span) * Math.max(TAIL_FLOOR, Math.log10(v / linMax) / Math.log10(max / linMax));
+    };
+    // [position, label, minor] — on a narrow screen the quarter ticks drop their
+    // label, and so does the max (it collides with 1 GB; the totals column carries it)
+    const ticks = [0, 0.25, 0.5, 0.75, 1].map((k) => [k * span, k === 0 ? "0" : human(k * linMax), k === 0.25 || k === 0.75]);
+    if (broken) ticks.push([1, human(max), "max"]);
+    return { broken, linMax, span, max, pos, ticks };
+  }
 
   // ── tooltip (own instance, own attribute namespace) ─────────────────────
   let tip = null;
@@ -103,45 +121,37 @@
       `<br><span class="bc-mut">total (engine + model): ${human((c.engine_bytes || 0) + (c.model_bytes || 0))}</span>`;
   };
 
-  // Hide an on-bar label that does not fit its segment (a clipped "8…" reads
-  // as a different number); the tooltip still carries it. Re-run on resize.
-  function fitLabels(el) {
-    if (typeof el.querySelectorAll !== "function") return;
-    for (const l of el.querySelectorAll(".sz-lbl")) {
-      l.style.visibility = "";
-      const seg = l.parentElement;
-      l.style.visibility = l.scrollWidth + 6 <= seg.clientWidth ? "" : "hidden";
-    }
-  }
-  const observed = new WeakSet();
-
   function render(d, el) {
     if (!d || !Array.isArray(d.candidates) || !d.candidates.length) {
       el.innerHTML = '<p class="sub">size data unavailable</p>';
       return;
     }
     if (typeof document !== "undefined" && document.body) tooltip();
-    const dom = domain(d);
-    const ticks = tickVals(dom).map((v) => [frac(v, dom), human(v)]);
-    const grid = ticks.map(([f]) => `<i class="bc-grid" style="left:${(f * 100).toFixed(2)}%"></i>`).join("");
+    const sc = scale(d);
+    const grid = sc.ticks.map(([f]) =>
+      `<i class="bc-grid${sc.broken && f === sc.span ? " sz-grid-break" : ""}" style="left:${(f * 100).toFixed(2)}%"></i>`).join("");
+    const colorOf = (which) => (which === "engine" ? ENGINE_COLOR : MODEL_COLOR);
 
     const rows = (d.candidates || []).map((c) => {
-      const total = (c.engine_bytes || 0) + (c.model_bytes || 0);
+      const total = totalOf(c);
       const chips = (c.targets || []).map((t) => `<span class="sz-chip">${esc(t)}</span>`).join("");
-      // bar length = log position of the total; segments split it by byte
-      // share (see header). A non-zero segment keeps a 2px floor (CSS
+      const parts = [["engine", c.engine_bytes], ["model", c.model_bytes]].filter(([, b]) => b > 0);
+      // bar length = the total's position on the broken axis; segments split
+      // it by byte share. A non-zero segment keeps a 2px floor (CSS
       // min-width) so a sliver stays hoverable.
-      const totalEdge = frac(total, dom);
-      const seg = (which, bytes) =>
+      const end = (sc.pos(total) * 100).toFixed(2);
+      const seg = ([which, bytes]) =>
         `<i class="sz-seg" tabindex="0" data-sztip="${esc(tipHtml(c, which))}" ` +
         `aria-label="${esc(`${c.name}: ${which === "engine" ? "runtime" : "model"} ${human(bytes)}`)}" ` +
-        `style="width:${((bytes / total) * 100).toFixed(3)}%;background:${which === "engine" ? ENGINE_COLOR : MODEL_COLOR}">` +
-        `<span class="sz-lbl">${human(bytes)}</span></i>`;
+        `style="width:${((bytes / total) * 100).toFixed(3)}%;background:${colorOf(which)}"></i>`;
+      const brk = sc.broken && total > sc.linMax
+        ? `<i class="sz-break" aria-hidden="true" style="left:${(sc.span * 100).toFixed(2)}%"></i>`
+        : "";
+      const lbl = ([which, bytes]) =>
+        `<span class="sz-lbl sz-lbl-${which}" style="color:${colorOf(which)}">${human(bytes)}</span>`;
       const stack =
-        `<div class="bc-hbar sz-stack"><div class="sz-bar" style="width:${(totalEdge * 100).toFixed(2)}%">` +
-        (c.engine_bytes > 0 ? seg("engine", c.engine_bytes) : "") +
-        (c.model_bytes > 0 ? seg("model", c.model_bytes) : "") +
-        `</div></div>`;
+        `<div class="bc-hbar sz-stack"><div class="sz-bar" style="width:${end}%">${parts.map(seg).join("")}</div>${brk}</div>` +
+        `<div class="sz-lbls" style="width:${end}%">${parts.map(lbl).join("")}</div>`;
       return `<div class="sz-row">` +
         `<div class="bc-hlabel sz-label"><span class="sz-name">${esc(c.name)}</span><span class="sz-chips">${chips}</span></div>` +
         `<div class="bc-htrack">${grid}${stack}</div>` +
@@ -153,23 +163,23 @@
       `<div class="bc-legend" aria-label="bar kinds">` +
       `<span><i class="bc-sw" style="background:${ENGINE_COLOR}"></i>runtime / engine</span>` +
       `<span><i class="bc-sw" style="background:${MODEL_COLOR}"></i>model / weights</span>` +
-      `</div><div class="bc-axis sz-axis">${ticks.map(([f, t]) => `<span style="left:${(f * 100).toFixed(2)}%">${esc(t)}</span>`).join("")}</div></div>` +
-      `<div class="sz-grid">${rows}</div>` +
+      `</div></div>` +
+      `<div class="sz-grid"><div class="sz-axisrow"><span></span>` +
+      `<div class="bc-axis sz-axis">${sc.ticks.map(([f, t, minor]) => `<span${minor ? ` class="sz-tick-${minor === "max" ? "max" : "minor"}"` : ""} style="left:${(f * 100).toFixed(2)}%">${esc(t)}</span>`).join("")}</div>` +
+      `<span></span></div>${rows}</div>` +
       (d.meta && d.meta.release
         ? `<p class="bc-note">reflex release <a href="${esc(d.meta.release.url)}">${esc(d.meta.release.tag)}</a> — ` +
           `archives ${human(Math.min(...Object.values(d.meta.release.archives || { x: 0 })))}–${human(Math.max(...Object.values(d.meta.release.archives || { x: 0 })))}` +
           ` · generated ${esc(String(d.meta.date_utc || "").slice(0, 10))}</p>`
         : "") +
-      `<p class="bc-note">Axis is log-scale (each gridline 10×): a bar ends at its total. ` +
+      `<p class="bc-note">` + (sc.broken
+        ? `Axis is linear up to ${human(sc.linMax)}; a bar past the break sign runs on a compressed log scale ` +
+          `(${human(sc.linMax)} … ${human(sc.max)}) — read its size from its label. `
+        : `Axis is linear: a bar ends at its total. `) +
       `Inside a bar, runtime and model split by their share of the bytes.</p>`;
-    fitLabels(el);
-    if (typeof ResizeObserver !== "undefined" && !observed.has(el)) {
-      observed.add(el);
-      new ResizeObserver(() => fitLabels(el)).observe(el);
-    }
   }
 
-  window.SizeCharts = { render, domain, frac, human };
+  window.SizeCharts = { render, scale, human, BREAK_AT };
 
   // Self-bootstrap on /#sizes — the app.js bench pattern, kept local so the
   // section is one <script> tag with no app.js coupling.

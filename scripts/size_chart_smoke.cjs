@@ -4,9 +4,11 @@
 // data/sizes.json, and asserts the stacked-bar structure is well-formed:
 // ascending order, one stack per candidate with an engine segment, a model
 // segment exactly when the lane carries weights, each bar inside its track
-// and ending at the total's log position, its segments splitting the bar by
-// byte share (summing to 100%), one on-bar label per segment, target
-// chips, and the
+// and ending at the total's position on the BROKEN LINEAR axis (a total at
+// or under BREAK_AT ends exactly at total/linMax of the linear span), a
+// break sign on exactly the bars over BREAK_AT, its segments splitting the
+// bar by byte share (summing to 100%), one under-bar label per segment in
+// the segment's color, target chips, and the
 // provenance note (which boot() fills into #sizes-prov — since e1ea6b8 it
 // no longer renders inside render()'s html, so the note is asserted on the
 // prov element, never on the chart html).
@@ -80,27 +82,41 @@ const fail = (msg) => { console.error("FAIL: " + msg); process.exit(1); };
   if (engineBars !== d.candidates.length) fail(`engine bars ${engineBars} != ${d.candidates.length}`);
   if (modelBars !== withModel) fail(`model bars ${modelBars} != lanes-with-weights ${withModel}`);
 
-  // 4. one stack per candidate; the bar ends at the total's log position
-  // inside the track, and its segments split it by byte SHARE — each
-  // segment's width is its bytes / total, so they sum to 100% of the bar
-  const stacks = [...html.matchAll(/<div class="bc-hbar sz-stack"><div class="sz-bar" style="width:([\d.]+)%">(.*?)<\/div><\/div>/g)]
-    .map((m) => [+m[1], m[2]]);
+  // 4. one stack per candidate; the bar ends at the total's position on the
+  // broken linear axis, carries a break sign iff total > BREAK_AT, and its
+  // segments split it by byte SHARE (sum to 100%); the under-bar label row
+  // spans the same width, one colored label per segment
+  const stacks = [...html.matchAll(/<div class="bc-hbar sz-stack"><div class="sz-bar" style="width:([\d.]+)%">(.*?)<\/div>(<i class="sz-break"[^>]*><\/i>)?<\/div><div class="sz-lbls" style="width:([\d.]+)%">(.*?)<\/div>/g)]
+    .map((m) => ({ barW: +m[1], inner: m[2], brk: !!m[3], lblW: +m[4], lbls: m[5] }));
   if (stacks.length !== d.candidates.length) fail(`stacks ${stacks.length} != candidates ${d.candidates.length}`);
-  const dom = window.SizeCharts.domain(d);
-  stacks.forEach(([barW, inner], i) => {
-    if (!(barW >= 0 && barW <= 100.5)) fail(`bar ${i} width out of track: ${barW}%`);
-    const want = window.SizeCharts.frac(totals[i], dom) * 100;
-    if (Math.abs(barW - want) > 0.25) fail(`bar ${i} ends at ${barW.toFixed(2)}%, total sits at ${want.toFixed(2)}%`);
+  const sc = window.SizeCharts.scale(d);
+  const BREAK_AT = window.SizeCharts.BREAK_AT;
+  let nBroken = 0;
+  stacks.forEach(({ barW, inner, brk, lblW, lbls }, i) => {
     const c = d.candidates[i];
+    if (!(barW >= 0 && barW <= 100.5)) fail(`bar ${i} width out of track: ${barW}%`);
+    const want = sc.pos(totals[i]) * 100;
+    if (Math.abs(barW - want) > 0.01) fail(`bar ${i} ends at ${barW.toFixed(2)}%, total sits at ${want.toFixed(2)}%`);
+    if (totals[i] <= sc.linMax && Math.abs(barW - (100 * sc.span * totals[i]) / sc.linMax) > 0.01)
+      fail(`bar ${i} (${totals[i]} B, under the break) is not on the linear scale`);
+    if (brk !== totals[i] > BREAK_AT) fail(`bar ${i}: break sign ${brk} but total ${totals[i]} vs BREAK_AT ${BREAK_AT}`);
+    if (brk) nBroken++;
+    if (lblW !== barW) fail(`bar ${i}: label row width ${lblW}% != bar ${barW}%`);
     const widths = [...inner.matchAll(/style="width:([\d.]+)%/g)].map((m) => +m[1]);
     const sum = widths.reduce((a, b) => a + b, 0);
     if (Math.abs(sum - 100) > 0.05) fail(`bar ${i} segments sum to ${sum}%, not 100%`);
     if (c.engine_bytes > 0 && Math.abs(widths[0] - (100 * c.engine_bytes) / totals[i]) > 0.01)
       fail(`bar ${i} engine share ${widths[0]}% != bytes share`);
-    const labels = [...inner.matchAll(/class="sz-lbl">([^<]+)</g)].map((m) => m[1]);
-    if (labels.length !== widths.length) fail(`bar ${i}: ${labels.length} on-bar labels for ${widths.length} segments`);
-    if (c.engine_bytes > 0 && labels[0] !== window.SizeCharts.human(c.engine_bytes)) fail(`bar ${i} engine label ${labels[0]}`);
+    const labels = [...lbls.matchAll(/class="sz-lbl sz-lbl-(engine|model)" style="color:([^"]+)">([^<]+)</g)].map((m) => [m[1], m[2], m[3]]);
+    if (labels.length !== widths.length) fail(`bar ${i}: ${labels.length} under-bar labels for ${widths.length} segments`);
+    if (/class="sz-lbl/.test(inner)) fail(`bar ${i}: a label is still drawn on the bar`);
+    if (c.engine_bytes > 0 && labels[0][2] !== window.SizeCharts.human(c.engine_bytes)) fail(`bar ${i} engine label ${labels[0][2]}`);
+    if (c.model_bytes > 0 && labels.at(-1)[2] !== window.SizeCharts.human(c.model_bytes)) fail(`bar ${i} model label ${labels.at(-1)[2]}`);
+    const segColors = [...inner.matchAll(/background:([^"]+)"/g)].map((m) => m[1]);
+    labels.forEach(([, col], k) => { if (col !== segColors[k]) fail(`bar ${i} label ${k} color ${col} != segment ${segColors[k]}`); });
   });
+  const wantBroken = totals.filter((t) => t > BREAK_AT).length;
+  if (nBroken !== wantBroken) fail(`break signs ${nBroken} != totals over BREAK_AT ${wantBroken}`);
 
   // 5. target chips on every row + tooltips on every bar
   const chips = (html.match(/class="sz-chip"/g) || []).length;
@@ -120,5 +136,5 @@ const fail = (msg) => { console.error("FAIL: " + msg); process.exit(1); };
   const axis = (html.match(/class="bc-axis sz-axis"/g) || []).length;
   if (!axis) fail("no axis rendered");
 
-  console.log(`size chart render smoke PASS (${d.candidates.length} stacks · ${engineBars} engine + ${modelBars} model segments · ascending · log-end bars · byte-share segments)`);
+  console.log(`size chart render smoke PASS (${d.candidates.length} stacks · ${engineBars} engine + ${modelBars} model segments · ascending · broken-linear bars, ${nBroken} past the break · byte-share segments · under-bar labels)`);
 })().catch((e) => { console.error("FAIL: " + (e && e.message || e)); process.exit(1); });

@@ -316,25 +316,34 @@ h1.page-title { font-size: 36px; margin: 44px 0 8px; }
    Reuses the bc-hbar/bc-htrack/bc-grid/bc-axis/bc-legend atoms; adds the
    three-column row (label | bars | total) and the target chips. */
 .sz-grid { display: grid; grid-template-columns: 190px 1fr 76px; column-gap: 12px; row-gap: 16px; align-items: center; }
-.sz-row { display: contents; }
+.sz-row, .sz-axisrow { display: contents; }
 .sz-label { display: flex; flex-direction: column; gap: 4px; align-items: flex-end; text-align: right; }
 .sz-name { font-size: 12.5px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
 .sz-chips { display: flex; flex-wrap: wrap; gap: 4px; justify-content: flex-end; }
 .sz-chip { font-size: 10px; line-height: 1.5; color: var(--muted); border: 1px solid var(--line); border-radius: 4px; padding: 0 5px; white-space: nowrap; }
 .sz-total { text-align: right; font-variant-numeric: tabular-nums; }
-.sz-stack { height: 20px; gap: 0; }
+.sz-stack { height: 8px; gap: 0; }
 .sz-bar { display: flex; height: 100%; }
-.sz-stack i { border-radius: 0; outline: none; min-width: 2px; position: relative; overflow: hidden; display: flex; align-items: center; }
-.sz-stack i:last-child { border-radius: 0 4px 4px 0; }
+.sz-stack i { border-radius: 0; outline: none; min-width: 2px; position: relative; overflow: hidden; }
+.sz-stack i:last-child { border-radius: 0 3px 3px 0; }
 .sz-stack i + i { box-shadow: inset 2px 0 0 var(--bg2); }
-.sz-lbl { padding: 0 6px; font-size: 10.5px; font-style: normal; line-height: 1; color: #fff; white-space: nowrap; font-variant-numeric: tabular-nums; text-shadow: 0 1px 1px rgba(0,0,0,.35); pointer-events: none; }
+/* the break sign: a slanted cut through the bar at the 1 GB line (size-charts.js BREAK_AT) */
+.sz-stack .sz-break { position: absolute; top: -4px; bottom: -4px; width: 9px; min-width: 0; margin-left: -4.5px;
+  background: var(--bg); border-left: 2px solid var(--text); border-right: 2px solid var(--text);
+  transform: skewX(-22deg); border-radius: 0; box-shadow: none; pointer-events: none; }
+.bc-grid.sz-grid-break { background: none; border-left: 1px dashed var(--muted); opacity: .6; }
+/* byte labels under the bar, right-aligned to its end; a bar shorter than its
+   labels grows the row to max-content, so the labels start at the track origin */
+.sz-lbls { position: relative; display: flex; justify-content: flex-end; gap: 8px; min-width: max-content; margin-top: 6px; }
+.sz-lbl { background: var(--bg); padding: 0 2px; font-size: 10px; line-height: 1.2; white-space: nowrap; font-variant-numeric: tabular-nums; }
 .sz-stack:hover i { filter: none; }
 .sz-stack i:hover, .sz-stack i:focus { filter: brightness(1.25); }
 .sz-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
-.sz-axis { flex: 1; min-width: 220px; }
+.sz-axis { align-self: end; margin-bottom: -6px; }
 @media (max-width: 720px) {
   .sz-grid { grid-template-columns: 108px 1fr 62px; }
   .sz-chips { display: none; } /* the chips re-read from each bar's tooltip on small screens */
+  .sz-tick-minor, .sz-tick-max { display: none; }
 }
 
 /* Playground · Reflexer — the board editor (canvas left, text right) and
