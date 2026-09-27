@@ -695,6 +695,21 @@ def merge(primary, extras):
                 updated_lanes["hybrid"] = True
             elif eh:
                 skipped_variant_lanes.append(f"hybrid@{ehost}")
+            elif (s.get("verdict") == "a0_stands" and not device_variant
+                  and "hybrid" in entry):
+                # The instinct lane doc's THREE-STATE vocabulary
+                # (riir-instinct Issue 010 T3): a0_stands is the explicit
+                # "measured, nothing is sold here" — the superiority gate
+                # (instinct Issue 008 T2) refused every arm or no
+                # specialist exists. The incumbent cell is a REFUSED arm
+                # wearing a published row; it comes OFF, and the removal
+                # is disclosed. Absence of the marker (a modelless-only
+                # or old-format doc) never erases the lane.
+                del entry["hybrid"]
+                updated_lanes["hybrid"] = True
+                print(f"note: a0_stands — removed the incumbent hybrid "
+                      f"cell for {name} @{ehost} (not sold; the "
+                      f"superiority gate refused every arm)", file=sys.stderr)
             # The Issue-024 leak block (T4): a slice property of the
             # DATASETS + registry caps, not of the host — the latest
             # run's scan is the published one (a doc without it never
