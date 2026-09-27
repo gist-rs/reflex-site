@@ -1,6 +1,6 @@
 {
  "meta": {
-  "date_utc": "2026-09-25T13:25:10Z",
+  "date_utc": "2026-09-27T03:12:09Z",
   "release": {
    "tag": "v0.2.3",
    "url": "https://github.com/gist-rs/reflex/releases/tag/v0.2.3",
@@ -55,6 +55,28 @@
     "container"
    ],
    "note": "archive download 1.67\u20131.89 MB across all 5 release targets \u2014 the same binary serves every lane"
+  },
+  {
+   "key": "instinct_hybrid",
+   "name": "Instinct (hybrid) \u00b7 trained specialists",
+   "framework": "one serve binary + the Reflex half's dataset seats + BLAKE3-sealed specialist vessels (the hosted serving posture)",
+   "engine_bytes": 22596268,
+   "engine_what": "the serve binary + the six t20k dataset suites (the Reflex half's corpora and question seats)",
+   "engine_provenance": {
+    "source": "recorded measurement (sum)",
+    "detail": "1,787,744 B (the riir-instinct `serve` release binary (aarch64-apple-darwin) \u2014 the hosted hybrid lane's serving edge, 2026-09-27 on m3-max-metal) + 20,808,524 B (the six t20k dataset suites the serving posture stages (ag_news 6,324,897 \u00b7 emotion 2,719,177 \u00b7 sst5 1,799,678 \u00b7 massive_intent_en 2,516,925 \u00b7 banking77 2,157,368 \u00b7 xnli_en 5,290,479) \u2014 the Reflex half's corpora and question seats, 2026-09-27 on m3-max-metal)"
+   },
+   "model_bytes": 20320298,
+   "model_what": "the six sealed winner vessels (HOSTED-ONLY: ed25519-pinned, blake3 envelope \u2014 never on uncontrolled hardware)",
+   "model_provenance": {
+    "source": "recorded measurement",
+    "detail": "the six sealed winner vessels (BLAKE3 + ed25519, HOSTED-ONLY): ag_news 524,381 \u00b7 emotion 786,545 \u00b7 sst5 655,460 \u00b7 massive_intent_en 7,865,749 \u00b7 banking77 10,094,864 \u00b7 xnli_en 393,299 \u2014 measured 2026-09-27 on m3-max-metal: sum of lstat sizes over ../riir-train/data/instinct_specialists/{ag_news,emotion,sst5,massive_intent_en,banking77,xnli_en}_winner_v1.bin (the deploy.yaml files: rows)"
+   },
+   "targets": [
+    "container (cf-container)",
+    "hosted serving"
+   ],
+   "note": "the trained sibling lane: the specialists serve six text suites; game spots answer through its Reflex half"
   },
   {
    "key": "reflex_laya_typed",
@@ -134,7 +156,7 @@
     "source": "recorded measurement",
     "detail": "their jev_service venv (torch-cu + deps) \u2014 measured 2026-09-25 on 4090-win: PowerShell (Get-ChildItem -Recurse -Force -File | Measure-Object -Sum Length).Sum over E:\\git\\riir-reflex\\.raw\\agentjev-env \u2192 4309.6 MiB \u00d7 1048576"
    },
-   "model_bytes": 3925770487,
+   "model_bytes": 3925763870,
    "model_what": "their agent-jev tensors + the Qwen3-0.6B backbone their service loads at boot",
    "model_provenance": {
     "source": "huggingface.co tree API (exact bytes)",

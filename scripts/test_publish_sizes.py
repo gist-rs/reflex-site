@@ -58,6 +58,9 @@ FAKE_RECORDED = {k: {"key": k, "bytes": v, "what": f"{k} fake", "host": "fake-ho
                      "agentjev_venv": 4_500_000_000,
                      "clm_docker": 30_000_000_000,
                      "clm_repo": 77_000_000,
+                     "instinct_serve_binary": 1_800_000,
+                     "instinct_datasets_t20k": 20_000_000,
+                     "instinct_winner_vessels": 20_000_000,
                  }.items()}
 
 FAILURES = []
@@ -112,7 +115,7 @@ def local_bytes_patcher():
 @case("every candidate renders with the full field set")
 def _():
     d = patched_build()
-    assert len(d["candidates"]) == 7, len(d["candidates"])
+    assert len(d["candidates"]) == 8, len(d["candidates"])
     for c in d["candidates"]:
         for f in ("key", "name", "framework", "engine_bytes", "engine_what",
                   "model_what", "targets", "engine_provenance"):
@@ -156,14 +159,27 @@ def _():
     assert by["clm"]["model_bytes"] == 16_000_000_000 + 75_000_000
 
 
-@case("a missing recorded key refuses loudly")
+@case("instinct resolves: recorded_sum engine + recorded model")
 def _():
-    broken = {k: v for k, v in FAKE_RECORDED.items() if k != "clm_repo"}
-    try:
-        patched_build(recorded=broken)
-    except SystemExit:
-        return
-    raise AssertionError("built with a missing recorded key")
+    d = patched_build()
+    by = {c["key"]: c for c in d["candidates"]}
+    h = by["instinct_hybrid"]
+    assert h["engine_bytes"] == 1_800_000 + 20_000_000, h["engine_bytes"]
+    assert h["model_bytes"] == 20_000_000, h["model_bytes"]
+    assert h["model_provenance"]["source"] == "recorded measurement", h["model_provenance"]
+    assert h["engine_provenance"]["source"] == "recorded measurement (sum)", h["engine_provenance"]
+    assert h["model_what"], h["key"]
+
+
+@case("a missing recorded key refuses loudly (engine AND model sides)")
+def _():
+    for dropped in ("clm_repo", "instinct_winner_vessels"):
+        broken = {k: v for k, v in FAKE_RECORDED.items() if k != dropped}
+        try:
+            patched_build(recorded=broken)
+        except SystemExit:
+            continue
+        raise AssertionError(f"built with a missing recorded key ({dropped})")
 
 
 @case("an empty HF tree refuses loudly (the real hf_tree_bytes law)")

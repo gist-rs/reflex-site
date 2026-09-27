@@ -153,6 +153,10 @@
             <div><span>TIMING</span><em id="tr-rulebook_cf-t">—</em></div>
           </div>
         </div>
+        <div class="boardcard hybrid-card" id="tc-hybrid">
+          <div class="boardhead"><b>Instinct (hybrid) · trained specialists</b><span class="lane-note">the trained sibling lane — a text-suite card, not a game board: game spots answer through its Reflex half (the modelless board). Its sealed specialists answer the benchmark suites below — readouts from <a href="/data/bench.json">data/bench.json</a> at load.</span></div>
+          <div class="hybrid-arms" data-hybrid-arms><p class="sub">loading the registered arms…</p></div>
+        </div>
         <div class="boardcard" id="tc-raw">
           <div class="boardhead"><b>raw baseline · heads skipped</b><span class="lane-note"><span class="latcap" id="lat-raw" title="recorded per-spot p50 and range from this lane's recorded game (arena/demo_oracle.json) — static, not live">rec —</span> the engine without fitted heads · abstains play random — the floor</span><span class="scorebox"><span>SCORE</span><b id="ts-raw">0000</b><span>LINES</span><b id="tl-raw">000</b></span></div>
           <canvas id="tb-raw" width="200" height="400"></canvas>
@@ -229,6 +233,10 @@
             <div><span>ACTION</span><em id="fr-modelless-act">—</em></div>
           </div>
         </div>
+        <div class="boardcard hybrid-card" id="fc-hybrid">
+          <div class="boardhead"><b>Instinct (hybrid) · trained specialists</b><span class="lane-note slim">text-suite lane — no game board; arms read from <a href="/data/bench.json">data/bench.json</a></span></div>
+          <div class="hybrid-arms" data-hybrid-arms><p class="sub">loading the registered arms…</p></div>
+        </div>
         <div class="boardcard" id="fc-raw">
           <div class="boardhead"><b>raw baseline · heads skipped</b><span class="scorebox"><span>PIPES</span><b id="fp-raw">000</b><span>CRASHES</span><b id="fx-raw">000</b></span></div>
           <canvas id="fb-raw" width="160" height="240"></canvas>
@@ -285,6 +293,10 @@
             <div><span>ACTION</span><em id="lr-modelless-act">—</em></div>
           </div>
         </div>
+        <div class="boardcard hybrid-card" id="lc-hybrid">
+          <div class="boardhead"><b>Instinct (hybrid) · trained specialists</b><span class="lane-note slim">text-suite lane — no game board; arms read from <a href="/data/bench.json">data/bench.json</a></span></div>
+          <div class="hybrid-arms" data-hybrid-arms><p class="sub">loading the registered arms…</p></div>
+        </div>
         <div class="boardcard" id="lc-raw">
           <div class="boardhead"><b>raw baseline · heads skipped</b><span class="scorebox"><span>STEPS</span><b id="lp-raw">000</b><span>CRASHES</span><b id="lx-raw">000</b></span></div>
           <div class="lanes" id="lb-raw"></div>
@@ -317,6 +329,10 @@
           no storage). Both replay the recorded walk pick-for-pick.
           <span class="src"><a href="https://github.com/gist-rs/reflex-site/blob/HEAD/scripts/reflexer_parity.mjs">reflexer_parity.mjs</a></span>
           <span class="src"><a href="https://github.com/gist-rs/riir-reflexer">gist-rs/riir-reflexer</a></span></li>
+        <li><b>Instinct (hybrid)</b> is a text-suite lane, not a game board: its card lists the registered
+          per-suite arms, read from <a href="/data/bench.json">data/bench.json</a> at load. On game spots the
+          specialist abstains and the Reflex half answers — that play IS the Reflex · modelless board above.
+          <span class="src"><a href="https://github.com/gist-rs/riir-instinct">gist-rs/riir-instinct</a></span></li>
         <li><b>Recorded boards</b> (laya, raw, and any lane without its host) replay committed runs through the same wire —
           labelled, never mixed with live results.
           <span class="src"><a href="/arena/demo_oracle.json">demo_oracle.json</a></span></li>
@@ -341,6 +357,7 @@
   </footer>
 
   <script type="module" src="/assets/arena_tldr.js"></script>
+  <script type="module" src="/assets/arena_hybrid_card.js"></script>
   <script type="module" src="/assets/arena.js"></script>
   <script type="module" src="/assets/flow_walk.js"></script>
 </body>

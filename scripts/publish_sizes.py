@@ -87,6 +87,17 @@ CANDIDATES = [
         "note": None,  # english/multilingual sizes appended at generate time (LIVE facts)
     },
     {
+        "key": "instinct_hybrid",
+        "name": "Instinct (hybrid) \u00b7 trained specialists",
+        "framework": "one serve binary + the Reflex half's dataset seats + BLAKE3-sealed specialist vessels (the hosted serving posture)",
+        "engine": ("recorded_sum", "instinct_serve_binary", "instinct_datasets_t20k"),
+        "engine_what": "the serve binary + the six t20k dataset suites (the Reflex half's corpora and question seats)",
+        "model": ("recorded", "instinct_winner_vessels"),
+        "model_what": "the six sealed winner vessels (HOSTED-ONLY: ed25519-pinned, blake3 envelope \u2014 never on uncontrolled hardware)",
+        "targets": ["container (cf-container)", "hosted serving"],
+        "note": "the trained sibling lane: the specialists serve six text suites; game spots answer through its Reflex half",
+    },
+    {
         "key": "laya_python",
         "name": "laya · python reference",
         "framework": "CPython + torch (MPS build) + transformers + the pinned reference checkout",
@@ -270,6 +281,21 @@ def build(release: dict, recorded: dict) -> dict:
                 model_bytes = sum(hf_tree_bytes(r) for r in repos)
                 model_prov = {"source": "huggingface.co tree API (exact bytes)",
                               "detail": " + ".join(repos)}
+            elif mk == "recorded":
+                m = recorded.get(spec["model"][1])
+                if m is None:
+                    die(f"recorded measurement {spec['model'][1]!r} (model of {spec['key']}) missing from sizes.measurements.json")
+                model_bytes, model_prov = m["bytes"], {
+                    "source": "recorded measurement",
+                    "detail": f"{m['what']} \u2014 measured {m['date_utc']} on {m['host']}: {m['how']}"}
+            elif mk == "recorded_sum":
+                missing_keys = [k for k in spec["model"][1:] if k not in recorded]
+                if missing_keys:
+                    die(f"recorded measurements missing for {spec['key']} model: {missing_keys}")
+                parts = [recorded[k] for k in spec["model"][1:]]
+                model_bytes = sum(p["bytes"] for p in parts)
+                model_prov = {"source": "recorded measurement (sum)",
+                              "detail": " + ".join(f"{p['bytes']:,} B ({p['what']}, {p['date_utc']} on {p['host']})" for p in parts)}
             else:
                 die(f"unknown model source kind {mk!r}")
 
@@ -321,6 +347,7 @@ def main(argv: list[str]) -> None:
     recorded = {m["key"]: m for m in json.loads(MEAS_PATH.read_text(encoding="utf-8"))["measurements"]}
     missing = [c["key"] for c in CANDIDATES
                for k in ([c["engine"][1:]] if c["engine"][0].startswith("recorded") else [])
+                     + ([c["model"][1:]] if c["model"] and c["model"][0].startswith("recorded") else [])
                if k and all(x not in recorded for x in k)]
     if missing:
         die(f"recorded measurements missing for: {missing}")
