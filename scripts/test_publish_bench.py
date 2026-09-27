@@ -1105,9 +1105,9 @@ def case_unquotable_latency_refused_at_publish():
         rc, served, err = _update(root, copy.deepcopy(bad), **{
             **ENV, "PUBLISH_BENCH_ALLOW_UNQUOTABLE": "m3"})
         assert rc == 0 and "by acknowledgement" in err, err
-        src = served["meta"]["hosts"][0]["lane_sources"]["laya:english"]
-        assert src["latency_quotable"] is False, \
-            "an acknowledged publish must still DISCLOSE the verdict per lane"
+        cell = served["suites"][0]["laya"]["english"]
+        assert cell["latency_quotable"] is False, \
+            "an acknowledged publish must still DISCLOSE the verdict on the cell"
         served_path.write_bytes(before)
 
         good = _timed_laya_doc("sha-fit", _box(True, True))
@@ -1126,14 +1126,16 @@ def case_quotable_and_unjudged_record_provenance():
         _published_primary(root)
         rc, served, _ = _update(root, _timed_laya_doc("sha-fit", _box(True, True)), **ENV)
         assert rc == 0
-        src = served["meta"]["hosts"][0]["lane_sources"]["laya:english"]
-        assert src["latency_quotable"] is True and src["git_sha"] == "sha-fit"
+        cell = served["suites"][0]["laya"]["english"]
+        assert cell["latency_quotable"] is True
+        assert "latency_quotable" not in served["meta"]["hosts"][0]["lane_sources"]["laya:english"], \
+            "the verdict lives on the CELL only — one truth, beside the timing"
 
         rc, served, err = _update(root, _timed_laya_doc("sha-win", _box(None, None)), **ENV)
         assert rc == 0, "UNJUDGED must publish, not refuse"
         assert "UNJUDGED" in err and "m3-max-metal@sha-win" in err, err
-        src = served["meta"]["hosts"][0]["lane_sources"]["laya:english"]
-        assert src["latency_quotable"] is None, "UNJUDGED is null, never a verdict"
+        cell = served["suites"][0]["laya"]["english"]
+        assert cell["latency_quotable"] is None, "UNJUDGED is null, never a verdict"
 
 
 def case_carried_lane_is_exempt_from_the_wall():
@@ -1155,6 +1157,45 @@ def case_carried_lane_is_exempt_from_the_wall():
     assert pb._latency_slots(extra, incumbent) == [], \
         "a carried lane's own timing is replaced — nothing to refuse"
     assert pb._latency_slots(extra, None) == ["modelless@m3-max-metal/s1"]
+
+
+def case_carried_timing_keeps_the_incumbents_verdict():
+    """The verdict travels WITH the timing: a carried lane shows the
+    incumbent's cells, so it shows the incumbent's verdict — and an
+    incumbent with none leaves the cell UNKNOWN, never the update run's
+    verdict (the flaw a row-level lane_sources verdict had)."""
+    for inc_q, want in ((True, True), ("absent", "absent")):
+        primary = doc("m3", "sha-base", {"s1": {"modelless_acc": 0.5}})
+        primary["meta"]["hosts"] = [{"host": "m3"}]
+        primary["suites"][0]["modelless"]["latency_p50_ms"] = 1.0
+        if inc_q != "absent":
+            primary["suites"][0]["modelless"]["latency_quotable"] = inc_q
+        extra = doc("m3", "sha-new", {"s1": {"modelless_acc": 0.5}})
+        extra["meta"]["box_state"] = _box(False, False)
+        extra["suites"][0]["modelless"]["latency_p50_ms"] = 9.0
+        pb.rename_hosts(primary); pb.rename_hosts(extra)
+        merged, _ = merge_refusing(primary, extra)
+        cell = merged["suites"][0]["modelless"]
+        assert cell["latency_p50_ms"] == 1.0, "LANE_CARRY keeps incumbent timing"
+        if want == "absent":
+            assert "latency_quotable" not in cell, \
+                "an incumbent without a verdict must leave the cell UNKNOWN"
+        else:
+            assert cell["latency_quotable"] is want
+
+
+def case_published_primary_meta_verdict_is_not_stamped():
+    """A published bench.json primary's meta.box_state is the table's
+    ORIGINAL run's — it must never be stamped onto cells; a RAW primary's
+    own verdict is."""
+    raw = _timed_laya_doc("sha-raw", _box(False, False))
+    merged, _ = merge_refusing(copy.deepcopy(raw))
+    assert merged["suites"][0]["laya"]["english"]["latency_quotable"] is False
+    pub = copy.deepcopy(raw)
+    pub["meta"]["hosts"] = [{"host": "m3"}]
+    pb.rename_hosts(pub)
+    merged, _ = merge_refusing(pub)
+    assert "latency_quotable" not in merged["suites"][0]["laya"]["english"]
 
 
 CASES = [
@@ -1193,6 +1234,8 @@ CASES = [
     case_unquotable_latency_refused_at_publish,
     case_quotable_and_unjudged_record_provenance,
     case_carried_lane_is_exempt_from_the_wall,
+    case_carried_timing_keeps_the_incumbents_verdict,
+    case_published_primary_meta_verdict_is_not_stamped,
 ]
 
 def main() -> int:

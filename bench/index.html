@@ -208,6 +208,10 @@
         the <em>laya</em> lane from the Apple Neural Engine — a device row (laya lanes only; the modelless
         lane uses no neural device and always reads from the <code>@m3-max-metal</code> row). Hardware for
         every box: <a href="#machines">Machines</a> below.</li>
+      <li><strong>† on a latency cell</strong>: the run that measured that timing judged its own machine unfit to
+        quote latency (load or power, riir-reflex's box check) — shown so nothing is hidden, not quotable. A cell
+        with no mark was either fit, unjudged (a host with no box probes; hover for which), or published before
+        the check was recorded.</li>
       <li>Accuracy chance level differs per suite (a 3-way and a 77-way task are not comparable) — compare lanes within
         a suite, never one suite's bar with another's.</li>
       <li>The hero chart shows one checkpoint per laya lane: the best non-multilingual one for that suite, picked once
@@ -284,6 +288,7 @@
 </footer>
 
 <script src="/assets/bench-charts.js"></script>
+<script src="/assets/bench_provenance.js"></script>
 <script>
 // Table numbers: 3 decimals for scores, 3 significant digits for latency
 // (the chart's own formatter — one rule for bars and cells; harness latency
@@ -307,8 +312,14 @@ function laneRow(l, bestAcc, hostTag) {
   tds.push(`<td>${l.readout_ece_raw === null || l.readout_ece_raw === undefined ? "—" : fmt(l.readout_ece_calibrated) + " (raw " + fmt(l.readout_ece_raw, 3) + ")"}</td>`);
   const abst = l.calibrated_abstain;
   tds.push(`<td>${abst ? fmt(abst.abstain_rate, 2) + " / " + fmt(abst.selective_accuracy, 3) : "—"}</td>`);
-  tds.push(`<td>${ms(l.latency_p50_ms)}</td>`);
-  tds.push(`<td>${ms(l.latency_p99_ms)}</td>`);
+  // The Issue-021 verdict of the run this TIMING came from (stamped per
+  // cell by publish_bench.py): unfit → marked, never silently a result.
+  const q = l.latency_quotable;
+  const latCls = q === false ? ' class="unq" title="from a run whose own box check judged the machine unfit (load/power) — shown, not quotable"'
+    : q === null ? ' title="box state unjudged (the host has no box probes)"' : "";
+  const mark = q === false ? "<sup>†</sup>" : "";
+  tds.push(`<td${latCls}>${ms(l.latency_p50_ms)}${mark}</td>`);
+  tds.push(`<td${latCls}>${ms(l.latency_p99_ms)}${mark}</td>`);
   tds.push(`<td>${l.determinism_ok === true ? "✓" : l.determinism_ok === false ? "✗" : "—"}</td>`);
   return "<tr>" + tds.join("") + "</tr>";
 }

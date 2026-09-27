@@ -4,6 +4,8 @@
    speed and accuracy, and every place the measurement disagrees is SAID,
    not hidden. Checkpoint compared: english (the arena's own). */
 
+import "/assets/bench_provenance.js"; // sets window.BenchProv (shared provenance reads)
+
 const SUITE_ORDER_NOTE = "english checkpoint · p50 per question";
 
 function pick(suite) {
@@ -28,9 +30,9 @@ function pick(suite) {
   })();
   return {
     name: suite.name,
-    km: { acc: acc(km), p50: p50(km) },
-    rust: { acc: acc(rust), p50: p50(rust) },
-    py: { acc: acc(py), p50: p50(py) },
+    km: { acc: acc(km), p50: p50(km), cell: km },
+    rust: { acc: acc(rust), p50: p50(rust), cell: rust },
+    py: { acc: acc(py), p50: p50(py), cell: py },
     pairing,
     pairDetail,
   };
@@ -59,8 +61,20 @@ function render(bench) {
     return;
   }
   const n = rows.length;
-  const meta = bench.meta || {};
-  const host = meta.host || meta.hosts?.[0]?.host || "?";
+  // The NEWEST contributing run — meta is the table's ORIGINAL run, which
+  // lane-scoped updates never replace (BenchProv.latestRun).
+  const last = window.BenchProv?.latestRun(bench) || {};
+  const host = last.host || "?";
+  // Issue-021 verdicts of the timing each speed row compares, per lane.
+  const LANE_WORD = { km: "Reflex's", rust: "laya (rust)'s", py: "laya (python)'s" };
+  const unfitIn = (k) => window.BenchProv
+    ? BenchProv.latency(rows.map((r) => r[k].cell)).unfit : 0;
+  const unfitParts = (keys) => keys.filter((k) => unfitIn(k))
+    .map((k) => `${LANE_WORD[k]} timing on ${unfitIn(k)}/${n} suites`);
+  const kmSpeedUnfit = unfitParts(["km", "rust"]);
+  const rustPyUnfit = unfitParts(["rust", "py"]);
+  const unfitTail = (parts) => parts.length
+    ? ` <span class="caveat">⚠ ${BenchProv.unfitNote(parts.join(" and "))}</span>` : "";
 
   const kmFaster = rows.filter((r) => r.km.p50 < r.rust.p50);
   const speedup = median(rows.map((r) => r.rust.p50 / r.km.p50));
@@ -81,17 +95,20 @@ function render(bench) {
   body.innerHTML = "";
   const lead = document.createElement("p");
   lead.innerHTML =
-    `Measured on <b>${n}</b> suites · <a href="/bench/">benchmark</a> · engine ${meta.git_sha || "?"} · ${host} · ${SUITE_ORDER_NOTE}`;
+    `Measured on <b>${n}</b> suites · <a href="/bench/">benchmark</a> · latest run ${last.git_sha || "?"} (${(last.date_utc || "?").slice(0, 10)}) · ${host} · ${SUITE_ORDER_NOTE}`;
   const ul = document.createElement("ul");
-  ul.appendChild(row(kmFaster.length === n,
-    `<b>Reflex vs laya, speed:</b> faster on <b>${kmFaster.length}/${n}</b>, median <b>${Math.round(speedup).toLocaleString()}×</b>.`));
+  // A speed row whose timing a run judged unfit is not a ✓: it renders
+  // "=" (undecided) with the verdict beside it, never as a clean result.
+  ul.appendChild(row(kmSpeedUnfit.length ? null : kmFaster.length === n,
+    `<b>Reflex vs laya, speed:</b> faster on <b>${kmFaster.length}/${n}</b>, median <b>${Math.round(speedup).toLocaleString()}×</b>.` +
+    unfitTail(kmSpeedUnfit)));
   const slowList = rustSlower.slice(0, 3)
     .map((r) => `${r.name} ${ms(r.rust.p50)} vs ${ms(r.py.p50)} ms`).join(", ");
-  ul.appendChild(row(rustFaster.length === n,
+  ul.appendChild(row(rustPyUnfit.length ? null : rustFaster.length === n,
     `<b>Rust vs Python laya, speed:</b> Rust faster on <b>${rustFaster.length}/${n}</b>` +
     (rustSlower.length
       ? `, slower on ${rustSlower.length} (${slowList}) — a bug by our bar (<a href="https://github.com/gist-rs/riir-reflex/blob/HEAD/HISTORY.md">riir-reflex Issue 020</a> closed on Rust winning every cell).`
-      : ".")));
+      : ".") + unfitTail(rustPyUnfit)));
   const pairLine = crossSample.length
     ? `; ${crossSample.length} pair(s) on different samples — not comparable (${crossSample.map((r) => r.pairDetail).join(", ")})`
     : "";

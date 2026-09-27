@@ -148,6 +148,17 @@ try {
       .suites.some((s) => s.modelless && s.hybrid);
     const tl = await page.textContent("#tldr");
     if (benchHasInstinct !== /Reflex vs Instinct/.test(tl)) fail(`TL;DR Reflex-vs-Instinct row: bench has an Instinct arm=${benchHasInstinct}, row rendered=${!benchHasInstinct}`);
+    // Issue-021 verdicts: a speed row over timing a run judged unfit must
+    // say so, and the lead names the NEWEST run, never meta's original one.
+    const bench = JSON.parse(readFileSync(path.join(siteDir, "data", "bench.json"), "utf8"));
+    const rows3 = bench.suites.filter((s) => s.modelless && s.laya?.english && s.laya?.["py/english"]);
+    const anyUnfit = rows3.some((s) => [s.modelless, s.laya.english, s.laya["py/english"]]
+      .some((c) => c.latency_quotable === false));
+    if (anyUnfit !== /not quotable/.test(tl)) fail(`TL;DR unfit-timing caveat: bench has unfit speed cells=${anyUnfit}, caveat rendered=${!anyUnfit}`);
+    const dates = [bench.meta, ...bench.meta.hosts, ...bench.meta.hosts.flatMap((h) => Object.values(h.lane_sources || {}))]
+      .filter((r) => r?.date_utc).sort((a, b) => (a.date_utc < b.date_utc ? 1 : -1));
+    if (!tl.includes(dates[0].git_sha)) fail(`TL;DR lead must name the newest run ${dates[0].git_sha}`);
+    if (dates[0].git_sha !== bench.meta.git_sha && /engine /.test(tl)) fail("TL;DR lead still names meta's original run as the engine");
   }
 
   // The Instinct (hybrid) lane card: present in every game, DIRECTLY before

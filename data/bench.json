@@ -549,7 +549,8 @@
     "cases_digest": "fnv1a64-6e37760ee2a5b6c9",
     "latency_provenance": {
      "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
-    }
+    },
+    "latency_quotable": false
    },
    "laya": {
     "english": {
@@ -641,7 +642,8 @@
      "transductive": null,
      "confusion": null,
      "pair_head_ab": null,
-     "cases_digest": "fnv1a64-6e37760ee2a5b6c9"
+     "cases_digest": "fnv1a64-6e37760ee2a5b6c9",
+     "latency_quotable": true
     },
     "multilingual": {
      "lane": "laya (rust)",
@@ -732,7 +734,8 @@
      "transductive": null,
      "confusion": null,
      "pair_head_ab": null,
-     "cases_digest": "fnv1a64-6e37760ee2a5b6c9"
+     "cases_digest": "fnv1a64-6e37760ee2a5b6c9",
+     "latency_quotable": true
     },
     "typed": {
      "lane": "laya (rust)",
@@ -823,7 +826,8 @@
      "transductive": null,
      "confusion": null,
      "pair_head_ab": null,
-     "cases_digest": "fnv1a64-6e37760ee2a5b6c9"
+     "cases_digest": "fnv1a64-6e37760ee2a5b6c9",
+     "latency_quotable": true
     },
     "py/english": {
      "lane": "laya (python)",
@@ -914,7 +918,8 @@
      "transductive": null,
      "confusion": null,
      "pair_head_ab": null,
-     "cases_digest": "fnv1a64-6e37760ee2a5b6c9"
+     "cases_digest": "fnv1a64-6e37760ee2a5b6c9",
+     "latency_quotable": true
     },
     "py/multilingual": {
      "lane": "laya (python)",
@@ -1005,7 +1010,8 @@
      "transductive": null,
      "confusion": null,
      "pair_head_ab": null,
-     "cases_digest": "fnv1a64-6e37760ee2a5b6c9"
+     "cases_digest": "fnv1a64-6e37760ee2a5b6c9",
+     "latency_quotable": true
     },
     "py/typed": {
      "lane": "laya (python)",
@@ -1096,7 +1102,8 @@
      "transductive": null,
      "confusion": null,
      "pair_head_ab": null,
-     "cases_digest": "fnv1a64-6e37760ee2a5b6c9"
+     "cases_digest": "fnv1a64-6e37760ee2a5b6c9",
+     "latency_quotable": true
     }
    },
    "extra_host_lanes": {
@@ -1494,7 +1501,8 @@
       "cases_digest": "fnv1a64-6e37760ee2a5b6c9",
       "latency_provenance": {
        "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
-      }
+      },
+      "latency_quotable": null
      },
      "laya": {
       "english": {
@@ -1841,7 +1849,8 @@
       "threshold_recommendation": null,
       "corpus_cap": null,
       "confusion": null,
-      "pair_head_ab": null
+      "pair_head_ab": null,
+      "latency_quotable": null
      },
      "gliner": {
       "lane": "gliner (reference)",
@@ -1925,7 +1934,8 @@
       "threshold_recommendation": null,
       "corpus_cap": null,
       "confusion": null,
-      "pair_head_ab": null
+      "pair_head_ab": null,
+      "latency_quotable": null
      },
      "agentjev": {
       "lane": "agentjev (reference)",
@@ -2009,7 +2019,8 @@
       "threshold_recommendation": null,
       "corpus_cap": null,
       "confusion": null,
-      "pair_head_ab": null
+      "pair_head_ab": null,
+      "latency_quotable": null
      }
     }
    },
@@ -2367,7 +2378,8 @@
     "cases_digest": "fnv1a64-07eff23c06505584",
     "latency_provenance": {
      "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
-    }
+    },
+    "latency_quotable": false
    },
    "laya": {
     "english": {
@@ -2421,7 +2433,8 @@
      "transductive": null,
      "confusion": null,
      "pair_head_ab": null,
-     "cases_digest": "fnv1a64-07eff23c06505584"
+     "cases_digest": "fnv1a64-07eff23c06505584",
+     "latency_quotable": true
     },
     "py/english": {
      "lane": "laya (python)",
@@ -2474,7 +2487,8 @@
      "transductive": null,
      "confusion": null,
      "pair_head_ab": null,
-     "cases_digest": "fnv1a64-07eff23c06505584"
+     "cases_digest": "fnv1a64-07eff23c06505584",
+     "latency_quotable": true
     }
    },
    "extra_host_lanes": {
@@ -2525,7 +2539,8 @@
        "threshold_recommendation": null,
        "corpus_cap": null,
        "confusion": null,
-       "pair_head_ab": null
+       "pair_head_ab": null,
+       "latency_quotable": false
       }
      }
     },
@@ -2855,7 +2870,8 @@
       "cases_digest": "fnv1a64-07eff23c06505584",
       "latency_provenance": {
        "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
-      }
+      },
+      "latency_quotable": null
      },
      "laya": {
       "english": {
@@ -2955,7 +2971,8 @@
       "corpus_cap": null,
       "confusion": null,
       "pair_head_ab": null,
-      "acc_deleaked": 0.3941018766756032
+      "acc_deleaked": 0.3941018766756032,
+      "latency_quotable": null
      },
      "gliner": {
       "lane": "gliner (reference)",
@@ -3002,7 +3019,8 @@
       "threshold_recommendation": null,
       "corpus_cap": null,
       "confusion": null,
-      "pair_head_ab": null
+      "pair_head_ab": null,
+      "latency_quotable": null
      },
      "agentjev": {
       "lane": "agentjev (reference)",
@@ -3049,7 +3067,8 @@
       "threshold_recommendation": null,
       "corpus_cap": null,
       "confusion": null,
-      "pair_head_ab": null
+      "pair_head_ab": null,
+      "latency_quotable": null
      },
      "paw_local": {
       "lane": "paw (local)",
@@ -3076,7 +3095,8 @@
       "latency_tail_support": 5,
       "server_latency_p50_ms": null,
       "determinism_ok": true,
-      "seconds": 241.0684133
+      "seconds": 241.0684133,
+      "latency_quotable": null
      }
     }
    },
@@ -3479,7 +3499,8 @@
     "cases_digest": "fnv1a64-6feefd1c947dd008",
     "latency_provenance": {
      "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
-    }
+    },
+    "latency_quotable": false
    },
    "laya": {
     "english": {
@@ -3533,7 +3554,8 @@
      "transductive": null,
      "confusion": null,
      "pair_head_ab": null,
-     "cases_digest": "fnv1a64-6feefd1c947dd008"
+     "cases_digest": "fnv1a64-6feefd1c947dd008",
+     "latency_quotable": true
     },
     "py/english": {
      "lane": "laya (python)",
@@ -3586,7 +3608,8 @@
      "transductive": null,
      "confusion": null,
      "pair_head_ab": null,
-     "cases_digest": "fnv1a64-6feefd1c947dd008"
+     "cases_digest": "fnv1a64-6feefd1c947dd008",
+     "latency_quotable": true
     }
    },
    "extra_host_lanes": {
@@ -3637,7 +3660,8 @@
        "threshold_recommendation": null,
        "corpus_cap": null,
        "confusion": null,
-       "pair_head_ab": null
+       "pair_head_ab": null,
+       "latency_quotable": false
       }
      }
     },
@@ -3967,7 +3991,8 @@
       "cases_digest": "fnv1a64-6feefd1c947dd008",
       "latency_provenance": {
        "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
-      }
+      },
+      "latency_quotable": null
      },
      "laya": {
       "english": {
@@ -4067,7 +4092,8 @@
       "corpus_cap": null,
       "confusion": null,
       "pair_head_ab": null,
-      "acc_deleaked": 0.295
+      "acc_deleaked": 0.295,
+      "latency_quotable": null
      },
      "gliner": {
       "lane": "gliner (reference)",
@@ -4114,7 +4140,8 @@
       "threshold_recommendation": null,
       "corpus_cap": null,
       "confusion": null,
-      "pair_head_ab": null
+      "pair_head_ab": null,
+      "latency_quotable": null
      },
      "agentjev": {
       "lane": "agentjev (reference)",
@@ -4161,7 +4188,8 @@
       "threshold_recommendation": null,
       "corpus_cap": null,
       "confusion": null,
-      "pair_head_ab": null
+      "pair_head_ab": null,
+      "latency_quotable": null
      },
      "paw_local": {
       "lane": "paw (local)",
@@ -4190,7 +4218,8 @@
       "latency_tail_support": 5,
       "server_latency_p50_ms": null,
       "determinism_ok": true,
-      "seconds": 54.6759834
+      "seconds": 54.6759834,
+      "latency_quotable": null
      }
     }
    },
@@ -4593,7 +4622,8 @@
     "cases_digest": "fnv1a64-ad64a6cb0039e916",
     "latency_provenance": {
      "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
-    }
+    },
+    "latency_quotable": false
    },
    "laya": {
     "english": {
@@ -4647,7 +4677,8 @@
      "transductive": null,
      "confusion": null,
      "pair_head_ab": null,
-     "cases_digest": "fnv1a64-ad64a6cb0039e916"
+     "cases_digest": "fnv1a64-ad64a6cb0039e916",
+     "latency_quotable": true
     },
     "py/english": {
      "lane": "laya (python)",
@@ -4700,7 +4731,8 @@
      "transductive": null,
      "confusion": null,
      "pair_head_ab": null,
-     "cases_digest": "fnv1a64-ad64a6cb0039e916"
+     "cases_digest": "fnv1a64-ad64a6cb0039e916",
+     "latency_quotable": true
     }
    },
    "extra_host_lanes": {
@@ -4751,7 +4783,8 @@
        "threshold_recommendation": null,
        "corpus_cap": null,
        "confusion": null,
-       "pair_head_ab": null
+       "pair_head_ab": null,
+       "latency_quotable": false
       }
      }
     },
@@ -5081,7 +5114,8 @@
       "cases_digest": "fnv1a64-ad64a6cb0039e916",
       "latency_provenance": {
        "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
-      }
+      },
+      "latency_quotable": null
      },
      "laya": {
       "english": {
@@ -5181,7 +5215,8 @@
       "corpus_cap": null,
       "confusion": null,
       "pair_head_ab": null,
-      "acc_deleaked": 0.2353923205342237
+      "acc_deleaked": 0.2353923205342237,
+      "latency_quotable": null
      },
      "gliner": {
       "lane": "gliner (reference)",
@@ -5228,7 +5263,8 @@
       "threshold_recommendation": null,
       "corpus_cap": null,
       "confusion": null,
-      "pair_head_ab": null
+      "pair_head_ab": null,
+      "latency_quotable": null
      },
      "agentjev": {
       "lane": "agentjev (reference)",
@@ -5275,7 +5311,8 @@
       "threshold_recommendation": null,
       "corpus_cap": null,
       "confusion": null,
-      "pair_head_ab": null
+      "pair_head_ab": null,
+      "latency_quotable": null
      },
      "paw_local": {
       "lane": "paw (local)",
@@ -5302,7 +5339,8 @@
       "latency_tail_support": 7,
       "server_latency_p50_ms": null,
       "determinism_ok": true,
-      "seconds": 78.9310791
+      "seconds": 78.9310791,
+      "latency_quotable": null
      }
     }
    },
@@ -5702,7 +5740,8 @@
     "cases_digest": "fnv1a64-5080803ec29f2423",
     "latency_provenance": {
      "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
-    }
+    },
+    "latency_quotable": false
    },
    "laya": {
     "english": {
@@ -5756,7 +5795,8 @@
      "transductive": null,
      "confusion": null,
      "pair_head_ab": null,
-     "cases_digest": "fnv1a64-5080803ec29f2423"
+     "cases_digest": "fnv1a64-5080803ec29f2423",
+     "latency_quotable": true
     },
     "py/english": {
      "lane": "laya (python)",
@@ -5809,7 +5849,8 @@
      "transductive": null,
      "confusion": null,
      "pair_head_ab": null,
-     "cases_digest": "fnv1a64-5080803ec29f2423"
+     "cases_digest": "fnv1a64-5080803ec29f2423",
+     "latency_quotable": true
     }
    },
    "extra_host_lanes": {
@@ -5860,7 +5901,8 @@
        "threshold_recommendation": null,
        "corpus_cap": null,
        "confusion": null,
-       "pair_head_ab": null
+       "pair_head_ab": null,
+       "latency_quotable": false
       }
      }
     },
@@ -6187,7 +6229,8 @@
       "cases_digest": "fnv1a64-5080803ec29f2423",
       "latency_provenance": {
        "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
-      }
+      },
+      "latency_quotable": null
      },
      "laya": {
       "english": {
@@ -6287,7 +6330,8 @@
       "corpus_cap": null,
       "confusion": null,
       "pair_head_ab": null,
-      "acc_deleaked": 0.543859649122807
+      "acc_deleaked": 0.543859649122807,
+      "latency_quotable": null
      },
      "gliner": {
       "lane": "gliner (reference)",
@@ -6334,7 +6378,8 @@
       "threshold_recommendation": null,
       "corpus_cap": null,
       "confusion": null,
-      "pair_head_ab": null
+      "pair_head_ab": null,
+      "latency_quotable": null
      },
      "agentjev": {
       "lane": "agentjev (reference)",
@@ -6381,7 +6426,8 @@
       "threshold_recommendation": null,
       "corpus_cap": null,
       "confusion": null,
-      "pair_head_ab": null
+      "pair_head_ab": null,
+      "latency_quotable": null
      }
     }
    },
@@ -6780,7 +6826,8 @@
     "cases_digest": "fnv1a64-b136750e5af1d412",
     "latency_provenance": {
      "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
-    }
+    },
+    "latency_quotable": false
    },
    "laya": {
     "english": {
@@ -6834,7 +6881,8 @@
      "transductive": null,
      "confusion": null,
      "pair_head_ab": null,
-     "cases_digest": "fnv1a64-b136750e5af1d412"
+     "cases_digest": "fnv1a64-b136750e5af1d412",
+     "latency_quotable": true
     },
     "py/english": {
      "lane": "laya (python)",
@@ -6887,7 +6935,8 @@
      "transductive": null,
      "confusion": null,
      "pair_head_ab": null,
-     "cases_digest": "fnv1a64-b136750e5af1d412"
+     "cases_digest": "fnv1a64-b136750e5af1d412",
+     "latency_quotable": true
     }
    },
    "extra_host_lanes": {
@@ -6938,7 +6987,8 @@
        "threshold_recommendation": null,
        "corpus_cap": null,
        "confusion": null,
-       "pair_head_ab": null
+       "pair_head_ab": null,
+       "latency_quotable": false
       }
      }
     },
@@ -7302,7 +7352,8 @@
       "cases_digest": "fnv1a64-b136750e5af1d412",
       "latency_provenance": {
        "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
-      }
+      },
+      "latency_quotable": null
      },
      "laya": {
       "english": {
@@ -7402,7 +7453,8 @@
       "corpus_cap": null,
       "confusion": null,
       "pair_head_ab": null,
-      "acc_deleaked": 0.6166666666666667
+      "acc_deleaked": 0.6166666666666667,
+      "latency_quotable": null
      },
      "gliner": {
       "lane": "gliner (reference)",
@@ -7449,7 +7501,8 @@
       "threshold_recommendation": null,
       "corpus_cap": null,
       "confusion": null,
-      "pair_head_ab": null
+      "pair_head_ab": null,
+      "latency_quotable": null
      },
      "agentjev": {
       "lane": "agentjev (reference)",
@@ -7496,7 +7549,8 @@
       "threshold_recommendation": null,
       "corpus_cap": null,
       "confusion": null,
-      "pair_head_ab": null
+      "pair_head_ab": null,
+      "latency_quotable": null
      }
     }
    },
@@ -7861,7 +7915,8 @@
     "cases_digest": "fnv1a64-49390c8b80475849",
     "latency_provenance": {
      "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
-    }
+    },
+    "latency_quotable": false
    },
    "laya": {
     "english": {
@@ -7915,7 +7970,8 @@
      "transductive": null,
      "confusion": null,
      "pair_head_ab": null,
-     "cases_digest": "fnv1a64-49390c8b80475849"
+     "cases_digest": "fnv1a64-49390c8b80475849",
+     "latency_quotable": true
     },
     "py/english": {
      "lane": "laya (python)",
@@ -7968,7 +8024,8 @@
      "transductive": null,
      "confusion": null,
      "pair_head_ab": null,
-     "cases_digest": "fnv1a64-49390c8b80475849"
+     "cases_digest": "fnv1a64-49390c8b80475849",
+     "latency_quotable": true
     }
    },
    "extra_host_lanes": {
@@ -8299,7 +8356,8 @@
       "cases_digest": "fnv1a64-49390c8b80475849",
       "latency_provenance": {
        "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
-      }
+      },
+      "latency_quotable": null
      },
      "laya": {
       "english": {
@@ -8399,7 +8457,8 @@
       "corpus_cap": null,
       "confusion": null,
       "pair_head_ab": null,
-      "acc_deleaked": 0.27956989247311825
+      "acc_deleaked": 0.27956989247311825,
+      "latency_quotable": null
      },
      "gliner": {
       "lane": "gliner (reference)",
@@ -8446,7 +8505,8 @@
       "threshold_recommendation": null,
       "corpus_cap": null,
       "confusion": null,
-      "pair_head_ab": null
+      "pair_head_ab": null,
+      "latency_quotable": null
      },
      "agentjev": {
       "lane": "agentjev (reference)",
@@ -8493,7 +8553,8 @@
       "threshold_recommendation": null,
       "corpus_cap": null,
       "confusion": null,
-      "pair_head_ab": null
+      "pair_head_ab": null,
+      "latency_quotable": null
      }
     }
    },
@@ -8873,7 +8934,8 @@
     "cases_digest": "fnv1a64-dd8ab35333abb82a",
     "latency_provenance": {
      "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
-    }
+    },
+    "latency_quotable": false
    },
    "laya": {
     "english": {
@@ -8927,7 +8989,8 @@
      "transductive": null,
      "confusion": null,
      "pair_head_ab": null,
-     "cases_digest": "fnv1a64-dd8ab35333abb82a"
+     "cases_digest": "fnv1a64-dd8ab35333abb82a",
+     "latency_quotable": true
     },
     "py/english": {
      "lane": "laya (python)",
@@ -8980,7 +9043,8 @@
      "transductive": null,
      "confusion": null,
      "pair_head_ab": null,
-     "cases_digest": "fnv1a64-dd8ab35333abb82a"
+     "cases_digest": "fnv1a64-dd8ab35333abb82a",
+     "latency_quotable": true
     }
    },
    "extra_host_lanes": {
@@ -9311,7 +9375,8 @@
       "cases_digest": "fnv1a64-dd8ab35333abb82a",
       "latency_provenance": {
        "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
-      }
+      },
+      "latency_quotable": null
      },
      "laya": {
       "english": {
@@ -9411,7 +9476,8 @@
       "corpus_cap": null,
       "confusion": null,
       "pair_head_ab": null,
-      "acc_deleaked": 0.010351966873706004
+      "acc_deleaked": 0.010351966873706004,
+      "latency_quotable": null
      },
      "gliner": {
       "lane": "gliner (reference)",
@@ -9458,7 +9524,8 @@
       "threshold_recommendation": null,
       "corpus_cap": null,
       "confusion": null,
-      "pair_head_ab": null
+      "pair_head_ab": null,
+      "latency_quotable": null
      },
      "agentjev": {
       "lane": "agentjev (reference)",
@@ -9505,7 +9572,8 @@
       "threshold_recommendation": null,
       "corpus_cap": null,
       "confusion": null,
-      "pair_head_ab": null
+      "pair_head_ab": null,
+      "latency_quotable": null
      },
      "paw_local": {
       "lane": "paw (local)",
@@ -9541,7 +9609,8 @@
       "latency_tail_support": 6,
       "server_latency_p50_ms": null,
       "determinism_ok": true,
-      "seconds": 72.0437115
+      "seconds": 72.0437115,
+      "latency_quotable": null
      }
     }
    },
@@ -9791,7 +9860,8 @@
     "cases_digest": "fnv1a64-d3e1184c4720e3af",
     "latency_provenance": {
      "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
-    }
+    },
+    "latency_quotable": false
    },
    "laya": {
     "english": {
@@ -9845,7 +9915,8 @@
      "transductive": null,
      "confusion": null,
      "pair_head_ab": null,
-     "cases_digest": "fnv1a64-d3e1184c4720e3af"
+     "cases_digest": "fnv1a64-d3e1184c4720e3af",
+     "latency_quotable": true
     },
     "py/english": {
      "lane": "laya (python)",
@@ -9898,7 +9969,8 @@
      "transductive": null,
      "confusion": null,
      "pair_head_ab": null,
-     "cases_digest": "fnv1a64-d3e1184c4720e3af"
+     "cases_digest": "fnv1a64-d3e1184c4720e3af",
+     "latency_quotable": true
     }
    },
    "extra_host_lanes": {
@@ -9949,7 +10021,8 @@
        "threshold_recommendation": null,
        "corpus_cap": null,
        "confusion": null,
-       "pair_head_ab": null
+       "pair_head_ab": null,
+       "latency_quotable": false
       }
      }
     },
@@ -10117,7 +10190,8 @@
       "cases_digest": "fnv1a64-d3e1184c4720e3af",
       "latency_provenance": {
        "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
-      }
+      },
+      "latency_quotable": null
      },
      "laya": {
       "english": {
@@ -10216,7 +10290,8 @@
       "threshold_recommendation": null,
       "corpus_cap": null,
       "confusion": null,
-      "pair_head_ab": null
+      "pair_head_ab": null,
+      "latency_quotable": null
      },
      "gliner": {
       "lane": "gliner (reference)",
@@ -10263,7 +10338,8 @@
       "threshold_recommendation": null,
       "corpus_cap": null,
       "confusion": null,
-      "pair_head_ab": null
+      "pair_head_ab": null,
+      "latency_quotable": null
      },
      "agentjev": {
       "lane": "agentjev (reference)",
@@ -10310,7 +10386,8 @@
       "threshold_recommendation": null,
       "corpus_cap": null,
       "confusion": null,
-      "pair_head_ab": null
+      "pair_head_ab": null,
+      "latency_quotable": null
      }
     }
    },
@@ -10465,7 +10542,8 @@
     "cases_digest": "fnv1a64-6256f41a5d45104d",
     "latency_provenance": {
      "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
-    }
+    },
+    "latency_quotable": false
    },
    "laya": {
     "english": {
@@ -10519,7 +10597,8 @@
      "transductive": null,
      "confusion": null,
      "pair_head_ab": null,
-     "cases_digest": "fnv1a64-6256f41a5d45104d"
+     "cases_digest": "fnv1a64-6256f41a5d45104d",
+     "latency_quotable": true
     },
     "py/english": {
      "lane": "laya (python)",
@@ -10572,7 +10651,8 @@
      "transductive": null,
      "confusion": null,
      "pair_head_ab": null,
-     "cases_digest": "fnv1a64-6256f41a5d45104d"
+     "cases_digest": "fnv1a64-6256f41a5d45104d",
+     "latency_quotable": true
     }
    },
    "extra_host_lanes": {
@@ -10623,7 +10703,8 @@
        "threshold_recommendation": null,
        "corpus_cap": null,
        "confusion": null,
-       "pair_head_ab": null
+       "pair_head_ab": null,
+       "latency_quotable": false
       }
      }
     },
@@ -10750,7 +10831,8 @@
       "cases_digest": "fnv1a64-6256f41a5d45104d",
       "latency_provenance": {
        "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
-      }
+      },
+      "latency_quotable": null
      },
      "laya": {
       "english": {
@@ -10849,7 +10931,8 @@
       "threshold_recommendation": null,
       "corpus_cap": null,
       "confusion": null,
-      "pair_head_ab": null
+      "pair_head_ab": null,
+      "latency_quotable": null
      },
      "gliner": {
       "lane": "gliner (reference)",
@@ -10896,7 +10979,8 @@
       "threshold_recommendation": null,
       "corpus_cap": null,
       "confusion": null,
-      "pair_head_ab": null
+      "pair_head_ab": null,
+      "latency_quotable": null
      },
      "agentjev": {
       "lane": "agentjev (reference)",
@@ -10943,7 +11027,8 @@
       "threshold_recommendation": null,
       "corpus_cap": null,
       "confusion": null,
-      "pair_head_ab": null
+      "pair_head_ab": null,
+      "latency_quotable": null
      }
     }
    },
@@ -11086,7 +11171,8 @@
     "cases_digest": "fnv1a64-12ee83a1c6493b29",
     "latency_provenance": {
      "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
-    }
+    },
+    "latency_quotable": false
    },
    "laya": {
     "english": {
@@ -11140,7 +11226,8 @@
      "transductive": null,
      "confusion": null,
      "pair_head_ab": null,
-     "cases_digest": "fnv1a64-12ee83a1c6493b29"
+     "cases_digest": "fnv1a64-12ee83a1c6493b29",
+     "latency_quotable": true
     },
     "py/english": {
      "lane": "laya (python)",
@@ -11193,7 +11280,8 @@
      "transductive": null,
      "confusion": null,
      "pair_head_ab": null,
-     "cases_digest": "fnv1a64-12ee83a1c6493b29"
+     "cases_digest": "fnv1a64-12ee83a1c6493b29",
+     "latency_quotable": true
     }
    },
    "extra_host_lanes": {
@@ -11244,7 +11332,8 @@
        "threshold_recommendation": null,
        "corpus_cap": null,
        "confusion": null,
-       "pair_head_ab": null
+       "pair_head_ab": null,
+       "latency_quotable": false
       }
      }
     },
@@ -11359,7 +11448,8 @@
       "cases_digest": "fnv1a64-12ee83a1c6493b29",
       "latency_provenance": {
        "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
-      }
+      },
+      "latency_quotable": null
      },
      "laya": {
       "english": {
@@ -11458,7 +11548,8 @@
       "threshold_recommendation": null,
       "corpus_cap": null,
       "confusion": null,
-      "pair_head_ab": null
+      "pair_head_ab": null,
+      "latency_quotable": null
      },
      "gliner": {
       "lane": "gliner (reference)",
@@ -11505,7 +11596,8 @@
       "threshold_recommendation": null,
       "corpus_cap": null,
       "confusion": null,
-      "pair_head_ab": null
+      "pair_head_ab": null,
+      "latency_quotable": null
      },
      "agentjev": {
       "lane": "agentjev (reference)",
@@ -11552,7 +11644,8 @@
       "threshold_recommendation": null,
       "corpus_cap": null,
       "confusion": null,
-      "pair_head_ab": null
+      "pair_head_ab": null,
+      "latency_quotable": null
      }
     }
    },
@@ -11713,7 +11806,8 @@
     "cases_digest": "fnv1a64-f8aa91cdb65abf34",
     "latency_provenance": {
      "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
-    }
+    },
+    "latency_quotable": false
    },
    "laya": {
     "english": {
@@ -11767,7 +11861,8 @@
      "transductive": null,
      "confusion": null,
      "pair_head_ab": null,
-     "cases_digest": "fnv1a64-f8aa91cdb65abf34"
+     "cases_digest": "fnv1a64-f8aa91cdb65abf34",
+     "latency_quotable": true
     },
     "py/english": {
      "lane": "laya (python)",
@@ -11820,7 +11915,8 @@
      "transductive": null,
      "confusion": null,
      "pair_head_ab": null,
-     "cases_digest": "fnv1a64-f8aa91cdb65abf34"
+     "cases_digest": "fnv1a64-f8aa91cdb65abf34",
+     "latency_quotable": true
     }
    },
    "extra_host_lanes": {
@@ -11871,7 +11967,8 @@
        "threshold_recommendation": null,
        "corpus_cap": null,
        "confusion": null,
-       "pair_head_ab": null
+       "pair_head_ab": null,
+       "latency_quotable": false
       }
      }
     },
@@ -12004,7 +12101,8 @@
       "cases_digest": "fnv1a64-f8aa91cdb65abf34",
       "latency_provenance": {
        "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
-      }
+      },
+      "latency_quotable": null
      },
      "laya": {
       "english": {
@@ -12103,7 +12201,8 @@
       "threshold_recommendation": null,
       "corpus_cap": null,
       "confusion": null,
-      "pair_head_ab": null
+      "pair_head_ab": null,
+      "latency_quotable": null
      },
      "gliner": {
       "lane": "gliner (reference)",
@@ -12150,7 +12249,8 @@
       "threshold_recommendation": null,
       "corpus_cap": null,
       "confusion": null,
-      "pair_head_ab": null
+      "pair_head_ab": null,
+      "latency_quotable": null
      },
      "agentjev": {
       "lane": "agentjev (reference)",
@@ -12197,7 +12297,8 @@
       "threshold_recommendation": null,
       "corpus_cap": null,
       "confusion": null,
-      "pair_head_ab": null
+      "pair_head_ab": null,
+      "latency_quotable": null
      }
     }
    },
@@ -12352,7 +12453,8 @@
     "cases_digest": "fnv1a64-2e568b9aa695d41c",
     "latency_provenance": {
      "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
-    }
+    },
+    "latency_quotable": false
    },
    "laya": {
     "english": {
@@ -12406,7 +12508,8 @@
      "transductive": null,
      "confusion": null,
      "pair_head_ab": null,
-     "cases_digest": "fnv1a64-2e568b9aa695d41c"
+     "cases_digest": "fnv1a64-2e568b9aa695d41c",
+     "latency_quotable": true
     },
     "py/english": {
      "lane": "laya (python)",
@@ -12459,7 +12562,8 @@
      "transductive": null,
      "confusion": null,
      "pair_head_ab": null,
-     "cases_digest": "fnv1a64-2e568b9aa695d41c"
+     "cases_digest": "fnv1a64-2e568b9aa695d41c",
+     "latency_quotable": true
     }
    },
    "extra_host_lanes": {
@@ -12510,7 +12614,8 @@
        "threshold_recommendation": null,
        "corpus_cap": null,
        "confusion": null,
-       "pair_head_ab": null
+       "pair_head_ab": null,
+       "latency_quotable": false
       }
      }
     },
@@ -12637,7 +12742,8 @@
       "cases_digest": "fnv1a64-2e568b9aa695d41c",
       "latency_provenance": {
        "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
-      }
+      },
+      "latency_quotable": null
      },
      "laya": {
       "english": {
@@ -12736,7 +12842,8 @@
       "threshold_recommendation": null,
       "corpus_cap": null,
       "confusion": null,
-      "pair_head_ab": null
+      "pair_head_ab": null,
+      "latency_quotable": null
      },
      "gliner": {
       "lane": "gliner (reference)",
@@ -12783,7 +12890,8 @@
       "threshold_recommendation": null,
       "corpus_cap": null,
       "confusion": null,
-      "pair_head_ab": null
+      "pair_head_ab": null,
+      "latency_quotable": null
      },
      "agentjev": {
       "lane": "agentjev (reference)",
@@ -12830,7 +12938,8 @@
       "threshold_recommendation": null,
       "corpus_cap": null,
       "confusion": null,
-      "pair_head_ab": null
+      "pair_head_ab": null,
+      "latency_quotable": null
      }
     }
    },
@@ -12997,7 +13106,8 @@
     "cases_digest": "fnv1a64-c0bd4e4084dd9e3f",
     "latency_provenance": {
      "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
-    }
+    },
+    "latency_quotable": false
    },
    "laya": {
     "english": {
@@ -13051,7 +13161,8 @@
      "transductive": null,
      "confusion": null,
      "pair_head_ab": null,
-     "cases_digest": "fnv1a64-c0bd4e4084dd9e3f"
+     "cases_digest": "fnv1a64-c0bd4e4084dd9e3f",
+     "latency_quotable": true
     },
     "py/english": {
      "lane": "laya (python)",
@@ -13104,7 +13215,8 @@
      "transductive": null,
      "confusion": null,
      "pair_head_ab": null,
-     "cases_digest": "fnv1a64-c0bd4e4084dd9e3f"
+     "cases_digest": "fnv1a64-c0bd4e4084dd9e3f",
+     "latency_quotable": true
     }
    },
    "extra_host_lanes": {
@@ -13155,7 +13267,8 @@
        "threshold_recommendation": null,
        "corpus_cap": null,
        "confusion": null,
-       "pair_head_ab": null
+       "pair_head_ab": null,
+       "latency_quotable": false
       }
      }
     },
@@ -13294,7 +13407,8 @@
       "cases_digest": "fnv1a64-c0bd4e4084dd9e3f",
       "latency_provenance": {
        "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
-      }
+      },
+      "latency_quotable": null
      },
      "laya": {
       "english": {
@@ -13393,7 +13507,8 @@
       "threshold_recommendation": null,
       "corpus_cap": null,
       "confusion": null,
-      "pair_head_ab": null
+      "pair_head_ab": null,
+      "latency_quotable": null
      },
      "gliner": {
       "lane": "gliner (reference)",
@@ -13440,7 +13555,8 @@
       "threshold_recommendation": null,
       "corpus_cap": null,
       "confusion": null,
-      "pair_head_ab": null
+      "pair_head_ab": null,
+      "latency_quotable": null
      },
      "agentjev": {
       "lane": "agentjev (reference)",
@@ -13487,7 +13603,8 @@
       "threshold_recommendation": null,
       "corpus_cap": null,
       "confusion": null,
-      "pair_head_ab": null
+      "pair_head_ab": null,
+      "latency_quotable": null
      }
     }
    },
@@ -13573,7 +13690,8 @@
      "transductive": null,
      "confusion": null,
      "pair_head_ab": null,
-     "cases_digest": "fnv1a64-7340affffa39fcad"
+     "cases_digest": "fnv1a64-7340affffa39fcad",
+     "latency_quotable": true
     },
     "py/english": {
      "lane": "laya (python)",
@@ -13626,7 +13744,8 @@
      "transductive": null,
      "confusion": null,
      "pair_head_ab": null,
-     "cases_digest": "fnv1a64-7340affffa39fcad"
+     "cases_digest": "fnv1a64-7340affffa39fcad",
+     "latency_quotable": true
     }
    },
    "extra_host_lanes": {
@@ -13677,7 +13796,8 @@
        "threshold_recommendation": null,
        "corpus_cap": null,
        "confusion": null,
-       "pair_head_ab": null
+       "pair_head_ab": null,
+       "latency_quotable": false
       }
      }
     },
@@ -13779,7 +13899,8 @@
       "threshold_recommendation": null,
       "corpus_cap": null,
       "confusion": null,
-      "pair_head_ab": null
+      "pair_head_ab": null,
+      "latency_quotable": null
      },
      "gliner": {
       "lane": "gliner (reference)",
@@ -13826,7 +13947,8 @@
       "threshold_recommendation": null,
       "corpus_cap": null,
       "confusion": null,
-      "pair_head_ab": null
+      "pair_head_ab": null,
+      "latency_quotable": null
      }
     }
    },

@@ -58,9 +58,10 @@ QUOTABLE refuses (exit 1) if it would publish any of its own timing cells —
 an :acc-only lane, a carried lane, or a device-variant skip is exempt. The
 env acknowledges by host (a stale ack refuses too). UNJUDGED docs (no
 readable box_state — the 4090 harness has no probes) publish with a loud
-note. Every lane_sources row an update writes records its run's
-`latency_quotable` (true / false / null), so a lane-updated table carries
-the box verdict of its NEWEST cells — meta.box_state is the original run's.
+note. Every lane cell carries `latency_quotable` (true / false / null) from
+the run its TIMING came from — stamped at merge, copied with the timing by
+LANE_CARRY, stripped by :acc-only; absent = unknown. meta.box_state is the
+table's ORIGINAL run's and describes no later-updated cell.
 
 Docs apply in argv order. The first doc's suites shape the tables (run the
 superset run first). A previously-published data/bench.json is a valid
@@ -369,10 +370,18 @@ def compute_pairings(d):
     return paired
 
 
-def stamp_cell(cell, suite):
-    """Carry the source run's population identity onto the lane cell."""
-    if isinstance(cell, dict) and suite.get("cases_digest"):
+def stamp_cell(cell, suite, meta=None):
+    """Carry the source run's population identity onto the lane cell, and
+    (when the run carries a box_state) the run's latency verdict — on the
+    CELL, beside the timing it describes, so a LANE_CARRY replaces both
+    together (_carry_into) and no row-level field can pair one run's
+    verdict with another run's numbers."""
+    if not isinstance(cell, dict):
+        return
+    if suite.get("cases_digest"):
         cell["cases_digest"] = suite["cases_digest"]
+    if meta and "box_state" in meta:
+        cell["latency_quotable"] = doc_latency_quotable(meta)
 
 
 def host_row(meta):
@@ -450,6 +459,19 @@ def merge(primary, extras):
         for cell in cells:
             if isinstance(cell, dict):
                 cell.setdefault("cases_digest", dg)
+    # A RAW primary's cells take its own run's verdict. A published
+    # bench.json primary does NOT: its meta.box_state is the table's
+    # original run's, and stamping it would pair that verdict with cells
+    # later updates replaced (reflex Bench 067's misreading, mechanized).
+    if not pmeta.get("hosts") and "box_state" in pmeta:
+        pq = doc_latency_quotable(pmeta)
+        for s in p_suites.values():
+            cells = ([s.get("modelless")] + list((s.get("laya") or {}).values())
+                     + [s.get(k) for k in ("clm", "gliner", "agentjev",
+                                           "paw", "paw_local", "hybrid")])
+            for cell in cells:
+                if isinstance(cell, dict):
+                    cell.setdefault("latency_quotable", pq)
     skipped_variant_lanes = []
 
     # A previously-published bench.json as primary may already carry
@@ -516,13 +538,13 @@ def merge(primary, extras):
             entry = host_lane_entry(p, ehost)
             em, el = s.get("modelless"), (s.get("laya") or {})
             if em and not device_variant:
-                stamp_cell(em, s)
+                stamp_cell(em, s, emeta)
                 entry["modelless"] = em
                 updated_lanes["modelless"] = True
             elif em:
                 skipped_variant_lanes.append(f"modelless@{ehost}")
             for lk, lv in el.items():
-                stamp_cell(lv, s)
+                stamp_cell(lv, s, emeta)
                 entry.setdefault("laya", {})[lk] = lv
                 updated_lanes[f"laya:{lk}"] = True
                 if lv.get("lane") in PYTHON_LANE_SPELLINGS:
@@ -533,7 +555,7 @@ def merge(primary, extras):
             # measured per-host, no bit-identity claim applies.
             ec = s.get("clm")
             if ec and not device_variant:
-                stamp_cell(ec, s)
+                stamp_cell(ec, s, emeta)
                 entry["clm"] = ec
                 updated_lanes["clm"] = True
             elif ec:
@@ -542,7 +564,7 @@ def merge(primary, extras):
             # carry law as clm — an external reference measured per-host.
             eg = s.get("gliner")
             if eg and not device_variant:
-                stamp_cell(eg, s)
+                stamp_cell(eg, s, emeta)
                 entry["gliner"] = eg
                 updated_lanes["gliner"] = True
             elif eg:
@@ -552,7 +574,7 @@ def merge(primary, extras):
             # per-host.
             ea = s.get("agentjev")
             if ea and not device_variant:
-                stamp_cell(ea, s)
+                stamp_cell(ea, s, emeta)
                 entry["agentjev"] = ea
                 updated_lanes["agentjev"] = True
             elif ea:
@@ -562,7 +584,7 @@ def merge(primary, extras):
             # no bit-identity claim applies.
             ep = s.get("paw")
             if ep and not device_variant:
-                stamp_cell(ep, s)
+                stamp_cell(ep, s, emeta)
                 entry["paw"] = ep
                 updated_lanes["paw"] = True
             elif ep:
@@ -573,7 +595,7 @@ def merge(primary, extras):
             # the rest; today no such host carries it.
             epl = s.get("paw_local")
             if epl and not device_variant:
-                stamp_cell(epl, s)
+                stamp_cell(epl, s, emeta)
                 entry["paw_local"] = epl
                 updated_lanes["paw_local"] = True
             elif epl:
@@ -586,7 +608,7 @@ def merge(primary, extras):
             # machine's own row).
             eh = s.get("hybrid")
             if eh and not device_variant:
-                stamp_cell(eh, s)
+                stamp_cell(eh, s, emeta)
                 entry["hybrid"] = eh
                 updated_lanes["hybrid"] = True
             elif eh:
@@ -615,16 +637,9 @@ def merge(primary, extras):
                     set(row.get("excluded_suites", [])) | set(excluded))
             if updated_lanes:
                 src = row.setdefault("lane_sources", {})
-                # The update run's own latency verdict rides each lane it
-                # contributed: meta.box_state is the ORIGINAL run's, so
-                # without this a lane-updated table carries no box state
-                # for its newest cells (read the wrong run's verdict
-                # once — reflex Bench 067's 062 misattribution).
                 for lane in updated_lanes:
                     src[lane] = {k: emeta[k] for k in LANE_SOURCE_KEYS
                                  if k in emeta}
-                    if "box_state" in emeta:
-                        src[lane]["latency_quotable"] = doc_latency_quotable(emeta)
                 # The modelless lane-fact postures (Issue 032): an update
                 # that contributes the MODELLESS lane refreshes the row's
                 # head_posture / latency_carried from its meta — these are
@@ -758,6 +773,13 @@ def _carry_into(lane, incumbent):
     for k in LANE_LATENCY_FIELDS:
         if k in incumbent:
             lane[k] = incumbent[k]
+    # The verdict travels WITH the timing: the carried cells are the
+    # incumbent's, so is their verdict; an incumbent without one leaves
+    # the cell UNKNOWN (absent), never the update run's verdict.
+    if "latency_quotable" in incumbent:
+        lane["latency_quotable"] = incumbent["latency_quotable"]
+    else:
+        lane.pop("latency_quotable", None)
     lane["latency_provenance"] = {
         "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)",
     }
@@ -878,6 +900,7 @@ def filter_extras_to_lanes(extras, allowed):
                     for f in LANE_LATENCY_FIELDS:
                         lane.pop(f, None)
                     lane.pop("latency_provenance", None)
+                    lane.pop("latency_quotable", None)
                     stripped.append(f"{k}@{ehost}/{s['name']}")
             lk = s.get("laya")
             if lk is not None and "laya" not in classes:
@@ -892,6 +915,7 @@ def filter_extras_to_lanes(extras, allowed):
                     for f in LANE_LATENCY_FIELDS:
                         cell.pop(f, None)
                     cell.pop("latency_provenance", None)
+                    cell.pop("latency_quotable", None)
                     stripped.append(f"laya:{ck}@{ehost}/{s['name']}")
     if dropped:
         print(

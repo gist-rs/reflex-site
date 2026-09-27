@@ -167,6 +167,24 @@ const server = http.createServer((req, res) => {
   note = await heroNote();
   if (!note.includes("Rows sorted fastest-first on the Reflex · modelless lane")) fail(`latency sort note wrong, got: ${note}`);
   else console.log("ok: hero by-latency sorts fastest-first by the modelless lane");
+  // Issue-021 verdicts on the tables: every unfit latency cell renders
+  // marked (class + † + reason on hover), and nothing else does. The
+  // Reflex lane is always visible, so its unfit cells bound the count.
+  {
+    const bench = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "data", "bench.json"), "utf8"));
+    const cells = bench.suites.flatMap((s) => [s.modelless, ...Object.values(s.laya || {}),
+      ...Object.values(s.extra_host_lanes || {}).flatMap((h) => [h.modelless, ...Object.values(h.laya || {}),
+        h.clm, h.gliner, h.agentjev, h.hybrid]), s.clm, s.gliner, s.agentjev, s.hybrid]).filter(Boolean);
+    const unfit = cells.filter((c) => c.latency_quotable === false).length;
+    const kmUnfit = bench.suites.filter((s) => s.modelless?.latency_quotable === false).length;
+    const dom = await page.evaluate(() => [...document.querySelectorAll("td.unq")]
+      .map((td) => ({ dagger: !!td.querySelector("sup"), title: td.title || "" })));
+    if (dom.length > 2 * unfit) fail(`${dom.length} marked latency cells > 2 × ${unfit} unfit cells in the data`);
+    if (dom.length < 2 * kmUnfit) fail(`${dom.length} marked cells < 2 × ${kmUnfit} unfit Reflex cells (always visible)`);
+    if (dom.some((d) => !d.dagger || !/not quotable/.test(d.title))) fail("a marked latency cell lacks its † or its reason");
+    if (!process.exitCode) console.log(`ok: ${dom.length} latency cells marked unfit (${unfit} unfit cells in the data)`);
+  }
+
   // restore the default posture for the screenshot
   await page.click('#bench-hero button[data-metric="acc"]');
   await page.click('#bench-hero button[data-sort="data"]');

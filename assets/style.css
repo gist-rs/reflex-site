@@ -425,3 +425,7 @@ details.more > summary .chip { margin-left: 6px; }
 .credit a { font-weight: 700; }
 .launch > details.more { margin: 0; }
 .launch > details.more[open] > summary { margin-bottom: 8px; }
+/* Issue-021 verdict: timing a run judged unfit to quote (bench_provenance.js). */
+.caveat { color: var(--warn); font-size: 0.92em; }
+td.unq { color: var(--warn); }
+td.unq sup { margin-left: 1px; }

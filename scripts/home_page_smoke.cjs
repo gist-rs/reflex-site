@@ -75,6 +75,23 @@ const server = http.createServer((req, res) => {
   if (!prov || !/never hand-typed/.test(prov)) fail("sizes provenance line missing");
   else console.log("ok: provenance line rendered");
 
+  // 3b. Issue-021 provenance: the home line names the NEWEST contributing run
+  // (meta is the table's original run), and the TL;DR speed claim carries
+  // the unfit-timing caveat iff a Reflex cell it uses was judged unfit.
+  {
+    const bench = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "data", "bench.json"), "utf8"));
+    const newest = [bench.meta, ...bench.meta.hosts, ...bench.meta.hosts.flatMap((h) => Object.values(h.lane_sources || {}))]
+      .filter((r) => r?.date_utc).map((r) => r.date_utc).sort().at(-1);
+    await page.waitForFunction(() => !document.getElementById("home-prov").hidden, null, { timeout: 10000 });
+    const hp = await page.textContent("#home-prov");
+    if (!hp.includes(newest.slice(0, 10))) fail(`home provenance "${hp}" does not name the newest run date ${newest.slice(0, 10)}`);
+    else console.log(`ok: home provenance names the newest run (${newest.slice(0, 10)})`);
+    const anyUnfit = bench.suites.some((s) => s.modelless?.latency_quotable === false && s.modelless.latency_p50_ms > 0);
+    const tl = await page.textContent("#tldr-body");
+    if (anyUnfit !== /not quotable/.test(tl)) fail(`home TL;DR unfit caveat: expected=${anyUnfit}, rendered=${!anyUnfit}`);
+    else console.log(`ok: home TL;DR unfit-timing caveat ${anyUnfit ? "shown" : "absent"} as the data says`);
+  }
+
   // 4. the hero bench chart still renders (shared page, no regression)
   const heroBars = await page.evaluate(() => document.querySelectorAll("#bench-summary .bc-hbar").length);
   if (heroBars < 5) fail(`hero bench chart bars ${heroBars} — regression?`);

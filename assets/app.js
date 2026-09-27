@@ -164,12 +164,13 @@ async function homeFigure() {
   BenchCharts.setLogDomain(d);
   if (chart) BenchCharts.summary(d, chart);
   if (tldrBody) {
-    const ratios = [], kmP50s = [];
+    const ratios = [], kmP50s = [], kmCells = [];
     for (const s of d.suites || []) {
       const km = s.modelless, l = pickLayaBest(s);
       if (km?.latency_p50_ms > 0 && l?.latency_p50_ms > 0) {
         ratios.push(l.latency_p50_ms / km.latency_p50_ms);
         kmP50s.push(km.latency_p50_ms);
+        kmCells.push(km);
       }
     }
     const speedup = median(ratios), geo = median(kmP50s) && Math.exp(kmP50s.reduce((a, v) => a + Math.log(v), 0) / kmP50s.length);
@@ -177,6 +178,13 @@ async function homeFigure() {
       tldrBody.innerHTML =
         `Typical decision <b class="num">${lat(geo)}</b> — median <b class="num">${Math.round(speedup).toLocaleString("en-US")}×</b> faster than the open-weights ` +
         `model on the same questions, across <b class="num">${ratios.length}</b> suites.`;
+      // The Issue-021 verdict rides the claim it qualifies (never a
+      // footnote elsewhere): a speed figure built on timing the run itself
+      // judged unfit says so beside the number.
+      const v = window.BenchProv ? BenchProv.latency(kmCells) : null;
+      if (v && v.unfit) {
+        tldrBody.innerHTML += ` <span class="caveat">⚠ ${BenchProv.unfitNote(`Reflex's timing on ${v.unfit}/${v.n} suites`)}</span>`;
+      }
     }
   }
   // G1 badge — counted from the per-suite verdicts, never typed (a suite
@@ -192,9 +200,12 @@ async function homeFigure() {
     }
   }
   const prov = document.getElementById("home-prov");
-  if (prov && d.meta?.date_utc) {
+  // The NEWEST contributing run, not meta's: meta is the table's original
+  // run and lane-scoped updates never replace it (BenchProv.latestRun).
+  const last = window.BenchProv ? BenchProv.latestRun(d) : null;
+  if (prov && last) {
     prov.hidden = false;
-    prov.textContent = `measured ${d.meta.date_utc.slice(0, 10)} · run ${d.meta.git_sha || "?"} on ${d.meta.host || "?"} · from data/bench.json`;
+    prov.textContent = `latest run ${last.date_utc.slice(0, 10)} · ${last.git_sha} on ${last.host} · lanes carry their own runs (see /bench/) · from data/bench.json`;
   }
 }
 homeFigure();
