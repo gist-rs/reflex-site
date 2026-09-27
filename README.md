@@ -162,6 +162,17 @@ now REFUSES naming what would be dropped;
 replacement. Both hosts' modelless lanes must still move TOGETHER in one
 publish — the cross-host drift gate refuses a one-host engine move.
 
+**Latency the run itself judged unfit does not publish (the Issue-021
+wall).** The harness stamps `meta.box_state` into every `results.json`; a doc
+whose verdict reads `latency_quotable: false` REFUSES if it would put any of
+its own timing on the page. Exits: re-run on a fit box
+(`riir-reflex/scripts/bench_preflight.sh`), publish accuracy only
+(`PUBLISH_BENCH_LANES=<class>:acc-only`), or acknowledge by host
+(`PUBLISH_BENCH_ALLOW_UNQUOTABLE=<host>`; a stale ack refuses). A doc with no
+readable box state (the 4090 harness) publishes with a loud UNJUDGED note.
+Each updated lane records its run's verdict in `lane_sources` — read THAT,
+not `meta.box_state`, which belongs to the table's original run.
+
 One wrapper mechanises the whole flow (self-test -> publish -> docs-mirror
 parity -> the bench-page smoke when playwright is installed):
 

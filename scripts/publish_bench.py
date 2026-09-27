@@ -52,6 +52,16 @@ stripped — for a run whose box state made latency NOT QUOTABLE (the
 Issue-021 preflight law; the source doc keeps its measured cells and its
 disclosure). Unknown names refuse; the primary is never filtered.
 
+PUBLISH_BENCH_ALLOW_UNQUOTABLE="<host>[,<host>]" (2026-09-27, the Issue-021
+publish wall): a doc whose own meta.box_state judged its latency NOT
+QUOTABLE refuses (exit 1) if it would publish any of its own timing cells —
+an :acc-only lane, a carried lane, or a device-variant skip is exempt. The
+env acknowledges by host (a stale ack refuses too). UNJUDGED docs (no
+readable box_state — the 4090 harness has no probes) publish with a loud
+note. Every lane_sources row an update writes records its run's
+`latency_quotable` (true / false / null), so a lane-updated table carries
+the box verdict of its NEWEST cells — meta.box_state is the original run's.
+
 Docs apply in argv order. The first doc's suites shape the tables (run the
 superset run first). A previously-published data/bench.json is a valid
 primary for a re-publish (its meta.hosts seed the seen-host set) — and since
@@ -371,6 +381,8 @@ def host_row(meta):
     for k in HOST_META_KEYS:
         if k in meta and k not in DROP_META_KEYS:
             row[k] = meta[k]
+    if "box_state" in meta:
+        row["latency_quotable"] = doc_latency_quotable(meta)
     return row
 
 
@@ -603,9 +615,16 @@ def merge(primary, extras):
                     set(row.get("excluded_suites", [])) | set(excluded))
             if updated_lanes:
                 src = row.setdefault("lane_sources", {})
+                # The update run's own latency verdict rides each lane it
+                # contributed: meta.box_state is the ORIGINAL run's, so
+                # without this a lane-updated table carries no box state
+                # for its newest cells (read the wrong run's verdict
+                # once — reflex Bench 067's 062 misattribution).
                 for lane in updated_lanes:
                     src[lane] = {k: emeta[k] for k in LANE_SOURCE_KEYS
                                  if k in emeta}
+                    if "box_state" in emeta:
+                        src[lane]["latency_quotable"] = doc_latency_quotable(emeta)
                 # The modelless lane-fact postures (Issue 032): an update
                 # that contributes the MODELLESS lane refreshes the row's
                 # head_posture / latency_carried from its meta — these are
@@ -864,6 +883,16 @@ def filter_extras_to_lanes(extras, allowed):
             if lk is not None and "laya" not in classes:
                 del s["laya"]
                 dropped.append(f"laya@{ehost}/{s['name']}")
+            elif lk is not None and "laya" in acc_only:
+                # laya is a CLASS of checkpoint cells, so the strip walks
+                # them (the loop above skips the class key; before
+                # 2026-09-27 "laya:acc-only" was accepted and stripped
+                # nothing — the publish wall's test found it).
+                for ck, cell in lk.items():
+                    for f in LANE_LATENCY_FIELDS:
+                        cell.pop(f, None)
+                    cell.pop("latency_provenance", None)
+                    stripped.append(f"laya:{ck}@{ehost}/{s['name']}")
     if dropped:
         print(
             f"note: PUBLISH_BENCH_LANES — dropped {len(dropped)} out-of-scope "
@@ -879,6 +908,121 @@ def filter_extras_to_lanes(extras, allowed):
             file=sys.stderr,
         )
     return extras
+
+
+def doc_latency_quotable(meta):
+    """The run's own Issue-021 box-state verdict, 3-state — the same rule
+    as riir-reflex `BoxStateSpan::latency_quotable`: quotable only if BOTH
+    ends are; `None` (UNJUDGED) if either end could not be read (a
+    non-macOS host, or a pre-021 doc with no `box_state` at all)."""
+    bs = (meta or {}).get("box_state") or {}
+    a = (bs.get("start") or {}).get("latency_quotable")
+    b = (bs.get("end") or {}).get("latency_quotable")
+    if a is None or b is None:
+        return None
+    return bool(a and b)
+
+
+def _latency_slots(d, incumbent=None):
+    """Lane slots of doc `d` whose OWN timing would reach the page.
+
+    Exempt: a lane with no latency field left (an `:acc-only` strip), a
+    LANE_CARRY class the incumbent already holds for this host (its
+    timing is replaced by the incumbent's), and a device-variant host's
+    device-independent lane (merge() skips it). `incumbent` is None for
+    the primary — a raw primary carries nothing forward."""
+    host = (d.get("meta") or {}).get("host") or "(?)"
+    variant = host in DEVICE_VARIANT_HOSTS
+    snaps = {r["name"]: r for r in (incumbent or {}).get("suites", [])}
+    out = []
+    for s in d.get("suites", []):
+        snap = snaps.get(s["name"])
+        for k in LANE_CLASSES:
+            cells = (list((s.get("laya") or {}).items()) if k == "laya"
+                     else [(None, s.get(k))])
+            for ck, cell in cells:
+                if not isinstance(cell, dict):
+                    continue
+                if not any(cell.get(f) is not None for f in LANE_LATENCY_FIELDS):
+                    continue
+                if variant and k not in DEVICE_VARIANT_KEEP:
+                    continue
+                if (snap is not None and k in LANE_CARRY["latency"]
+                        and _host_lane_slot(snap, host, k) is not None):
+                    continue
+                label = k if ck is None else f"laya:{ck}"
+                out.append(f"{label}@{host}/{s['name']}")
+    return out
+
+
+def guard_unquotable_latency(primary, extras, incumbent):
+    """The Issue-021 publish wall: a doc whose own box_state judged its
+    latency NOT QUOTABLE must not publish that latency. The harness stamps
+    the verdict into every results.json (advisory at measure time, by
+    design); this is the half that refuses at PUBLISH time, where the
+    number becomes public. Before it existed the check was a process note
+    (reflex Bench 067), and a note is what gets skipped.
+
+    Refused docs name their slots and the box's own refusal reasons.
+    Remedies: re-run on a fit box, publish accuracy only
+    (PUBLISH_BENCH_LANES=<class>:acc-only), or acknowledge by host with
+    PUBLISH_BENCH_ALLOW_UNQUOTABLE=<host>[,<host>] — a stale ack (a named
+    host with no unquotable latency in this publish) refuses too, so an
+    acknowledgement cannot outlive the run it was written for. UNJUDGED
+    docs publish with a loud note: the 4090 harness has no box probes, and
+    refusing them would block every publish from that host.
+
+    The primary is judged only when it is a RAW harness doc; a published
+    bench.json primary (it carries meta.hosts) is the preservation source,
+    and its meta.box_state is its original run's, not this publish's."""
+    ack_env = os.environ.get("PUBLISH_BENCH_ALLOW_UNQUOTABLE", "")
+    ack = {display_host(x.strip()) for x in ack_env.split(",") if x.strip()}
+    docs = [(e, incumbent) for e in extras]
+    if not (primary.get("meta") or {}).get("hosts"):
+        docs.insert(0, (primary, None))
+    refused, acked, unjudged = [], set(), []
+    for d, inc in docs:
+        m = d.get("meta") or {}
+        slots = _latency_slots(d, inc)
+        if not slots:
+            continue
+        tag = f"{m.get('host')}@{m.get('git_sha', '?')}"
+        q = doc_latency_quotable(m)
+        if q is None:
+            unjudged.append(tag)
+        elif q:
+            continue
+        elif m.get("host") in ack:
+            acked.add(m.get("host"))
+            print(f"note: PUBLISH_BENCH_ALLOW_UNQUOTABLE — {tag} latency is "
+                  f"NOT QUOTABLE by its own box_state and publishes by "
+                  f"acknowledgement ({len(slots)} slot(s))", file=sys.stderr)
+        else:
+            bs = m.get("box_state") or {}
+            reasons = sorted({r for end in ("start", "end")
+                              for r in (bs.get(end) or {}).get("refusals") or []})
+            refused.append((tag, slots, reasons))
+    if unjudged:
+        print("note: latency UNJUDGED (no readable box_state: a non-macOS "
+              "host or a pre-021 doc) — publishing, disclosed per lane in "
+              f"lane_sources: {', '.join(unjudged)}", file=sys.stderr)
+    stale = ack - acked
+    if stale:
+        print(f"⛔ refusing: PUBLISH_BENCH_ALLOW_UNQUOTABLE names "
+              f"{', '.join(sorted(stale))}, but no doc from that host "
+              "publishes unquotable latency — drop the stale ack",
+              file=sys.stderr)
+        return 1
+    for tag, slots, reasons in refused:
+        print(f"⛔ refusing: {tag} judged its own latency NOT QUOTABLE "
+              f"({'; '.join(reasons) or 'no reason recorded'}) and would "
+              f"publish it on {len(slots)} slot(s) (sample: "
+              f"{', '.join(slots[:6])}). Re-run on a fit box "
+              "(riir-reflex scripts/bench_preflight.sh), publish accuracy "
+              "only (PUBLISH_BENCH_LANES=<class>:acc-only), or acknowledge "
+              "with PUBLISH_BENCH_ALLOW_UNQUOTABLE=<host>",
+              file=sys.stderr)
+    return 1 if refused else 0
 
 
 def main() -> int:
@@ -913,6 +1057,9 @@ def main() -> int:
     _phost = display_host((primary.get("meta") or {}).get("host") or "(primary)")
     for row in incumbent.get("suites", []):   # own lane dicts, before any
         row["_phost"] = _phost                # update replaced them
+    rc = guard_unquotable_latency(primary, extras, incumbent)
+    if rc != 0:
+        return rc
     d = merge(primary, extras)
     apply_lane_carry(d, incumbent, extras)
 

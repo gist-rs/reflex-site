@@ -1005,6 +1005,158 @@ def case_pairing_digest_stamp_rides_cells():
     assert "cases_digest" not in s2["laya"]["english"]
 
 
+# ── The Issue-021 publish wall (2026-09-27) ──────────────────────────────
+
+def _box(start, end):
+    """A results.json meta.box_state span; None = the end is UNJUDGED."""
+    mk = lambda q: {"load_1m": 7.0 if q is False else 4.0,
+                    "latency_quotable": q,
+                    "refusals": ["load 7 > 6 — a sibling job is on the box"]
+                    if q is False else []}
+    return {"start": mk(start), "end": mk(end)}
+
+
+def _timed_laya_doc(sha, box):
+    d = doc("m3", sha, {"s1": {"modelless_acc": 0.5}})
+    d["suites"][0]["laya"] = {"english": {
+        "lane": "laya-riir", "hard": {"accuracy": 0.36},
+        "latency_p50_ms": 406.0, "latency_p99_ms": 900.0, "seconds": 12.0}}
+    if box is not None:
+        d["meta"]["box_state"] = box
+    return d
+
+
+def _with_env(**kv):
+    """Context-free env override: returns a restore callable."""
+    old = {k: os.environ.get(k) for k in kv}
+    for k, v in kv.items():
+        if v is None:
+            os.environ.pop(k, None)
+        else:
+            os.environ[k] = v
+    def restore():
+        for k, v in old.items():
+            if v is None:
+                os.environ.pop(k, None)
+            else:
+                os.environ[k] = v
+    return restore
+
+
+def _published_primary(root):
+    """A first publish into `root`; returns the served file's path."""
+    first = _timed_laya_doc("sha-base", _box(True, True))
+    rc, _ = run_main([first], root)
+    assert rc == 0
+    return Path(root) / "data" / "bench.json"
+
+
+def _update(root, extra, **env):
+    """An update-path publish (served file as PRIMARY) of one extra doc,
+    stderr captured. Returns (rc, served, stderr)."""
+    served_path = Path(root) / "data" / "bench.json"
+    p = Path(root) / "extra.json"
+    p.write_text(json.dumps(extra), encoding="utf-8")
+    restore = _with_env(**env)
+    buf, olderr, oldargv = io.StringIO(), sys.stderr, sys.argv
+    sys.stderr = buf
+    sys.argv = ["publish_bench.py", str(served_path), str(p), str(root)]
+    try:
+        rc = pb.main()
+    finally:
+        sys.stderr, sys.argv = olderr, oldargv
+        restore()
+    return rc, json.loads(served_path.read_text("utf-8")), buf.getvalue()
+
+
+def case_doc_latency_quotable_three_state():
+    q = pb.doc_latency_quotable
+    assert q({"box_state": _box(True, True)}) is True
+    assert q({"box_state": _box(True, False)}) is False, "BOTH ends must be fit"
+    assert q({"box_state": _box(False, None)}) is None, \
+        "an unreadable end is UNJUDGED, never a verdict"
+    assert q({}) is None and q(None) is None, "no box_state = UNJUDGED"
+
+
+def case_unquotable_latency_refused_at_publish():
+    """Bench 067's process note, mechanized: a doc whose own box_state
+    read NOT QUOTABLE must not publish its timing — refused with the
+    served file untouched; :acc-only and the host ack are the two exits,
+    and a stale ack refuses too."""
+    ENV = dict(PUBLISH_BENCH_LANES=None, PUBLISH_BENCH_ALLOW_UNQUOTABLE=None)
+    with tempfile.TemporaryDirectory() as root:
+        served_path = _published_primary(root)
+        before = served_path.read_bytes()
+        bad = _timed_laya_doc("sha-loaded", _box(False, False))
+
+        rc, _, err = _update(root, copy.deepcopy(bad), **ENV)
+        assert rc == 1, "unquotable latency must refuse"
+        assert "NOT QUOTABLE" in err and "laya:english@m3-max-metal/s1" in err, err
+        assert "load 7 > 6" in err, "the box's own refusal reason must be named"
+        assert served_path.read_bytes() == before, "a refusal writes nothing"
+
+        rc, served, err = _update(root, copy.deepcopy(bad), **{
+            **ENV, "PUBLISH_BENCH_LANES": "laya:acc-only"})
+        assert rc == 0, f":acc-only strips the timing, so it publishes: {err}"
+        cell = served["suites"][0]["laya"]["english"]
+        assert "latency_p50_ms" not in cell and cell["hard"]["accuracy"] == 0.36
+        served_path.write_bytes(before)
+
+        rc, served, err = _update(root, copy.deepcopy(bad), **{
+            **ENV, "PUBLISH_BENCH_ALLOW_UNQUOTABLE": "m3"})
+        assert rc == 0 and "by acknowledgement" in err, err
+        src = served["meta"]["hosts"][0]["lane_sources"]["laya:english"]
+        assert src["latency_quotable"] is False, \
+            "an acknowledged publish must still DISCLOSE the verdict per lane"
+        served_path.write_bytes(before)
+
+        good = _timed_laya_doc("sha-fit", _box(True, True))
+        rc, _, err = _update(root, good, **{
+            **ENV, "PUBLISH_BENCH_ALLOW_UNQUOTABLE": "m3"})
+        assert rc == 1 and "stale ack" in err, \
+            "an ack naming a host with nothing unquotable must refuse"
+
+
+def case_quotable_and_unjudged_record_provenance():
+    """A fit run publishes and records true; an UNJUDGED run (the 4090
+    harness has no box probes) publishes with a loud note and records
+    null — never folded into either verdict."""
+    ENV = dict(PUBLISH_BENCH_LANES=None, PUBLISH_BENCH_ALLOW_UNQUOTABLE=None)
+    with tempfile.TemporaryDirectory() as root:
+        _published_primary(root)
+        rc, served, _ = _update(root, _timed_laya_doc("sha-fit", _box(True, True)), **ENV)
+        assert rc == 0
+        src = served["meta"]["hosts"][0]["lane_sources"]["laya:english"]
+        assert src["latency_quotable"] is True and src["git_sha"] == "sha-fit"
+
+        rc, served, err = _update(root, _timed_laya_doc("sha-win", _box(None, None)), **ENV)
+        assert rc == 0, "UNJUDGED must publish, not refuse"
+        assert "UNJUDGED" in err and "m3-max-metal@sha-win" in err, err
+        src = served["meta"]["hosts"][0]["lane_sources"]["laya:english"]
+        assert src["latency_quotable"] is None, "UNJUDGED is null, never a verdict"
+
+
+def case_carried_lane_is_exempt_from_the_wall():
+    """A LANE_CARRY class the incumbent holds publishes the INCUMBENT's
+    timing, so its own unquotable timing never reaches the page — no
+    refusal. The same lane with no incumbent publishes its own timing
+    and is counted."""
+    primary = doc("m3", "sha-base", {"s1": {"modelless_acc": 0.5}})
+    primary["meta"]["hosts"] = [{"host": "m3-max-metal"}]
+    primary["suites"][0]["modelless"]["latency_p50_ms"] = 1.0
+    pb.rename_hosts(primary)
+    extra = doc("m3", "sha-loaded", {"s1": {"modelless_acc": 0.5}})
+    extra["meta"]["box_state"] = _box(False, False)
+    extra["suites"][0]["modelless"]["latency_p50_ms"] = 9.0
+    pb.rename_hosts(extra)
+    incumbent = copy.deepcopy(primary)
+    for row in incumbent["suites"]:
+        row["_phost"] = "m3-max-metal"
+    assert pb._latency_slots(extra, incumbent) == [], \
+        "a carried lane's own timing is replaced — nothing to refuse"
+    assert pb._latency_slots(extra, None) == ["modelless@m3-max-metal/s1"]
+
+
 CASES = [
     case_lane_carry_keeps_incumbent_timing,
     case_modelless_lane_facts_refresh_on_update,
@@ -1037,6 +1189,10 @@ CASES = [
     case_pairing_primary_run_lanes_fall_back_to_doc_identity,
     case_pairing_unknown_when_doc_identity_missing,
     case_pairing_digest_stamp_rides_cells,
+    case_doc_latency_quotable_three_state,
+    case_unquotable_latency_refused_at_publish,
+    case_quotable_and_unjudged_record_provenance,
+    case_carried_lane_is_exempt_from_the_wall,
 ]
 
 def main() -> int:

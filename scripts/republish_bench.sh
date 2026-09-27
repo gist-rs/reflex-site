@@ -15,7 +15,8 @@
 #   1. publish_bench self-test (the merge laws; no network)
 #   2. chart render smoke (zero-dep: the landing summary chart against the
 #      CURRENT data/bench.json — pre-publish state)
-#   3. publish_bench.py over the given docs
+#   3. publish_bench.py over the given docs (refuses latency a doc's own
+#      box_state judged NOT QUOTABLE — the Issue-021 wall)
 #   3.5 pairing gate — cross-sample lane pairs refuse (ack via
 #      PUBLISH_ALLOW_SAMPLE_MISMATCH naming the suites; stale acks red too)
 #   4. docs-mirror parity (--check): decision_flow.svg + the agent SKILL.md
