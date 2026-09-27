@@ -253,6 +253,118 @@ def rename_lanes(d):
             l["lane"] = LANE_DISPLAY.get(l.get("lane"), l.get("lane"))
 
 
+# ── The lane-pairing population law (site Issue 002 / reflex Issue 040) ──
+# Lanes are comparable on a suite iff they answered the SAME question set.
+# A lane cell's population identity is its source run's `cases_digest`
+# (riir-reflex runner, Issue 040 T1) when the run carries one, else the
+# per-lane `lane_sources` run id. Identity is 3-state: equal / differs /
+# UNKNOWN — and unknown is DISCLOSED, never read as equal.
+
+PAIRING_LAYA_CK = "english"   # the TL;DR's comparison checkpoint
+
+
+def lane_identity(cell, lane_sources, lane_key, doc_fallback=None):
+    """The population identity of one published lane cell (3-state).
+
+    Precedence: the cell's source-run `cases_digest` (population, pinned) >
+    the lane's `lane_sources` update run > the DOC's own run (a lane with
+    no update row came with the primary — its run IS the doc's run)."""
+    digest = (cell or {}).get("cases_digest")
+    if digest:
+        return {"kind": "digest", "id": digest}
+    src = (lane_sources or {}).get(lane_key) or {}
+    sha = src.get("git_sha")
+    if sha:
+        return {"kind": "run", "id": f"{sha} {src.get('date_utc', '')}".strip()}
+    if doc_fallback:
+        return dict(doc_fallback)
+    return {"kind": "unknown", "id": None}
+
+
+def pair_status(a, b, a_cell=None, b_cell=None):
+    """The pairing verdict, 4 states:
+
+    same         — identities EQUAL (digest-equal = proven; run-id-equal
+                   = same run, one population by construction).
+    differs      — same-kind identities, different values, AND the paired
+                   results MOVED (accuracy at 1e-9) — under a deterministic
+                   lane a results move on a run-id mismatch is a PROVEN
+                   population change (the 11/14 bug's three suites).
+    same_results — identities differ but the paired results are byte-equal:
+                   different runs, no evidence of a population change.
+                   Comparable-with-disclosure — the digest tightens this
+                   to proof as runs refresh (reflex Issue 040 T1).
+    unknown      — kinds incomparable (mixed digest/run) or an identity
+                   missing: undecidable, disclosed, never counted either
+                   way."""
+    if a["kind"] == "unknown" or b["kind"] == "unknown":
+        return "unknown"
+    if a["kind"] != b["kind"]:
+        return "unknown"
+    if a["id"] == b["id"]:
+        return "same"
+    if a["kind"] == "digest":
+        # A digest mismatch is a PROVEN population difference — the
+        # results cannot soften it (different rows, equal hit counts is
+        # exactly the coincidence this gate exists to catch).
+        return "differs"
+    acc = lambda c: ((c or {}).get("hard") or {}).get("accuracy")
+    moved = (acc(a_cell) is None or acc(b_cell) is None
+             or abs(acc(a_cell) - acc(b_cell)) >= 1e-9)
+    return "differs" if moved else "same_results"
+
+
+def compute_pairings(d):
+    """Stamp per-suite pairing verdicts for the PRIMARY host's lanes.
+
+    Two pairs are computed per suite (both TL;DR claims):
+      km_vs_laya  — modelless vs laya.<ck>  (the "Reflex vs laya" rows)
+      rust_vs_py  — laya.<ck> vs laya.py/<ck> (the parity-claim row)
+    Verdicts ride the published bench.json — the cards RENDER them, never
+    re-derive them (the data-driven law)."""
+    meta = d.get("meta") or {}
+    phost = meta.get("host")
+    lane_sources = {}
+    for row in meta.get("hosts") or []:
+        if row.get("host") == phost:
+            lane_sources = row.get("lane_sources") or {}
+    doc_run = (meta.get("git_sha"), meta.get("date_utc") or "")
+    doc_fallback = ({"kind": "run", "id": f"{doc_run[0]} {doc_run[1]}".strip()}
+                    if doc_run[0] else None)
+    ck = PAIRING_LAYA_CK
+    py_key = f"laya:py/{ck}"
+    paired = 0
+    for s in d.get("suites", []):
+        laya = s.get("laya") or {}
+        rust_cell = laya.get(ck)
+        py_cell = laya.get(f"py/{ck}")
+        km = s.get("modelless")
+        block = {}
+        if rust_cell is not None and py_cell is not None:
+            rid = lane_identity(rust_cell, lane_sources, f"laya:{ck}", doc_fallback)
+            pid = lane_identity(py_cell, lane_sources, py_key, doc_fallback)
+            block["rust_vs_py"] = {
+                "rust": rid, "py": pid,
+                "status": pair_status(rid, pid, rust_cell, py_cell),
+            }
+            paired += 1
+        if km is not None and rust_cell is not None:
+            kid = lane_identity(km, lane_sources, "modelless", doc_fallback)
+            rid = lane_identity(rust_cell, lane_sources, f"laya:{ck}", doc_fallback)
+            block["km_vs_laya"] = {
+                "modelless": kid, "rust": rid, "status": pair_status(kid, rid),
+            }
+        if block:
+            s["pairing"] = block
+    return paired
+
+
+def stamp_cell(cell, suite):
+    """Carry the source run's population identity onto the lane cell."""
+    if isinstance(cell, dict) and suite.get("cases_digest"):
+        cell["cases_digest"] = suite["cases_digest"]
+
+
 def host_row(meta):
     """The per-host meta row: whitelisted run facts only, sanitized."""
     row = {}
@@ -312,6 +424,20 @@ def merge(primary, extras):
         hosts_order.insert(0, phost)
 
     p_suites = {s["name"]: s for s in primary.get("suites", [])}
+    # Population identity (site Issue 002 T2): the primary's own lane cells
+    # carry their run's cases_digest (new-runner results.json only — older
+    # runs disclose via lane_sources run ids instead). setdefault: an
+    # already-stamped cell keeps its own (a re-merged bench.json primary).
+    for s in p_suites.values():
+        dg = s.get("cases_digest")
+        if not dg:
+            continue
+        cells = ([s.get("modelless")] + list((s.get("laya") or {}).values())
+                 + [s.get(k) for k in ("clm", "gliner", "agentjev",
+                                       "paw", "paw_local", "hybrid")])
+        for cell in cells:
+            if isinstance(cell, dict):
+                cell.setdefault("cases_digest", dg)
     skipped_variant_lanes = []
 
     # A previously-published bench.json as primary may already carry
@@ -378,11 +504,13 @@ def merge(primary, extras):
             entry = host_lane_entry(p, ehost)
             em, el = s.get("modelless"), (s.get("laya") or {})
             if em and not device_variant:
+                stamp_cell(em, s)
                 entry["modelless"] = em
                 updated_lanes["modelless"] = True
             elif em:
                 skipped_variant_lanes.append(f"modelless@{ehost}")
             for lk, lv in el.items():
+                stamp_cell(lv, s)
                 entry.setdefault("laya", {})[lk] = lv
                 updated_lanes[f"laya:{lk}"] = True
                 if lv.get("lane") in PYTHON_LANE_SPELLINGS:
@@ -393,6 +521,7 @@ def merge(primary, extras):
             # measured per-host, no bit-identity claim applies.
             ec = s.get("clm")
             if ec and not device_variant:
+                stamp_cell(ec, s)
                 entry["clm"] = ec
                 updated_lanes["clm"] = True
             elif ec:
@@ -401,6 +530,7 @@ def merge(primary, extras):
             # carry law as clm — an external reference measured per-host.
             eg = s.get("gliner")
             if eg and not device_variant:
+                stamp_cell(eg, s)
                 entry["gliner"] = eg
                 updated_lanes["gliner"] = True
             elif eg:
@@ -410,6 +540,7 @@ def merge(primary, extras):
             # per-host.
             ea = s.get("agentjev")
             if ea and not device_variant:
+                stamp_cell(ea, s)
                 entry["agentjev"] = ea
                 updated_lanes["agentjev"] = True
             elif ea:
@@ -419,6 +550,7 @@ def merge(primary, extras):
             # no bit-identity claim applies.
             ep = s.get("paw")
             if ep and not device_variant:
+                stamp_cell(ep, s)
                 entry["paw"] = ep
                 updated_lanes["paw"] = True
             elif ep:
@@ -429,6 +561,7 @@ def merge(primary, extras):
             # the rest; today no such host carries it.
             epl = s.get("paw_local")
             if epl and not device_variant:
+                stamp_cell(epl, s)
                 entry["paw_local"] = epl
                 updated_lanes["paw_local"] = True
             elif epl:
@@ -441,6 +574,7 @@ def merge(primary, extras):
             # machine's own row).
             eh = s.get("hybrid")
             if eh and not device_variant:
+                stamp_cell(eh, s)
                 entry["hybrid"] = eh
                 updated_lanes["hybrid"] = True
             elif eh:
@@ -772,6 +906,9 @@ def main() -> int:
             return 2
         extras = filter_extras_to_lanes(extras, allowed)
 
+    # Population identity (site Issue 002 T2): the primary's own lane
+    # cells carry their run's cases_digest (new-runner results.json only —
+    # older runs disclose via lane_sources run ids instead).
     incumbent = copy.deepcopy(primary)   # pre-merge snapshot: every host's
     _phost = display_host((primary.get("meta") or {}).get("host") or "(primary)")
     for row in incumbent.get("suites", []):   # own lane dicts, before any
@@ -793,6 +930,7 @@ def main() -> int:
         for k in DROP_META_KEYS:
             row.pop(k, None)
     rename_lanes(d)
+    n_paired = compute_pairings(d)
     for s in d.get("suites", []):
         for host_lanes in (s.get("extra_host_lanes") or {}).values():
             lanes = (
@@ -826,7 +964,7 @@ def main() -> int:
     n_suites = len(d.get("suites", []))
     hosts = ", ".join(r.get("host", "?") for r in meta.get("hosts", []))
     print(f"published {out} ({n_suites} suites; hosts: {hosts}; dropped "
-          f"meta: {', '.join(DROP_META_KEYS)})")
+          f"meta: {', '.join(DROP_META_KEYS)}; pairing verdicts: {n_paired})")
     return 0
 
 

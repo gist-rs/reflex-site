@@ -865,6 +865,146 @@ def case_device_variant_host_drops_modelless():
     assert "modelless" in ehl["4090-win"], "a different box keeps its row"
 
 
+# ── The lane-pairing population law (site Issue 002 / reflex Issue 040) ──
+
+def _laya_suite(name, *, acc=0.5, digest=None):
+    """A suite row with rust+py english laya cells, optional population
+    digest (new-runner results.json shape)."""
+    s = {"name": name, "n_questions": 500, "n_cases": 500}
+    if digest:
+        s["cases_digest"] = digest
+    s["laya"] = {
+        "english": {"lane": "laya-riir", "hard": {"accuracy": acc},
+                    "latency_p50_ms": 40.0},
+        "py/english": {"lane": "laya-python", "hard": {"accuracy": acc},
+                       "latency_p50_ms": 70.0},
+    }
+    return s
+
+
+def _pairing_lanes_sha(merged, host="m3"):
+    row = next(h for h in merged["meta"]["hosts"] if h["host"] == host)
+    return row.get("lane_sources") or {}
+
+
+def case_pairing_differs_on_cross_sample_runs():
+    # THE Bug-11/14 shape: rust laya refreshed by one run, py surviving
+    # from an earlier run — same n_questions (the old guard's blind spot),
+    # different populations. The verdict must be "differs", never "same",
+    # and the pairing block must ride the suite row.
+    primary = doc("m3", "sha-py", {"banking77": {}})
+    primary["suites"][0] = _laya_suite("banking77", acc=0.498)
+    update = doc("m3", "sha-rust", {"banking77": {}})
+    update["suites"][0] = _laya_suite("banking77", acc=0.422)
+    del update["suites"][0]["laya"]["py/english"]  # the update carries rust only
+    merged, err = merge_refusing(primary, update)
+    assert merged is not None, f"merge must pass, got: {err}"
+    n = pb.compute_pairings(merged)
+    s1 = next(s for s in merged["suites"] if s["name"] == "banking77")
+    b = s1["pairing"]["rust_vs_py"]
+    # accuracy MOVED across the run-id mismatch (0.498 vs 0.422) — under a
+    # deterministic lane that is a PROVEN population change (the bug's
+    # three suites), never a parity failure and never a pass.
+    assert b["status"] == "differs", f"moved results must differ, got {b}"
+    assert b["rust"]["kind"] == "run" and b["py"]["kind"] == "run"
+    assert b["rust"]["id"] != b["py"]["id"]
+    assert n == 1
+
+
+def case_pairing_same_when_digests_match():
+    # New-runner shape: both lanes stamped with the SAME cases_digest —
+    # the digest outranks the (differing) run ids, because the population
+    # is what the digest pins.
+    primary = doc("m3", "sha-a", {"s1": {}})
+    primary["suites"][0] = _laya_suite("s1", digest="fnv1a64-aaaa")
+    update = doc("m3", "sha-b", {"s1": {}})
+    update["suites"][0] = _laya_suite("s1", digest="fnv1a64-aaaa")
+    del update["suites"][0]["laya"]["py/english"]
+    merged, err = merge_refusing(primary, update)
+    assert merged is not None, err
+    pb.compute_pairings(merged)
+    b = merged["suites"][0]["pairing"]["rust_vs_py"]
+    assert b["status"] == "same", b
+    assert b["rust"]["kind"] == "digest" and b["py"]["kind"] == "digest"
+
+
+def case_pairing_differs_when_digests_differ_even_same_run_shape():
+    # The stronger direction: same run id is IMPOSSIBLE for different
+    # digests, but a digest mismatch must read "differs" regardless of
+    # what lane_sources says (digest is the population, the run id is
+    # only its fallback proxy).
+    primary = doc("m3", "sha-a", {"s1": {}})
+    primary["suites"][0] = _laya_suite("s1", digest="fnv1a64-aaaa")
+    update = doc("m3", "sha-a", {"s1": {}})   # SAME sha — stale-sha trap
+    update["suites"][0] = _laya_suite("s1", digest="fnv1a64-bbbb")
+    del update["suites"][0]["laya"]["py/english"]
+    merged, err = merge_refusing(primary, update)
+    assert merged is not None, err
+    pb.compute_pairings(merged)
+    b = merged["suites"][0]["pairing"]["rust_vs_py"]
+    assert b["status"] == "differs", "digest mismatch must differ even at one sha"
+
+
+def case_pairing_same_results_when_run_differs_results_equal():
+    # The over-disclosure guard: different runs + byte-equal accuracy = no
+    # evidence of a population change — "same_results" (comparable with
+    # disclosure), NOT "differs". The 11 bug-era suites were exactly this.
+    primary = doc("m3", "sha-py", {"s1": {}})
+    primary["suites"][0] = _laya_suite("s1", acc=0.95)
+    update = doc("m3", "sha-rust", {"s1": {}})
+    update["suites"][0] = _laya_suite("s1", acc=0.95)
+    del update["suites"][0]["laya"]["py/english"]
+    merged, err = merge_refusing(primary, update)
+    assert merged is not None, err
+    pb.compute_pairings(merged)
+    b = merged["suites"][0]["pairing"]["rust_vs_py"]
+    assert b["status"] == "same_results", b
+
+
+def case_pairing_primary_run_lanes_fall_back_to_doc_identity():
+    # A lane with no update row came with the primary itself — its run IS
+    # the doc's run. Both lanes of a one-run publish are therefore
+    # same-population ("same"), even though lane_sources has no rows.
+    primary = doc("m3", "sha-a", {"s1": {}})
+    primary["suites"][0] = _laya_suite("s1")
+    merged = pb.merge(primary, [])
+    pb.compute_pairings(merged)
+    b = merged["suites"][0]["pairing"]["rust_vs_py"]
+    assert b["status"] == "same", b
+    assert b["rust"]["id"] == b["py"]["id"]
+    assert b["rust"]["id"].startswith("sha-a")
+
+
+def case_pairing_unknown_when_doc_identity_missing():
+    # The genuinely unknown state: no digests, no update rows, AND a doc
+    # without a run identity — disclosed, never read as same OR failure.
+    primary = doc("m3", "", {"s1": {}})
+    primary["suites"][0] = _laya_suite("s1")
+    merged = pb.merge(primary, [])
+    pb.compute_pairings(merged)
+    b = merged["suites"][0]["pairing"]["rust_vs_py"]
+    assert b["status"] == "unknown", b
+
+
+def case_pairing_digest_stamp_rides_cells():
+    # T2: a lane cell copied from an update doc carries its source run's
+    # cases_digest; a cell from a run WITHOUT digests does not gain one.
+    primary = doc("m3", "sha-a", {"s1": {}, "s2": {}})
+    primary["suites"][0] = _laya_suite("s1")   # legacy run: no digest
+    primary["suites"][1] = _laya_suite("s2")
+    update = doc("m3", "sha-b", {"s1": {}})
+    update["suites"][0] = _laya_suite("s1", acc=0.6, digest="fnv1a64-zzzz")
+    del update["suites"][0]["laya"]["py/english"]
+    merged, err = merge_refusing(primary, update)
+    assert merged is not None, err
+    s1 = next(s for s in merged["suites"] if s["name"] == "s1")
+    s2 = next(s for s in merged["suites"] if s["name"] == "s2")
+    assert s1["laya"]["english"].get("cases_digest") == "fnv1a64-zzzz"
+    assert "cases_digest" not in s1["laya"]["py/english"], \
+        "the py cell came from a digest-less run — it must not gain one"
+    assert "cases_digest" not in s2["laya"]["english"]
+
+
 CASES = [
     case_lane_carry_keeps_incumbent_timing,
     case_modelless_lane_facts_refresh_on_update,
@@ -890,6 +1030,13 @@ CASES = [
     case_device_variant_host_drops_modelless,
     case_extra_suite_absent_in_primary_refuses,
     case_end_to_end_main,
+    case_pairing_differs_on_cross_sample_runs,
+    case_pairing_same_when_digests_match,
+    case_pairing_differs_when_digests_differ_even_same_run_shape,
+    case_pairing_same_results_when_run_differs_results_equal,
+    case_pairing_primary_run_lanes_fall_back_to_doc_identity,
+    case_pairing_unknown_when_doc_identity_missing,
+    case_pairing_digest_stamp_rides_cells,
 ]
 
 def main() -> int:

@@ -16,6 +16,8 @@
 #   2. chart render smoke (zero-dep: the landing summary chart against the
 #      CURRENT data/bench.json — pre-publish state)
 #   3. publish_bench.py over the given docs
+#   3.5 pairing gate — cross-sample lane pairs refuse (ack via
+#      PUBLISH_ALLOW_SAMPLE_MISMATCH naming the suites; stale acks red too)
 #   4. docs-mirror parity (--check): decision_flow.svg + the agent SKILL.md
 #   5. bench-page smoke in headless chromium — SKIPPED LOUDLY when
 #      playwright is not installed (never silently)
@@ -38,6 +40,9 @@ node "$SITE_ROOT/scripts/chart_render_smoke.cjs"
 
 echo "== 3/5 publish ($# doc(s))"
 python3 "$SITE_ROOT/scripts/publish_bench.py" "$@" "$SITE_ROOT"
+
+echo "== 3.5/5 pairing gate (the lane population law)"
+python3 "$SITE_ROOT/scripts/check_lane_pairing.py" "$SITE_ROOT"
 
 echo "== 4/5 docs-mirror parity"
 python3 "$SITE_ROOT/scripts/sync_mirror.py" --check

@@ -14,11 +14,25 @@ function pick(suite) {
   const acc = (l) => l.hard?.accuracy;
   const p50 = (l) => l.latency_p50_ms;
   if ([acc(km), acc(rust), acc(py), p50(km), p50(rust), p50(py)].some((x) => x == null)) return null;
+  // The pairing verdict is COMPUTED at publish time (publish_bench.py's
+  // per-suite `pairing` block — the lane population law, site Issue 002)
+  // and only RENDERED here. "differs" = the two lanes answered different
+  // question sets — disclosed as not-comparable, never counted as a
+  // parity failure or a parity pass.
+  const pairing = suite.pairing?.rust_vs_py?.status || "unknown";
+  const pid = (v) => (v?.kind === "unknown" ? "?" : String(v?.id || "?").split(" ")[0]);
+  const pairDetail = (() => {
+    const b = suite.pairing?.rust_vs_py;
+    if (!b || b.status !== "differs") return "";
+    return `${suite.name}: rust ${pid(b.rust)} vs py ${pid(b.py)}`;
+  })();
   return {
     name: suite.name,
     km: { acc: acc(km), p50: p50(km) },
     rust: { acc: acc(rust), p50: p50(rust) },
     py: { acc: acc(py), p50: p50(py) },
+    pairing,
+    pairDetail,
   };
 }
 
@@ -53,7 +67,14 @@ function render(bench) {
   const rustFaster = rows.filter((r) => r.rust.p50 < r.py.p50);
   const rustSlower = rows.filter((r) => r.rust.p50 > r.py.p50)
     .sort((a, b) => b.rust.p50 / b.py.p50 - a.rust.p50 / a.py.p50);
-  const accEqual = rows.filter((r) => Math.abs(r.rust.acc - r.py.acc) < 1e-9);
+  // The pairing law: only same-population pairs adjudicate the parity
+  // claim (the denominator). Cross-sample and unknown-identity pairs are
+  // their own disclosed states, never pooled into either direction.
+  const comparable = rows.filter((r) => r.pairing === "same" || r.pairing === "same_results");
+  const accEqual = comparable.filter((r) => Math.abs(r.rust.acc - r.py.acc) < 1e-9);
+  const accDiff = comparable.filter((r) => Math.abs(r.rust.acc - r.py.acc) >= 1e-9);
+  const crossSample = rows.filter((r) => r.pairing === "differs");
+  const unknownPair = rows.filter((r) => r.pairing === "unknown");
   const kmAccAtLeast = rows.filter((r) => r.km.acc >= r.rust.acc);
   const worstAcc = [...rows].sort((a, b) => (a.km.acc - a.rust.acc) - (b.km.acc - b.rust.acc))[0];
 
@@ -71,8 +92,18 @@ function render(bench) {
     (rustSlower.length
       ? `, slower on ${rustSlower.length} (${slowList}) — a bug by our bar, open as <a href="https://github.com/gist-rs/riir-reflex/blob/HEAD/.issues/020_riir_metal_latency_parity.md">riir-reflex Issue 020</a>.`
       : ".")));
-  ul.appendChild(row(accEqual.length === n ? null : false,
-    `<b>Rust vs Python laya, accuracy:</b> identical on <b>${accEqual.length}/${n}</b> — a parity port, by design.`));
+  const pairLine = crossSample.length
+    ? `; ${crossSample.length} pair(s) on different samples — not comparable (${crossSample.map((r) => r.pairDetail).join(", ")})`
+    : "";
+  const unknownLine = unknownPair.length
+    ? `; ${unknownPair.length} unverifiable (legacy runs)`
+    : "";
+  ul.appendChild(row(
+    accDiff.length === 0 ? (comparable.length === 0 ? null : true) : false,
+    `<b>Rust vs Python laya, accuracy:</b> identical on <b>${accEqual.length}/${comparable.length}</b> same-sample pair(s)` +
+    (accDiff.length ? `, differing on ${accDiff.length} (${accDiff.map((r) => r.name).join(", ")})` : "") +
+    pairLine + unknownLine +
+    (comparable.length ? " — a parity port, by design." : " — nothing comparable published yet.")));
   ul.appendChild(row(kmAccAtLeast.length === n,
     `<b>Reflex vs laya, accuracy:</b> at or above laya on <b>${kmAccAtLeast.length}/${n}</b>` +
     (kmAccAtLeast.length < n
