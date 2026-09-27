@@ -58,13 +58,21 @@ lines now name the newest run, not `meta` (which is Bench 001's).
   own-timing, the validated-True incumbent stays carried (Issue-032 law
   intact), 4090 unjudged carries untouched. The real remedy remains T1.
 - [ ] T3 — re-measure or drop the m3-max-ane laya:english timing (ANE lane).
-- [ ] T4 — `lane_sources` is keyed per (host, lane), not per suite. A
+- [x] T4 — `lane_sources` is keyed per (host, lane), not per suite. A
   one-suite update re-labels the source on every suite: the Bench 067
   typed-only update claims `5ada17a` for 15 suites' laya:english cells, 14 of
   which came from 062. Pairing is unaffected today (every such cell carries a
   `cases_digest`, which outranks `lane_sources`), but any fallback that reads
-  `lane_sources` names the wrong run. Fix: key per suite, or move run
-  identity onto the cell as the verdict now is.
+  `lane_sources` names the wrong run. LANDED 2026-09-27: run identity moved
+  ONTO THE CELL (the verdict's precedent) — `stamp_cell` writes
+  `cell.source_run {git_sha, date_utc}` on every updated lane, and
+  `lane_identity` precedence is digest > cell stamp > lane_sources (legacy
+  tier for pre-stamp cells) > doc fallback. `lane_sources` itself stays on
+  the host row, demoted to a per-class summary (it feeds
+  `bench_provenance.js latestRun`, whose max-over-date is unaffected by
+  over-labeling). Self-test 47/47 (3 new cases: per-suite stamp vs relabeled
+  summary + digest precedence; re-merge survival + digest outranks stamp;
+  pre-stamp legacy fallback intact).
 - [ ] T5 — the 22 unknown cells (4090 laya `634093f`, hybrid `0959928`):
   their source docs live on the 4090 / in riir-instinct outputs not in a repo.
   Resolve when those docs are available; 4090 cells would read unjudged anyway.

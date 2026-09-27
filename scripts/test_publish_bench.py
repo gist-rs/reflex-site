@@ -1346,6 +1346,81 @@ def case_wall_judges_a_quotable_update_over_an_unfit_incumbent():
         "a suppressed carry publishes the update's own timing — the wall must judge it"
 
 
+def case_source_run_stamp_is_per_suite():
+    """Issue-003 T4: a one-suite update re-labels the host row's
+    lane_sources for the whole lane CLASS — the summary cannot be a
+    per-suite fact. The remedy moves run identity onto the CELL:
+
+    - digest-carrying cells (the real-world shape since reflex 040):
+      the digest outranks the relabeled summary on BOTH suites — the
+      issue's "pairing is unaffected today" holds;
+    - the updated no-digest cell reads its own source_run stamp — the
+      exact per-suite truth lane_identity never had before;
+    - the untouched no-digest cell still reads the legacy summary
+      (wrong-run class, disclosed 3-state) until its own update stamps
+      it — the legacy tier, not a regression."""
+    primary = doc("m3", "sha-one", {"s1": {"modelless_acc": 0.5},
+                                    "s2": {"modelless_acc": 0.6}})
+    upd = doc("m3", "sha-two", {"s1": {"modelless_acc": 0.7}},
+              laya_feature=False)
+    merged, err = merge_refusing(primary, upd)
+    assert merged is not None, err
+    pb.rename_hosts(merged)   # main() renames at the LOAD boundary; mirror it
+    suites = {s["name"]: s for s in merged["suites"]}
+    hosts = {r["host"]: r for r in merged["meta"]["hosts"]}
+    assert hosts["m3-max-metal"]["lane_sources"]["modelless"]["git_sha"] == "sha-two"
+    doc_fb = {"kind": "run", "id": "sha-one 2026-09-24T00:00:00Z"}
+    srcs = hosts["m3-max-metal"]["lane_sources"]
+
+    # The updated cell: its stamp is the per-suite truth, digest or not.
+    updated = pb.lane_identity(suites["s1"]["modelless"], srcs, "modelless", doc_fb)
+    assert updated == {"kind": "run", "id": "sha-two 2026-09-24T00:00:00Z"}, \
+        "the updated suite reads its own stamp, not the relabeled summary"
+
+    # The untouched no-digest cell: legacy summary fallback (disclosed class).
+    untouched = pb.lane_identity(suites["s2"]["modelless"], srcs, "modelless", doc_fb)
+    assert untouched == {"kind": "run", "id": "sha-two 2026-09-24T00:00:00Z"}, \
+        "pre-stamp cells keep the legacy summary tier"
+
+    # The digest tier protects BOTH once present (the real-world shape):
+    suites["s1"]["modelless"]["cases_digest"] = "fnv1a64-aaaa"
+    suites["s2"]["modelless"]["cases_digest"] = "fnv1a64-bbbb"
+    assert pb.lane_identity(suites["s1"]["modelless"], srcs, "modelless", doc_fb) \
+        == {"kind": "digest", "id": "fnv1a64-aaaa"}
+    assert pb.lane_identity(suites["s2"]["modelless"], srcs, "modelless", doc_fb) \
+        == {"kind": "digest", "id": "fnv1a64-bbbb"}, \
+        "the summary's relabel must not leak past a digest"
+
+
+def case_source_run_stamp_survives_remerge_and_digest_wins():
+    """The stamp rides the cell through a re-merge (a published bench.json
+    primary), and the digest keeps precedence over it when both exist."""
+    primary = doc("m3", "sha-one", {"s1": {"modelless_acc": 0.5}})
+    upd = doc("m3", "sha-two", {"s1": {"modelless_acc": 0.7}},
+              laya_feature=False)
+    merged, _ = merge_refusing(primary, upd)
+    remerged, err = merge_refusing(merged)
+    assert remerged is not None, err
+    cell = remerged["suites"][0]["modelless"]
+    assert cell.get("source_run", {}).get("git_sha") == "sha-two", \
+        "the stamp survives a bench.json re-merge"
+    cell["cases_digest"] = "dg-1"
+    ident = pb.lane_identity(cell, {}, "modelless")
+    assert ident == {"kind": "digest", "id": "dg-1"}, "digest outranks the stamp"
+
+
+def case_pre_stamp_cells_still_fall_back_to_lane_sources():
+    """Cells updated before the stamp existed carry no source_run — their
+    identity still resolves via the host-row summary (the old behavior,
+    wrong per-suite but disclosed 3-state), so nothing loses an identity
+    until its next per-suite update lands one."""
+    cell = {"lane": "modelless", "hard": {"accuracy": 0.5}}
+    srcs = {"modelless": {"git_sha": "sha-old", "date_utc": "2026-09-20T00:00:00Z"}}
+    ident = pb.lane_identity(cell, srcs, "modelless")
+    assert ident == {"kind": "run", "id": "sha-old 2026-09-20T00:00:00Z"}
+    assert pb.lane_identity(cell, {}, "modelless") == {"kind": "unknown", "id": None}
+
+
 def case_published_primary_meta_verdict_is_not_stamped():
     """A published bench.json primary's meta.box_state is the table's
     ORIGINAL run's — it must never be stamped onto cells; a RAW primary's
@@ -1405,6 +1480,9 @@ CASES = [
     case_carry_still_serves_an_unquotable_update,
     case_carry_still_serves_an_unjudged_update,
     case_wall_judges_a_quotable_update_over_an_unfit_incumbent,
+    case_source_run_stamp_is_per_suite,
+    case_source_run_stamp_survives_remerge_and_digest_wins,
+    case_pre_stamp_cells_still_fall_back_to_lane_sources,
 ]
 
 def main() -> int:

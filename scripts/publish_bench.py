@@ -143,7 +143,10 @@ HOST_META_KEYS = (
 )
 
 # meta keys recorded per UPDATED lane on a host row (lane_sources) — the
-# update run's provenance for exactly the lanes it contributed.
+# update run's provenance for exactly the lanes it contributed. Per-SUITE
+# identity rides the cell's own `source_run` stamp instead (Issue-003 T4):
+# lane_sources is keyed per (host, lane CLASS), so a one-suite update
+# re-labels every suite's entry there — a summary, never a per-suite fact.
 LANE_SOURCE_KEYS = ("git_sha", "date_utc")
 
 # Modelless lane-fact postures (Issue 032): refreshed on a host row when an
@@ -304,11 +307,18 @@ def lane_identity(cell, lane_sources, lane_key, doc_fallback=None):
     """The population identity of one published lane cell (3-state).
 
     Precedence: the cell's source-run `cases_digest` (population, pinned) >
-    the lane's `lane_sources` update run > the DOC's own run (a lane with
-    no update row came with the primary — its run IS the doc's run)."""
+    the cell's own `source_run` stamp (Issue-003 T4 — per-suite truth) >
+    the lane's `lane_sources` host-row entry (a per-CLASS summary; a
+    one-suite update re-labels every suite there, so it is the FALLBACK
+    for cells predating the stamp) > the DOC's own run (a lane with no
+    update row came with the primary — its run IS the doc's run)."""
     digest = (cell or {}).get("cases_digest")
     if digest:
         return {"kind": "digest", "id": digest}
+    sr = (cell or {}).get("source_run") or {}
+    sha = sr.get("git_sha")
+    if sha:
+        return {"kind": "run", "id": f"{sha} {sr.get('date_utc', '')}".strip()}
     src = (lane_sources or {}).get(lane_key) or {}
     sha = src.get("git_sha")
     if sha:
@@ -401,13 +411,21 @@ def stamp_cell(cell, suite, meta=None):
     (when the run carries a box_state) the run's latency verdict — on the
     CELL, beside the timing it describes, so a LANE_CARRY replaces both
     together (_carry_into) and no row-level field can pair one run's
-    verdict with another run's numbers."""
+    verdict with another run's numbers. The run's own identity rides the
+    cell too (`source_run`, Issue-003 T4): lane_sources is keyed per
+    (host, lane CLASS), so a one-suite update re-labels every suite's
+    source there — the cell stamp is the per-suite truth lane_identity
+    reads first, and lane_sources stays a host-row summary."""
     if not isinstance(cell, dict):
         return
     if suite.get("cases_digest"):
         cell["cases_digest"] = suite["cases_digest"]
     if meta and "box_state" in meta:
         cell["latency_quotable"] = doc_latency_quotable(meta)
+    if meta:
+        sr = {k: meta[k] for k in LANE_SOURCE_KEYS if k in meta}
+        if sr:
+            cell["source_run"] = sr
 
 
 def host_row(meta):
@@ -445,7 +463,9 @@ def merge(primary, extras):
     already seen (including the primary's own host, or a host carried by a
     previously-merged primary) UPDATES only the lanes it declares; the
     host's other lanes and its original row facts carry over, and each
-    updated lane's source run is recorded in the host row's lane_sources.
+    updated lane's source run is recorded in the host row's lane_sources
+    (a per-class summary — the per-suite truth is the cell's source_run
+    stamp, Issue-003 T4).
 
     REFUSES on modelless accuracy drift in the FINAL merged state — the
     cross-host bit-identity claim is checked on what would be PUBLISHED,
