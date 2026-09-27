@@ -790,69 +790,44 @@ def case_hybrid_lane_rides_an_update():
     assert "hybrid@m3-max-ane" in err3, "the skip must be disclosed loudly"
 
 
-def case_a0_stands_removes_refused_incumbent_cell():
-    # riir-instinct .issues/008 T3 + 010 T3: the hybrid lane doc's
-    # THREE-STATE vocabulary. An a0_stands suite is the explicit
-    # "measured, nothing is sold here" — the superiority gate refused
-    # every arm — so a REFUSED incumbent cell must come OFF the published
-    # row, loudly. A doc WITHOUT the marker (old-format or
-    # modelless-only) never erases the lane; a hybrid_arm suite still
-    # updates as before.
-    primary = doc("m3", "sha-m3", {"s1": {"modelless_acc": PRE_ACC},
-                                   "s2": {"modelless_acc": PRE_ACC}})
-    # seed a refused Bench-002-era cell on s1 via the ordinary path
-    seed = doc("m3", "sha-old", {"s1": {"modelless_acc": PRE_ACC},
-                                 "s2": {"modelless_acc": PRE_ACC}})
-    seed["suites"][0]["hybrid"] = {
-        "lane": "hybrid", "model": "H1",
-        "hard": {"accuracy": 0.806}, "latency_p50_ms": 0.4,
-    }
-    merged, err = merge_refusing(primary, seed)
-    assert merged is not None, f"seed merge must pass, got: {err}"
-    s1 = next(s for s in merged["suites"] if s["name"] == "s1")
-    assert s1["hybrid"]["hard"]["accuracy"] == 0.806
-
-    # the three-state update: s1 a0_stands, s2 hybrid_arm
-    up = doc("m3", "sha-new", {"s1": {"modelless_acc": PRE_ACC},
-                               "s2": {"modelless_acc": PRE_ACC}})
+def case_a0_stands_label_rides_the_cell():
+    # The owner display law (riir-instinct 2026-09-27): every seated
+    # suite carries its SERVING arm's cell — the reflex-half suites
+    # included (a tie or a loss is shown, labeled, and stays visible as
+    # the improvement backlog; hiding it reads as "can't handle it").
+    # The a0_stands verdict is a LABEL that rides the doc; publish is the
+    # ordinary cell path (the earlier a0_stands-REMOVES experiment is
+    # retired — removal was the wrong direction). serves/gate fields on
+    # the cell pass through the merge untouched.
+    primary = doc("m3", "sha-m3", {"s1": {"modelless_acc": PRE_ACC}})
+    up = doc("m3", "sha-new", {"s1": {"modelless_acc": PRE_ACC}})
     up["suites"][0]["verdict"] = "a0_stands"
-    up["suites"][0]["measured_a0"] = {
-        "lane": "hybrid", "model": "A0", "hard": {"accuracy": 0.826},
+    up["suites"][0]["hybrid"] = {
+        "lane": "hybrid", "model": "A0",
+        "hard": {"accuracy": 0.885}, "latency_p50_ms": 0.125,
+        "serves": "A0",
+        "gate": "served by the reflex half — the best measured arm on this suite",
     }
-    up["suites"][1]["verdict"] = "hybrid_arm"
-    up["suites"][1]["hybrid"] = {
-        "lane": "hybrid", "model": "H2(beta=1)",
-        "hard": {"accuracy": 0.8267}, "latency_p50_ms": 0.001,
+    merged, err = merge_refusing(primary, up)
+    assert merged is not None, f"merge must pass, got: {err}"
+    s1 = next(s for s in merged["suites"] if s["name"] == "s1")
+    assert s1["hybrid"]["hard"]["accuracy"] == 0.885, (
+        "the a0_stands suite's cell must PUBLISH (full coverage)")
+    assert s1["hybrid"]["serves"] == "A0", "serves rides the cell"
+    assert "reflex half" in s1["hybrid"]["gate"], "gate rides the cell"
+    # a specialist-serving suite updates the same cell slot as before
+    up2 = doc("m3", "sha-new2", {"s1": {"modelless_acc": PRE_ACC}})
+    up2["suites"][0]["verdict"] = "hybrid_arm"
+    up2["suites"][0]["hybrid"] = {
+        "serves": "H2",
+        "lane": "hybrid", "model": "H2(beta=0.25)",
+        "hard": {"accuracy": 0.8975}, "latency_p50_ms": 0.002,
     }
-    merged2, err2 = merge_refusing(merged, up)
-    assert merged2 is not None, f"three-state merge must pass, got: {err2}"
+    merged2, err2 = merge_refusing(merged, up2)
+    assert merged2 is not None, f"second merge must pass, got: {err2}"
     s1b = next(s for s in merged2["suites"] if s["name"] == "s1")
-    assert "hybrid" not in s1b, "a0_stands must REMOVE the refused cell"
-    assert "a0_stands" in err2, "the removal must be disclosed loudly"
-    s2b = next(s for s in merged2["suites"] if s["name"] == "s2")
-    assert s2b["hybrid"]["hard"]["accuracy"] == 0.8267
-    row = next(h for h in merged2["meta"]["hosts"] if h["host"] == "m3")
-    assert row["lane_sources"]["hybrid"]["git_sha"] == "sha-new"
-
-    # re-do cleanly: seed -> a0_stands removal -> old-format update keeps it off
-    seed2 = doc("m3", "sha-old", {"s1": {"modelless_acc": PRE_ACC}})
-    seed2["suites"][0]["hybrid"] = {
-        "lane": "hybrid", "model": "H1", "hard": {"accuracy": 0.806},
-    }
-    m4, _ = merge_refusing(primary, seed2)
-    assert m4 is not None
-    rm = doc("m3", "sha-rm", {"s1": {"modelless_acc": PRE_ACC}})
-    rm["suites"][0]["verdict"] = "a0_stands"
-    m5, err5 = merge_refusing(m4, rm)
-    assert m5 is not None, f"removal merge must pass, got: {err5}"
-    s1d = next(s for s in m5["suites"] if s["name"] == "s1")
-    assert "hybrid" not in s1d
-    keep = doc("m3", "sha-keep", {"s1": {"modelless_acc": PRE_ACC}})
-    m6, _ = merge_refusing(m5, keep)
-    s1e = next(s for s in m6["suites"] if s["name"] == "s1")
-    assert "hybrid" not in s1e, (
-        "an update without the a0_stands marker must never re-create or "
-        "restore the lane — and the removed cell must stay removed")
+    assert s1b["hybrid"]["hard"]["accuracy"] == 0.8975
+    assert s1b["hybrid"]["serves"] == "H2"
 
 
 def case_paw_lanes_ride_an_update():
@@ -1548,7 +1523,7 @@ CASES = [
     case_source_run_stamp_is_per_suite,
     case_source_run_stamp_survives_remerge_and_digest_wins,
     case_pre_stamp_cells_still_fall_back_to_lane_sources,
-    case_a0_stands_removes_refused_incumbent_cell,
+    case_a0_stands_label_rides_the_cell,
 ]
 
 def main() -> int:
