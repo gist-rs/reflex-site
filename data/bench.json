@@ -58,28 +58,28 @@
       "date_utc": "2026-09-27T03:27:37Z"
      },
      "laya:english": {
-      "git_sha": "6199e5e",
-      "date_utc": "2026-09-27T04:13:29Z"
+      "git_sha": "5ada17a",
+      "date_utc": "2026-09-27T08:00:55Z"
      },
      "laya:multilingual": {
-      "git_sha": "6199e5e",
-      "date_utc": "2026-09-27T04:13:29Z"
+      "git_sha": "5ada17a",
+      "date_utc": "2026-09-27T08:00:55Z"
      },
      "laya:py/english": {
-      "git_sha": "6199e5e",
-      "date_utc": "2026-09-27T04:13:29Z"
+      "git_sha": "5ada17a",
+      "date_utc": "2026-09-27T08:00:55Z"
      },
      "laya:py/multilingual": {
-      "git_sha": "6199e5e",
-      "date_utc": "2026-09-27T04:13:29Z"
+      "git_sha": "5ada17a",
+      "date_utc": "2026-09-27T08:00:55Z"
      },
      "laya:py/typed": {
-      "git_sha": "6199e5e",
-      "date_utc": "2026-09-27T04:13:29Z"
+      "git_sha": "5ada17a",
+      "date_utc": "2026-09-27T08:00:55Z"
      },
      "laya:typed": {
-      "git_sha": "6199e5e",
-      "date_utc": "2026-09-27T04:13:29Z"
+      "git_sha": "5ada17a",
+      "date_utc": "2026-09-27T08:00:55Z"
      },
      "hybrid": {
       "git_sha": "0959928",
@@ -617,16 +617,16 @@
      "brier_soft": 0.3348088366904328,
      "score_mae": 0.6937235449999997,
      "within_1": 0.7525,
-     "latency_p50_ms": 406.0,
-     "latency_p99_ms": 612.0,
+     "latency_p50_ms": 195.0,
+     "latency_p99_ms": 358.0,
      "latency_tail_support": 5,
      "latency_extremes": {
-      "first_ms": 237.0,
-      "max_ms": 631.0,
-      "argmax_case": 183
+      "first_ms": 92.0,
+      "max_ms": 401.0,
+      "argmax_case": 120
      },
      "determinism_ok": true,
-     "seconds": 166.570083167,
+     "seconds": 81.877849,
      "n_cases": 400,
      "n_questions": 2000,
      "score_threshold": null,
@@ -637,6 +637,7 @@
      "nb_selection": null,
      "oc_selection": null,
      "ridge_selection": null,
+     "genome_selection": null,
      "transductive": null,
      "confusion": null,
      "pair_head_ab": null,
@@ -707,16 +708,16 @@
      "brier_soft": 0.4737295325604735,
      "score_mae": 0.7603941325000002,
      "within_1": 0.7,
-     "latency_p50_ms": 181.0,
-     "latency_p99_ms": 361.0,
+     "latency_p50_ms": 92.0,
+     "latency_p99_ms": 163.0,
      "latency_tail_support": 5,
      "latency_extremes": {
-      "first_ms": 160.0,
-      "max_ms": 393.0,
+      "first_ms": 40.0,
+      "max_ms": 174.0,
       "argmax_case": 151
      },
      "determinism_ok": true,
-     "seconds": 78.315555042,
+     "seconds": 38.118442625,
      "n_cases": 400,
      "n_questions": 2000,
      "score_threshold": null,
@@ -727,6 +728,7 @@
      "nb_selection": null,
      "oc_selection": null,
      "ridge_selection": null,
+     "genome_selection": null,
      "transductive": null,
      "confusion": null,
      "pair_head_ab": null,
@@ -797,16 +799,16 @@
      "brier_soft": 0.06772113657369036,
      "score_mae": 0.24240826250000005,
      "within_1": 0.995,
-     "latency_p50_ms": 442.0,
-     "latency_p99_ms": 726.0,
+     "latency_p50_ms": 286.0,
+     "latency_p99_ms": 484.0,
      "latency_tail_support": 5,
      "latency_extremes": {
-      "first_ms": 110.0,
-      "max_ms": 761.0,
-      "argmax_case": 151
+      "first_ms": 93.0,
+      "max_ms": 532.0,
+      "argmax_case": 150
      },
      "determinism_ok": true,
-     "seconds": 162.743427458,
+     "seconds": 109.645121,
      "n_cases": 400,
      "n_questions": 2000,
      "score_threshold": null,
@@ -817,6 +819,7 @@
      "nb_selection": null,
      "oc_selection": null,
      "ridge_selection": null,
+     "genome_selection": null,
      "transductive": null,
      "confusion": null,
      "pair_head_ab": null,
@@ -887,16 +890,16 @@
      "brier_soft": 0.334808769875873,
      "score_mae": 0.6937230449999998,
      "within_1": 0.7525,
-     "latency_p50_ms": 362.0,
-     "latency_p99_ms": 606.0,
+     "latency_p50_ms": 328.0,
+     "latency_p99_ms": 557.0,
      "latency_tail_support": 5,
      "latency_extremes": {
-      "first_ms": 116.0,
-      "max_ms": 629.0,
-      "argmax_case": 119
+      "first_ms": 104.0,
+      "max_ms": 693.0,
+      "argmax_case": 183
      },
      "determinism_ok": true,
-     "seconds": 159.587257584,
+     "seconds": 141.410336666,
      "n_cases": 400,
      "n_questions": 2000,
      "score_threshold": null,
@@ -907,6 +910,7 @@
      "nb_selection": null,
      "oc_selection": null,
      "ridge_selection": null,
+     "genome_selection": null,
      "transductive": null,
      "confusion": null,
      "pair_head_ab": null,
@@ -977,16 +981,16 @@
      "brier_soft": 0.47372954021453173,
      "score_mae": 0.7603942575000003,
      "within_1": 0.7,
-     "latency_p50_ms": 185.0,
-     "latency_p99_ms": 329.0,
+     "latency_p50_ms": 173.0,
+     "latency_p99_ms": 327.0,
      "latency_tail_support": 5,
      "latency_extremes": {
-      "first_ms": 53.0,
-      "max_ms": 373.0,
-      "argmax_case": 285
+      "first_ms": 50.0,
+      "max_ms": 393.0,
+      "argmax_case": 144
      },
      "determinism_ok": true,
-     "seconds": 82.3661855,
+     "seconds": 73.405661625,
      "n_cases": 400,
      "n_questions": 2000,
      "score_threshold": null,
@@ -997,6 +1001,7 @@
      "nb_selection": null,
      "oc_selection": null,
      "ridge_selection": null,
+     "genome_selection": null,
      "transductive": null,
      "confusion": null,
      "pair_head_ab": null,
@@ -1067,16 +1072,16 @@
      "brier_soft": 0.06772116115371934,
      "score_mae": 0.2424075125000001,
      "within_1": 0.995,
-     "latency_p50_ms": 442.0,
-     "latency_p99_ms": 953.0,
+     "latency_p50_ms": 352.0,
+     "latency_p99_ms": 774.0,
      "latency_tail_support": 5,
      "latency_extremes": {
-      "first_ms": 283.0,
-      "max_ms": 1041.0,
+      "first_ms": 105.0,
+      "max_ms": 822.0,
       "argmax_case": 119
      },
      "determinism_ok": true,
-     "seconds": 192.370775709,
+     "seconds": 148.247935,
      "n_cases": 400,
      "n_questions": 2000,
      "score_threshold": null,
@@ -1087,6 +1092,7 @@
      "nb_selection": null,
      "oc_selection": null,
      "ridge_selection": null,
+     "genome_selection": null,
      "transductive": null,
      "confusion": null,
      "pair_head_ab": null,

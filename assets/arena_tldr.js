@@ -90,7 +90,7 @@ function render(bench) {
   ul.appendChild(row(rustFaster.length === n,
     `<b>Rust vs Python laya, speed:</b> Rust faster on <b>${rustFaster.length}/${n}</b>` +
     (rustSlower.length
-      ? `, slower on ${rustSlower.length} (${slowList}) — a bug by our bar, open as <a href="https://github.com/gist-rs/riir-reflex/blob/HEAD/.issues/020_riir_metal_latency_parity.md">riir-reflex Issue 020</a>.`
+      ? `, slower on ${rustSlower.length} (${slowList}) — a bug by our bar (<a href="https://github.com/gist-rs/riir-reflex/blob/HEAD/HISTORY.md">riir-reflex Issue 020</a> closed on Rust winning every cell).`
       : ".")));
   const pairLine = crossSample.length
     ? `; ${crossSample.length} pair(s) on different samples — not comparable (${crossSample.map((r) => r.pairDetail).join(", ")})`
