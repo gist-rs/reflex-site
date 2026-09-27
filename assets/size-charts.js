@@ -4,16 +4,21 @@
 // bench.json law: a hand-typed number on this site is a defect), so a
 // re-published sizes.json re-draws the chart with no edit here.
 //
-//   SizeCharts.render(d, el)  → grouped bars: per candidate, one bar for
-//                               the runtime/engine bytes and one for the
-//                               model/weights bytes, on a shared log axis
-//                               (92 KB … 47 GB is six decades — a linear
-//                               axis would flatten everything but the
-//                               largest), data order = ascending total.
+//   SizeCharts.render(d, el)  → one STACKED bar per candidate on a shared
+//                               log axis (92 KB … 47 GB is six decades — a
+//                               linear axis would flatten everything but the
+//                               largest), data order = ascending total. On a
+//                               log axis a stack is drawn by its CUMULATIVE
+//                               edges: the engine segment ends at the engine
+//                               bytes, the model segment continues to
+//                               engine + model — so the bar's right edge IS
+//                               the total, and each segment's tooltip carries
+//                               its own bytes (a log segment's LENGTH is not
+//                               proportional to its bytes).
 //
 // Palette: engine = the site's ember (the Reflex · modelless lane color), model = the
-// laya lane blue — both already validated on the dark surfaces. The two
-// bars share one tooltip (data-sztip, this module's own handler — never
+// laya lane blue — both already validated on the dark surfaces. Each
+// segment carries its own tooltip (data-sztip, this module's own handler — never
 // bench-charts' data-tip namespace).
 (function () {
   "use strict";
@@ -108,16 +113,22 @@
     const rows = (d.candidates || []).map((c) => {
       const total = (c.engine_bytes || 0) + (c.model_bytes || 0);
       const chips = (c.targets || []).map((t) => `<span class="sz-chip">${esc(t)}</span>`).join("");
-      const engineBar =
-        `<div class="bc-hbar" tabindex="0" data-sztip="${esc(tipHtml(c, "engine"))}" aria-label="${esc(`${c.name}: runtime ${human(c.engine_bytes)}`)}">` +
-        `<i style="width:${(frac(c.engine_bytes, dom) * 100).toFixed(2)}%;background:${ENGINE_COLOR}"></i></div>`;
-      const modelBar = c.model_bytes > 0
-        ? `<div class="bc-hbar" tabindex="0" data-sztip="${esc(tipHtml(c, "model"))}" aria-label="${esc(`${c.name}: model ${human(c.model_bytes)}`)}">` +
-          `<i style="width:${(frac(c.model_bytes, dom) * 100).toFixed(2)}%;background:${MODEL_COLOR}"></i></div>`
-        : "";
+      // cumulative edges on the log axis: engine → [0, engine], model →
+      // [engine, engine + model]; widths are the edge differences.
+      const engineEdge = c.engine_bytes > 0 ? frac(c.engine_bytes, dom) : 0;
+      const totalEdge = frac(total, dom);
+      const seg = (which, bytes, width) =>
+        `<i class="sz-seg" tabindex="0" data-sztip="${esc(tipHtml(c, which))}" ` +
+        `aria-label="${esc(`${c.name}: ${which === "engine" ? "runtime" : "model"} ${human(bytes)}`)}" ` +
+        `style="width:${(width * 100).toFixed(2)}%;background:${which === "engine" ? ENGINE_COLOR : MODEL_COLOR}"></i>`;
+      const stack =
+        `<div class="bc-hbar sz-stack">` +
+        (c.engine_bytes > 0 ? seg("engine", c.engine_bytes, engineEdge) : "") +
+        (c.model_bytes > 0 ? seg("model", c.model_bytes, Math.max(0.002, totalEdge - engineEdge)) : "") +
+        `</div>`;
       return `<div class="sz-row">` +
         `<div class="bc-hlabel sz-label"><span class="sz-name">${esc(c.name)}</span><span class="sz-chips">${chips}</span></div>` +
-        `<div class="bc-htrack">${grid}${engineBar}${modelBar}</div>` +
+        `<div class="bc-htrack">${grid}${stack}</div>` +
         `<div class="bc-val sz-total">${human(total)}</div></div>`;
     }).join("");
 

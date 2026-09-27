@@ -1,9 +1,11 @@
 // The size-chart render smoke — zero-dependency (no playwright, no jsdom):
 // boots size-charts.js in a stubbed DOM (stubbed fetch, the registered
 // DOMContentLoaded handler) exactly as /#sizes runs it, against the REAL
-// data/sizes.json, and asserts the grouped-bar structure is well-formed:
-// ascending order, one engine bar per candidate, a model bar exactly when
-// the lane carries weights, in-track widths, target chips, and the
+// data/sizes.json, and asserts the stacked-bar structure is well-formed:
+// ascending order, one stack per candidate with an engine segment, a model
+// segment exactly when the lane carries weights, each stack's cumulative
+// width inside its track and ending at the total's log position, target
+// chips, and the
 // provenance note (which boot() fills into #sizes-prov — since e1ea6b8 it
 // no longer renders inside render()'s html, so the note is asserted on the
 // prov element, never on the chart html).
@@ -77,11 +79,18 @@ const fail = (msg) => { console.error("FAIL: " + msg); process.exit(1); };
   if (engineBars !== d.candidates.length) fail(`engine bars ${engineBars} != ${d.candidates.length}`);
   if (modelBars !== withModel) fail(`model bars ${modelBars} != lanes-with-weights ${withModel}`);
 
-  // 4. every bar sits inside its track (0 .. 100.5%)
-  for (const m of html.matchAll(/class="bc-hbar"[^>]*>\s*<i style="width:([\d.]+)%/g)) {
-    const w = +m[1];
-    if (!(w >= 0 && w <= 100.5)) fail(`bar width out of track: ${w}%`);
-  }
+  // 4. one stack per candidate; each stack's segments sum to the total's
+  // log position (cumulative edges) and sit inside the track (0 .. 100.5%)
+  const stacks = [...html.matchAll(/<div class="bc-hbar sz-stack">(.*?)<\/div>/g)].map((m) => m[1]);
+  if (stacks.length !== d.candidates.length) fail(`stacks ${stacks.length} != candidates ${d.candidates.length}`);
+  const dom = window.SizeCharts.domain(d);
+  stacks.forEach((inner, i) => {
+    const widths = [...inner.matchAll(/style="width:([\d.]+)%/g)].map((m) => +m[1]);
+    const sum = widths.reduce((a, b) => a + b, 0);
+    if (!(sum >= 0 && sum <= 100.5)) fail(`stack ${i} width out of track: ${sum}%`);
+    const want = window.SizeCharts.frac(totals[i], dom) * 100;
+    if (Math.abs(sum - want) > 0.25) fail(`stack ${i} ends at ${sum.toFixed(2)}%, total sits at ${want.toFixed(2)}%`);
+  });
 
   // 5. target chips on every row + tooltips on every bar
   const chips = (html.match(/class="sz-chip"/g) || []).length;
@@ -101,5 +110,5 @@ const fail = (msg) => { console.error("FAIL: " + msg); process.exit(1); };
   const axis = (html.match(/class="bc-axis sz-axis"/g) || []).length;
   if (!axis) fail("no axis rendered");
 
-  console.log(`size chart render smoke PASS (${d.candidates.length} candidates · ${engineBars} engine + ${modelBars} model bars · ascending)`);
+  console.log(`size chart render smoke PASS (${d.candidates.length} stacks · ${engineBars} engine + ${modelBars} model segments · ascending · cumulative edges)`);
 })().catch((e) => { console.error("FAIL: " + (e && e.message || e)); process.exit(1); });

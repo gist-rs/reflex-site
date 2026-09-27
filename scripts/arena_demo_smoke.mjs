@@ -11,7 +11,7 @@ import { createRequire } from "node:module";
 import { spawn } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { mkdirSync } from "node:fs";
+import { mkdirSync, readFileSync } from "node:fs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const siteDir = path.resolve(process.argv[2] ?? path.join(here, ".."));
@@ -140,9 +140,15 @@ try {
     fail(`lane-note heights differ within a row: ${JSON.stringify(box)}`);
   }
 
-  // TL;DR renders from data/bench.json — four verdict rows
-  await page.waitForFunction(() => document.querySelectorAll("#tldr li").length === 4, { timeout: 10000 });
+  // TL;DR renders from data/bench.json — four verdict rows + Reflex vs Instinct (when the bench carries an Instinct arm)
+  await page.waitForFunction(() => document.querySelectorAll("#tldr li").length >= 4, { timeout: 10000 });
   console.log(`[demo-smoke] TL;DR: ${(await page.textContent("#tldr")).replace(/\s+/g, " ").trim().slice(0, 240)}…`);
+  {
+    const benchHasInstinct = JSON.parse(readFileSync(path.join(siteDir, "data", "bench.json"), "utf8"))
+      .suites.some((s) => s.modelless && s.hybrid);
+    const tl = await page.textContent("#tldr");
+    if (benchHasInstinct !== /Reflex vs Instinct/.test(tl)) fail(`TL;DR Reflex-vs-Instinct row: bench has an Instinct arm=${benchHasInstinct}, row rendered=${!benchHasInstinct}`);
+  }
 
   // The Instinct (hybrid) lane card: present in every game, DIRECTLY before
   // the raw board — and the raw board is ALWAYS the last card (owner rule).

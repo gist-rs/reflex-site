@@ -107,8 +107,22 @@ function render(bench) {
   ul.appendChild(row(kmAccAtLeast.length === n,
     `<b>Reflex vs laya, accuracy:</b> at or above laya on <b>${kmAccAtLeast.length}/${n}</b>` +
     (kmAccAtLeast.length < n
-      ? `; trails on the rest (widest: ${worstAcc.name} ${pct(worstAcc.km.acc)} vs ${pct(worstAcc.rust.acc)}) — published, not hidden.`
+      ? `; trails on the rest (widest: ${worstAcc.name} ${pct(worstAcc.km.acc)} vs ${pct(worstAcc.rust.acc)}) — on those, laya is the better pick.`
       : ".")));
+  // Reflex vs Instinct — the trained-specialist hybrid lane, compared only
+  // on the suites that publish an Instinct arm (the population it has).
+  const inst = (bench.suites || [])
+    .filter((s) => s.modelless?.hard?.accuracy != null && s.hybrid?.hard?.accuracy != null)
+    .map((s) => ({ name: s.name, km: s.modelless.hard.accuracy, inst: s.hybrid.hard.accuracy }));
+  if (inst.length) {
+    const kmAtLeastInst = inst.filter((r) => r.km >= r.inst);
+    const instAhead = inst.filter((r) => r.km < r.inst).sort((a, b) => (a.km - a.inst) - (b.km - b.inst));
+    ul.appendChild(row(kmAtLeastInst.length === inst.length,
+      `<b>Reflex vs Instinct, accuracy:</b> at or above Instinct on <b>${kmAtLeastInst.length}/${inst.length}</b> suites with an Instinct arm` +
+      (instAhead.length
+        ? `; Instinct leads on ${instAhead.length} (widest: ${instAhead[0].name} ${pct(instAhead[0].inst)} vs ${pct(instAhead[0].km)}) — where its trained specialists earn the extra download.`
+        : ".")));
+  }
   body.append(lead, ul);
 }
 
