@@ -147,6 +147,9 @@ try {
     const benchHasInstinct = JSON.parse(readFileSync(path.join(siteDir, "data", "bench.json"), "utf8"))
       .suites.some((s) => s.modelless && s.hybrid);
     const tl = await page.textContent("#tldr");
+    // A trailing suite is a gap to close, never a pick for the other lane
+    // (Reflex wins latency + size): the TL;DR must not hand out verdicts.
+    if (/better pick/.test(tl)) fail("TL;DR names another lane 'the better pick' — state the gap to win instead");
     if (benchHasInstinct !== /Instinct vs Reflex/.test(tl)) fail(`TL;DR Instinct-vs-Reflex row: bench has an Instinct arm=${benchHasInstinct}, row rendered=${!benchHasInstinct}`);
     // The row's mark is Instinct's verdict: ✓ only when STRICTLY ahead of
     // Reflex on every suite with an arm (Reflex is free; a tie sells nothing).

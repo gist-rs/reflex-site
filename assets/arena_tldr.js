@@ -44,6 +44,15 @@ const median = (xs) => {
 };
 const ms = (x) => (x < 1 ? x.toFixed(3) : x < 10 ? x.toFixed(2) : String(Math.round(x)));
 const pct = (x) => (x * 100).toFixed(1) + "%";
+// A trailing suite is a GAP TO CLOSE, never a verdict for the other lane:
+// Reflex already wins latency and bundle size, so the only honest thing to
+// say where it trails on accuracy is how far it has to go. Widest first,
+// capped so a long tail cannot swamp the row.
+const gapList = (xs, cap = 5) => {
+  const shown = xs.slice(0, cap)
+    .map((r) => (r.gap > 0 ? `${r.name} +${(r.gap * 100).toFixed(1)} pt` : `${r.name} tied`)).join(", ");
+  return xs.length > cap ? `${shown}, +${xs.length - cap} more` : shown;
+};
 
 function row(ok, text) {
   const li = document.createElement("li");
@@ -90,7 +99,9 @@ function render(bench) {
   const crossSample = rows.filter((r) => r.pairing === "differs");
   const unknownPair = rows.filter((r) => r.pairing === "unknown");
   const kmAccAtLeast = rows.filter((r) => r.km.acc >= r.rust.acc);
-  const worstAcc = [...rows].sort((a, b) => (a.km.acc - a.rust.acc) - (b.km.acc - b.rust.acc))[0];
+  const kmGaps = rows.filter((r) => r.km.acc < r.rust.acc)
+    .map((r) => ({ name: r.name, gap: r.rust.acc - r.km.acc }))
+    .sort((a, b) => b.gap - a.gap);
 
   body.innerHTML = "";
   const lead = document.createElement("p");
@@ -123,9 +134,7 @@ function render(bench) {
     (comparable.length ? " — a parity port, by design." : " — nothing comparable published yet.")));
   ul.appendChild(row(kmAccAtLeast.length === n,
     `<b>Reflex vs laya, accuracy:</b> at or above laya on <b>${kmAccAtLeast.length}/${n}</b>` +
-    (kmAccAtLeast.length < n
-      ? `; trails on the rest (widest: ${worstAcc.name} ${pct(worstAcc.km.acc)} vs ${pct(worstAcc.rust.acc)}) — on those, laya is the better pick.`
-      : ".")));
+    (kmGaps.length ? `; gap to win the other ${kmGaps.length}: ${gapList(kmGaps)}.` : ".")));
   // Instinct vs Reflex — told from Instinct's side: Reflex is free, so
   // Instinct is the paid lane and must EARN its place by beating Reflex.
   // ✓ only when it is STRICTLY ahead on every suite it has an arm for (a
@@ -140,12 +149,14 @@ function render(bench) {
     const ahead = inst.filter((r) => r.inst > r.km).sort(byGap);
     const notAhead = inst.filter((r) => r.inst <= r.km).sort((a, b) => byGap(b, a));
     const pt = (r) => `${r.name} ${pct(r.inst)} vs ${pct(r.km)}`;
+    const instGaps = notAhead.map((r) => ({ name: r.name, gap: r.km - r.inst }))
+      .sort((a, b) => b.gap - a.gap);
     const noArm = withKm.length - inst.length;
     ul.appendChild(row(notAhead.length === 0,
       `<b>Instinct vs Reflex, accuracy:</b> ahead of Reflex on <b>${ahead.length}/${inst.length}</b> suites with an Instinct arm` +
       (ahead.length ? ` (widest: ${pt(ahead[0])}) — where its trained specialists earn the download` : "") +
       (notAhead.length
-        ? `; not ahead on ${notAhead.length} (${notAhead.map(pt).join(", ")}) — there, free Reflex is the better pick`
+        ? `; gap to win the other ${notAhead.length}: ${gapList(instGaps)}`
         : "") +
       (noArm > 0 ? `; no Instinct arm yet on ${noArm} of ${withKm.length} suites.` : ".")));
   }
