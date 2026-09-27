@@ -84,6 +84,10 @@
      "hybrid": {
       "git_sha": "0959928",
       "date_utc": "2026-09-26T23:09:05Z"
+     },
+     "paw": {
+      "git_sha": "de67f50",
+      "date_utc": "2026-09-27T02:09:04Z"
      }
     },
     "head_posture": "ON \u2014 cal-selected per suite (ladder 0/0.25/0.5/1, forced cal-slice accuracy, ties \u2192 0 = off; issue 030 lever 4; per-row candidates in the results)"
@@ -137,6 +141,10 @@
      "agentjev": {
       "git_sha": "a2c03aa",
       "date_utc": "2026-09-25T03:09:08Z"
+     },
+     "paw_local": {
+      "git_sha": "634093f",
+      "date_utc": "2026-09-26T20:05:28Z"
      }
     },
     "head_posture": "ON \u2014 cal-selected per suite (ladder 0/0.25/0.5/1, forced cal-slice accuracy, ties \u2192 0 = off; issue 030 lever 4; per-row candidates in the results)"
@@ -2809,6 +2817,33 @@
       "corpus_cap": null,
       "confusion": null,
       "pair_head_ab": null
+     },
+     "paw_local": {
+      "lane": "paw (local)",
+      "model": "paw-ft-bs48-20260530",
+      "posture": "local-subprocess",
+      "program_id": "35a7963d2d18aac54616",
+      "spec_file": "scripts/paw_specs\\ag_news.txt",
+      "spec_blake3": "c5d5b475b88da357364a5f3ae3d87b02424a72bb4b16331fb9b59b0d1d543063",
+      "compile_cache_hit": true,
+      "compile_wall_s": 11.7595367,
+      "n_cases": 400,
+      "n_questions": 400,
+      "n_answered": 400,
+      "refusals": 0,
+      "quote_stripped": 0,
+      "accuracy": 0.8,
+      "answered_accuracy": 0.8,
+      "refusal_rate": 0.0,
+      "score_mae_answered": null,
+      "within_1_answered": null,
+      "refusal_samples": [],
+      "latency_p50_ms": 264.0,
+      "latency_p99_ms": 1563.774,
+      "latency_tail_support": 5,
+      "server_latency_p50_ms": null,
+      "determinism_ok": true,
+      "seconds": 241.0684133
      }
     }
    },
@@ -2833,6 +2868,29 @@
     "latency_p50_ms": 0.001583,
     "latency_p99_ms": 0.0035,
     "latency_tail_support": 5
+   },
+   "paw": {
+    "lane": "paw (hosted)",
+    "model": "paw-ft-bs48-20260530",
+    "posture": "hosted-anonymous",
+    "program_id": "35a7963d2d18aac54616",
+    "spec_file": "scripts/paw_specs/ag_news.txt",
+    "spec_blake3": "c5d5b475b88da357364a5f3ae3d87b02424a72bb4b16331fb9b59b0d1d543063",
+    "compile_cache_hit": false,
+    "compile_wall_s": 1.72005275,
+    "n_cases": 400,
+    "n_questions": 400,
+    "n_answered": 400,
+    "refusals": 0,
+    "quote_stripped": 0,
+    "accuracy": 0.79,
+    "answered_accuracy": 0.79,
+    "refusal_rate": 0.0,
+    "score_mae_answered": null,
+    "within_1_answered": null,
+    "refusal_samples": [],
+    "server_latency_p50_ms": 60.7,
+    "determinism_ok": true
    }
   },
   {
@@ -3762,6 +3820,35 @@
       "corpus_cap": null,
       "confusion": null,
       "pair_head_ab": null
+     },
+     "paw_local": {
+      "lane": "paw (local)",
+      "model": "paw-ft-bs48-20260530",
+      "posture": "local-subprocess",
+      "program_id": "703c4b3c3acf668f8ad8",
+      "spec_file": "scripts/paw_specs\\emotion.txt",
+      "spec_blake3": "ab8a01c6e1d96ca06ce9d40c5c57bd491e7ab3d53b18a8b3e7d51ac8a794baf4",
+      "compile_cache_hit": true,
+      "compile_wall_s": 11.6640664,
+      "n_cases": 400,
+      "n_questions": 400,
+      "n_answered": 399,
+      "refusals": 1,
+      "quote_stripped": 0,
+      "accuracy": 0.4875,
+      "answered_accuracy": 0.48872180451127817,
+      "refusal_rate": 0.0025,
+      "score_mae_answered": null,
+      "within_1_answered": null,
+      "refusal_samples": [
+       "sleepiness"
+      ],
+      "latency_p50_ms": 113.736,
+      "latency_p99_ms": 213.371,
+      "latency_tail_support": 5,
+      "server_latency_p50_ms": null,
+      "determinism_ok": true,
+      "seconds": 54.6759834
      }
     }
    },
@@ -3786,6 +3873,29 @@
     "latency_p50_ms": 0.000625,
     "latency_p99_ms": 0.001792,
     "latency_tail_support": 5
+   },
+   "paw": {
+    "lane": "paw (hosted)",
+    "model": "paw-ft-bs48-20260530",
+    "posture": "hosted-anonymous",
+    "program_id": "703c4b3c3acf668f8ad8",
+    "spec_file": "scripts/paw_specs/emotion.txt",
+    "spec_blake3": "ab8a01c6e1d96ca06ce9d40c5c57bd491e7ab3d53b18a8b3e7d51ac8a794baf4",
+    "compile_cache_hit": false,
+    "compile_wall_s": 0.924536416,
+    "n_cases": 400,
+    "n_questions": 400,
+    "n_answered": 400,
+    "refusals": 0,
+    "quote_stripped": 0,
+    "accuracy": 0.5,
+    "answered_accuracy": 0.5,
+    "refusal_rate": 0.0,
+    "score_mae_answered": null,
+    "within_1_answered": null,
+    "refusal_samples": [],
+    "server_latency_p50_ms": 63.3,
+    "determinism_ok": true
    }
   },
   {
@@ -4715,6 +4825,33 @@
       "corpus_cap": null,
       "confusion": null,
       "pair_head_ab": null
+     },
+     "paw_local": {
+      "lane": "paw (local)",
+      "model": "paw-ft-bs48-20260530",
+      "posture": "local-subprocess",
+      "program_id": "a0fb83a0afc58a1ce2b9",
+      "spec_file": "scripts/paw_specs\\sst5.txt",
+      "spec_blake3": "03ec007949af34227f6e88bc5d008ac7c6825f6fde9f6aed344aa643493fa71f",
+      "compile_cache_hit": true,
+      "compile_wall_s": 11.6851636,
+      "n_cases": 600,
+      "n_questions": 600,
+      "n_answered": 600,
+      "refusals": 0,
+      "quote_stripped": 0,
+      "accuracy": 0.4166666666666667,
+      "answered_accuracy": 0.4166666666666667,
+      "refusal_rate": 0.0,
+      "score_mae_answered": 0.86,
+      "within_1_answered": 0.8166666666666667,
+      "refusal_samples": [],
+      "latency_p50_ms": 118.293,
+      "latency_p99_ms": 210.725,
+      "latency_tail_support": 7,
+      "server_latency_p50_ms": null,
+      "determinism_ok": true,
+      "seconds": 78.9310791
      }
     }
    },
@@ -4739,6 +4876,29 @@
     "latency_p50_ms": 0.0006670000000000001,
     "latency_p99_ms": 0.001459,
     "latency_tail_support": 8
+   },
+   "paw": {
+    "lane": "paw (hosted)",
+    "model": "paw-ft-bs48-20260530",
+    "posture": "hosted-anonymous",
+    "program_id": "a0fb83a0afc58a1ce2b9",
+    "spec_file": "scripts/paw_specs/sst5.txt",
+    "spec_blake3": "03ec007949af34227f6e88bc5d008ac7c6825f6fde9f6aed344aa643493fa71f",
+    "compile_cache_hit": false,
+    "compile_wall_s": 0.942867667,
+    "n_cases": 600,
+    "n_questions": 600,
+    "n_answered": 600,
+    "refusals": 0,
+    "quote_stripped": 0,
+    "accuracy": 0.395,
+    "answered_accuracy": 0.395,
+    "refusal_rate": 0.0,
+    "score_mae_answered": 0.8833333333333333,
+    "within_1_answered": 0.8183333333333334,
+    "refusal_samples": [],
+    "server_latency_p50_ms": 60.9,
+    "determinism_ok": true
    }
   },
   {
@@ -8347,6 +8507,42 @@
       "corpus_cap": null,
       "confusion": null,
       "pair_head_ab": null
+     },
+     "paw_local": {
+      "lane": "paw (local)",
+      "model": "paw-ft-bs48-20260530",
+      "posture": "local-subprocess",
+      "program_id": "ebbfe5a01ae044052526",
+      "spec_file": "scripts/paw_specs\\banking77.txt",
+      "spec_blake3": "387c823cb86efe63d4cbba2e8b299f213f5a2487f3b7b049fe07315348ff2d43",
+      "compile_cache_hit": true,
+      "compile_wall_s": 11.9880512,
+      "n_cases": 500,
+      "n_questions": 500,
+      "n_answered": 323,
+      "refusals": 177,
+      "quote_stripped": 0,
+      "accuracy": 0.412,
+      "answered_accuracy": 0.6377708978328174,
+      "refusal_rate": 0.354,
+      "score_mae_answered": null,
+      "within_1_answered": null,
+      "refusal_samples": [
+       "locate my card",
+       "wrong exchange rate for foreign exchange",
+       "top up by day",
+       "exchange currency",
+       "contactless",
+       "pending gas",
+       "cancel transaction",
+       "top up limit"
+      ],
+      "latency_p50_ms": 131.696,
+      "latency_p99_ms": 236.735,
+      "latency_tail_support": 6,
+      "server_latency_p50_ms": null,
+      "determinism_ok": true,
+      "seconds": 72.0437115
      }
     }
    },
@@ -8371,6 +8567,38 @@
     "latency_p50_ms": 0.379542,
     "latency_p99_ms": 0.687042,
     "latency_tail_support": 6
+   },
+   "paw": {
+    "lane": "paw (hosted)",
+    "model": "paw-ft-bs48-20260530",
+    "posture": "hosted-anonymous",
+    "program_id": "ebbfe5a01ae044052526",
+    "spec_file": "scripts/paw_specs/banking77.txt",
+    "spec_blake3": "387c823cb86efe63d4cbba2e8b299f213f5a2487f3b7b049fe07315348ff2d43",
+    "compile_cache_hit": false,
+    "compile_wall_s": 0.975116792,
+    "n_cases": 500,
+    "n_questions": 500,
+    "n_answered": 327,
+    "refusals": 173,
+    "quote_stripped": 0,
+    "accuracy": 0.42,
+    "answered_accuracy": 0.6422018348623854,
+    "refusal_rate": 0.346,
+    "score_mae_answered": null,
+    "within_1_answered": null,
+    "refusal_samples": [
+     "locate my card",
+     "wrong exchange rate for foreign exchange",
+     "top up by day",
+     "exchange currency",
+     "contactless",
+     "pending gas",
+     "cancel transaction",
+     "top up limit"
+    ],
+    "server_latency_p50_ms": 96.0,
+    "determinism_ok": true
    }
   },
   {

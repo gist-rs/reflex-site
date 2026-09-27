@@ -717,6 +717,104 @@ def case_hybrid_lane_rides_an_update():
     assert "hybrid@m3-max-ane" in err3, "the skip must be disclosed loudly"
 
 
+def case_paw_lanes_ride_an_update():
+    # reflex .issues/033: the PAW lanes ride the same carry law. The
+    # hosted lane ("paw") and the local-runtime lane ("paw_local") are
+    # separate slots — a host can carry either or both — and the display
+    # rename reaches every surface.
+    primary = doc("m3", "sha-m3", {"s1": {"modelless_acc": PRE_ACC}})
+    update = doc("shikuwa", "sha-paw", {"s1": {"modelless_acc": PRE_ACC}})
+    update["suites"][0]["paw"] = {
+        "lane": "paw", "model": "paw-ft-bs48-20260530",
+        "posture": "hosted-anonymous",
+        "hard": {"accuracy": 0.79}, "latency_p50_ms": 927.0,
+    }
+    update["suites"][0]["paw_local"] = {
+        "lane": "paw-local", "model": "paw-ft-bs48-20260530",
+        "posture": "local-subprocess",
+        "hard": {"accuracy": 0.80}, "latency_p50_ms": 264.0,
+    }
+    # load_run applies the host rename at the LOAD boundary; merge() sees
+    # post-rename docs. Mirror that here (the alias is the case under test).
+    pb.rename_hosts(update)
+    merged, err = merge_refusing(primary, update)
+    assert merged is not None, f"merge must pass, got: {err}"
+    s1 = next(s for s in merged["suites"] if s["name"] == "s1")
+    e = s1["extra_host_lanes"]["4090-win"]  # the shikuwa alias renamed
+    assert e["paw"]["hard"]["accuracy"] == 0.79
+    assert e["paw_local"]["lane"] == "paw-local"  # machine field preserved
+    hosts = {r["host"]: r for r in merged["meta"]["hosts"]}
+    assert set(hosts) == {"m3", "4090-win"}, (
+        f"the alias must not mint a phantom host, got {set(hosts)}")
+    # a JOIN records the whole-doc source in the host row itself (git_sha);
+    # lane_sources is the UPDATE path's record — exercise it with a later
+    # paw-bearing update.
+    later = doc("shikuwa", "sha-paw2", {"s1": {"modelless_acc": PRE_ACC}})
+    later["suites"][0]["paw"] = {
+        "lane": "paw", "model": "paw-ft-bs48-20260530",
+        "hard": {"accuracy": 0.795},
+    }
+    pb.rename_hosts(later)
+    merged2, err2 = merge_refusing(merged, later)
+    assert merged2 is not None, f"update must pass, got: {err2}"
+    row = next(h for h in merged2["meta"]["hosts"] if h["host"] == "4090-win")
+    assert row["lane_sources"]["paw"]["git_sha"] == "sha-paw2"
+    s1b = next(s for s in merged2["suites"] if s["name"] == "s1")
+    assert s1b["extra_host_lanes"]["4090-win"]["paw"]["hard"]["accuracy"] == 0.795
+
+    # the display rename reaches the paw lanes (primary + extra surfaces)
+    d = {"suites": [{"paw": {"lane": "paw"}, "paw_local": {"lane": "paw-local"}}]}
+    pb.rename_lanes(d)
+    assert d["suites"][0]["paw"]["lane"] == "paw (hosted)"
+    assert d["suites"][0]["paw_local"]["lane"] == "paw (local)"
+
+    # the lane inventory counts the new classes (the wholesale-replace wall
+    # must see them as published surface, not ignore them)
+    inv = pb.lane_inventory({"meta": {"hosts": [], "host": "m3"},
+                             "suites": [{"name": "s1", "paw": {"lane": "paw"}}]})
+    assert ("s1", "m3-max-metal", "paw") in inv  # inventory keys are displayed
+
+
+def case_publish_bench_lanes_filter():
+    # The lane-scoped update filter: out-of-scope lanes drop LOUDLY from
+    # the extras (never silently, never from the primary), unknown names
+    # refuse, and the filter survives a paw-only publish beside a
+    # different-posture modelless control.
+    primary = doc("m3", "sha-m3", {"s1": {"modelless_acc": PRE_ACC}})
+    extra = doc("shikuwa", "sha-paw", {"s1": {"modelless_acc": 0.405}})
+    extra["suites"][0]["paw"] = {
+        "lane": "paw", "model": "paw-ft-bs48-20260530",
+        "hard": {"accuracy": 0.79},
+    }
+    # the filter mutates IN PLACE — production passes freshly-loaded docs
+    filtered = pb.filter_extras_to_lanes([extra], {"paw", "paw_local"})
+    s1 = filtered[0]["suites"][0]
+    assert "modelless" not in s1, "the out-of-scope control must be dropped"
+    assert s1["paw"]["hard"]["accuracy"] == 0.79, "the in-scope lane must survive"
+    assert "modelless" not in extra["suites"][0]  # the same doc object
+
+    # :acc-only keeps the lane but strips its latency fields — the run's
+    # box state made them NOT QUOTABLE; the source doc keeps its cells.
+    extra2 = doc("m3", "sha-paw3", {"s1": {"modelless_acc": PRE_ACC}})
+    extra2["suites"][0]["paw"] = {
+        "lane": "paw", "model": "paw-ft-bs48-20260530",
+        "hard": {"accuracy": 0.42},
+        "latency_p50_ms": 1011.0, "latency_p99_ms": 2010.0,
+        "seconds": 546.9,
+    }
+    filtered2 = pb.filter_extras_to_lanes([extra2], {"paw:acc-only"})
+    lane = filtered2[0]["suites"][0]["paw"]
+    assert lane["hard"]["accuracy"] == 0.42, "accuracy must survive :acc-only"
+    assert "latency_p50_ms" not in lane and "latency_p99_ms" not in lane
+    assert "seconds" not in lane, "the five latency fields must all strip"
+
+    # an unknown suffix refuses at the main() gate (asserted via the class
+    # arithmetic the gate runs): :latency-only is not a known suffix
+    assert "paw:latency-only".endswith(":acc-only") is False
+    unknown = {"paw", "paw_lcoal"} - set(pb.LANE_CLASSES)
+    assert unknown == {"paw_lcoal"}
+
+
 def case_device_variant_host_drops_modelless():
     """The DEVICE_VARIANT_HOSTS law (2026-09-25): the ANE host is the same
     physical M3 as the baseline, so only its laya lanes merge — a doc that
@@ -779,6 +877,8 @@ CASES = [
     case_gliner_lane_rides_an_update,
     case_agentjev_lane_rides_an_update,
     case_hybrid_lane_rides_an_update,
+    case_paw_lanes_ride_an_update,
+    case_publish_bench_lanes_filter,
     case_device_variant_host_drops_modelless,
     case_extra_suite_absent_in_primary_refuses,
     case_end_to_end_main,

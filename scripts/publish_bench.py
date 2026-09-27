@@ -41,6 +41,17 @@ update path is never walled — it cannot drop lanes by construction.
 Usage:
     python3 publish_bench.py <results-primary.json> [results-extra.json ...] <site-repo-root>
 
+PUBLISH_BENCH_LANES="paw,paw_local" (optional, extras only) restricts an
+update to the named lane classes — every other lane the extras declare is
+DROPPED with a loud disclosure (reflex .issues/033: a comparison-lane doc's
+by-product modelless control must never overwrite the published same-law
+modelless cells, nor trip the cross-host drift gate over a different
+posture). A class may carry the ":acc-only" suffix (e.g. "paw:acc-only"):
+the lane publishes its ACCURACY columns but its five latency fields are
+stripped — for a run whose box state made latency NOT QUOTABLE (the
+Issue-021 preflight law; the source doc keeps its measured cells and its
+disclosure). Unknown names refuse; the primary is never filtered.
+
 Docs apply in argv order. The first doc's suites shape the tables (run the
 superset run first). A previously-published data/bench.json is a valid
 primary for a re-publish (its meta.hosts seed the seen-host set) — and since
@@ -145,6 +156,12 @@ LANE_DISPLAY = {
     "gliner": "gliner (reference)",
     "agentjev": "agentjev (reference)",
     "hybrid": "instinct (hybrid)",
+    # reflex .issues/033: the ProgramAsWeights comparison lanes. "paw" is
+    # their HOSTED REST posture (compile-a-classifier, server-side),
+    # "paw-local" their LOCAL llama.cpp runtime — the posture axis is the
+    # lane's payload, so the display names carry it.
+    "paw": "paw (hosted)",
+    "paw-local": "paw (local)",
 }
 
 # Both spellings of the python lane: the machine field in a fresh harness
@@ -166,6 +183,12 @@ HOST_DISPLAY = {
     "m3": "m3-max-metal",
     "m3-ane": "m3-max-ane",
     "4090-windows": "4090-win",
+    # reflex .issues/033 (Bench 054/056): the PAW cells were measured on the
+    # 4090 box with REFLEX_BENCH_HOST unset, so those docs carry the raw
+    # hostname as the machine label. Same physical box the fleet publishes
+    # as 4090-win — the alias keeps those lanes in the existing host
+    # container instead of minting a phantom fourth host.
+    "shikuwa": "4090-win",
 }
 
 # Device-variant hosts: the SAME physical machine as another host, serving
@@ -216,6 +239,8 @@ def rename_lanes(d):
             + ([s["gliner"]] if s.get("gliner") else [])
             + ([s["agentjev"]] if s.get("agentjev") else [])
             + ([s["hybrid"]] if s.get("hybrid") else [])
+            + ([s["paw"]] if s.get("paw") else [])
+            + ([s["paw_local"]] if s.get("paw_local") else [])
         )
         for l in lanes:
             # The model column renders the harness's own field — the modelless
@@ -385,6 +410,25 @@ def merge(primary, extras):
                 updated_lanes["agentjev"] = True
             elif ea:
                 skipped_variant_lanes.append(f"agentjev@{ehost}")
+            # The PAW comparison lane, HOSTED postures (reflex .issues/033):
+            # the same carry law — an external service measured per-host,
+            # no bit-identity claim applies.
+            ep = s.get("paw")
+            if ep and not device_variant:
+                entry["paw"] = ep
+                updated_lanes["paw"] = True
+            elif ep:
+                skipped_variant_lanes.append(f"paw@{ehost}")
+            # The PAW LOCAL-runtime lane (their llama.cpp subprocess): the
+            # same carry law — but it IS host-sensitive (it runs on the
+            # measuring box), so a device-variant host would skip it like
+            # the rest; today no such host carries it.
+            epl = s.get("paw_local")
+            if epl and not device_variant:
+                entry["paw_local"] = epl
+                updated_lanes["paw_local"] = True
+            elif epl:
+                skipped_variant_lanes.append(f"paw_local@{ehost}")
             # The instinct HYBRID lane (riir-instinct .issues/003): the
             # trained-specialist composition over the same seat — the
             # registered arm's frozen test read. Pure-CPU like the
@@ -565,7 +609,8 @@ def _carry_into(lane, incumbent):
 # The lane classes a doc can carry. `laya` is a CLASS of checkpoint slots —
 # the inventory expands it per checkpoint key, because a publish that drops
 # one checkpoint drops published cells even though the class survives.
-LANE_CLASSES = ("modelless", "laya", "clm", "gliner", "agentjev", "hybrid")
+LANE_CLASSES = ("modelless", "laya", "clm", "gliner", "agentjev", "hybrid",
+                "paw", "paw_local")
 
 
 def lane_inventory(d):
@@ -641,6 +686,63 @@ def guard_wholesale_replace(d, out_path, primary_path):
     return 1
 
 
+def filter_extras_to_lanes(extras, allowed):
+    """The lane-scoped update filter (reflex .issues/033): restrict which
+    lane classes the EXTRAS may contribute, dropping every other declared
+    lane LOUDLY. Why it exists: a comparison-lane doc carries the
+    harness's modelless lane as a by-product, and a PAW run measured on a
+    box with a thinner dataset pull (or at an older sample law) would
+    otherwise either (a) fail the cross-host drift gate — correct, but it
+    blocks the lane the doc exists to publish — or (b) worse, silently
+    REPLACE the published (calibrated, same-law) modelless cells with a
+    different-posture control column. The filter keeps the publish to the
+    lanes the run was FOR. Never applies to the primary: the primary is
+    the preservation source and must keep every lane it already carries.
+    Drops are disclosed per (suite, lane); the primary is never touched.
+    An "lane:acc-only" entry keeps that class but strips its latency
+    fields (LANE_LATENCY_FIELDS) with its own disclosure — the source doc
+    keeps its measured cells; the site just does not quote them."""
+    classes = {c.split(":")[0] for c in allowed}
+    acc_only = {c.split(":")[0] for c in allowed if c.endswith(":acc-only")}
+    dropped = []
+    stripped = []
+    for d in extras:
+        ehost = (d.get("meta") or {}).get("host") or "(?)"
+        for s in d.get("suites", []):
+            for k in list(s.keys()):
+                if k == "laya" or k not in LANE_CLASSES:
+                    continue
+                if k not in classes and s.get(k) is not None:
+                    del s[k]
+                    dropped.append(f"{k}@{ehost}/{s['name']}")
+                    continue
+                lane = s.get(k)
+                if lane is not None and k in acc_only:
+                    for f in LANE_LATENCY_FIELDS:
+                        lane.pop(f, None)
+                    lane.pop("latency_provenance", None)
+                    stripped.append(f"{k}@{ehost}/{s['name']}")
+            lk = s.get("laya")
+            if lk is not None and "laya" not in classes:
+                del s["laya"]
+                dropped.append(f"laya@{ehost}/{s['name']}")
+    if dropped:
+        print(
+            f"note: PUBLISH_BENCH_LANES — dropped {len(dropped)} out-of-scope "
+            f"lane slot(s) from the extras: {', '.join(dropped)}",
+            file=sys.stderr,
+        )
+    if stripped:
+        print(
+            f"note: PUBLISH_BENCH_LANES :acc-only — latency fields stripped "
+            f"from {len(stripped)} lane slot(s) (accuracy publishes; the "
+            f"source docs keep their measured cells): "
+            f"{', '.join(stripped)}",
+            file=sys.stderr,
+        )
+    return extras
+
+
 def main() -> int:
     if len(sys.argv) < 3:
         print(__doc__)
@@ -648,6 +750,23 @@ def main() -> int:
     results_paths, site_root = sys.argv[1:-1], Path(sys.argv[-1])
     primary = load_run(results_paths[0])
     extras = [load_run(p) for p in results_paths[1:]]
+    lanes_env = os.environ.get("PUBLISH_BENCH_LANES", "").strip()
+    if lanes_env:
+        allowed = {x.strip() for x in lanes_env.split(",") if x.strip()}
+        classes = {x.split(":")[0] for x in allowed}
+        unknown = classes - set(LANE_CLASSES)
+        bad_suffix = {x for x in allowed
+                      if ":" in x and not x.endswith(":acc-only")}
+        if unknown or bad_suffix:
+            print(
+                f"⛔ unknown lane class(es) in PUBLISH_BENCH_LANES: "
+                f"{', '.join(sorted(unknown | bad_suffix))} — known classes: "
+                f"{', '.join(LANE_CLASSES)} (optional ':acc-only' suffix); a "
+                "typo must refuse, never publish nothing",
+                file=sys.stderr,
+            )
+            return 2
+        extras = filter_extras_to_lanes(extras, allowed)
 
     incumbent = copy.deepcopy(primary)   # pre-merge snapshot: every host's
     _phost = display_host((primary.get("meta") or {}).get("host") or "(primary)")
@@ -681,6 +800,10 @@ def main() -> int:
                 + ([host_lanes["agentjev"]] if host_lanes.get("agentjev")
                    else [])
                 + ([host_lanes["hybrid"]] if host_lanes.get("hybrid")
+                   else [])
+                + ([host_lanes["paw"]] if host_lanes.get("paw")
+                   else [])
+                + ([host_lanes["paw_local"]] if host_lanes.get("paw_local")
                    else [])
             )
             for l in lanes:
