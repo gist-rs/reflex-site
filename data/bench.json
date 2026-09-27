@@ -1888,6 +1888,30 @@
       "pair_head_ab": null
      }
     }
+   },
+   "pairing": {
+    "rust_vs_py": {
+     "rust": {
+      "kind": "run",
+      "id": "b1aee72 2026-09-26T15:34:14Z"
+     },
+     "py": {
+      "kind": "run",
+      "id": "9dbdca5 2026-09-26T12:02:57Z"
+     },
+     "status": "same_results"
+    },
+    "km_vs_laya": {
+     "modelless": {
+      "kind": "run",
+      "id": "836d15e 2026-09-27T01:32:50Z"
+     },
+     "rust": {
+      "kind": "run",
+      "id": "b1aee72 2026-09-26T15:34:14Z"
+     },
+     "status": "differs"
+    }
    }
   },
   {
@@ -2891,6 +2915,30 @@
     "refusal_samples": [],
     "server_latency_p50_ms": 60.7,
     "determinism_ok": true
+   },
+   "pairing": {
+    "rust_vs_py": {
+     "rust": {
+      "kind": "run",
+      "id": "b1aee72 2026-09-26T15:34:14Z"
+     },
+     "py": {
+      "kind": "run",
+      "id": "9dbdca5 2026-09-26T12:02:57Z"
+     },
+     "status": "same_results"
+    },
+    "km_vs_laya": {
+     "modelless": {
+      "kind": "run",
+      "id": "836d15e 2026-09-27T01:32:50Z"
+     },
+     "rust": {
+      "kind": "run",
+      "id": "b1aee72 2026-09-26T15:34:14Z"
+     },
+     "status": "differs"
+    }
    }
   },
   {
@@ -3896,6 +3944,30 @@
     "refusal_samples": [],
     "server_latency_p50_ms": 63.3,
     "determinism_ok": true
+   },
+   "pairing": {
+    "rust_vs_py": {
+     "rust": {
+      "kind": "run",
+      "id": "b1aee72 2026-09-26T15:34:14Z"
+     },
+     "py": {
+      "kind": "run",
+      "id": "9dbdca5 2026-09-26T12:02:57Z"
+     },
+     "status": "same_results"
+    },
+    "km_vs_laya": {
+     "modelless": {
+      "kind": "run",
+      "id": "836d15e 2026-09-27T01:32:50Z"
+     },
+     "rust": {
+      "kind": "run",
+      "id": "b1aee72 2026-09-26T15:34:14Z"
+     },
+     "status": "differs"
+    }
    }
   },
   {
@@ -4899,6 +4971,30 @@
     "refusal_samples": [],
     "server_latency_p50_ms": 60.9,
     "determinism_ok": true
+   },
+   "pairing": {
+    "rust_vs_py": {
+     "rust": {
+      "kind": "run",
+      "id": "b1aee72 2026-09-26T15:34:14Z"
+     },
+     "py": {
+      "kind": "run",
+      "id": "9dbdca5 2026-09-26T12:02:57Z"
+     },
+     "status": "same_results"
+    },
+    "km_vs_laya": {
+     "modelless": {
+      "kind": "run",
+      "id": "836d15e 2026-09-27T01:32:50Z"
+     },
+     "rust": {
+      "kind": "run",
+      "id": "b1aee72 2026-09-26T15:34:14Z"
+     },
+     "status": "differs"
+    }
    }
   },
   {
@@ -5775,6 +5871,30 @@
     "n_eval": 116,
     "exact": 0,
     "near": 2
+   },
+   "pairing": {
+    "rust_vs_py": {
+     "rust": {
+      "kind": "run",
+      "id": "b1aee72 2026-09-26T15:34:14Z"
+     },
+     "py": {
+      "kind": "run",
+      "id": "9dbdca5 2026-09-26T12:02:57Z"
+     },
+     "status": "same_results"
+    },
+    "km_vs_laya": {
+     "modelless": {
+      "kind": "run",
+      "id": "836d15e 2026-09-27T01:32:50Z"
+     },
+     "rust": {
+      "kind": "run",
+      "id": "b1aee72 2026-09-26T15:34:14Z"
+     },
+     "status": "differs"
+    }
    }
   },
   {
@@ -6725,6 +6845,30 @@
     "n_eval": 300,
     "exact": 0,
     "near": 0
+   },
+   "pairing": {
+    "rust_vs_py": {
+     "rust": {
+      "kind": "run",
+      "id": "b1aee72 2026-09-26T15:34:14Z"
+     },
+     "py": {
+      "kind": "run",
+      "id": "9dbdca5 2026-09-26T12:02:57Z"
+     },
+     "status": "same_results"
+    },
+    "km_vs_laya": {
+     "modelless": {
+      "kind": "run",
+      "id": "836d15e 2026-09-27T01:32:50Z"
+     },
+     "rust": {
+      "kind": "run",
+      "id": "b1aee72 2026-09-26T15:34:14Z"
+     },
+     "status": "differs"
+    }
    }
   },
   {
@@ -7628,6 +7772,30 @@
     "latency_p50_ms": 0.0010840000000000001,
     "latency_p99_ms": 0.002166,
     "latency_tail_support": 4
+   },
+   "pairing": {
+    "rust_vs_py": {
+     "rust": {
+      "kind": "run",
+      "id": "b1aee72 2026-09-26T15:34:14Z"
+     },
+     "py": {
+      "kind": "run",
+      "id": "9dbdca5 2026-09-26T12:02:57Z"
+     },
+     "status": "differs"
+    },
+    "km_vs_laya": {
+     "modelless": {
+      "kind": "run",
+      "id": "836d15e 2026-09-27T01:32:50Z"
+     },
+     "rust": {
+      "kind": "run",
+      "id": "b1aee72 2026-09-26T15:34:14Z"
+     },
+     "status": "differs"
+    }
    }
   },
   {
@@ -8599,6 +8767,30 @@
     ],
     "server_latency_p50_ms": 96.0,
     "determinism_ok": true
+   },
+   "pairing": {
+    "rust_vs_py": {
+     "rust": {
+      "kind": "run",
+      "id": "b1aee72 2026-09-26T15:34:14Z"
+     },
+     "py": {
+      "kind": "run",
+      "id": "9dbdca5 2026-09-26T12:02:57Z"
+     },
+     "status": "differs"
+    },
+    "km_vs_laya": {
+     "modelless": {
+      "kind": "run",
+      "id": "836d15e 2026-09-27T01:32:50Z"
+     },
+     "rust": {
+      "kind": "run",
+      "id": "b1aee72 2026-09-26T15:34:14Z"
+     },
+     "status": "differs"
+    }
    }
   },
   {
@@ -9280,6 +9472,30 @@
       "pair_head_ab": null
      }
     }
+   },
+   "pairing": {
+    "rust_vs_py": {
+     "rust": {
+      "kind": "run",
+      "id": "b1aee72 2026-09-26T15:34:14Z"
+     },
+     "py": {
+      "kind": "run",
+      "id": "9dbdca5 2026-09-26T12:02:57Z"
+     },
+     "status": "differs"
+    },
+    "km_vs_laya": {
+     "modelless": {
+      "kind": "run",
+      "id": "836d15e 2026-09-27T01:32:50Z"
+     },
+     "rust": {
+      "kind": "run",
+      "id": "b1aee72 2026-09-26T15:34:14Z"
+     },
+     "status": "differs"
+    }
    }
   },
   {
@@ -9879,6 +10095,30 @@
       "pair_head_ab": null
      }
     }
+   },
+   "pairing": {
+    "rust_vs_py": {
+     "rust": {
+      "kind": "run",
+      "id": "b1aee72 2026-09-26T15:34:14Z"
+     },
+     "py": {
+      "kind": "run",
+      "id": "9dbdca5 2026-09-26T12:02:57Z"
+     },
+     "status": "same_results"
+    },
+    "km_vs_laya": {
+     "modelless": {
+      "kind": "run",
+      "id": "836d15e 2026-09-27T01:32:50Z"
+     },
+     "rust": {
+      "kind": "run",
+      "id": "b1aee72 2026-09-26T15:34:14Z"
+     },
+     "status": "differs"
+    }
    }
   },
   {
@@ -10453,6 +10693,30 @@
       "confusion": null,
       "pair_head_ab": null
      }
+    }
+   },
+   "pairing": {
+    "rust_vs_py": {
+     "rust": {
+      "kind": "run",
+      "id": "b1aee72 2026-09-26T15:34:14Z"
+     },
+     "py": {
+      "kind": "run",
+      "id": "9dbdca5 2026-09-26T12:02:57Z"
+     },
+     "status": "same_results"
+    },
+    "km_vs_laya": {
+     "modelless": {
+      "kind": "run",
+      "id": "836d15e 2026-09-27T01:32:50Z"
+     },
+     "rust": {
+      "kind": "run",
+      "id": "b1aee72 2026-09-26T15:34:14Z"
+     },
+     "status": "differs"
     }
    }
   },
@@ -11065,6 +11329,30 @@
       "pair_head_ab": null
      }
     }
+   },
+   "pairing": {
+    "rust_vs_py": {
+     "rust": {
+      "kind": "run",
+      "id": "b1aee72 2026-09-26T15:34:14Z"
+     },
+     "py": {
+      "kind": "run",
+      "id": "9dbdca5 2026-09-26T12:02:57Z"
+     },
+     "status": "same_results"
+    },
+    "km_vs_laya": {
+     "modelless": {
+      "kind": "run",
+      "id": "836d15e 2026-09-27T01:32:50Z"
+     },
+     "rust": {
+      "kind": "run",
+      "id": "b1aee72 2026-09-26T15:34:14Z"
+     },
+     "status": "differs"
+    }
    }
   },
   {
@@ -11663,6 +11951,30 @@
       "confusion": null,
       "pair_head_ab": null
      }
+    }
+   },
+   "pairing": {
+    "rust_vs_py": {
+     "rust": {
+      "kind": "run",
+      "id": "b1aee72 2026-09-26T15:34:14Z"
+     },
+     "py": {
+      "kind": "run",
+      "id": "9dbdca5 2026-09-26T12:02:57Z"
+     },
+     "status": "same_results"
+    },
+    "km_vs_laya": {
+     "modelless": {
+      "kind": "run",
+      "id": "836d15e 2026-09-27T01:32:50Z"
+     },
+     "rust": {
+      "kind": "run",
+      "id": "b1aee72 2026-09-26T15:34:14Z"
+     },
+     "status": "differs"
     }
    }
   },
@@ -12287,6 +12599,30 @@
       "pair_head_ab": null
      }
     }
+   },
+   "pairing": {
+    "rust_vs_py": {
+     "rust": {
+      "kind": "run",
+      "id": "b1aee72 2026-09-26T15:34:14Z"
+     },
+     "py": {
+      "kind": "run",
+      "id": "9dbdca5 2026-09-26T12:02:57Z"
+     },
+     "status": "same_results"
+    },
+    "km_vs_laya": {
+     "modelless": {
+      "kind": "run",
+      "id": "836d15e 2026-09-27T01:32:50Z"
+     },
+     "rust": {
+      "kind": "run",
+      "id": "b1aee72 2026-09-26T15:34:14Z"
+     },
+     "status": "differs"
+    }
    }
   },
   {
@@ -12593,6 +12929,19 @@
       "confusion": null,
       "pair_head_ab": null
      }
+    }
+   },
+   "pairing": {
+    "rust_vs_py": {
+     "rust": {
+      "kind": "run",
+      "id": "b1aee72 2026-09-26T15:34:14Z"
+     },
+     "py": {
+      "kind": "run",
+      "id": "9dbdca5 2026-09-26T12:02:57Z"
+     },
+     "status": "same_results"
     }
    }
   }
