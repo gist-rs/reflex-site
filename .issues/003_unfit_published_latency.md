@@ -35,6 +35,13 @@ lines now name the newest run, not `meta` (which is Bench 001's).
 - [ ] T1 — re-measure the m3 modelless lane's latency on a box that passes
   `riir-reflex/scripts/bench_preflight.sh`, at the published armed posture
   (accuracy must stay byte-identical, or the cross-host drift gate refuses).
+  ⚠ Blocked 2026-09-27: (a) the published modelless run's `results.json`
+  (`6199e5e`, 03:27:37Z) is in no repo, so its exact posture flags aren't
+  recorded; (b) a concurrent riir-reflex session is changing the modelless
+  engine's defaults (Issue 038 cascade margin → 0.16), so a HEAD re-measure
+  would time a different engine. Do T1 as part of that lane's next publish,
+  under preflight, alone on the box. T2 must land first or the carry
+  discards the fresh timing.
 - [ ] T2 — a publish path that lets a QUOTABLE run replace a carried lane's
   timing. LANE_CARRY exists so an update never swaps validated timing for
   invalidated timing. Here the incumbent is the invalidated one, so carrying
