@@ -264,6 +264,71 @@ def case_population_guard_excludes():
     # and the drift gate did NOT fire on the skipped update's 0.9
 
 
+def case_population_reset_replaces_the_row():
+    """The acknowledged reset (reflex Issue 044 T4): a deliberate fixture
+    re-pin replaces the row facts, DROPS the other hosts' stale-population
+    lanes, lands the update's own lanes, and exempts the suite from
+    LANE_CARRY (the incumbent timing measured the old questions)."""
+    primary = doc("m3", "sha-m3", {"code_fixtures": {"modelless_acc": 0.25,
+                                                     "nq": 24,
+                                                     "laya_p50": 59.0}})
+    join = doc("4090", "sha-join", {"code_fixtures": {"modelless_acc": 0.31,
+                                                      "nq": 24}})
+    merged, err = merge_refusing(primary, join)
+    assert merged is not None, err
+    s1 = next(s for s in merged["suites"] if s["name"] == "code_fixtures")
+    assert s1["n_questions"] == 24  # baseline: no reset, facts stand
+
+    reset = doc("m3", "sha-reset", {"code_fixtures": {"modelless_acc": 0.375,
+                                                      "nq": 32,
+                                                      "laya_p50": 0.235}})
+    primary2 = doc("m3", "sha-m3", {"code_fixtures": {"modelless_acc": 0.25,
+                                                      "nq": 24,
+                                                      "laya_p50": 59.0}})
+    restore = _with_env(PUBLISH_BENCH_POPULATION_RESET="code_fixtures")
+    try:
+        merged2, err2 = merge_refusing(primary2, join, reset)
+    finally:
+        restore()
+    assert merged2 is not None, f"acked reset must merge: {err2}"
+    assert "re-pinned nq 24 -> 32" in err2, err2
+    assert "4090" in err2, "the dropped stale host lanes must be named"
+    row = next(s for s in merged2["suites"] if s["name"] == "code_fixtures")
+    assert row["n_questions"] == 32, "the row facts must carry the new population"
+    assert row["modelless"]["hard"]["accuracy"] == 0.375
+    assert row["laya"]["laya-riir"]["p50_ms"] == 0.235, \
+        "the reset must NOT carry the incumbent's old-population timing"
+    assert "extra_host_lanes" not in row or "4090" not in row.get("extra_host_lanes", {}), \
+        "the other host's old-population lanes must be dropped"
+
+
+def case_population_reset_stale_ack_refuses():
+    """An ack naming a suite the extras do not carry refuses — an
+    acknowledgement cannot outlive its purpose."""
+    primary = doc("m3", "sha-m3", {"code_fixtures": {"modelless_acc": 0.25, "nq": 24},
+                                   "s2": {"modelless_acc": 0.6}})
+    reset = doc("m3", "sha-reset", {"code_fixtures": {"modelless_acc": 0.375, "nq": 32}})
+    restore = _with_env(PUBLISH_BENCH_POPULATION_RESET="s2")
+    try:
+        merged, err = merge_refusing(primary, reset)
+    finally:
+        restore()
+    assert merged is None and "PUBLISH_BENCH_POPULATION_RESET" in err and "s2" in err, err
+
+
+def case_population_reset_ack_without_mismatch_refuses():
+    """An ack naming a suite whose population MATCHES the update is stale —
+    the guard never fired, so the ack acknowledges nothing."""
+    primary = doc("m3", "sha-m3", {"code_fixtures": {"modelless_acc": 0.25, "nq": 24}})
+    update = doc("m3", "sha-same", {"code_fixtures": {"modelless_acc": 0.30, "nq": 24}})
+    restore = _with_env(PUBLISH_BENCH_POPULATION_RESET="code_fixtures")
+    try:
+        merged, err = merge_refusing(primary, update)
+    finally:
+        restore()
+    assert merged is None and "no extra doc carries that suite with a population mismatch" in err, err
+
+
 def case_extra_suite_absent_in_primary_refuses():
     primary = doc("m3", "sha-m3", {"s1": {"modelless_acc": 0.5}})
     extra = doc("4090", "sha-4090", {"s1": {"modelless_acc": 0.5},
@@ -1211,6 +1276,9 @@ CASES = [
     case_one_host_move_refuses,
     case_republished_bench_json_as_primary,
     case_population_guard_excludes,
+    case_population_reset_replaces_the_row,
+    case_population_reset_stale_ack_refuses,
+    case_population_reset_ack_without_mismatch_refuses,
     case_code_fixtures_population_excluded_from_drift_gate,
     case_device_posture_refreshes_on_laya_update,
     case_clm_lane_and_leak_block_ride_an_update,

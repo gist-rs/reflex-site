@@ -63,6 +63,22 @@ the run its TIMING came from — stamped at merge, copied with the timing by
 LANE_CARRY, stripped by :acc-only; absent = unknown. meta.box_state is the
 table's ORIGINAL run's and describes no later-updated cell.
 
+PUBLISH_BENCH_POPULATION_RESET="<suite>[,<suite>]" (2026-09-27, the reflex
+Issue 044 T4 companion of the frozen code_fixtures fixture): an update doc
+whose suite row answers a DIFFERENT question set than the served row is
+excluded by the population guard — by design, because an accidental
+cross-population merge would publish numbers over different questions under
+one heading. A DELIBERATE re-pin (a committed fixture change, both lanes
+re-run on the new population) names the suite here: the row's population
+facts update from the doc, every OTHER host's extra_host_lanes for the suite
+are DROPPED (they measured the old questions — keeping them would mix
+populations under one heading), the LANE_CARRY latency exemption does not
+apply (the incumbent's timing measured the old questions), and the update's
+own lanes land normally with lane_sources refreshed. A stale ack refuses: a
+named suite the extras do not carry, or one whose population already
+matches, exits 1 — an acknowledgement cannot outlive the population change
+it was written for.
+
 Docs apply in argv order. The first doc's suites shape the tables (run the
 superset run first). A previously-published data/bench.json is a valid
 primary for a re-publish (its meta.hosts seed the seen-host set) — and since
@@ -444,6 +460,10 @@ def merge(primary, extras):
         hosts_by_name[phost] = host_row(pmeta)
         hosts_order.insert(0, phost)
 
+    reset_env = os.environ.get("PUBLISH_BENCH_POPULATION_RESET", "")
+    population_reset = {x.strip() for x in reset_env.split(",") if x.strip()}
+    reset_seen = set()
+    reset_fired = {}  # suite -> the extra doc whose guard fired (the re-pin)
     p_suites = {s["name"]: s for s in primary.get("suites", [])}
     # Population identity (site Issue 002 T2): the primary's own lane cells
     # carry their run's cases_digest (new-runner results.json only — older
@@ -532,9 +552,41 @@ def merge(primary, extras):
             # merge.
             if (p.get("n_questions"), p.get("n_cases")) != (
                     s.get("n_questions"), s.get("n_cases")):
-                excluded.append(f"{name} (nq {s.get('n_questions')} vs "
-                                f"primary {p.get('n_questions')})")
-                continue
+                if name not in population_reset:
+                    excluded.append(f"{name} (nq {s.get('n_questions')} vs "
+                                    f"primary {p.get('n_questions')})")
+                    continue
+                # The ACKNOWLEDGED population reset (PUBLISH_BENCH_POPULATION_RESET,
+                # reflex Issue 044 T4): the fixture pin changed the suite's
+                # question set deliberately — update the row facts, drop every
+                # OTHER host's lanes (they measured the old questions), and let
+                # the update's own lanes land normally below.
+                old_nq = p.get("n_questions")
+                p["n_questions"] = s.get("n_questions")
+                p["n_cases"] = s.get("n_cases")
+                if s.get("cases_digest"):
+                    p["cases_digest"] = s["cases_digest"]
+                dropped_host_lanes = []
+                hl = p.get("extra_host_lanes") or {}
+                for vhost in list(hl):
+                    lanes = sorted(hl[vhost].keys())
+                    dropped_host_lanes.append(
+                        f"{vhost}({','.join(lanes) if lanes else 'row'})")
+                    del hl[vhost]
+                for hrow in hosts_by_name.values():
+                    ex = hrow.get("excluded_suites")
+                    if ex:
+                        hrow["excluded_suites"] = [
+                            e for e in ex if not e.startswith(f"{name} (")]
+                print(
+                    f"note: PUBLISH_BENCH_POPULATION_RESET — {name} population "
+                    f"re-pinned nq {old_nq} -> {p['n_questions']}; dropped "
+                    f"stale-population host lanes: "
+                    f"{', '.join(dropped_host_lanes) or 'none'}",
+                    file=sys.stderr,
+                )
+                reset_seen.add(name)
+                reset_fired[name] = extra
             entry = host_lane_entry(p, ehost)
             em, el = s.get("modelless"), (s.get("laya") or {})
             if em and not device_variant:
@@ -715,6 +767,50 @@ def merge(primary, extras):
             )
             sys.exit(1)
 
+    # Population-reset prune: any lane slot the reset row still carries that
+    # the reset doc did not re-declare is the OLD population's measurement —
+    # the stale-population defect the guard exists for, one slot at a time.
+    for name, firing in reset_fired.items():
+        p = p_suites.get(name)
+        if p is None:
+            continue
+        s = next(r for r in firing.get("suites", []) if r["name"] == name)
+        declared = set()
+        for k in LANE_CLASSES:
+            if k == "laya":
+                declared |= {f"laya:{ck}" for ck in (s.get("laya") or {})}
+            elif s.get(k) is not None:
+                declared.add(k)
+        pruned = []
+        for k in LANE_CLASSES:
+            if k == "laya":
+                row_l = p.get("laya") or {}
+                for ck in list(row_l):
+                    if f"laya:{ck}" not in declared:
+                        del row_l[ck]
+                        pruned.append(f"laya:{ck}")
+            elif p.get(k) is not None and k not in declared:
+                del p[k]
+                pruned.append(k)
+        if pruned:
+            print(
+                f"note: PUBLISH_BENCH_POPULATION_RESET — {name}: dropped "
+                "stale-population lane slot(s) the update does not "
+                f"re-declare: {', '.join(sorted(pruned))}",
+                file=sys.stderr,
+            )
+
+    stale_reset = population_reset - reset_seen
+    if stale_reset:
+        print(
+            f"\u26d5 refusing: PUBLISH_BENCH_POPULATION_RESET names "
+            f"{', '.join(sorted(stale_reset))}, but no extra doc carries that "
+            "suite with a population mismatch \u2014 a reset ack cannot outlive "
+            "the population change it was written for",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
     pmeta["hosts"] = [hosts_by_name[h] for h in hosts_order]
     primary["meta"] = pmeta
     return primary
@@ -730,7 +826,20 @@ def apply_lane_carry(d, incumbent_snapshot, extras):
     run). Without this law a lane-scoped update would silently replace
     validated latency cells with box-invalidated ones — the accuracy
     bit-identity gate cannot see timing."""
+    reset_env = os.environ.get("PUBLISH_BENCH_POPULATION_RESET", "")
+    population_reset = {x.strip() for x in reset_env.split(",") if x.strip()}
     for s in d.get("suites", []):
+        if s["name"] in population_reset:
+            # A population-reset row's incumbent timing measured the OLD
+            # questions — carrying it onto the new cells would re-attach
+            # stale timing by construction. The update's own timing stands.
+            print(
+                f"note: PUBLISH_BENCH_POPULATION_RESET — {s['name']} exempt "
+                "from LANE_CARRY latency (the incumbent timing measured the "
+                "old population; the update's own timing publishes)",
+                file=sys.stderr,
+            )
+            continue
         snap = next((r for r in incumbent_snapshot.get("suites", [])
                      if r["name"] == s["name"]), None)
         if snap is None:
