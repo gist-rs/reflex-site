@@ -126,19 +126,28 @@ function render(bench) {
     (kmAccAtLeast.length < n
       ? `; trails on the rest (widest: ${worstAcc.name} ${pct(worstAcc.km.acc)} vs ${pct(worstAcc.rust.acc)}) — on those, laya is the better pick.`
       : ".")));
-  // Reflex vs Instinct — the trained-specialist hybrid lane, compared only
-  // on the suites that publish an Instinct arm (the population it has).
-  const inst = (bench.suites || [])
-    .filter((s) => s.modelless?.hard?.accuracy != null && s.hybrid?.hard?.accuracy != null)
+  // Instinct vs Reflex — told from Instinct's side: Reflex is free, so
+  // Instinct is the paid lane and must EARN its place by beating Reflex.
+  // ✓ only when it is STRICTLY ahead on every suite it has an arm for (a
+  // tie is no reason to pay); its leads are the pitch, its gaps are stated
+  // as gaps, and its coverage (suites with an arm) is disclosed.
+  const withKm = (bench.suites || []).filter((s) => s.modelless?.hard?.accuracy != null);
+  const inst = withKm
+    .filter((s) => s.hybrid?.hard?.accuracy != null)
     .map((s) => ({ name: s.name, km: s.modelless.hard.accuracy, inst: s.hybrid.hard.accuracy }));
   if (inst.length) {
-    const kmAtLeastInst = inst.filter((r) => r.km >= r.inst);
-    const instAhead = inst.filter((r) => r.km < r.inst).sort((a, b) => (a.km - a.inst) - (b.km - b.inst));
-    ul.appendChild(row(kmAtLeastInst.length === inst.length,
-      `<b>Reflex vs Instinct, accuracy:</b> at or above Instinct on <b>${kmAtLeastInst.length}/${inst.length}</b> suites with an Instinct arm` +
-      (instAhead.length
-        ? `; Instinct leads on ${instAhead.length} (widest: ${instAhead[0].name} ${pct(instAhead[0].inst)} vs ${pct(instAhead[0].km)}) — where its trained specialists earn the extra download.`
-        : ".")));
+    const byGap = (a, b) => (b.inst - b.km) - (a.inst - a.km);
+    const ahead = inst.filter((r) => r.inst > r.km).sort(byGap);
+    const notAhead = inst.filter((r) => r.inst <= r.km).sort((a, b) => byGap(b, a));
+    const pt = (r) => `${r.name} ${pct(r.inst)} vs ${pct(r.km)}`;
+    const noArm = withKm.length - inst.length;
+    ul.appendChild(row(notAhead.length === 0,
+      `<b>Instinct vs Reflex, accuracy:</b> ahead of Reflex on <b>${ahead.length}/${inst.length}</b> suites with an Instinct arm` +
+      (ahead.length ? ` (widest: ${pt(ahead[0])}) — where its trained specialists earn the download` : "") +
+      (notAhead.length
+        ? `; not ahead on ${notAhead.length} (${notAhead.map(pt).join(", ")}) — there, free Reflex is the better pick`
+        : "") +
+      (noArm > 0 ? `; no Instinct arm yet on ${noArm} of ${withKm.length} suites.` : ".")));
   }
   body.append(lead, ul);
 }

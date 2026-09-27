@@ -147,7 +147,17 @@ try {
     const benchHasInstinct = JSON.parse(readFileSync(path.join(siteDir, "data", "bench.json"), "utf8"))
       .suites.some((s) => s.modelless && s.hybrid);
     const tl = await page.textContent("#tldr");
-    if (benchHasInstinct !== /Reflex vs Instinct/.test(tl)) fail(`TL;DR Reflex-vs-Instinct row: bench has an Instinct arm=${benchHasInstinct}, row rendered=${!benchHasInstinct}`);
+    if (benchHasInstinct !== /Instinct vs Reflex/.test(tl)) fail(`TL;DR Instinct-vs-Reflex row: bench has an Instinct arm=${benchHasInstinct}, row rendered=${!benchHasInstinct}`);
+    // The row's mark is Instinct's verdict: ✓ only when STRICTLY ahead of
+    // Reflex on every suite with an arm (Reflex is free; a tie sells nothing).
+    if (benchHasInstinct) {
+      const b2 = JSON.parse(readFileSync(path.join(siteDir, "data", "bench.json"), "utf8"));
+      const allAhead = b2.suites.filter((s) => s.modelless?.hard && s.hybrid?.hard)
+        .every((s) => s.hybrid.hard.accuracy > s.modelless.hard.accuracy);
+      const mark = await page.evaluate(() => [...document.querySelectorAll("#tldr li")]
+        .find((li) => /Instinct vs Reflex/.test(li.textContent))?.className);
+      if (mark !== (allAhead ? "ok" : "gap")) fail(`Instinct row mark ${mark} but strictly-ahead-everywhere=${allAhead}`);
+    }
     // Issue-021 verdicts: a speed row over timing a run judged unfit must
     // say so, and the lead names the NEWEST run, never meta's original one.
     const bench = JSON.parse(readFileSync(path.join(siteDir, "data", "bench.json"), "utf8"));

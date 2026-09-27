@@ -103,7 +103,10 @@
 }
 .hybrid-arms li b { color: var(--text); }
 .hybrid-arms .arm { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--ember); }
-.hybrid-arms .acc, .hybrid-arms .lat, .hybrid-arms .consult { font-variant-numeric: tabular-nums; }
+.hybrid-arms .acc, .hybrid-arms .lat, .hybrid-arms .consult, .hybrid-arms .edge { font-variant-numeric: tabular-nums; }
+/* Instinct's per-suite edge over free Reflex: a lead is the pitch, a gap is a gap. */
+.hybrid-arms .edge.up { color: var(--ok); font-weight: 700; }
+.hybrid-arms .edge.down { color: var(--warn); }
 /* the slim variant: flappy/lanes heads carry no 4-line note box */
 .lane-note.slim { min-height: 0; flex-basis: auto; }
 

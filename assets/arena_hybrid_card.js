@@ -23,10 +23,15 @@
         const h = s.hybrid;
         const acc = h.hard && h.hard.accuracy;
         const lat = h.latency_p50_ms;
+        // The edge Instinct sells per domain: its accuracy over free Reflex's
+        // on the same questions — a gap renders as a gap, never hidden.
+        const km = s.modelless && s.modelless.hard && s.modelless.hard.accuracy;
+        const edge = acc != null && km != null ? (acc - km) * 100 : null;
         return "<li>" +
           `<b>${esc(s.name)}</b>` +
           `<span class="arm">${esc(h.model || "registered arm")}</span>` +
           (acc != null ? `<span class="acc">acc ${esc(pct(acc))}</span>` : "") +
+          (edge != null ? `<span class="edge ${edge > 0 ? "up" : "down"}">${edge > 0 ? "+" : ""}${edge.toFixed(1)} pt vs Reflex</span>` : "") +
           (lat != null ? `<span class="lat">${esc(fmtLat(lat))} p50</span>` : "") +
           (typeof h.consult_rate === "number"
             ? `<span class="consult">specialist consulted ${(h.consult_rate * 100).toFixed(0)}%</span>` : "") +
