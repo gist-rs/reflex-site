@@ -54,8 +54,8 @@
     "corpus_cap_mode": "registry defaults",
     "lane_sources": {
      "modelless": {
-      "git_sha": "836d15e",
-      "date_utc": "2026-09-27T01:32:50Z"
+      "git_sha": "6199e5e",
+      "date_utc": "2026-09-27T03:27:37Z"
      },
      "laya:english": {
       "git_sha": "b1aee72",
@@ -115,8 +115,8 @@
     "corpus_cap_mode": "registry defaults",
     "lane_sources": {
      "modelless": {
-      "git_sha": "de67f50",
-      "date_utc": "2026-09-27T02:02:29Z"
+      "git_sha": "6199e5e",
+      "date_utc": "2026-09-27T03:35:58Z"
      },
      "laya:english": {
       "git_sha": "634093f",
@@ -331,6 +331,20 @@
        "cal_acc": 0.37
       },
       {
+       "scale": 32.0,
+       "alpha": "observed-laplace",
+       "noul_domain": null,
+       "view": "bag",
+       "cal_acc": 0.37
+      },
+      {
+       "scale": 64.0,
+       "alpha": "observed-laplace",
+       "noul_domain": null,
+       "view": "bag",
+       "cal_acc": 0.37
+      },
+      {
        "scale": 1.0,
        "alpha": "fixed-1",
        "noul_domain": null,
@@ -346,6 +360,20 @@
       },
       {
        "scale": 16.0,
+       "alpha": "fixed-1",
+       "noul_domain": null,
+       "view": "bag",
+       "cal_acc": 0.37
+      },
+      {
+       "scale": 32.0,
+       "alpha": "fixed-1",
+       "noul_domain": null,
+       "view": "bag",
+       "cal_acc": 0.37
+      },
+      {
+       "scale": 64.0,
        "alpha": "fixed-1",
        "noul_domain": null,
        "view": "bag",
@@ -375,6 +403,14 @@
       {
        "scale": 2.0,
        "cal_acc": 0.558
+      },
+      {
+       "scale": 4.0,
+       "cal_acc": 0.558
+      },
+      {
+       "scale": 8.0,
+       "cal_acc": 0.556
       }
      ]
     },
@@ -401,6 +437,16 @@
        "scale": 2.0,
        "lambda": 10.0,
        "cal_acc": 0.48
+      },
+      {
+       "scale": 4.0,
+       "lambda": 10.0,
+       "cal_acc": 0.45
+      },
+      {
+       "scale": 8.0,
+       "lambda": 10.0,
+       "cal_acc": 0.45
       }
      ]
     },
@@ -500,6 +546,7 @@
     "corpus_fallbacks": [
      "security_incidents"
     ],
+    "cases_digest": "fnv1a64-6e37760ee2a5b6c9",
     "latency_provenance": {
      "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
     }
@@ -1199,6 +1246,20 @@
          "cal_acc": 0.37
         },
         {
+         "scale": 32.0,
+         "alpha": "observed-laplace",
+         "noul_domain": null,
+         "view": "bag",
+         "cal_acc": 0.37
+        },
+        {
+         "scale": 64.0,
+         "alpha": "observed-laplace",
+         "noul_domain": null,
+         "view": "bag",
+         "cal_acc": 0.37
+        },
+        {
          "scale": 1.0,
          "alpha": "fixed-1",
          "noul_domain": null,
@@ -1214,6 +1275,20 @@
         },
         {
          "scale": 16.0,
+         "alpha": "fixed-1",
+         "noul_domain": null,
+         "view": "bag",
+         "cal_acc": 0.37
+        },
+        {
+         "scale": 32.0,
+         "alpha": "fixed-1",
+         "noul_domain": null,
+         "view": "bag",
+         "cal_acc": 0.37
+        },
+        {
+         "scale": 64.0,
          "alpha": "fixed-1",
          "noul_domain": null,
          "view": "bag",
@@ -1243,6 +1318,14 @@
         {
          "scale": 2.0,
          "cal_acc": 0.558
+        },
+        {
+         "scale": 4.0,
+         "cal_acc": 0.558
+        },
+        {
+         "scale": 8.0,
+         "cal_acc": 0.556
         }
        ]
       },
@@ -1269,6 +1352,16 @@
          "scale": 2.0,
          "lambda": 10.0,
          "cal_acc": 0.48
+        },
+        {
+         "scale": 4.0,
+         "lambda": 10.0,
+         "cal_acc": 0.45
+        },
+        {
+         "scale": 8.0,
+         "lambda": 10.0,
+         "cal_acc": 0.45
         }
        ]
       },
@@ -1368,6 +1461,7 @@
       "corpus_fallbacks": [
        "security_incidents"
       ],
+      "cases_digest": "fnv1a64-6e37760ee2a5b6c9",
       "latency_provenance": {
        "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
       }
@@ -1903,14 +1997,14 @@
     },
     "km_vs_laya": {
      "modelless": {
-      "kind": "run",
-      "id": "836d15e 2026-09-27T01:32:50Z"
+      "kind": "digest",
+      "id": "fnv1a64-6e37760ee2a5b6c9"
      },
      "rust": {
       "kind": "run",
       "id": "b1aee72 2026-09-26T15:34:14Z"
      },
-     "status": "differs"
+     "status": "unknown"
     }
    }
   },
@@ -2055,6 +2149,20 @@
        "cal_acc": 0.745
       },
       {
+       "scale": 32.0,
+       "alpha": "observed-laplace",
+       "noul_domain": null,
+       "view": "bag",
+       "cal_acc": 0.745
+      },
+      {
+       "scale": 64.0,
+       "alpha": "observed-laplace",
+       "noul_domain": null,
+       "view": "bag",
+       "cal_acc": 0.745
+      },
+      {
        "scale": 1.0,
        "alpha": "fixed-1",
        "noul_domain": null,
@@ -2070,6 +2178,20 @@
       },
       {
        "scale": 16.0,
+       "alpha": "fixed-1",
+       "noul_domain": null,
+       "view": "bag",
+       "cal_acc": 0.745
+      },
+      {
+       "scale": 32.0,
+       "alpha": "fixed-1",
+       "noul_domain": null,
+       "view": "bag",
+       "cal_acc": 0.745
+      },
+      {
+       "scale": 64.0,
        "alpha": "fixed-1",
        "noul_domain": null,
        "view": "bag",
@@ -2099,6 +2221,16 @@
       },
       {
        "scale": 2.0,
+       "lambda": 10.0,
+       "cal_acc": 0.74
+      },
+      {
+       "scale": 4.0,
+       "lambda": 10.0,
+       "cal_acc": 0.735
+      },
+      {
+       "scale": 8.0,
        "lambda": 10.0,
        "cal_acc": 0.74
       }
@@ -2202,6 +2334,7 @@
       }
      ]
     },
+    "cases_digest": "fnv1a64-07eff23c06505584",
     "latency_provenance": {
      "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
     }
@@ -2497,6 +2630,20 @@
          "cal_acc": 0.745
         },
         {
+         "scale": 32.0,
+         "alpha": "observed-laplace",
+         "noul_domain": null,
+         "view": "bag",
+         "cal_acc": 0.745
+        },
+        {
+         "scale": 64.0,
+         "alpha": "observed-laplace",
+         "noul_domain": null,
+         "view": "bag",
+         "cal_acc": 0.745
+        },
+        {
          "scale": 1.0,
          "alpha": "fixed-1",
          "noul_domain": null,
@@ -2512,6 +2659,20 @@
         },
         {
          "scale": 16.0,
+         "alpha": "fixed-1",
+         "noul_domain": null,
+         "view": "bag",
+         "cal_acc": 0.745
+        },
+        {
+         "scale": 32.0,
+         "alpha": "fixed-1",
+         "noul_domain": null,
+         "view": "bag",
+         "cal_acc": 0.745
+        },
+        {
+         "scale": 64.0,
          "alpha": "fixed-1",
          "noul_domain": null,
          "view": "bag",
@@ -2541,6 +2702,16 @@
         },
         {
          "scale": 2.0,
+         "lambda": 10.0,
+         "cal_acc": 0.74
+        },
+        {
+         "scale": 4.0,
+         "lambda": 10.0,
+         "cal_acc": 0.735
+        },
+        {
+         "scale": 8.0,
          "lambda": 10.0,
          "cal_acc": 0.74
         }
@@ -2644,6 +2815,7 @@
         }
        ]
       },
+      "cases_digest": "fnv1a64-07eff23c06505584",
       "latency_provenance": {
        "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
       }
@@ -2930,14 +3102,14 @@
     },
     "km_vs_laya": {
      "modelless": {
-      "kind": "run",
-      "id": "836d15e 2026-09-27T01:32:50Z"
+      "kind": "digest",
+      "id": "fnv1a64-07eff23c06505584"
      },
      "rust": {
       "kind": "run",
       "id": "b1aee72 2026-09-26T15:34:14Z"
      },
-     "status": "differs"
+     "status": "unknown"
     }
    }
   },
@@ -2950,30 +3122,30 @@
     "model": "modelless",
     "hard": {
      "n": 400,
-     "accuracy": 0.8475,
-     "macro_f1": 0.7354458105409094,
-     "ece": 0.605271969102323,
-     "brier": 0.702539497670478,
-     "nll": 1.4579807906170443,
-     "aurc": 0.05555987206214139,
-     "mean_confidence": 0.24222803089767694,
-     "acc_at_50_coverage": 0.945,
-     "acc_at_80_coverage": 0.921875
+     "accuracy": 0.885,
+     "macro_f1": 0.8014284327939634,
+     "ece": 0.6185006607323885,
+     "brier": 0.6597296386444704,
+     "nll": 1.3651649535355324,
+     "aurc": 0.03599183770205885,
+     "mean_confidence": 0.2664993392676115,
+     "acc_at_50_coverage": 0.975,
+     "acc_at_80_coverage": 0.940625
     },
     "readout_ece": 0.0,
     "raw_abstain": {
-     "abstain_rate": 0.445,
-     "selective_accuracy": 0.9009009009009009,
-     "selective_n": 222
+     "abstain_rate": 0.4625,
+     "selective_accuracy": 0.9348837209302325,
+     "selective_n": 215
     },
     "calibrated_abstain": {
-     "abstain_rate": 0.98,
+     "abstain_rate": 0.9725,
      "selective_accuracy": 1.0,
-     "selective_n": 8
+     "selective_n": 11
     },
-    "readout_ece_raw": 0.8324407678842545,
+    "readout_ece_raw": 0.8622394363582135,
     "readout_ece_calibrated": 0.0,
-    "floor_ece": 0.20398009950248752,
+    "floor_ece": 0.2779850746268657,
     "g1_pass": true,
     "g1_verdict": "pass",
     "by_question_type": null,
@@ -2993,7 +3165,7 @@
     "seconds": 0.144268833,
     "n_cases": 400,
     "n_questions": 400,
-    "score_threshold": 0.004690349,
+    "score_threshold": 0.007981181,
     "distance_threshold": 0.4265421,
     "threshold_recommendation": {
      "posture": {
@@ -3001,9 +3173,9 @@
       "rho": 0.3
      },
      "score": {
-      "threshold": 0.004690349,
+      "threshold": 0.007981181,
       "status": "fitted",
-      "targetAccuracy": 0.82857144,
+      "targetAccuracy": 0.8857143,
       "support": {
        "n": 200,
        "nPass": 140,
@@ -3013,7 +3185,7 @@
      "distance": {
       "threshold": 0.4265421,
       "status": "fitted",
-      "targetAccuracy": 0.65,
+      "targetAccuracy": 0.73571426,
       "support": {
        "n": 200,
        "nPass": 140,
@@ -3082,6 +3254,20 @@
        "cal_acc": 0.55
       },
       {
+       "scale": 32.0,
+       "alpha": "observed-laplace",
+       "noul_domain": null,
+       "view": "bag",
+       "cal_acc": 0.55
+      },
+      {
+       "scale": 64.0,
+       "alpha": "observed-laplace",
+       "noul_domain": null,
+       "view": "bag",
+       "cal_acc": 0.55
+      },
+      {
        "scale": 1.0,
        "alpha": "fixed-1",
        "noul_domain": null,
@@ -3101,12 +3287,26 @@
        "noul_domain": null,
        "view": "bag",
        "cal_acc": 0.485
+      },
+      {
+       "scale": 32.0,
+       "alpha": "fixed-1",
+       "noul_domain": null,
+       "view": "bag",
+       "cal_acc": 0.485
+      },
+      {
+       "scale": 64.0,
+       "alpha": "fixed-1",
+       "noul_domain": null,
+       "view": "bag",
+       "cal_acc": 0.485
       }
      ]
     },
     "oc_selection": null,
     "ridge_selection": {
-     "selected_scale": 2.0,
+     "selected_scale": 8.0,
      "selected_lambda": 10.0,
      "candidates": [
       {
@@ -3128,12 +3328,22 @@
        "scale": 2.0,
        "lambda": 10.0,
        "cal_acc": 0.69
+      },
+      {
+       "scale": 4.0,
+       "lambda": 10.0,
+       "cal_acc": 0.735
+      },
+      {
+       "scale": 8.0,
+       "lambda": 10.0,
+       "cal_acc": 0.76
       }
      ]
     },
     "transductive": {
-     "accuracy": 0.8475,
-     "honest_accuracy": 0.8475,
+     "accuracy": 0.885,
+     "honest_accuracy": 0.885,
      "n_pseudo": 400,
      "protocol": "TRANSDUCTIVE \u2014 unlabeled TEST text joins the count tables, labelled by the honest engine's own forced picks (gold never read); 2-fold cross-fit (half A's pseudo-docs re-score half B and vice versa, so no case scores against its own text); drafter corpora, route, heads and posture unchanged. Not comparable to the headline acc"
     },
@@ -3141,74 +3351,74 @@
      {
       "gold": "love",
       "pred": "joy",
-      "count": 17,
-      "share_of_errors": 0.2786885245901639
+      "count": 15,
+      "share_of_errors": 0.32608695652173914
+     },
+     {
+      "gold": "anger",
+      "pred": "sadness",
+      "count": 5,
+      "share_of_errors": 0.10869565217391304
      },
      {
       "gold": "fear",
-      "pred": "sadness",
-      "count": 8,
-      "share_of_errors": 0.13114754098360656
-     },
-     {
-      "gold": "anger",
-      "pred": "sadness",
-      "count": 7,
-      "share_of_errors": 0.11475409836065574
-     },
-     {
-      "gold": "anger",
       "pred": "joy",
       "count": 5,
-      "share_of_errors": 0.08196721311475409
+      "share_of_errors": 0.10869565217391304
      },
      {
       "gold": "fear",
-      "pred": "joy",
+      "pred": "sadness",
       "count": 4,
-      "share_of_errors": 0.06557377049180328
+      "share_of_errors": 0.08695652173913043
      },
      {
       "gold": "surprise",
       "pred": "joy",
       "count": 4,
-      "share_of_errors": 0.06557377049180328
+      "share_of_errors": 0.08695652173913043
      },
      {
-      "gold": "love",
+      "gold": "fear",
+      "pred": "anger",
+      "count": 2,
+      "share_of_errors": 0.043478260869565216
+     },
+     {
+      "gold": "joy",
       "pred": "sadness",
-      "count": 3,
-      "share_of_errors": 0.04918032786885246
+      "count": 2,
+      "share_of_errors": 0.043478260869565216
+     },
+     {
+      "gold": "joy",
+      "pred": "surprise",
+      "count": 2,
+      "share_of_errors": 0.043478260869565216
      },
      {
       "gold": "sadness",
       "pred": "joy",
-      "count": 3,
-      "share_of_errors": 0.04918032786885246
-     },
-     {
-      "gold": "joy",
-      "pred": "love",
       "count": 2,
-      "share_of_errors": 0.03278688524590164
-     },
-     {
-      "gold": "joy",
-      "pred": "sadness",
-      "count": 2,
-      "share_of_errors": 0.03278688524590164
+      "share_of_errors": 0.043478260869565216
      },
      {
       "gold": "surprise",
       "pred": "fear",
       "count": 2,
-      "share_of_errors": 0.03278688524590164
+      "share_of_errors": 0.043478260869565216
      },
      {
-      "gold": "surprise",
-      "pred": "sadness",
-      "count": 2,
-      "share_of_errors": 0.03278688524590164
+      "gold": "anger",
+      "pred": "joy",
+      "count": 1,
+      "share_of_errors": 0.021739130434782608
+     },
+     {
+      "gold": "anger",
+      "pred": "surprise",
+      "count": 1,
+      "share_of_errors": 0.021739130434782608
      }
     ],
     "pair_head_ab": null,
@@ -3217,18 +3427,19 @@
      "candidates": [
       {
        "mode": "dispatch",
-       "cal_ece": 0.7053091439604758
+       "cal_ece": 0.7589884772896767
       },
       {
        "mode": "max_prob",
-       "cal_ece": 0.49221882201731193
+       "cal_ece": 0.5276506531983614
       },
       {
        "mode": "inv_entropy",
-       "cal_ece": 0.7053091439604758
+       "cal_ece": 0.7589884772896767
       }
      ]
     },
+    "cases_digest": "fnv1a64-6feefd1c947dd008",
     "latency_provenance": {
      "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
     }
@@ -3392,30 +3603,30 @@
       "model": "modelless",
       "hard": {
        "n": 400,
-       "accuracy": 0.8475,
-       "macro_f1": 0.7354458105409094,
-       "ece": 0.605271960645914,
-       "brier": 0.7025394775137186,
-       "nll": 1.4579807425164109,
-       "aurc": 0.05555987206214139,
-       "mean_confidence": 0.24222803935408593,
-       "acc_at_50_coverage": 0.945,
-       "acc_at_80_coverage": 0.921875
+       "accuracy": 0.885,
+       "macro_f1": 0.8014284327939634,
+       "ece": 0.6185006351023913,
+       "brier": 0.659729590066905,
+       "nll": 1.3651648426383238,
+       "aurc": 0.03599183770205885,
+       "mean_confidence": 0.2664993648976088,
+       "acc_at_50_coverage": 0.975,
+       "acc_at_80_coverage": 0.940625
       },
       "readout_ece": 0.0,
       "raw_abstain": {
-       "abstain_rate": 0.445,
-       "selective_accuracy": 0.9009009009009009,
-       "selective_n": 222
+       "abstain_rate": 0.4625,
+       "selective_accuracy": 0.9348837209302325,
+       "selective_n": 215
       },
       "calibrated_abstain": {
-       "abstain_rate": 0.98,
+       "abstain_rate": 0.9725,
        "selective_accuracy": 1.0,
-       "selective_n": 8
+       "selective_n": 11
       },
-      "readout_ece_raw": 0.8324407643079758,
+      "readout_ece_raw": 0.8622394293546677,
       "readout_ece_calibrated": 0.0,
-      "floor_ece": 0.2039676616915423,
+      "floor_ece": 0.2779850746268657,
       "g1_pass": true,
       "g1_verdict": "pass",
       "by_question_type": null,
@@ -3435,7 +3646,7 @@
       "seconds": 0.1283859,
       "n_cases": 400,
       "n_questions": 400,
-      "score_threshold": 0.004690349,
+      "score_threshold": 0.007981122,
       "distance_threshold": 0.4265421,
       "threshold_recommendation": {
        "posture": {
@@ -3443,9 +3654,9 @@
         "rho": 0.3
        },
        "score": {
-        "threshold": 0.004690349,
+        "threshold": 0.007981122,
         "status": "fitted",
-        "targetAccuracy": 0.82857144,
+        "targetAccuracy": 0.8857143,
         "support": {
          "n": 200,
          "nPass": 140,
@@ -3455,7 +3666,7 @@
        "distance": {
         "threshold": 0.4265421,
         "status": "fitted",
-        "targetAccuracy": 0.65,
+        "targetAccuracy": 0.73571426,
         "support": {
          "n": 200,
          "nPass": 140,
@@ -3524,6 +3735,20 @@
          "cal_acc": 0.55
         },
         {
+         "scale": 32.0,
+         "alpha": "observed-laplace",
+         "noul_domain": null,
+         "view": "bag",
+         "cal_acc": 0.55
+        },
+        {
+         "scale": 64.0,
+         "alpha": "observed-laplace",
+         "noul_domain": null,
+         "view": "bag",
+         "cal_acc": 0.55
+        },
+        {
          "scale": 1.0,
          "alpha": "fixed-1",
          "noul_domain": null,
@@ -3543,12 +3768,26 @@
          "noul_domain": null,
          "view": "bag",
          "cal_acc": 0.485
+        },
+        {
+         "scale": 32.0,
+         "alpha": "fixed-1",
+         "noul_domain": null,
+         "view": "bag",
+         "cal_acc": 0.485
+        },
+        {
+         "scale": 64.0,
+         "alpha": "fixed-1",
+         "noul_domain": null,
+         "view": "bag",
+         "cal_acc": 0.485
         }
        ]
       },
       "oc_selection": null,
       "ridge_selection": {
-       "selected_scale": 2.0,
+       "selected_scale": 8.0,
        "selected_lambda": 10.0,
        "candidates": [
         {
@@ -3570,12 +3809,22 @@
          "scale": 2.0,
          "lambda": 10.0,
          "cal_acc": 0.69
+        },
+        {
+         "scale": 4.0,
+         "lambda": 10.0,
+         "cal_acc": 0.735
+        },
+        {
+         "scale": 8.0,
+         "lambda": 10.0,
+         "cal_acc": 0.76
         }
        ]
       },
       "transductive": {
-       "accuracy": 0.8475,
-       "honest_accuracy": 0.8475,
+       "accuracy": 0.885,
+       "honest_accuracy": 0.885,
        "n_pseudo": 400,
        "protocol": "TRANSDUCTIVE \u2014 unlabeled TEST text joins the count tables, labelled by the honest engine's own forced picks (gold never read); 2-fold cross-fit (half A's pseudo-docs re-score half B and vice versa, so no case scores against its own text); drafter corpora, route, heads and posture unchanged. Not comparable to the headline acc"
       },
@@ -3583,74 +3832,74 @@
        {
         "gold": "love",
         "pred": "joy",
-        "count": 17,
-        "share_of_errors": 0.2786885245901639
+        "count": 15,
+        "share_of_errors": 0.32608695652173914
+       },
+       {
+        "gold": "anger",
+        "pred": "sadness",
+        "count": 5,
+        "share_of_errors": 0.10869565217391304
        },
        {
         "gold": "fear",
-        "pred": "sadness",
-        "count": 8,
-        "share_of_errors": 0.13114754098360656
-       },
-       {
-        "gold": "anger",
-        "pred": "sadness",
-        "count": 7,
-        "share_of_errors": 0.11475409836065574
-       },
-       {
-        "gold": "anger",
         "pred": "joy",
         "count": 5,
-        "share_of_errors": 0.08196721311475409
+        "share_of_errors": 0.10869565217391304
        },
        {
         "gold": "fear",
-        "pred": "joy",
+        "pred": "sadness",
         "count": 4,
-        "share_of_errors": 0.06557377049180328
+        "share_of_errors": 0.08695652173913043
        },
        {
         "gold": "surprise",
         "pred": "joy",
         "count": 4,
-        "share_of_errors": 0.06557377049180328
+        "share_of_errors": 0.08695652173913043
        },
        {
-        "gold": "love",
+        "gold": "fear",
+        "pred": "anger",
+        "count": 2,
+        "share_of_errors": 0.043478260869565216
+       },
+       {
+        "gold": "joy",
         "pred": "sadness",
-        "count": 3,
-        "share_of_errors": 0.04918032786885246
+        "count": 2,
+        "share_of_errors": 0.043478260869565216
+       },
+       {
+        "gold": "joy",
+        "pred": "surprise",
+        "count": 2,
+        "share_of_errors": 0.043478260869565216
        },
        {
         "gold": "sadness",
         "pred": "joy",
-        "count": 3,
-        "share_of_errors": 0.04918032786885246
-       },
-       {
-        "gold": "joy",
-        "pred": "love",
         "count": 2,
-        "share_of_errors": 0.03278688524590164
-       },
-       {
-        "gold": "joy",
-        "pred": "sadness",
-        "count": 2,
-        "share_of_errors": 0.03278688524590164
+        "share_of_errors": 0.043478260869565216
        },
        {
         "gold": "surprise",
         "pred": "fear",
         "count": 2,
-        "share_of_errors": 0.03278688524590164
+        "share_of_errors": 0.043478260869565216
        },
        {
-        "gold": "surprise",
-        "pred": "sadness",
-        "count": 2,
-        "share_of_errors": 0.03278688524590164
+        "gold": "anger",
+        "pred": "joy",
+        "count": 1,
+        "share_of_errors": 0.021739130434782608
+       },
+       {
+        "gold": "anger",
+        "pred": "surprise",
+        "count": 1,
+        "share_of_errors": 0.021739130434782608
        }
       ],
       "pair_head_ab": null,
@@ -3659,18 +3908,19 @@
        "candidates": [
         {
          "mode": "dispatch",
-         "cal_ece": 0.705309146642685
+         "cal_ece": 0.7589884895086288
         },
         {
          "mode": "max_prob",
-         "cal_ece": 0.4922188237309456
+         "cal_ece": 0.5276506607234479
         },
         {
          "mode": "inv_entropy",
-         "cal_ece": 0.705309146642685
+         "cal_ece": 0.7589884895086288
         }
        ]
       },
+      "cases_digest": "fnv1a64-6feefd1c947dd008",
       "latency_provenance": {
        "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
       }
@@ -3959,14 +4209,14 @@
     },
     "km_vs_laya": {
      "modelless": {
-      "kind": "run",
-      "id": "836d15e 2026-09-27T01:32:50Z"
+      "kind": "digest",
+      "id": "fnv1a64-6feefd1c947dd008"
      },
      "rust": {
       "kind": "run",
       "id": "b1aee72 2026-09-26T15:34:14Z"
      },
-     "status": "differs"
+     "status": "unknown"
     }
    }
   },
@@ -4111,6 +4361,20 @@
        "cal_acc": 0.36
       },
       {
+       "scale": 32.0,
+       "alpha": "observed-laplace",
+       "noul_domain": null,
+       "view": "bag",
+       "cal_acc": 0.36
+      },
+      {
+       "scale": 64.0,
+       "alpha": "observed-laplace",
+       "noul_domain": null,
+       "view": "bag",
+       "cal_acc": 0.36
+      },
+      {
        "scale": 1.0,
        "alpha": "fixed-1",
        "noul_domain": null,
@@ -4130,6 +4394,20 @@
        "noul_domain": null,
        "view": "bag",
        "cal_acc": 0.34
+      },
+      {
+       "scale": 32.0,
+       "alpha": "fixed-1",
+       "noul_domain": null,
+       "view": "bag",
+       "cal_acc": 0.335
+      },
+      {
+       "scale": 64.0,
+       "alpha": "fixed-1",
+       "noul_domain": null,
+       "view": "bag",
+       "cal_acc": 0.335
       }
      ]
     },
@@ -4157,6 +4435,16 @@
        "scale": 2.0,
        "lambda": 10.0,
        "cal_acc": 0.37
+      },
+      {
+       "scale": 4.0,
+       "lambda": 10.0,
+       "cal_acc": 0.39
+      },
+      {
+       "scale": 8.0,
+       "lambda": 10.0,
+       "cal_acc": 0.395
       }
      ]
     },
@@ -4258,6 +4546,7 @@
       }
      ]
     },
+    "cases_digest": "fnv1a64-ad64a6cb0039e916",
     "latency_provenance": {
      "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
     }
@@ -4553,6 +4842,20 @@
          "cal_acc": 0.36
         },
         {
+         "scale": 32.0,
+         "alpha": "observed-laplace",
+         "noul_domain": null,
+         "view": "bag",
+         "cal_acc": 0.36
+        },
+        {
+         "scale": 64.0,
+         "alpha": "observed-laplace",
+         "noul_domain": null,
+         "view": "bag",
+         "cal_acc": 0.36
+        },
+        {
          "scale": 1.0,
          "alpha": "fixed-1",
          "noul_domain": null,
@@ -4572,6 +4875,20 @@
          "noul_domain": null,
          "view": "bag",
          "cal_acc": 0.34
+        },
+        {
+         "scale": 32.0,
+         "alpha": "fixed-1",
+         "noul_domain": null,
+         "view": "bag",
+         "cal_acc": 0.335
+        },
+        {
+         "scale": 64.0,
+         "alpha": "fixed-1",
+         "noul_domain": null,
+         "view": "bag",
+         "cal_acc": 0.335
         }
        ]
       },
@@ -4599,6 +4916,16 @@
          "scale": 2.0,
          "lambda": 10.0,
          "cal_acc": 0.37
+        },
+        {
+         "scale": 4.0,
+         "lambda": 10.0,
+         "cal_acc": 0.39
+        },
+        {
+         "scale": 8.0,
+         "lambda": 10.0,
+         "cal_acc": 0.395
         }
        ]
       },
@@ -4700,6 +5027,7 @@
         }
        ]
       },
+      "cases_digest": "fnv1a64-ad64a6cb0039e916",
       "latency_provenance": {
        "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
       }
@@ -4986,14 +5314,14 @@
     },
     "km_vs_laya": {
      "modelless": {
-      "kind": "run",
-      "id": "836d15e 2026-09-27T01:32:50Z"
+      "kind": "digest",
+      "id": "fnv1a64-ad64a6cb0039e916"
      },
      "rust": {
       "kind": "run",
       "id": "b1aee72 2026-09-26T15:34:14Z"
      },
-     "status": "differs"
+     "status": "unknown"
     }
    }
   },
@@ -5138,6 +5466,20 @@
        "cal_acc": 0.39
       },
       {
+       "scale": 32.0,
+       "alpha": "observed-laplace",
+       "noul_domain": 0,
+       "view": "bag",
+       "cal_acc": 0.39
+      },
+      {
+       "scale": 64.0,
+       "alpha": "observed-laplace",
+       "noul_domain": 0,
+       "view": "bag",
+       "cal_acc": 0.39
+      },
+      {
        "scale": 1.0,
        "alpha": "fixed-1",
        "noul_domain": 0,
@@ -5159,6 +5501,20 @@
        "cal_acc": 0.49
       },
       {
+       "scale": 32.0,
+       "alpha": "fixed-1",
+       "noul_domain": 0,
+       "view": "bag",
+       "cal_acc": 0.49
+      },
+      {
+       "scale": 64.0,
+       "alpha": "fixed-1",
+       "noul_domain": 0,
+       "view": "bag",
+       "cal_acc": 0.49
+      },
+      {
        "scale": 1.0,
        "alpha": "observed-laplace",
        "noul_domain": 1,
@@ -5180,6 +5536,20 @@
        "cal_acc": 0.61
       },
       {
+       "scale": 32.0,
+       "alpha": "observed-laplace",
+       "noul_domain": 1,
+       "view": "bag",
+       "cal_acc": 0.61
+      },
+      {
+       "scale": 64.0,
+       "alpha": "observed-laplace",
+       "noul_domain": 1,
+       "view": "bag",
+       "cal_acc": 0.61
+      },
+      {
        "scale": 1.0,
        "alpha": "fixed-1",
        "noul_domain": 1,
@@ -5195,6 +5565,20 @@
       },
       {
        "scale": 16.0,
+       "alpha": "fixed-1",
+       "noul_domain": 1,
+       "view": "bag",
+       "cal_acc": 0.51
+      },
+      {
+       "scale": 32.0,
+       "alpha": "fixed-1",
+       "noul_domain": 1,
+       "view": "bag",
+       "cal_acc": 0.51
+      },
+      {
+       "scale": 64.0,
        "alpha": "fixed-1",
        "noul_domain": 1,
        "view": "bag",
@@ -5226,6 +5610,16 @@
        "scale": 2.0,
        "lambda": 10.0,
        "cal_acc": 0.61
+      },
+      {
+       "scale": 4.0,
+       "lambda": 10.0,
+       "cal_acc": 0.61
+      },
+      {
+       "scale": 8.0,
+       "lambda": 10.0,
+       "cal_acc": 0.61
       }
      ]
     },
@@ -5254,6 +5648,7 @@
       }
      ]
     },
+    "cases_digest": "fnv1a64-5080803ec29f2423",
     "latency_provenance": {
      "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
     }
@@ -5549,6 +5944,20 @@
          "cal_acc": 0.39
         },
         {
+         "scale": 32.0,
+         "alpha": "observed-laplace",
+         "noul_domain": 0,
+         "view": "bag",
+         "cal_acc": 0.39
+        },
+        {
+         "scale": 64.0,
+         "alpha": "observed-laplace",
+         "noul_domain": 0,
+         "view": "bag",
+         "cal_acc": 0.39
+        },
+        {
          "scale": 1.0,
          "alpha": "fixed-1",
          "noul_domain": 0,
@@ -5570,6 +5979,20 @@
          "cal_acc": 0.49
         },
         {
+         "scale": 32.0,
+         "alpha": "fixed-1",
+         "noul_domain": 0,
+         "view": "bag",
+         "cal_acc": 0.49
+        },
+        {
+         "scale": 64.0,
+         "alpha": "fixed-1",
+         "noul_domain": 0,
+         "view": "bag",
+         "cal_acc": 0.49
+        },
+        {
          "scale": 1.0,
          "alpha": "observed-laplace",
          "noul_domain": 1,
@@ -5591,6 +6014,20 @@
          "cal_acc": 0.61
         },
         {
+         "scale": 32.0,
+         "alpha": "observed-laplace",
+         "noul_domain": 1,
+         "view": "bag",
+         "cal_acc": 0.61
+        },
+        {
+         "scale": 64.0,
+         "alpha": "observed-laplace",
+         "noul_domain": 1,
+         "view": "bag",
+         "cal_acc": 0.61
+        },
+        {
          "scale": 1.0,
          "alpha": "fixed-1",
          "noul_domain": 1,
@@ -5606,6 +6043,20 @@
         },
         {
          "scale": 16.0,
+         "alpha": "fixed-1",
+         "noul_domain": 1,
+         "view": "bag",
+         "cal_acc": 0.51
+        },
+        {
+         "scale": 32.0,
+         "alpha": "fixed-1",
+         "noul_domain": 1,
+         "view": "bag",
+         "cal_acc": 0.51
+        },
+        {
+         "scale": 64.0,
          "alpha": "fixed-1",
          "noul_domain": 1,
          "view": "bag",
@@ -5637,6 +6088,16 @@
          "scale": 2.0,
          "lambda": 10.0,
          "cal_acc": 0.61
+        },
+        {
+         "scale": 4.0,
+         "lambda": 10.0,
+         "cal_acc": 0.61
+        },
+        {
+         "scale": 8.0,
+         "lambda": 10.0,
+         "cal_acc": 0.61
         }
        ]
       },
@@ -5665,6 +6126,7 @@
         }
        ]
       },
+      "cases_digest": "fnv1a64-5080803ec29f2423",
       "latency_provenance": {
        "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
       }
@@ -5886,14 +6348,14 @@
     },
     "km_vs_laya": {
      "modelless": {
-      "kind": "run",
-      "id": "836d15e 2026-09-27T01:32:50Z"
+      "kind": "digest",
+      "id": "fnv1a64-5080803ec29f2423"
      },
      "rust": {
       "kind": "run",
       "id": "b1aee72 2026-09-26T15:34:14Z"
      },
-     "status": "differs"
+     "status": "unknown"
     }
    }
   },
@@ -6038,6 +6500,20 @@
        "cal_acc": 0.31
       },
       {
+       "scale": 32.0,
+       "alpha": "observed-laplace",
+       "noul_domain": null,
+       "view": "bag",
+       "cal_acc": 0.32
+      },
+      {
+       "scale": 64.0,
+       "alpha": "observed-laplace",
+       "noul_domain": null,
+       "view": "bag",
+       "cal_acc": 0.31
+      },
+      {
        "scale": 1.0,
        "alpha": "fixed-1",
        "noul_domain": null,
@@ -6057,6 +6533,20 @@
        "noul_domain": null,
        "view": "bag",
        "cal_acc": 0.32
+      },
+      {
+       "scale": 32.0,
+       "alpha": "fixed-1",
+       "noul_domain": null,
+       "view": "bag",
+       "cal_acc": 0.32
+      },
+      {
+       "scale": 64.0,
+       "alpha": "fixed-1",
+       "noul_domain": null,
+       "view": "bag",
+       "cal_acc": 0.325
       },
       {
        "scale": 1.0,
@@ -6080,6 +6570,20 @@
        "cal_acc": 0.57
       },
       {
+       "scale": 32.0,
+       "alpha": "observed-laplace",
+       "noul_domain": null,
+       "view": "pair",
+       "cal_acc": 0.56
+      },
+      {
+       "scale": 64.0,
+       "alpha": "observed-laplace",
+       "noul_domain": null,
+       "view": "pair",
+       "cal_acc": 0.56
+      },
+      {
        "scale": 1.0,
        "alpha": "fixed-1",
        "noul_domain": null,
@@ -6099,6 +6603,20 @@
        "noul_domain": null,
        "view": "pair",
        "cal_acc": 0.585
+      },
+      {
+       "scale": 32.0,
+       "alpha": "fixed-1",
+       "noul_domain": null,
+       "view": "pair",
+       "cal_acc": 0.58
+      },
+      {
+       "scale": 64.0,
+       "alpha": "fixed-1",
+       "noul_domain": null,
+       "view": "pair",
+       "cal_acc": 0.57
       }
      ]
     },
@@ -6126,6 +6644,16 @@
        "scale": 2.0,
        "lambda": 10.0,
        "cal_acc": 0.55
+      },
+      {
+       "scale": 4.0,
+       "lambda": 10.0,
+       "cal_acc": 0.52
+      },
+      {
+       "scale": 8.0,
+       "lambda": 10.0,
+       "cal_acc": 0.495
       }
      ]
     },
@@ -6191,6 +6719,7 @@
       }
      ]
     },
+    "cases_digest": "fnv1a64-b136750e5af1d412",
     "latency_provenance": {
      "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
     }
@@ -6486,6 +7015,20 @@
          "cal_acc": 0.31
         },
         {
+         "scale": 32.0,
+         "alpha": "observed-laplace",
+         "noul_domain": null,
+         "view": "bag",
+         "cal_acc": 0.32
+        },
+        {
+         "scale": 64.0,
+         "alpha": "observed-laplace",
+         "noul_domain": null,
+         "view": "bag",
+         "cal_acc": 0.31
+        },
+        {
          "scale": 1.0,
          "alpha": "fixed-1",
          "noul_domain": null,
@@ -6505,6 +7048,20 @@
          "noul_domain": null,
          "view": "bag",
          "cal_acc": 0.32
+        },
+        {
+         "scale": 32.0,
+         "alpha": "fixed-1",
+         "noul_domain": null,
+         "view": "bag",
+         "cal_acc": 0.32
+        },
+        {
+         "scale": 64.0,
+         "alpha": "fixed-1",
+         "noul_domain": null,
+         "view": "bag",
+         "cal_acc": 0.325
         },
         {
          "scale": 1.0,
@@ -6528,6 +7085,20 @@
          "cal_acc": 0.57
         },
         {
+         "scale": 32.0,
+         "alpha": "observed-laplace",
+         "noul_domain": null,
+         "view": "pair",
+         "cal_acc": 0.56
+        },
+        {
+         "scale": 64.0,
+         "alpha": "observed-laplace",
+         "noul_domain": null,
+         "view": "pair",
+         "cal_acc": 0.56
+        },
+        {
          "scale": 1.0,
          "alpha": "fixed-1",
          "noul_domain": null,
@@ -6547,6 +7118,20 @@
          "noul_domain": null,
          "view": "pair",
          "cal_acc": 0.585
+        },
+        {
+         "scale": 32.0,
+         "alpha": "fixed-1",
+         "noul_domain": null,
+         "view": "pair",
+         "cal_acc": 0.58
+        },
+        {
+         "scale": 64.0,
+         "alpha": "fixed-1",
+         "noul_domain": null,
+         "view": "pair",
+         "cal_acc": 0.57
         }
        ]
       },
@@ -6574,6 +7159,16 @@
          "scale": 2.0,
          "lambda": 10.0,
          "cal_acc": 0.55
+        },
+        {
+         "scale": 4.0,
+         "lambda": 10.0,
+         "cal_acc": 0.52
+        },
+        {
+         "scale": 8.0,
+         "lambda": 10.0,
+         "cal_acc": 0.495
         }
        ]
       },
@@ -6639,6 +7234,7 @@
         }
        ]
       },
+      "cases_digest": "fnv1a64-b136750e5af1d412",
       "latency_provenance": {
        "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
       }
@@ -6860,14 +7456,14 @@
     },
     "km_vs_laya": {
      "modelless": {
-      "kind": "run",
-      "id": "836d15e 2026-09-27T01:32:50Z"
+      "kind": "digest",
+      "id": "fnv1a64-b136750e5af1d412"
      },
      "rust": {
       "kind": "run",
       "id": "b1aee72 2026-09-26T15:34:14Z"
      },
-     "status": "differs"
+     "status": "unknown"
     }
    }
   },
@@ -7012,6 +7608,20 @@
        "cal_acc": 0.595
       },
       {
+       "scale": 32.0,
+       "alpha": "observed-laplace",
+       "noul_domain": null,
+       "view": "bag",
+       "cal_acc": 0.595
+      },
+      {
+       "scale": 64.0,
+       "alpha": "observed-laplace",
+       "noul_domain": null,
+       "view": "bag",
+       "cal_acc": 0.595
+      },
+      {
        "scale": 1.0,
        "alpha": "fixed-1",
        "noul_domain": null,
@@ -7027,6 +7637,20 @@
       },
       {
        "scale": 16.0,
+       "alpha": "fixed-1",
+       "noul_domain": null,
+       "view": "bag",
+       "cal_acc": 0.565
+      },
+      {
+       "scale": 32.0,
+       "alpha": "fixed-1",
+       "noul_domain": null,
+       "view": "bag",
+       "cal_acc": 0.565
+      },
+      {
+       "scale": 64.0,
        "alpha": "fixed-1",
        "noul_domain": null,
        "view": "bag",
@@ -7058,6 +7682,16 @@
        "scale": 2.0,
        "lambda": 10.0,
        "cal_acc": 0.61
+      },
+      {
+       "scale": 4.0,
+       "lambda": 10.0,
+       "cal_acc": 0.63
+      },
+      {
+       "scale": 8.0,
+       "lambda": 10.0,
+       "cal_acc": 0.62
       }
      ]
     },
@@ -7159,6 +7793,7 @@
       }
      ]
     },
+    "cases_digest": "fnv1a64-49390c8b80475849",
     "latency_provenance": {
      "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
     }
@@ -7404,6 +8039,20 @@
          "cal_acc": 0.595
         },
         {
+         "scale": 32.0,
+         "alpha": "observed-laplace",
+         "noul_domain": null,
+         "view": "bag",
+         "cal_acc": 0.595
+        },
+        {
+         "scale": 64.0,
+         "alpha": "observed-laplace",
+         "noul_domain": null,
+         "view": "bag",
+         "cal_acc": 0.595
+        },
+        {
          "scale": 1.0,
          "alpha": "fixed-1",
          "noul_domain": null,
@@ -7419,6 +8068,20 @@
         },
         {
          "scale": 16.0,
+         "alpha": "fixed-1",
+         "noul_domain": null,
+         "view": "bag",
+         "cal_acc": 0.565
+        },
+        {
+         "scale": 32.0,
+         "alpha": "fixed-1",
+         "noul_domain": null,
+         "view": "bag",
+         "cal_acc": 0.565
+        },
+        {
+         "scale": 64.0,
          "alpha": "fixed-1",
          "noul_domain": null,
          "view": "bag",
@@ -7450,6 +8113,16 @@
          "scale": 2.0,
          "lambda": 10.0,
          "cal_acc": 0.61
+        },
+        {
+         "scale": 4.0,
+         "lambda": 10.0,
+         "cal_acc": 0.63
+        },
+        {
+         "scale": 8.0,
+         "lambda": 10.0,
+         "cal_acc": 0.62
         }
        ]
       },
@@ -7551,6 +8224,7 @@
         }
        ]
       },
+      "cases_digest": "fnv1a64-49390c8b80475849",
       "latency_provenance": {
        "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
       }
@@ -7787,14 +8461,14 @@
     },
     "km_vs_laya": {
      "modelless": {
-      "kind": "run",
-      "id": "836d15e 2026-09-27T01:32:50Z"
+      "kind": "digest",
+      "id": "fnv1a64-49390c8b80475849"
      },
      "rust": {
       "kind": "run",
       "id": "b1aee72 2026-09-26T15:34:14Z"
      },
-     "status": "differs"
+     "status": "unknown"
     }
    }
   },
@@ -7939,6 +8613,20 @@
        "cal_acc": 0.805
       },
       {
+       "scale": 32.0,
+       "alpha": "observed-laplace",
+       "noul_domain": null,
+       "view": "bag",
+       "cal_acc": 0.805
+      },
+      {
+       "scale": 64.0,
+       "alpha": "observed-laplace",
+       "noul_domain": null,
+       "view": "bag",
+       "cal_acc": 0.805
+      },
+      {
        "scale": 1.0,
        "alpha": "fixed-1",
        "noul_domain": null,
@@ -7958,6 +8646,20 @@
        "noul_domain": null,
        "view": "bag",
        "cal_acc": 0.765
+      },
+      {
+       "scale": 32.0,
+       "alpha": "fixed-1",
+       "noul_domain": null,
+       "view": "bag",
+       "cal_acc": 0.77
+      },
+      {
+       "scale": 64.0,
+       "alpha": "fixed-1",
+       "noul_domain": null,
+       "view": "bag",
+       "cal_acc": 0.76
       }
      ]
     },
@@ -7985,6 +8687,16 @@
        "scale": 2.0,
        "lambda": 10.0,
        "cal_acc": 0.835
+      },
+      {
+       "scale": 4.0,
+       "lambda": 10.0,
+       "cal_acc": 0.84
+      },
+      {
+       "scale": 8.0,
+       "lambda": 10.0,
+       "cal_acc": 0.825
       }
      ]
     },
@@ -8086,6 +8798,7 @@
       }
      ]
     },
+    "cases_digest": "fnv1a64-dd8ab35333abb82a",
     "latency_provenance": {
      "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
     }
@@ -8331,6 +9044,20 @@
          "cal_acc": 0.805
         },
         {
+         "scale": 32.0,
+         "alpha": "observed-laplace",
+         "noul_domain": null,
+         "view": "bag",
+         "cal_acc": 0.805
+        },
+        {
+         "scale": 64.0,
+         "alpha": "observed-laplace",
+         "noul_domain": null,
+         "view": "bag",
+         "cal_acc": 0.805
+        },
+        {
          "scale": 1.0,
          "alpha": "fixed-1",
          "noul_domain": null,
@@ -8350,6 +9077,20 @@
          "noul_domain": null,
          "view": "bag",
          "cal_acc": 0.765
+        },
+        {
+         "scale": 32.0,
+         "alpha": "fixed-1",
+         "noul_domain": null,
+         "view": "bag",
+         "cal_acc": 0.77
+        },
+        {
+         "scale": 64.0,
+         "alpha": "fixed-1",
+         "noul_domain": null,
+         "view": "bag",
+         "cal_acc": 0.76
         }
        ]
       },
@@ -8377,6 +9118,16 @@
          "scale": 2.0,
          "lambda": 10.0,
          "cal_acc": 0.835
+        },
+        {
+         "scale": 4.0,
+         "lambda": 10.0,
+         "cal_acc": 0.84
+        },
+        {
+         "scale": 8.0,
+         "lambda": 10.0,
+         "cal_acc": 0.825
         }
        ]
       },
@@ -8478,6 +9229,7 @@
         }
        ]
       },
+      "cases_digest": "fnv1a64-dd8ab35333abb82a",
       "latency_provenance": {
        "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
       }
@@ -8782,14 +9534,14 @@
     },
     "km_vs_laya": {
      "modelless": {
-      "kind": "run",
-      "id": "836d15e 2026-09-27T01:32:50Z"
+      "kind": "digest",
+      "id": "fnv1a64-dd8ab35333abb82a"
      },
      "rust": {
       "kind": "run",
       "id": "b1aee72 2026-09-26T15:34:14Z"
      },
-     "status": "differs"
+     "status": "unknown"
     }
    }
   },
@@ -8957,6 +9709,7 @@
      "laya::agent",
      "laya::router"
     ],
+    "cases_digest": "fnv1a64-d3e1184c4720e3af",
     "latency_provenance": {
      "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
     }
@@ -9274,6 +10027,7 @@
        "laya::agent",
        "laya::router"
       ],
+      "cases_digest": "fnv1a64-d3e1184c4720e3af",
       "latency_provenance": {
        "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
       }
@@ -9487,14 +10241,14 @@
     },
     "km_vs_laya": {
      "modelless": {
-      "kind": "run",
-      "id": "836d15e 2026-09-27T01:32:50Z"
+      "kind": "digest",
+      "id": "fnv1a64-d3e1184c4720e3af"
      },
      "rust": {
       "kind": "run",
       "id": "b1aee72 2026-09-26T15:34:14Z"
      },
-     "status": "differs"
+     "status": "unknown"
     }
    }
   },
@@ -9621,6 +10375,7 @@
      }
     ],
     "pair_head_ab": null,
+    "cases_digest": "fnv1a64-6256f41a5d45104d",
     "latency_provenance": {
      "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
     }
@@ -9897,6 +10652,7 @@
        }
       ],
       "pair_head_ab": null,
+      "cases_digest": "fnv1a64-6256f41a5d45104d",
       "latency_provenance": {
        "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
       }
@@ -10110,14 +10866,14 @@
     },
     "km_vs_laya": {
      "modelless": {
-      "kind": "run",
-      "id": "836d15e 2026-09-27T01:32:50Z"
+      "kind": "digest",
+      "id": "fnv1a64-6256f41a5d45104d"
      },
      "rust": {
       "kind": "run",
       "id": "b1aee72 2026-09-26T15:34:14Z"
      },
-     "status": "differs"
+     "status": "unknown"
     }
    }
   },
@@ -10232,6 +10988,7 @@
      }
     ],
     "pair_head_ab": null,
+    "cases_digest": "fnv1a64-12ee83a1c6493b29",
     "latency_provenance": {
      "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
     }
@@ -10496,6 +11253,7 @@
        }
       ],
       "pair_head_ab": null,
+      "cases_digest": "fnv1a64-12ee83a1c6493b29",
       "latency_provenance": {
        "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
       }
@@ -10709,14 +11467,14 @@
     },
     "km_vs_laya": {
      "modelless": {
-      "kind": "run",
-      "id": "836d15e 2026-09-27T01:32:50Z"
+      "kind": "digest",
+      "id": "fnv1a64-12ee83a1c6493b29"
      },
      "rust": {
       "kind": "run",
       "id": "b1aee72 2026-09-26T15:34:14Z"
      },
-     "status": "differs"
+     "status": "unknown"
     }
    }
   },
@@ -10849,6 +11607,7 @@
      }
     ],
     "pair_head_ab": null,
+    "cases_digest": "fnv1a64-f8aa91cdb65abf34",
     "latency_provenance": {
      "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
     }
@@ -11131,6 +11890,7 @@
        }
       ],
       "pair_head_ab": null,
+      "cases_digest": "fnv1a64-f8aa91cdb65abf34",
       "latency_provenance": {
        "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
       }
@@ -11344,14 +12104,14 @@
     },
     "km_vs_laya": {
      "modelless": {
-      "kind": "run",
-      "id": "836d15e 2026-09-27T01:32:50Z"
+      "kind": "digest",
+      "id": "fnv1a64-f8aa91cdb65abf34"
      },
      "rust": {
       "kind": "run",
       "id": "b1aee72 2026-09-26T15:34:14Z"
      },
-     "status": "differs"
+     "status": "unknown"
     }
    }
   },
@@ -11478,6 +12238,7 @@
      }
     ],
     "pair_head_ab": null,
+    "cases_digest": "fnv1a64-2e568b9aa695d41c",
     "latency_provenance": {
      "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
     }
@@ -11754,6 +12515,7 @@
        }
       ],
       "pair_head_ab": null,
+      "cases_digest": "fnv1a64-2e568b9aa695d41c",
       "latency_provenance": {
        "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
       }
@@ -11967,14 +12729,14 @@
     },
     "km_vs_laya": {
      "modelless": {
-      "kind": "run",
-      "id": "836d15e 2026-09-27T01:32:50Z"
+      "kind": "digest",
+      "id": "fnv1a64-2e568b9aa695d41c"
      },
      "rust": {
       "kind": "run",
       "id": "b1aee72 2026-09-26T15:34:14Z"
      },
-     "status": "differs"
+     "status": "unknown"
     }
    }
   },
@@ -12113,6 +12875,7 @@
      }
     ],
     "pair_head_ab": null,
+    "cases_digest": "fnv1a64-c0bd4e4084dd9e3f",
     "latency_provenance": {
      "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
     }
@@ -12401,6 +13164,7 @@
        }
       ],
       "pair_head_ab": null,
+      "cases_digest": "fnv1a64-c0bd4e4084dd9e3f",
       "latency_provenance": {
        "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
       }
@@ -12614,14 +13378,14 @@
     },
     "km_vs_laya": {
      "modelless": {
-      "kind": "run",
-      "id": "836d15e 2026-09-27T01:32:50Z"
+      "kind": "digest",
+      "id": "fnv1a64-c0bd4e4084dd9e3f"
      },
      "rust": {
       "kind": "run",
       "id": "b1aee72 2026-09-26T15:34:14Z"
      },
-     "status": "differs"
+     "status": "unknown"
     }
    }
   },
