@@ -170,8 +170,13 @@ its own timing on the page. Exits: re-run on a fit box
 (`PUBLISH_BENCH_LANES=<class>:acc-only`), or acknowledge by host
 (`PUBLISH_BENCH_ALLOW_UNQUOTABLE=<host>`; a stale ack refuses). A doc with no
 readable box state (the 4090 harness) publishes with a loud UNJUDGED note.
-Each updated lane records its run's verdict in `lane_sources` — read THAT,
-not `meta.box_state`, which belongs to the table's original run.
+The verdict travels ON THE CELL beside the timing it describes
+(`cell.latency_quotable`, true/false/null; absent = unknown) — never read
+`meta.box_state`, which belongs to the table's original run. The LANE_CARRY
+law is directional (Issue-003 T2): an unfit incumbent's carried timing is
+replaced when a fresh QUOTABLE update lands, and carried (verdict included)
+whenever the update is not itself quotable. Each host row also records its
+runs' dates in `lane_sources` — a per-class summary, not per-suite truth.
 
 One wrapper mechanises the whole flow (self-test -> publish -> docs-mirror
 parity -> the bench-page smoke when playwright is installed):
@@ -204,7 +209,9 @@ Docs apply in argv order, and a doc whose host was already seen UPDATES
 only the lanes it declares (Issue 023 T5 — the lane-scoped re-run): a
 modelless-only re-run replaces that host's modelless lane and leaves its
 laya lanes untouched; the host row keeps the ORIGINAL run's facts and
-gains `lane_sources` (the update run's git sha + date per lane). A
+gains `lane_sources` (the update run's git sha + date per lane class — a
+summary; the per-suite source is the cell's `source_run` stamp, Issue-003
+T4). A
 previously-published `data/bench.json` is a valid PRIMARY for a
 re-publish — its `meta.hosts` seed the seen-host set, so updates keep the
 original facts. Both hosts must move to a new engine TOGETHER: the
