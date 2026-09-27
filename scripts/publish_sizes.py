@@ -55,7 +55,7 @@ UA = "reflex-site-publish-sizes/1.0"
 CANDIDATES = [
     {
         "key": "wasm_heads",
-        "name": "reflex · in-browser (wasm heads)",
+        "name": "Reflex · in-browser (wasm heads)",
         "framework": "Rust → wasm32 (wasm-opt -Oz), zero deps",
         "engine": ("local", "assets/arena_head.wasm"),
         "engine_what": "arena_head.wasm — the engine's fitted game heads as one module",
@@ -66,7 +66,7 @@ CANDIDATES = [
     },
     {
         "key": "reflex_native",
-        "name": "reflex · native binary (modelless)",
+        "name": "Reflex · native binary (modelless)",
         "framework": "one static Rust binary (dist profile, stripped, fat LTO)",
         "engine": ("release_installed",),
         "engine_what": "installed binary + THIRD_PARTY_LICENSES.md (unpacked from the aarch64-apple-darwin archive)",
@@ -77,7 +77,7 @@ CANDIDATES = [
     },
     {
         "key": "reflex_laya_typed",
-        "name": "reflex + laya · typed",
+        "name": "Reflex + laya · typed",
         "framework": "the same reflex binary + the laya-riir lane (runtime download)",
         "engine": ("release_installed",),
         "engine_what": "the same installed binary",

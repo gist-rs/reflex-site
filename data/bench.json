@@ -2855,7 +2855,7 @@
     "near": 26
    },
    "hybrid": {
-    "lane": "instinct (hybrid)",
+    "lane": "Instinct (hybrid)",
     "model": "H2(\u03b2=0.25,nmin=2,\u03c4=2)",
     "hard": {
      "n": 400,
@@ -3860,7 +3860,7 @@
     "near": 0
    },
    "hybrid": {
-    "lane": "instinct (hybrid)",
+    "lane": "Instinct (hybrid)",
     "model": "A1",
     "hard": {
      "n": 400,
@@ -4863,7 +4863,7 @@
     "near": 0
    },
    "hybrid": {
-    "lane": "instinct (hybrid)",
+    "lane": "Instinct (hybrid)",
     "model": "A1",
     "hard": {
      "n": 600,
@@ -7615,7 +7615,7 @@
     "near": 17
    },
    "hybrid": {
-    "lane": "instinct (hybrid)",
+    "lane": "Instinct (hybrid)",
     "model": "H2(\u03b2=1,nmin=2,\u03c4=8)",
     "hard": {
      "n": 300,
@@ -8554,7 +8554,7 @@
     "near": 17
    },
    "hybrid": {
-    "lane": "instinct (hybrid)",
+    "lane": "Instinct (hybrid)",
     "model": "H1",
     "hard": {
      "n": 500,

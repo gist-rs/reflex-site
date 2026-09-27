@@ -27,7 +27,7 @@
     { key: "agentjev", label: "agentjev", color: "#d9a62e", match: (l) => l.lane === "agentjev (reference)" },
     // The instinct hybrid (riir-instinct): magenta slot, distinct from all
     // six existing hues under the same dark-surface ≥3:1 contrast rule.
-    { key: "instinct", label: "instinct (hybrid)", color: "#e06ab4", match: (l) => l.lane === "instinct (hybrid)" },
+    { key: "instinct", label: "Instinct (hybrid)", color: "#e06ab4", match: (l) => l.lane === "Instinct (hybrid)" },
   ];
   const OTHER = { key: "other", label: "other", color: "#8a7468" };
   const laneOf = (l) => LANES.find((x) => x.match(l)) || OTHER;

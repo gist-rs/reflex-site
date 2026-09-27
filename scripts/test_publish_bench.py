@@ -696,7 +696,15 @@ def case_hybrid_lane_rides_an_update():
     # the display rename reaches the hybrid lane (primary + extra surfaces)
     d = {"suites": [{"hybrid": {"lane": "hybrid"}}]}
     pb.rename_lanes(d)
-    assert d["suites"][0]["hybrid"]["lane"] == "instinct (hybrid)"
+    assert d["suites"][0]["hybrid"]["lane"] == "Instinct (hybrid)"
+
+    # a previously-published bench.json carries the OLD display
+    # spelling — the rename must land the new one on re-publish (the
+    # PYTHON_LANE_SPELLINGS dual-spelling law: machine field in a fresh
+    # harness doc, display name in a published bench.json)
+    d2 = {"suites": [{"hybrid": {"lane": "instinct (hybrid)"}}]}
+    pb.rename_lanes(d2)
+    assert d2["suites"][0]["hybrid"]["lane"] == "Instinct (hybrid)"
 
     # device-variant posture: a hybrid lane under m3-max-ane is skipped
     # (pure-CPU lane, a tagged duplicate of the base machine's row) — the

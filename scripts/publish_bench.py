@@ -155,7 +155,11 @@ LANE_DISPLAY = {
     "clm": "clm (reference)",
     "gliner": "gliner (reference)",
     "agentjev": "agentjev (reference)",
-    "hybrid": "instinct (hybrid)",
+    "hybrid": "Instinct (hybrid)",
+    # A previously-published bench.json carries the OLD display
+    # spelling; re-publishing it as primary must land the new one (the
+    # PYTHON_LANE_SPELLINGS dual-spelling law).
+    "instinct (hybrid)": "Instinct (hybrid)",
     # reflex .issues/033: the ProgramAsWeights comparison lanes. "paw" is
     # their HOSTED REST posture (compile-a-classifier, server-side),
     # "paw-local" their LOCAL llama.cpp runtime — the posture axis is the
