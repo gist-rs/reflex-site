@@ -120,23 +120,22 @@ try {
   }
 
   // layout: 2 boards per row — python|laya, modelless|rulebook (wasm
-  // local), rulebook_cf (Cloudflare)|hybrid (the Instinct lane card) — and
-  // the raw board is ALWAYS the last card, alone on the final row (owner
-  // rule 2026-09-27). The lane-note boxes of a row share one height.
+  // local), rulebook_cf (Cloudflare)|raw (owner call 2026-09-25) — and the
+  // lane-note boxes of a row share one height. The Instinct lane card was
+  // pulled 2026-09-27 (owner call): it returns as a real board, not a text card.
   const box = await page.evaluate(() => Object.fromEntries(
-    ["python", "laya", "modelless", "rulebook", "rulebook_cf", "hybrid", "raw"].map((l) => {
+    ["python", "laya", "modelless", "rulebook", "rulebook_cf", "raw"].map((l) => {
       const c = document.getElementById(`tc-${l}`).getBoundingClientRect();
       const n = document.querySelector(`#tc-${l} .lane-note`).getBoundingClientRect();
       return [l, { top: Math.round(c.top), left: Math.round(c.left), note: Math.round(n.height) }];
     }),
   ));
   if (box.python.top !== box.laya.top || box.modelless.top !== box.rulebook.top || box.modelless.top <= box.python.top
-    || box.rulebook_cf.top !== box.hybrid.top || box.rulebook_cf.top <= box.modelless.top
-    || box.rulebook_cf.left !== box.python.left || box.hybrid.left !== box.laya.left
-    || box.raw.top <= box.rulebook_cf.top || box.raw.left !== box.python.left) {
-    fail(`board grid is not 2 per row with raw alone last: ${JSON.stringify(box)}`);
+    || box.rulebook_cf.top !== box.raw.top || box.raw.top <= box.modelless.top
+    || box.rulebook_cf.left !== box.python.left || box.raw.left !== box.laya.left) {
+    fail(`board grid is not 2 per row: ${JSON.stringify(box)}`);
   }
-  if (box.python.note !== box.laya.note || box.modelless.note !== box.rulebook.note || box.rulebook_cf.note !== box.hybrid.note) {
+  if (box.python.note !== box.laya.note || box.modelless.note !== box.rulebook.note || box.rulebook_cf.note !== box.raw.note) {
     fail(`lane-note heights differ within a row: ${JSON.stringify(box)}`);
   }
 
@@ -174,31 +173,18 @@ try {
     if (dates[0].git_sha !== bench.meta.git_sha && /engine /.test(tl)) fail("TL;DR lead still names meta's original run as the engine");
   }
 
-  // The Instinct (hybrid) lane card: present in every game, DIRECTLY before
-  // the raw board — and the raw board is ALWAYS the last card (owner rule).
-  // Its arms render from data/bench.json; a green page never shows
-  // "loading" (a failed fetch must be loud, not silently empty).
-  await page.waitForFunction(
-    () => {
-      const ul = document.querySelector("#tc-hybrid [data-hybrid-arms] ul");
-      return ul && ul.children.length > 0;
-    },
-    null,
-    { timeout: 10000 },
-  );
+  // raw board is ALWAYS the last card in every game (owner rule 2026-09-27);
+  // no text-suite card may stand in for a game board.
   const order = await page.evaluate(() => Object.fromEntries(
     ["tetris", "flappy", "lanes"].map((g) =>
       [g, [...document.querySelectorAll(`#game-${g} .boardcard`)].map((c) => c.id)]),
   ));
   for (const [g, ids] of Object.entries(order)) {
-    const rawId = `${g[0]}c-raw`;
-    const hybId = `${g[0]}c-hybrid`;
-    if (ids[ids.length - 1] !== rawId) fail(`${g}: raw board is not the LAST card: ${ids.join(",")}`);
-    if (ids[ids.length - 2] !== hybId) fail(`${g}: hybrid card is not directly before raw: ${ids.join(",")}`);
+    if (ids[ids.length - 1] !== `${g[0]}c-raw`) fail(`${g}: raw board is not the LAST card: ${ids.join(",")}`);
     if (new Set(ids).size !== ids.length) fail(`${g}: duplicate card ids: ${ids.join(",")}`);
+    if (ids.some((id) => id.endsWith("-hybrid"))) fail(`${g}: text-suite Instinct card is back: ${ids.join(",")}`);
   }
   console.log(`[demo-smoke] card order: ${JSON.stringify(order)}`);
-  console.log(`[demo-smoke] hybrid arms: ${(await page.textContent("#tc-hybrid [data-hybrid-arms]")).replace(/\s+/g, " ").trim().slice(0, 200)}…`);
 
   await page.screenshot({ path: path.join(outDir, "arena_demo_tetris.png") });
 
