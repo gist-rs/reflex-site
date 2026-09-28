@@ -7710,7 +7710,16 @@
     "brier_soft": null,
     "score_mae": null,
     "within_1": null,
+    "latency_p50_ms": 106.0,
+    "latency_p99_ms": 210.0,
+    "latency_tail_support": 4,
+    "latency_extremes": {
+     "first_ms": 211.0,
+     "max_ms": 241.0,
+     "argmax_case": 4
+    },
     "determinism_ok": true,
+    "seconds": 37.315856959,
     "n_cases": 300,
     "n_questions": 300,
     "score_threshold": null,
@@ -8787,7 +8796,16 @@
     "brier_soft": null,
     "score_mae": null,
     "within_1": null,
+    "latency_p50_ms": 1630.0,
+    "latency_p99_ms": 1801.0,
+    "latency_tail_support": 4,
+    "latency_extremes": {
+     "first_ms": 1866.0,
+     "max_ms": 1866.0,
+     "argmax_case": 0
+    },
     "determinism_ok": true,
+    "seconds": 518.039723291,
     "n_cases": 300,
     "n_questions": 300,
     "score_threshold": null,

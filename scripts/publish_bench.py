@@ -927,6 +927,14 @@ def apply_lane_carry(d, incumbent_snapshot, extras):
                 src_lane = _host_lane_slot(snap, host, lane_key)
                 if src_lane is None:
                     continue
+                # A lane this publish did not refresh carries its own run's
+                # identity on BOTH sides (same `source_run`): re-stamping it
+                # as "carried from the incumbent" would serve a provenance
+                # note whose implication (accuracy from a newer run than the
+                # timing) is false. Only a lane whose accuracy source moved
+                # (a real update) is eligible for the carry.
+                if target.get("source_run") == src_lane.get("source_run"):
+                    continue
                 if carry_beats_incumbent(src_lane, target.get("latency_quotable")):
                     print(
                         f"note: LANE_CARRY suppressed — {lane_key}@{host}/"

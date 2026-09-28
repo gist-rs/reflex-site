@@ -211,6 +211,40 @@ def case_lane_carry_keeps_incumbent_timing():
     assert lane["latency_provenance"]["note"].startswith("latency cells carried")
 
 
+def case_republish_never_carries_an_untouched_lane():
+    """Re-publishing the served bench.json as the primary with an UNRELATED
+    extra (a comparison-lane update) must not restamp a lane this publish
+    did not refresh: its cell and its incumbent share one `source_run`, so
+    the LANE-CARRY law has nothing to adjudicate — the timing stays the
+    cell's own and no latency_provenance note may appear (the note's
+    implication — accuracy from a newer run than the timing — would be
+    false; found on the Bench-074 openthai timing republish, 2026-09-28)."""
+    published = doc("m3", "sha-m3", {"s1": {"modelless_acc": 0.5,
+                                            "laya_p50": 4.0}})
+    cell = published["suites"][0]["modelless"]
+    cell["latency_p50_ms"] = 0.35
+    cell["source_run"] = {"git_sha": "sha-hs", "date_utc": "2026-09-27T00:00:00Z"}
+    extra = doc("m3", "sha-ot", {"s1": {"laya_p50": 4.0}})
+    extra["suites"][0].pop("modelless", None)
+    extra["suites"][0]["clm"] = {"lane": "clm", "hard": {"accuracy": 0.55}}
+    merged, err = merge_refusing(published, extra)
+    assert merged is not None, err
+    lane = merged["suites"][0]["modelless"]
+    assert lane["latency_p50_ms"] == 0.35, "untouched timing stays"
+    assert "latency_provenance" not in lane, "no carry note on an untouched lane"
+    # and the REAL carry still fires beside it: a lane the extra refreshed
+    published2 = doc("m3", "sha-m3", {"s2": {"modelless_acc": 0.5,
+                                             "laya_p50": 4.0}})
+    published2["suites"][0]["modelless"]["latency_p50_ms"] = 0.35
+    upd = doc("m3", "sha-hs2", {"s2": {"modelless_acc": 0.7, "laya_p50": 4.0}})
+    upd["suites"][0]["modelless"]["latency_p50_ms"] = 9.99
+    merged2, err2 = merge_refusing(published2, upd)
+    assert merged2 is not None, err2
+    lane2 = merged2["suites"][0]["modelless"]
+    assert lane2["hard"]["accuracy"] == 0.7 and lane2["latency_p50_ms"] == 0.35
+    assert lane2["latency_provenance"]["note"].startswith("latency cells carried")
+
+
 def case_one_host_move_refuses():
     primary = doc("m3", "sha-m3", {"s1": {"modelless_acc": PRE_ACC}})
     join = doc("4090", "sha-join", {"s1": {"modelless_acc": PRE_ACC}})
@@ -1578,6 +1612,7 @@ def case_published_primary_meta_verdict_is_not_stamped():
 
 CASES = [
     case_lane_carry_keeps_incumbent_timing,
+    case_republish_never_carries_an_untouched_lane,
     case_modelless_lane_facts_refresh_on_update,
     case_fresh_docs_wipe_refused,
     case_fresh_docs_wipe_acknowledged_by_env,
