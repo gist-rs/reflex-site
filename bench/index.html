@@ -228,6 +228,15 @@
         reported under <em>det</em>, not claimed.</li>
       <li>Latency is wall-clock on the host named in the provenance line above; it moves with the machine and its power
         state. Modelless accuracy does not — the publisher refuses to merge a host whose modelless accuracy drifts.</li>
+      <li><strong>Why the openthai massive_intent_en row is ~1.7 s on <code>@m3-max-metal</code> but 95 ms on
+        <code>@4090-win</code></strong>: the openthai model reads every option as prompt text — the input template
+        inlines each option (<code>&lt;|ts_opt_i|&gt; option: description</code>) and one forward scores all 256 slots at the
+        answer position, so per-question cost scales with option count. massive carries <strong>59 options
+        (~203 tokens/question)</strong> vs xnli's 3, and on MPS fp32 that prices at ~29 ms per option
+        (~1.7 s/question). The 4090 prices the identical prompts at 95 ms — same design, same accuracy
+        (0.9200 byte-identical across both hosts), ~18× cheaper tokens. Verified as real, not box contamination:
+        a preflight-passed exclusive-GPU re-read reproduced the number within 5% and made every
+        <code>@m3-max-metal</code> openthai cell quotable from its own run (reflex Bench 085).</li>
     </ul></div>
     </details>
 

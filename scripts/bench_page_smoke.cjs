@@ -184,23 +184,37 @@ const server = http.createServer((req, res) => {
   note = await heroNote();
   if (!note.includes("Rows sorted fastest-first on the Reflex · modelless lane")) fail(`latency sort note wrong, got: ${note}`);
   else console.log("ok: hero by-latency sorts fastest-first by the modelless lane");
-  // 9) the broken latency axis (the /#sizes break-sign idiom): with the
-  //    published data exactly one lane read passes 500 ms (openthai's
-  //    massive_intent_en row — the only cell past the break), so the p50
-  //    hero carries exactly one break sign and the axis names the break,
-  //    and the per-suite cell table carries it too. The metric is still
-  //    p50 from the latency sort above. Re-pin the counts when the data's
-  //    slowest read moves across the break.
+  // 9) the broken latency axis (the /#sizes break-sign idiom): the p50
+  //    hero carries one break sign per visible cell past 500 ms and the
+  //    axis names the break, and the per-suite cell table carries them
+  //    too. The metric is still p50 from the latency sort above. The
+  //    EXPECTED count is derived from the published data (visible p50
+  //    cells > 500) — it was hard-pinned to 1 when openthai's
+  //    massive_intent_en row was the only cell past the break, and the
+  //    m3 lane fill (reflex Bench 086) added banking77 at 3.06 s.
   {
+    const bench = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "data", "bench.json"), "utf8"));
+    const visibleP50s = [];
+    for (const s of bench.suites) {
+      if (s.modelless?.latency_p50_ms != null) visibleP50s.push(s.modelless.latency_p50_ms);
+      for (const l of Object.values(s.laya || {})) if (l.latency_p50_ms != null) visibleP50s.push(l.latency_p50_ms);
+      for (const h of Object.values(s.extra_host_lanes || {})) {
+        if (h.modelless?.latency_p50_ms != null) visibleP50s.push(h.modelless.latency_p50_ms);
+        for (const l of Object.values(h.laya || {})) if (l.latency_p50_ms != null) visibleP50s.push(l.latency_p50_ms);
+        for (const lane of [h.openthai]) if (lane?.latency_p50_ms != null) visibleP50s.push(lane.latency_p50_ms);
+      }
+      if (s.openthai?.latency_p50_ms != null) visibleP50s.push(s.openthai.latency_p50_ms);
+    }
+    const expectedBreaks = visibleP50s.filter((v) => v > 500).length;
     const heroBreaks = await page.$$eval("#bench-hero .sz-break", (xs) => xs.length);
-    if (heroBreaks !== 1) fail(`expected exactly 1 hero break sign on p50, got ${heroBreaks}`);
-    else console.log("ok: hero p50 carries the one past-500ms break sign");
+    if (heroBreaks !== expectedBreaks) fail(`expected ${expectedBreaks} hero break sign(s) on p50 (data-derived), got ${heroBreaks}`);
+    else console.log(`ok: hero p50 carries the ${expectedBreaks} past-500ms break sign(s) (data-derived)`);
     const axisBreak = await page.$$eval("#bench-hero .bc-axis span", (xs) => xs.filter((s) => s.textContent === "500 ms").length);
     if (axisBreak < 1) fail("hero axis does not name the 500 ms break tick");
     else console.log(`ok: hero axis names the 500 ms break (${axisBreak} axis renders)`);
     const cellBreaks = await page.$$eval("#tables .bc-cell .sz-break", (xs) => xs.length);
-    if (cellBreaks !== 1) fail(`expected exactly 1 suite-cell break sign, got ${cellBreaks}`);
-    else console.log("ok: suite cells carry the one past-500ms break sign");
+    if (cellBreaks !== expectedBreaks) fail(`expected ${expectedBreaks} suite-cell break sign(s) (data-derived), got ${cellBreaks}`);
+    else console.log(`ok: suite cells carry the ${expectedBreaks} past-500ms break sign(s) (data-derived)`);
   }
   // Issue-021 verdicts on the tables: every unfit latency cell renders
   // marked (class + † + reason on hover), and nothing else does. The
