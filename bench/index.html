@@ -450,11 +450,21 @@ function suiteSection(s) {
     ? `<p class="cases">leak scan (024): exact ${s.leak.exact} / near ${s.leak.near} over ${s.leak.n_eval} eval rows (${s.leak.n_reference} reference rows) — near-duplicate train/eval overlap disclosed per lane as acc_deleaked</p>`
     : "";
 
+  // An EMPTY suite: the filter left no visible lane with data here. The
+  // per-suite chart already renders nothing in that state (suite() returns
+  // "" on zero visible rows), so the header-row-only table beside it read
+  // as a broken render — answer "not run" the hero's way instead of the
+  // table (the leak scan lives inside the details and drops with it).
+  const emptyNotRun = !shown.length && !shownExtra.length;
+
   return `<h3 class="suite" id="suite-${s.name}"><a class="hlink" href="#suite-${s.name}">${s.name}</a> <span class="cases">— ${s.n_cases} cases / ${s.n_questions} questions</span></h3>
-  ${window.BenchCharts ? BenchCharts.suite(s) : ""}<details class="more"><summary>Table · calibration · gate fit${g1Word && mlVisible ? ` <span class="chip ${v === "pass" ? "pass" : v === "fail" ? "fail" : ""}">G1 (modelless) ${g1Word}</span>` : ""}</summary><div class="scroll"><table class="bench">
+  ${window.BenchCharts ? BenchCharts.suite(s) : ""}` +
+    (emptyNotRun
+      ? `<p class="cases">not run — every lane with data on this suite is hidden by the lane filter (re-enable a lane above)</p>`
+      : `<details class="more"><summary>Table · calibration · gate fit${g1Word && mlVisible ? ` <span class="chip ${v === "pass" ? "pass" : v === "fail" ? "fail" : ""}">G1 (modelless) ${g1Word}</span>` : ""}</summary><div class="scroll"><table class="bench">
     <thead><tr><th>lane · model</th><th>acc</th><th>macro F1</th><th>ECE(maxp)</th><th>Brier</th><th>acc@50cov</th><th>rECE cal (raw)</th><th>abst / sel-acc</th><th>p50</th><th>p99</th><th>det</th></tr></thead>
     <tbody>${shown.map((l) => laneRow(l, bestAcc, PRIMARY_HOST)).join("")}${shownExtra.map(([l, host]) => laneRow(l, bestAcc, host)).join("")}</tbody>
-  </table></div>${leakLine}${g1}${mlVisible ? gateFit(s.modelless) + nbLines(s.modelless) : ""}</details>`;
+  </table></div>${leakLine}${g1}${mlVisible ? gateFit(s.modelless) + nbLines(s.modelless) : ""}</details>`);
 }
 
 function render(d) {

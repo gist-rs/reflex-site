@@ -246,6 +246,26 @@ const server = http.createServer((req, res) => {
     else console.log("ok: G1 chips return with the modelless lane");
   }
 
+  // 9c) a suite the filter empties of EVERY lane answers "not run" instead
+  //     of a header-row-only empty table (the reported prompt_injections
+  //     empty-render: headers + leak line with zero rows read as broken).
+  {
+    const keys = await page.$$eval('#lane-filter input[type=checkbox]', (xs) => xs.map((x) => x.dataset.key));
+    for (const k of keys) await page.uncheck(`#lane-filter input[data-key="${k}"]`);
+    await page.waitForTimeout(300);
+    const tables = await page.$$eval('#tables table.bench', (xs) => xs.length);
+    const details = await page.$$eval('#tables details.more', (xs) => xs.length);
+    const notrun = await page.$$eval('#tables p.cases', (xs) => xs.filter((x) => x.textContent.startsWith("not run —")).length);
+    if (tables !== 0 || details !== 0) fail(`all lanes hidden must render no table/details, got ${tables} tables / ${details} details`);
+    else if (notrun !== benchData.suites.length) fail(`expected ${benchData.suites.length} not-run suites, got ${notrun}`);
+    else console.log(`ok: all lanes hidden -> ${notrun} "not run" suites, zero tables/details`);
+    for (const k of keys) await page.check(`#lane-filter input[data-key="${k}"]`);
+    await page.waitForTimeout(300);
+    const back = await page.$$eval('#tables table.bench', (xs) => xs.length);
+    if (back < 10) fail(`re-enabling every lane must restore the tables, got ${back}`);
+    else console.log(`ok: lanes restored -> ${back} suite tables`);
+  }
+
   // restore the default posture for the screenshot
   await page.click('#bench-hero button[data-metric="acc"]');
   await page.click('#bench-hero button[data-sort="data"]');
