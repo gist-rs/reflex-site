@@ -31,7 +31,7 @@
     // The OpenThai comparison lane (reflex Plan 003): red slot, distinct
     // from the seven existing hues under the same dark-surface ≥3:1
     // contrast rule (~5:1 measured against #140b08 / #1d110c).
-    { key: "openthai", label: "openthai", color: "#e0524f", match: (l) => l.lane === "openthai (reference)" },
+    { key: "openthai", label: "openthai", color: "#7e57c2", match: (l) => l.lane === "openthai (reference)" },
   ];
   const OTHER = { key: "other", label: "other", color: "#8a7468" };
   const laneOf = (l) => LANES.find((x) => x.match(l)) || OTHER;
