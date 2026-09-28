@@ -82,8 +82,8 @@
       "date_utc": "2026-09-27T08:00:55Z"
      },
      "hybrid": {
-      "git_sha": "44b6672",
-      "date_utc": "2026-09-27T17:22:22Z"
+      "git_sha": "4070711",
+      "date_utc": "2026-09-28T06:10:12Z"
      },
      "paw": {
       "git_sha": "de67f50",
@@ -123,16 +123,16 @@
       "date_utc": "2026-09-28T03:03:08Z"
      },
      "laya:english": {
-      "git_sha": "634093f",
-      "date_utc": "2026-09-26T19:04:42Z"
+      "git_sha": "97c2b1f",
+      "date_utc": "2026-09-28T07:13:04Z"
      },
      "laya:multilingual": {
-      "git_sha": "634093f",
-      "date_utc": "2026-09-26T19:04:42Z"
+      "git_sha": "97c2b1f",
+      "date_utc": "2026-09-28T07:13:04Z"
      },
      "laya:typed": {
-      "git_sha": "634093f",
-      "date_utc": "2026-09-26T19:04:42Z"
+      "git_sha": "97c2b1f",
+      "date_utc": "2026-09-28T07:13:04Z"
      },
      "clm": {
       "git_sha": "967415c",
@@ -1541,16 +1541,16 @@
        "brier_soft": 0.33480864483416156,
        "score_mae": 0.6937211699999999,
        "within_1": 0.7525,
-       "latency_p50_ms": 85.0,
-       "latency_p99_ms": 132.0,
+       "latency_p50_ms": 168.0,
+       "latency_p99_ms": 252.0,
        "latency_tail_support": 5,
        "latency_extremes": {
-        "first_ms": 52.0,
-        "max_ms": 134.0,
-        "argmax_case": 119
+        "first_ms": 56.0,
+        "max_ms": 284.0,
+        "argmax_case": 184
        },
        "determinism_ok": true,
-       "seconds": 44.1630516,
+       "seconds": 61.4124903,
        "n_cases": 400,
        "n_questions": 2000,
        "score_threshold": null,
@@ -1559,9 +1559,18 @@
        "corpus_cap": null,
        "head_selection": null,
        "nb_selection": null,
+       "oc_selection": null,
+       "ridge_selection": null,
+       "genome_selection": null,
        "transductive": null,
        "confusion": null,
-       "pair_head_ab": null
+       "pair_head_ab": null,
+       "cases_digest": "fnv1a64-6e37760ee2a5b6c9",
+       "latency_quotable": null,
+       "source_run": {
+        "git_sha": "97c2b1f",
+        "date_utc": "2026-09-28T07:13:04Z"
+       }
       },
       "multilingual": {
        "lane": "laya (rust)",
@@ -1628,16 +1637,16 @@
        "brier_soft": 0.47372988499163493,
        "score_mae": 0.7603950075000003,
        "within_1": 0.7,
-       "latency_p50_ms": 46.0,
-       "latency_p99_ms": 77.0,
+       "latency_p50_ms": 82.0,
+       "latency_p99_ms": 126.0,
        "latency_tail_support": 5,
        "latency_extremes": {
-        "first_ms": 27.0,
-        "max_ms": 80.0,
+        "first_ms": 32.0,
+        "max_ms": 139.0,
         "argmax_case": 183
        },
        "determinism_ok": true,
-       "seconds": 27.398288,
+       "seconds": 33.5396411,
        "n_cases": 400,
        "n_questions": 2000,
        "score_threshold": null,
@@ -1646,9 +1655,18 @@
        "corpus_cap": null,
        "head_selection": null,
        "nb_selection": null,
+       "oc_selection": null,
+       "ridge_selection": null,
+       "genome_selection": null,
        "transductive": null,
        "confusion": null,
-       "pair_head_ab": null
+       "pair_head_ab": null,
+       "cases_digest": "fnv1a64-6e37760ee2a5b6c9",
+       "latency_quotable": null,
+       "source_run": {
+        "git_sha": "97c2b1f",
+        "date_utc": "2026-09-28T07:13:04Z"
+       }
       },
       "typed": {
        "lane": "laya (rust)",
@@ -1715,16 +1733,16 @@
        "brier_soft": 0.06772116157482795,
        "score_mae": 0.2424063875000001,
        "within_1": 0.995,
-       "latency_p50_ms": 85.0,
-       "latency_p99_ms": 165.0,
+       "latency_p50_ms": 164.0,
+       "latency_p99_ms": 294.0,
        "latency_tail_support": 5,
        "latency_extremes": {
-        "first_ms": 51.0,
-        "max_ms": 174.0,
-        "argmax_case": 119
+        "first_ms": 57.0,
+        "max_ms": 340.0,
+        "argmax_case": 120
        },
        "determinism_ok": true,
-       "seconds": 45.5595983,
+       "seconds": 63.1842924,
        "n_cases": 400,
        "n_questions": 2000,
        "score_threshold": null,
@@ -1733,9 +1751,18 @@
        "corpus_cap": null,
        "head_selection": null,
        "nb_selection": null,
+       "oc_selection": null,
+       "ridge_selection": null,
+       "genome_selection": null,
        "transductive": null,
        "confusion": null,
-       "pair_head_ab": null
+       "pair_head_ab": null,
+       "cases_digest": "fnv1a64-6e37760ee2a5b6c9",
+       "latency_quotable": null,
+       "source_run": {
+        "git_sha": "97c2b1f",
+        "date_utc": "2026-09-28T07:13:04Z"
+       }
       }
      },
      "clm": {
@@ -2021,25 +2048,25 @@
    },
    "hybrid": {
     "lane": "Instinct (hybrid)",
-    "model": "A0",
+    "model": "A1",
     "hard": {
      "n": 2000,
-     "accuracy": 0.4655,
-     "ece": 0.4237521817982197,
-     "mean_confidence": 0.04024781820178032,
-     "acc_at_50_coverage": 0.548
+     "accuracy": 0.63,
+     "ece": 0.4345498091443733,
+     "mean_confidence": 0.1954501908556267,
+     "acc_at_50_coverage": 0.698
     },
-    "consult_rate": 0.0,
-    "latency_scope": "seat+arm",
-    "latency_rows": "cases",
-    "latency_p50_ms": 0.598,
-    "latency_p99_ms": 1.919,
-    "latency_tail_support": 5,
-    "serves": "A0",
-    "gate": "served by the reflex half \u2014 the best measured arm on this suite",
+    "consult_rate": 1.0,
+    "latency_scope": "arm-only",
+    "latency_rows": "questions",
+    "latency_p50_ms": 0.003125,
+    "latency_p99_ms": 0.011917,
+    "latency_tail_support": 22,
+    "serves": "A1",
+    "gate": "certified (paired LB95 +0.1391, mean +0.1645)",
     "source_run": {
-     "git_sha": "44b6672",
-     "date_utc": "2026-09-27T17:22:22Z"
+     "git_sha": "4070711",
+     "date_utc": "2026-09-28T06:10:12Z"
     }
    }
   },
@@ -2863,16 +2890,16 @@
        "brier_soft": null,
        "score_mae": null,
        "within_1": null,
-       "latency_p50_ms": 12.0,
-       "latency_p99_ms": 15.0,
+       "latency_p50_ms": 13.0,
+       "latency_p99_ms": 18.0,
        "latency_tail_support": 5,
        "latency_extremes": {
-        "first_ms": 12.0,
-        "max_ms": 17.0,
-        "argmax_case": 5
+        "first_ms": 13.0,
+        "max_ms": 20.0,
+        "argmax_case": 301
        },
        "determinism_ok": true,
-       "seconds": 14.9640979,
+       "seconds": 7.852086,
        "n_cases": 400,
        "n_questions": 400,
        "score_threshold": null,
@@ -2881,9 +2908,18 @@
        "corpus_cap": null,
        "head_selection": null,
        "nb_selection": null,
+       "oc_selection": null,
+       "ridge_selection": null,
+       "genome_selection": null,
        "transductive": null,
        "confusion": null,
-       "pair_head_ab": null
+       "pair_head_ab": null,
+       "cases_digest": "fnv1a64-07eff23c06505584",
+       "latency_quotable": null,
+       "source_run": {
+        "git_sha": "97c2b1f",
+        "date_utc": "2026-09-28T07:13:04Z"
+       }
       }
      },
      "clm": {
@@ -3128,14 +3164,14 @@
     "consult_rate": 1.0,
     "latency_scope": "arm-only",
     "latency_rows": "questions",
-    "latency_p50_ms": 0.001709,
-    "latency_p99_ms": 0.006959,
+    "latency_p50_ms": 0.001792,
+    "latency_p99_ms": 0.003958000000000001,
     "latency_tail_support": 5,
     "serves": "H2(\u03b2=0.25,nmin=2,\u03c4=2)",
     "gate": "best measured, T2-uncertified (paired LB95 -0.0100) \u2014 certification is more questions, not a posture rollback",
     "source_run": {
-     "git_sha": "44b6672",
-     "date_utc": "2026-09-27T17:22:22Z"
+     "git_sha": "4070711",
+     "date_utc": "2026-09-28T06:10:12Z"
     }
    }
   },
@@ -3959,16 +3995,16 @@
        "brier_soft": null,
        "score_mae": null,
        "within_1": null,
-       "latency_p50_ms": 10.0,
-       "latency_p99_ms": 12.0,
+       "latency_p50_ms": 11.0,
+       "latency_p99_ms": 14.0,
        "latency_tail_support": 5,
        "latency_extremes": {
-        "first_ms": 10.0,
-        "max_ms": 12.0,
-        "argmax_case": 1
+        "first_ms": 11.0,
+        "max_ms": 14.0,
+        "argmax_case": 7
        },
        "determinism_ok": true,
-       "seconds": 14.1127466,
+       "seconds": 6.9131029,
        "n_cases": 400,
        "n_questions": 400,
        "score_threshold": null,
@@ -3977,9 +4013,18 @@
        "corpus_cap": null,
        "head_selection": null,
        "nb_selection": null,
+       "oc_selection": null,
+       "ridge_selection": null,
+       "genome_selection": null,
        "transductive": null,
        "confusion": null,
-       "pair_head_ab": null
+       "pair_head_ab": null,
+       "cases_digest": "fnv1a64-6feefd1c947dd008",
+       "latency_quotable": null,
+       "source_run": {
+        "git_sha": "97c2b1f",
+        "date_utc": "2026-09-28T07:13:04Z"
+       }
       }
      },
      "clm": {
@@ -4226,14 +4271,14 @@
     "consult_rate": 0.0,
     "latency_scope": "seat+arm",
     "latency_rows": "questions",
-    "latency_p50_ms": 0.124,
-    "latency_p99_ms": 0.154,
+    "latency_p50_ms": 0.127,
+    "latency_p99_ms": 0.157,
     "latency_tail_support": 5,
     "serves": "A0",
     "gate": "served by the reflex half \u2014 the best measured arm on this suite",
     "source_run": {
-     "git_sha": "44b6672",
-     "date_utc": "2026-09-27T17:22:22Z"
+     "git_sha": "4070711",
+     "date_utc": "2026-09-28T06:10:12Z"
     }
    }
   },
@@ -5047,16 +5092,16 @@
        "brier_soft": null,
        "score_mae": null,
        "within_1": null,
-       "latency_p50_ms": 11.0,
-       "latency_p99_ms": 12.0,
+       "latency_p50_ms": 12.0,
+       "latency_p99_ms": 17.0,
        "latency_tail_support": 7,
        "latency_extremes": {
-        "first_ms": 10.0,
-        "max_ms": 249.0,
-        "argmax_case": 1
+        "first_ms": 11.0,
+        "max_ms": 20.0,
+        "argmax_case": 80
        },
        "determinism_ok": true,
-       "seconds": 16.0918111,
+       "seconds": 10.109242,
        "n_cases": 600,
        "n_questions": 600,
        "score_threshold": null,
@@ -5065,9 +5110,18 @@
        "corpus_cap": null,
        "head_selection": null,
        "nb_selection": null,
+       "oc_selection": null,
+       "ridge_selection": null,
+       "genome_selection": null,
        "transductive": null,
        "confusion": null,
-       "pair_head_ab": null
+       "pair_head_ab": null,
+       "cases_digest": "fnv1a64-ad64a6cb0039e916",
+       "latency_quotable": null,
+       "source_run": {
+        "git_sha": "97c2b1f",
+        "date_utc": "2026-09-28T07:13:04Z"
+       }
       }
      },
      "clm": {
@@ -5312,14 +5366,14 @@
     "consult_rate": 1.0,
     "latency_scope": "arm-only",
     "latency_rows": "questions",
-    "latency_p50_ms": 0.001083,
-    "latency_p99_ms": 0.00225,
-    "latency_tail_support": 10,
+    "latency_p50_ms": 0.000875,
+    "latency_p99_ms": 0.001917,
+    "latency_tail_support": 8,
     "serves": "A1",
     "gate": "best measured, T2-uncertified (paired LB95 -0.0129) \u2014 certification is more questions, not a posture rollback",
     "source_run": {
-     "git_sha": "44b6672",
-     "date_utc": "2026-09-27T17:22:22Z"
+     "git_sha": "4070711",
+     "date_utc": "2026-09-28T06:10:12Z"
     }
    }
   },
@@ -6137,16 +6191,16 @@
        "brier_soft": null,
        "score_mae": null,
        "within_1": null,
-       "latency_p50_ms": 11.0,
-       "latency_p99_ms": 16.0,
+       "latency_p50_ms": 12.0,
+       "latency_p99_ms": 18.0,
        "latency_tail_support": 2,
        "latency_extremes": {
-        "first_ms": 13.0,
-        "max_ms": 17.0,
-        "argmax_case": 45
+        "first_ms": 16.0,
+        "max_ms": 37.0,
+        "argmax_case": 37
        },
        "determinism_ok": true,
-       "seconds": 10.9009396,
+       "seconds": 3.6467929999999997,
        "n_cases": 116,
        "n_questions": 116,
        "score_threshold": null,
@@ -6155,9 +6209,18 @@
        "corpus_cap": null,
        "head_selection": null,
        "nb_selection": null,
+       "oc_selection": null,
+       "ridge_selection": null,
+       "genome_selection": null,
        "transductive": null,
        "confusion": null,
-       "pair_head_ab": null
+       "pair_head_ab": null,
+       "cases_digest": "fnv1a64-5080803ec29f2423",
+       "latency_quotable": null,
+       "source_run": {
+        "git_sha": "97c2b1f",
+        "date_utc": "2026-09-28T07:13:04Z"
+       }
       }
      },
      "clm": {
@@ -6340,25 +6403,25 @@
    },
    "hybrid": {
     "lane": "Instinct (hybrid)",
-    "model": "A0",
+    "model": "A1",
     "hard": {
      "n": 116,
-     "accuracy": 0.7672413793103449,
-     "ece": 0.674452191282963,
-     "mean_confidence": 0.0927891880273819,
-     "acc_at_50_coverage": 0.896551724137931
+     "accuracy": 0.853448275862069,
+     "ece": 0.0823830797754485,
+     "mean_confidence": 0.8039373015535289,
+     "acc_at_50_coverage": 0.9655172413793104
     },
-    "consult_rate": 0.0,
-    "latency_scope": "seat+arm",
+    "consult_rate": 1.0,
+    "latency_scope": "arm-only",
     "latency_rows": "questions",
-    "latency_p50_ms": 0.077,
-    "latency_p99_ms": 0.093,
+    "latency_p50_ms": 0.000458,
+    "latency_p99_ms": 0.0031669999999999997,
     "latency_tail_support": 2,
-    "serves": "A0",
-    "gate": "served by the reflex half \u2014 the best measured arm on this suite",
+    "serves": "A1",
+    "gate": "certified (paired LB95 +0.0082, mean +0.0862)",
     "source_run": {
-     "git_sha": "44b6672",
-     "date_utc": "2026-09-27T17:22:22Z"
+     "git_sha": "4070711",
+     "date_utc": "2026-09-28T06:10:12Z"
     }
    }
   },
@@ -7250,16 +7313,16 @@
        "brier_soft": null,
        "score_mae": null,
        "within_1": null,
-       "latency_p50_ms": 12.0,
-       "latency_p99_ms": 13.0,
+       "latency_p50_ms": 13.0,
+       "latency_p99_ms": 16.0,
        "latency_tail_support": 4,
        "latency_extremes": {
         "first_ms": 13.0,
-        "max_ms": 14.0,
-        "argmax_case": 5
+        "max_ms": 17.0,
+        "argmax_case": 90
        },
        "determinism_ok": true,
-       "seconds": 12.8178471,
+       "seconds": 6.2867043,
        "n_cases": 300,
        "n_questions": 300,
        "score_threshold": null,
@@ -7268,9 +7331,18 @@
        "corpus_cap": null,
        "head_selection": null,
        "nb_selection": null,
+       "oc_selection": null,
+       "ridge_selection": null,
+       "genome_selection": null,
        "transductive": null,
        "confusion": null,
-       "pair_head_ab": null
+       "pair_head_ab": null,
+       "cases_digest": "fnv1a64-b136750e5af1d412",
+       "latency_quotable": null,
+       "source_run": {
+        "git_sha": "97c2b1f",
+        "date_utc": "2026-09-28T07:13:04Z"
+       }
       }
      },
      "clm": {
@@ -7464,14 +7536,14 @@
     "consult_rate": 0.0,
     "latency_scope": "seat+arm",
     "latency_rows": "questions",
-    "latency_p50_ms": 0.094,
-    "latency_p99_ms": 0.119,
-    "latency_tail_support": 5,
+    "latency_p50_ms": 0.091,
+    "latency_p99_ms": 0.107,
+    "latency_tail_support": 6,
     "serves": "A0",
     "gate": "served by the reflex half \u2014 the best measured arm on this suite",
     "source_run": {
-     "git_sha": "44b6672",
-     "date_utc": "2026-09-27T17:22:22Z"
+     "git_sha": "4070711",
+     "date_utc": "2026-09-28T06:10:12Z"
     }
    },
    "openthai": {
@@ -8365,16 +8437,16 @@
        "brier_soft": null,
        "score_mae": null,
        "within_1": null,
-       "latency_p50_ms": 15.0,
-       "latency_p99_ms": 16.0,
+       "latency_p50_ms": 16.0,
+       "latency_p99_ms": 19.0,
        "latency_tail_support": 4,
        "latency_extremes": {
-        "first_ms": 15.0,
-        "max_ms": 17.0,
-        "argmax_case": 109
+        "first_ms": 17.0,
+        "max_ms": 21.0,
+        "argmax_case": 267
        },
        "determinism_ok": true,
-       "seconds": 13.940005,
+       "seconds": 7.3354609,
        "n_cases": 300,
        "n_questions": 300,
        "score_threshold": null,
@@ -8383,9 +8455,18 @@
        "corpus_cap": null,
        "head_selection": null,
        "nb_selection": null,
+       "oc_selection": null,
+       "ridge_selection": null,
+       "genome_selection": null,
        "transductive": null,
        "confusion": null,
-       "pair_head_ab": null
+       "pair_head_ab": null,
+       "cases_digest": "fnv1a64-49390c8b80475849",
+       "latency_quotable": null,
+       "source_run": {
+        "git_sha": "97c2b1f",
+        "date_utc": "2026-09-28T07:13:04Z"
+       }
       }
      },
      "clm": {
@@ -8555,14 +8636,14 @@
     "consult_rate": 1.0,
     "latency_scope": "arm-only",
     "latency_rows": "questions",
-    "latency_p50_ms": 0.001333,
-    "latency_p99_ms": 0.002458,
+    "latency_p50_ms": 0.00125,
+    "latency_p99_ms": 0.0026669999999999997,
     "latency_tail_support": 4,
     "serves": "H2(\u03b2=1,nmin=2,\u03c4=8)",
     "gate": "certified (paired LB95 +0.0124, mean +0.0467)",
     "source_run": {
-     "git_sha": "44b6672",
-     "date_utc": "2026-09-27T17:22:22Z"
+     "git_sha": "4070711",
+     "date_utc": "2026-09-28T06:10:12Z"
     }
    },
    "pairing": {
@@ -9512,16 +9593,16 @@
        "brier_soft": null,
        "score_mae": null,
        "within_1": null,
-       "latency_p50_ms": 23.0,
-       "latency_p99_ms": 39.0,
+       "latency_p50_ms": 32.0,
+       "latency_p99_ms": 47.0,
        "latency_tail_support": 6,
        "latency_extremes": {
-        "first_ms": 25.0,
-        "max_ms": 47.0,
-        "argmax_case": 113
+        "first_ms": 26.0,
+        "max_ms": 48.0,
+        "argmax_case": 290
        },
-       "determinism_ok": false,
-       "seconds": 22.4333705,
+       "determinism_ok": true,
+       "seconds": 19.9027001,
        "n_cases": 500,
        "n_questions": 500,
        "score_threshold": null,
@@ -9530,9 +9611,18 @@
        "corpus_cap": null,
        "head_selection": null,
        "nb_selection": null,
+       "oc_selection": null,
+       "ridge_selection": null,
+       "genome_selection": null,
        "transductive": null,
        "confusion": null,
-       "pair_head_ab": null
+       "pair_head_ab": null,
+       "cases_digest": "fnv1a64-dd8ab35333abb82a",
+       "latency_quotable": null,
+       "source_run": {
+        "git_sha": "97c2b1f",
+        "date_utc": "2026-09-28T07:13:04Z"
+       }
       }
      },
      "clm": {
@@ -9784,25 +9874,25 @@
    },
    "hybrid": {
     "lane": "Instinct (hybrid)",
-    "model": "A0",
+    "model": "H2(\u03b2=2,nmin=8,\u03c4=8)",
     "hard": {
      "n": 500,
-     "accuracy": 0.826,
-     "ece": 0.8015380177684128,
-     "mean_confidence": 0.024461982231587173,
-     "acc_at_50_coverage": 0.972
+     "accuracy": 0.854,
+     "ece": 0.08412793359878214,
+     "mean_confidence": 0.9374190933679326,
+     "acc_at_50_coverage": 0.996
     },
-    "consult_rate": 0.0,
-    "latency_scope": "seat+arm",
+    "consult_rate": 1.0,
+    "latency_scope": "arm-only",
     "latency_rows": "questions",
-    "latency_p50_ms": 0.408,
-    "latency_p99_ms": 0.774,
+    "latency_p50_ms": 0.00625,
+    "latency_p99_ms": 0.022,
     "latency_tail_support": 6,
-    "serves": "A0",
-    "gate": "served by the reflex half (A0 is the argmax)",
+    "serves": "H2(\u03b2=2,nmin=8,\u03c4=8)",
+    "gate": "best measured, T2-uncertified (paired LB95 -0.0013) \u2014 certification is more questions, not a posture rollback",
     "source_run": {
-     "git_sha": "44b6672",
-     "date_utc": "2026-09-27T17:22:22Z"
+     "git_sha": "4070711",
+     "date_utc": "2026-09-28T06:10:12Z"
     }
    }
   },
@@ -10243,6 +10333,67 @@
        "git_sha": "c464a8a",
        "date_utc": "2026-09-28T03:03:08Z"
       }
+     },
+     "laya": {
+      "english": {
+       "lane": "laya (rust)",
+       "model": "english",
+       "hard": {
+        "n": 32,
+        "accuracy": 0.40625,
+        "macro_f1": 0.15849282296650719,
+        "ece": 0.26474687499999994,
+        "brier": 0.723710810625,
+        "nll": 1.5985284301479366,
+        "aurc": 0.35501885135770367,
+        "mean_confidence": 0.578540625,
+        "acc_at_50_coverage": 0.5625,
+        "acc_at_80_coverage": 0.52
+       },
+       "readout_ece": 0.1708375,
+       "raw_abstain": null,
+       "calibrated_abstain": null,
+       "readout_ece_raw": null,
+       "readout_ece_calibrated": null,
+       "floor_ece": null,
+       "g1_pass": null,
+       "g1_verdict": null,
+       "by_question_type": null,
+       "soft_acc": null,
+       "brier_soft": null,
+       "score_mae": null,
+       "within_1": null,
+       "latency_p50_ms": 27.0,
+       "latency_p99_ms": 58.0,
+       "latency_tail_support": 1,
+       "latency_extremes": {
+        "first_ms": 17.0,
+        "max_ms": 58.0,
+        "argmax_case": 9
+       },
+       "determinism_ok": true,
+       "seconds": 3.0493855,
+       "n_cases": 16,
+       "n_questions": 32,
+       "score_threshold": null,
+       "distance_threshold": null,
+       "threshold_recommendation": null,
+       "corpus_cap": null,
+       "head_selection": null,
+       "nb_selection": null,
+       "oc_selection": null,
+       "ridge_selection": null,
+       "genome_selection": null,
+       "transductive": null,
+       "confusion": null,
+       "pair_head_ab": null,
+       "cases_digest": "fnv1a64-93583fda4fc64946",
+       "latency_quotable": null,
+       "source_run": {
+        "git_sha": "97c2b1f",
+        "date_utc": "2026-09-28T07:13:04Z"
+       }
+      }
      }
     }
    },
@@ -10259,7 +10410,30 @@
      "status": "same"
     }
    },
-   "cases_digest": "fnv1a64-93583fda4fc64946"
+   "cases_digest": "fnv1a64-93583fda4fc64946",
+   "hybrid": {
+    "lane": "Instinct (hybrid)",
+    "model": "A0",
+    "hard": {
+     "n": 32,
+     "accuracy": 0.375,
+     "ece": 0.3742090817540884,
+     "mean_confidence": 0.0007909182459115982,
+     "acc_at_50_coverage": 0.3125
+    },
+    "consult_rate": 0.0,
+    "latency_scope": "seat+arm",
+    "latency_rows": "cases",
+    "latency_p50_ms": 0.19,
+    "latency_p99_ms": 0.389,
+    "latency_tail_support": 1,
+    "serves": "A0",
+    "gate": "served by the reflex half \u2014 the best measured arm on this suite",
+    "source_run": {
+     "git_sha": "4070711",
+     "date_utc": "2026-09-28T06:10:12Z"
+    }
+   }
   },
   {
    "name": "harness_visibility",
@@ -10893,16 +11067,16 @@
        "brier_soft": null,
        "score_mae": null,
        "within_1": null,
-       "latency_p50_ms": 11.0,
-       "latency_p99_ms": 12.0,
+       "latency_p50_ms": 12.0,
+       "latency_p99_ms": 14.0,
        "latency_tail_support": 1,
        "latency_extremes": {
-        "first_ms": 11.0,
-        "max_ms": 12.0,
-        "argmax_case": 1
+        "first_ms": 12.0,
+        "max_ms": 14.0,
+        "argmax_case": 11
        },
        "determinism_ok": true,
-       "seconds": 8.8492007,
+       "seconds": 2.6002414,
        "n_cases": 16,
        "n_questions": 16,
        "score_threshold": null,
@@ -10911,9 +11085,18 @@
        "corpus_cap": null,
        "head_selection": null,
        "nb_selection": null,
+       "oc_selection": null,
+       "ridge_selection": null,
+       "genome_selection": null,
        "transductive": null,
        "confusion": null,
-       "pair_head_ab": null
+       "pair_head_ab": null,
+       "cases_digest": "fnv1a64-6256f41a5d45104d",
+       "latency_quotable": null,
+       "source_run": {
+        "git_sha": "97c2b1f",
+        "date_utc": "2026-09-28T07:13:04Z"
+       }
       }
      },
      "clm": {
@@ -11084,6 +11267,29 @@
       "id": "fnv1a64-6256f41a5d45104d"
      },
      "status": "same"
+    }
+   },
+   "hybrid": {
+    "lane": "Instinct (hybrid)",
+    "model": "A0",
+    "hard": {
+     "n": 16,
+     "accuracy": 0.5625,
+     "ece": 0.4815405048429966,
+     "mean_confidence": 0.0809594951570034,
+     "acc_at_50_coverage": 1.0
+    },
+    "consult_rate": 0.0,
+    "latency_scope": "seat+arm",
+    "latency_rows": "questions",
+    "latency_p50_ms": 0.01,
+    "latency_p99_ms": 0.012,
+    "latency_tail_support": 5,
+    "serves": "A0",
+    "gate": "served by the reflex half \u2014 the best measured arm on this suite",
+    "source_run": {
+     "git_sha": "4070711",
+     "date_utc": "2026-09-28T06:10:12Z"
     }
    }
   },
@@ -11695,7 +11901,7 @@
        "brier_soft": null,
        "score_mae": null,
        "within_1": null,
-       "latency_p50_ms": 11.0,
+       "latency_p50_ms": 12.0,
        "latency_p99_ms": 13.0,
        "latency_tail_support": 1,
        "latency_extremes": {
@@ -11704,7 +11910,7 @@
         "argmax_case": 0
        },
        "determinism_ok": true,
-       "seconds": 9.4867112,
+       "seconds": 2.5488793,
        "n_cases": 12,
        "n_questions": 12,
        "score_threshold": null,
@@ -11713,9 +11919,18 @@
        "corpus_cap": null,
        "head_selection": null,
        "nb_selection": null,
+       "oc_selection": null,
+       "ridge_selection": null,
+       "genome_selection": null,
        "transductive": null,
        "confusion": null,
-       "pair_head_ab": null
+       "pair_head_ab": null,
+       "cases_digest": "fnv1a64-12ee83a1c6493b29",
+       "latency_quotable": null,
+       "source_run": {
+        "git_sha": "97c2b1f",
+        "date_utc": "2026-09-28T07:13:04Z"
+       }
       }
      },
      "clm": {
@@ -11886,6 +12101,29 @@
       "id": "fnv1a64-12ee83a1c6493b29"
      },
      "status": "same"
+    }
+   },
+   "hybrid": {
+    "lane": "Instinct (hybrid)",
+    "model": "A0",
+    "hard": {
+     "n": 12,
+     "accuracy": 0.6666666666666666,
+     "ece": 0.6058034847180048,
+     "mean_confidence": 0.060863181948661804,
+     "acc_at_50_coverage": 0.8333333333333334
+    },
+    "consult_rate": 0.0,
+    "latency_scope": "seat+arm",
+    "latency_rows": "questions",
+    "latency_p50_ms": 0.007,
+    "latency_p99_ms": 0.008,
+    "latency_tail_support": 1,
+    "serves": "A0",
+    "gate": "served by the reflex half \u2014 the best measured arm on this suite",
+    "source_run": {
+     "git_sha": "4070711",
+     "date_utc": "2026-09-28T06:10:12Z"
     }
    }
   },
@@ -12473,16 +12711,16 @@
        "brier_soft": null,
        "score_mae": null,
        "within_1": null,
-       "latency_p50_ms": 10.0,
-       "latency_p99_ms": 10.0,
+       "latency_p50_ms": 11.0,
+       "latency_p99_ms": 12.0,
        "latency_tail_support": 1,
        "latency_extremes": {
-        "first_ms": 10.0,
-        "max_ms": 10.0,
+        "first_ms": 12.0,
+        "max_ms": 12.0,
         "argmax_case": 0
        },
        "determinism_ok": true,
-       "seconds": 9.0401585,
+       "seconds": 2.5597752,
        "n_cases": 12,
        "n_questions": 12,
        "score_threshold": null,
@@ -12491,9 +12729,18 @@
        "corpus_cap": null,
        "head_selection": null,
        "nb_selection": null,
+       "oc_selection": null,
+       "ridge_selection": null,
+       "genome_selection": null,
        "transductive": null,
        "confusion": null,
-       "pair_head_ab": null
+       "pair_head_ab": null,
+       "cases_digest": "fnv1a64-f8aa91cdb65abf34",
+       "latency_quotable": null,
+       "source_run": {
+        "git_sha": "97c2b1f",
+        "date_utc": "2026-09-28T07:13:04Z"
+       }
       }
      },
      "clm": {
@@ -12664,6 +12911,29 @@
       "id": "fnv1a64-f8aa91cdb65abf34"
      },
      "status": "same"
+    }
+   },
+   "hybrid": {
+    "lane": "Instinct (hybrid)",
+    "model": "A0",
+    "hard": {
+     "n": 12,
+     "accuracy": 0.9166666666666666,
+     "ece": 0.5807514190673828,
+     "mean_confidence": 0.3504203160603841,
+     "acc_at_50_coverage": 1.0
+    },
+    "consult_rate": 0.0,
+    "latency_scope": "seat+arm",
+    "latency_rows": "questions",
+    "latency_p50_ms": 0.009,
+    "latency_p99_ms": 0.009,
+    "latency_tail_support": 10,
+    "serves": "A0",
+    "gate": "served by the reflex half \u2014 the best measured arm on this suite",
+    "source_run": {
+     "git_sha": "4070711",
+     "date_utc": "2026-09-28T06:10:12Z"
     }
    }
   },
@@ -13275,16 +13545,16 @@
        "brier_soft": null,
        "score_mae": null,
        "within_1": null,
-       "latency_p50_ms": 12.0,
-       "latency_p99_ms": 13.0,
+       "latency_p50_ms": 14.0,
+       "latency_p99_ms": 16.0,
        "latency_tail_support": 1,
        "latency_extremes": {
-        "first_ms": 13.0,
-        "max_ms": 13.0,
-        "argmax_case": 0
+        "first_ms": 14.0,
+        "max_ms": 16.0,
+        "argmax_case": 4
        },
        "determinism_ok": true,
-       "seconds": 9.8927144,
+       "seconds": 2.7903636,
        "n_cases": 16,
        "n_questions": 16,
        "score_threshold": null,
@@ -13293,9 +13563,18 @@
        "corpus_cap": null,
        "head_selection": null,
        "nb_selection": null,
+       "oc_selection": null,
+       "ridge_selection": null,
+       "genome_selection": null,
        "transductive": null,
        "confusion": null,
-       "pair_head_ab": null
+       "pair_head_ab": null,
+       "cases_digest": "fnv1a64-2e568b9aa695d41c",
+       "latency_quotable": null,
+       "source_run": {
+        "git_sha": "97c2b1f",
+        "date_utc": "2026-09-28T07:13:04Z"
+       }
       }
      },
      "clm": {
@@ -13466,6 +13745,29 @@
       "id": "fnv1a64-2e568b9aa695d41c"
      },
      "status": "same"
+    }
+   },
+   "hybrid": {
+    "lane": "Instinct (hybrid)",
+    "model": "A0",
+    "hard": {
+     "n": 16,
+     "accuracy": 0.75,
+     "ece": 0.7215857654809952,
+     "mean_confidence": 0.028414234519004822,
+     "acc_at_50_coverage": 1.0
+    },
+    "consult_rate": 0.0,
+    "latency_scope": "seat+arm",
+    "latency_rows": "questions",
+    "latency_p50_ms": 0.009,
+    "latency_p99_ms": 0.011,
+    "latency_tail_support": 1,
+    "serves": "A0",
+    "gate": "served by the reflex half \u2014 the best measured arm on this suite",
+    "source_run": {
+     "git_sha": "4070711",
+     "date_utc": "2026-09-28T06:10:12Z"
     }
    }
   },
@@ -14077,16 +14379,16 @@
        "brier_soft": null,
        "score_mae": null,
        "within_1": null,
-       "latency_p50_ms": 12.0,
-       "latency_p99_ms": 36.0,
+       "latency_p50_ms": 13.0,
+       "latency_p99_ms": 14.0,
        "latency_tail_support": 1,
        "latency_extremes": {
-        "first_ms": 12.0,
-        "max_ms": 36.0,
-        "argmax_case": 10
+        "first_ms": 13.0,
+        "max_ms": 14.0,
+        "argmax_case": 5
        },
        "determinism_ok": true,
-       "seconds": 13.9141942,
+       "seconds": 2.5914921,
        "n_cases": 15,
        "n_questions": 15,
        "score_threshold": null,
@@ -14095,9 +14397,18 @@
        "corpus_cap": null,
        "head_selection": null,
        "nb_selection": null,
+       "oc_selection": null,
+       "ridge_selection": null,
+       "genome_selection": null,
        "transductive": null,
        "confusion": null,
-       "pair_head_ab": null
+       "pair_head_ab": null,
+       "cases_digest": "fnv1a64-c0bd4e4084dd9e3f",
+       "latency_quotable": null,
+       "source_run": {
+        "git_sha": "97c2b1f",
+        "date_utc": "2026-09-28T07:13:04Z"
+       }
       }
      },
      "clm": {
@@ -14268,6 +14579,29 @@
       "id": "fnv1a64-c0bd4e4084dd9e3f"
      },
      "status": "same"
+    }
+   },
+   "hybrid": {
+    "lane": "Instinct (hybrid)",
+    "model": "A0",
+    "hard": {
+     "n": 15,
+     "accuracy": 0.8,
+     "ece": 0.762697426478068,
+     "mean_confidence": 0.03730257352193197,
+     "acc_at_50_coverage": 1.0
+    },
+    "consult_rate": 0.0,
+    "latency_scope": "seat+arm",
+    "latency_rows": "questions",
+    "latency_p50_ms": 0.009,
+    "latency_p99_ms": 0.01,
+    "latency_tail_support": 1,
+    "serves": "A0",
+    "gate": "served by the reflex half \u2014 the best measured arm on this suite",
+    "source_run": {
+     "git_sha": "4070711",
+     "date_utc": "2026-09-28T06:10:12Z"
     }
    }
   },
@@ -14726,16 +15060,16 @@
        "brier_soft": null,
        "score_mae": null,
        "within_1": null,
-       "latency_p50_ms": 11.0,
-       "latency_p99_ms": 12.0,
+       "latency_p50_ms": 13.0,
+       "latency_p99_ms": 16.0,
        "latency_tail_support": 1,
        "latency_extremes": {
-        "first_ms": 12.0,
-        "max_ms": 12.0,
-        "argmax_case": 0
+        "first_ms": 14.0,
+        "max_ms": 16.0,
+        "argmax_case": 7
        },
        "determinism_ok": true,
-       "seconds": 10.2678582,
+       "seconds": 2.5168882999999997,
        "n_cases": 12,
        "n_questions": 12,
        "score_threshold": null,
@@ -14744,9 +15078,18 @@
        "corpus_cap": null,
        "head_selection": null,
        "nb_selection": null,
+       "oc_selection": null,
+       "ridge_selection": null,
+       "genome_selection": null,
        "transductive": null,
        "confusion": null,
-       "pair_head_ab": null
+       "pair_head_ab": null,
+       "cases_digest": "fnv1a64-7340affffa39fcad",
+       "latency_quotable": null,
+       "source_run": {
+        "git_sha": "97c2b1f",
+        "date_utc": "2026-09-28T07:13:04Z"
+       }
       }
      },
      "clm": {
@@ -15124,6 +15467,29 @@
       "id": "fnv1a64-7340affffa39fcad"
      },
      "status": "same"
+    }
+   },
+   "hybrid": {
+    "lane": "Instinct (hybrid)",
+    "model": "A0",
+    "hard": {
+     "n": 12,
+     "accuracy": 0.9166666666666666,
+     "ece": 0.7554523348808289,
+     "mean_confidence": 0.1612143317858378,
+     "acc_at_50_coverage": 1.0
+    },
+    "consult_rate": 0.0,
+    "latency_scope": "seat+arm",
+    "latency_rows": "questions",
+    "latency_p50_ms": 0.009,
+    "latency_p99_ms": 0.011,
+    "latency_tail_support": 1,
+    "serves": "A0",
+    "gate": "served by the reflex half \u2014 the best measured arm on this suite",
+    "source_run": {
+     "git_sha": "4070711",
+     "date_utc": "2026-09-28T06:10:12Z"
     }
    }
   },

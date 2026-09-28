@@ -1610,6 +1610,36 @@ def case_published_primary_meta_verdict_is_not_stamped():
     assert "latency_quotable" not in merged["suites"][0]["laya"]["english"]
 
 
+
+def case_unknown_host_refused_at_load():
+    # The runner's last-resort host label (REFLEX_BENCH_HOST unset AND
+    # uname unreadable — the 4090's PowerShell probe, reflex Bench 082)
+    # must REFUSE at load, never mint a phantom host row. The label fix
+    # belongs at the run (relabel per the issue-033 law), not the merge.
+    d = doc("unknown", "sha-u", {"s1": {"modelless_acc": PRE_ACC}})
+    with tempfile.TemporaryDirectory() as td:
+        p = Path(td) / "doc.json"
+        p.write_text(json.dumps(d), encoding="utf-8")
+        try:
+            pb.load_run(str(p))
+        except SystemExit as e:
+            assert e.code == 1, e.code
+        else:
+            raise AssertionError("unknown host must refuse")
+    # the refusal is spelling-agnostic: a display-spelled unknown also
+    # refuses (rename cannot rescue an unattributable run)
+    d2 = doc("unknown", "sha-u2", {"s1": {"modelless_acc": PRE_ACC}})
+    with tempfile.TemporaryDirectory() as td:
+        p2 = Path(td) / "doc.json"
+        p2.write_text(json.dumps(d2), encoding="utf-8")
+        try:
+            pb.load_run(str(p2))
+        except SystemExit as e:
+            assert e.code == 1, e.code
+        else:
+            raise AssertionError("unknown host must refuse")
+
+
 CASES = [
     case_lane_carry_keeps_incumbent_timing,
     case_republish_never_carries_an_untouched_lane,
@@ -1662,6 +1692,7 @@ CASES = [
     case_source_run_stamp_survives_remerge_and_digest_wins,
     case_pre_stamp_cells_still_fall_back_to_lane_sources,
     case_a0_stands_label_rides_the_cell,
+    case_unknown_host_refused_at_load,
 ]
 
 def main() -> int:

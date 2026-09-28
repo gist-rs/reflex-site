@@ -458,6 +458,16 @@ def load_run(path):
               file=sys.stderr)
         sys.exit(1)
     rename_hosts(d)
+    if host == "unknown":
+        # The runner's last-resort label (REFLEX_BENCH_HOST unset AND uname
+        # unreadable — measured on the 4090's PowerShell probe, reflex
+        # Bench 082). Merging it would mint a phantom host row the page
+        # cannot attribute; the fix belongs at the run, not the merge.
+        print(f"error: {src} carries meta.host 'unknown' — refusing to "
+              "merge an unattributable run (set REFLEX_BENCH_HOST=<label> "
+              "on the harness run, then relabel the doc per the issue-033 "
+              "law and re-run)", file=sys.stderr)
+        sys.exit(1)
     return d
 
 
