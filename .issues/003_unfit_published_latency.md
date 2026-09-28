@@ -39,9 +39,13 @@ lines now name the newest run, not `meta` (which is Bench 001's).
   (`6199e5e`, 03:27:37Z) is in no repo, so its exact posture flags aren't
   recorded; (b) a concurrent riir-reflex session is changing the modelless
   engine's defaults (Issue 038 cascade margin → 0.16), so a HEAD re-measure
-  would time a different engine. Do T1 as part of that lane's next publish,
-  under preflight, alone on the box. T2 must land first or the carry
-  discards the fresh timing.
+  would time a different engine. **Both blockers cleared 2026-09-28** —
+  (b) landed 09-27 (the margin promotion is the published engine now) and
+  T2's `carry_beats_incumbent` is live, so a fresh quotable run replaces
+  the carried unfit timing at the next publish. T1 = full modelless
+  harness run at HEAD under `scripts/bench_preflight.sh`, alone on the
+  box, then republish. Queued 2026-09-28: preflight REFUSED at load 9.5
+  (sibling builds); run when load < 6.0.
 - [x] T2 — a publish path that lets a QUOTABLE run replace a carried lane's
   timing. LANE_CARRY exists so an update never swaps validated timing for
   invalidated timing. Here the incumbent is the invalidated one, so carrying
@@ -57,7 +61,12 @@ lines now name the newest run, not `meta` (which is Bench 001's).
   rc=0 — all 13 unfit row-level m3 modelless cells flip to fresh quotable
   own-timing, the validated-True incumbent stays carried (Issue-032 law
   intact), 4090 unjudged carries untouched. The real remedy remains T1.
-- [ ] T3 — re-measure or drop the m3-max-ane laya:english timing (ANE lane).
+- [-] T3 — re-measure or drop the m3-max-ane laya:english timing (ANE lane).
+  Deferred 2026-09-28: the ANE lane's substrate (`riir-infer` `ane_prefill`)
+  is sibling-session WIP right now (143 dirty files), so a re-measure would
+  time an in-flight tree; and the drop option is a product call on a
+  closed-negative lane (riir-ai: ANE hybrid default-off/closed-negative) —
+  owner-gated. Re-measure after the ane_prefill work lands, under preflight.
 - [x] T4 — `lane_sources` is keyed per (host, lane), not per suite. A
   one-suite update re-labels the source on every suite: the Bench 067
   typed-only update claims `5ada17a` for 15 suites' laya:english cells, 14 of
