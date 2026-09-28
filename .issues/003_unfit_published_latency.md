@@ -90,6 +90,17 @@ lines now name the newest run, not `meta` (which is Bench 001's).
   over-labeling). Self-test 47/47 (3 new cases: per-suite stamp vs relabeled
   summary + digest precedence; re-merge survival + digest outranks stamp;
   pre-stamp legacy fallback intact).
-- [ ] T5 — the 22 unknown cells (4090 laya `634093f`, hybrid `0959928`):
+- [-] T5 — the 22 unknown cells (4090 laya `634093f`, hybrid `0959928`):
   their source docs live on the 4090 / in riir-instinct outputs not in a repo.
   Resolve when those docs are available; 4090 cells would read unjudged anyway.
+  **PARTIALLY RESOLVED 2026-09-29 (mapping, not re-judgement):** both SHAs
+  located in local history — hybrid `0959928` = riir-instinct Bench 002
+  ("the aligned Bench-052-protocol read + the reflex-site hybrid lane
+  publish"; the outputs ARE in a repo: `riir-instinct
+  .benchmarks/002_hybrid_052_protocol/` + the `hybrid_lane_doc.json` built
+  from it — the "not in a repo" premise is void for the hybrid half);
+  4090-laya `634093f` = riir-reflex HEAD at run time (a docs commit —
+  "AGENTS.md documents the harness --distill teacher pass"; the results
+  doc itself still lives on the 4090). The 4090 cells stay UNJUDGED (no
+  box probes on that host — unchanged); the hybrid cells' provenance is
+  now quotable as instinct Bench 002 / `0959928` without any fetch.
