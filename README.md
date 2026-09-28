@@ -192,6 +192,11 @@ this publish in the same effort, then commit + deploy. A stale publish is
 diagnosable from the page itself: `meta.lane_sources` carries the git sha
 per lane.
 
+An `unknown` host label REFUSES at load (2026-09-28, reflex Bench 082: the 4090's
+PowerShell probe cannot resolve `uname -n`, so an unset `REFLEX_BENCH_HOST` lands
+`unknown` — merging it would mint a phantom host row; relabel the doc at the run,
+never in the merge).
+
 `REFLEX_BENCH_HOST` names the host in results.json meta (the per-host merge
 key — use a self-describing label like `m3` or `4090-windows`, not a bare
 uname). Machine labels are machine-side; the page spellings are the
