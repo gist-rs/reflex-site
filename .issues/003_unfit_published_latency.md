@@ -32,9 +32,17 @@ lines now name the newest run, not `meta` (which is Bench 001's).
 
 ## Tasks
 
-- [ ] T1 — re-measure the m3 modelless lane's latency on a box that passes
+- [x] T1 — re-measure the m3 modelless lane's latency on a box that passes
   `riir-reflex/scripts/bench_preflight.sh`, at the published armed posture
   (accuracy must stay byte-identical, or the cross-host drift gate refuses).
+  LANDED 2026-09-28: benches 076 (m3, quotable both spans) + 077 (4090-windows,
+  the cross-host half the drift gate demanded — 15/15 bit-identical at HEAD
+  `c464a8a` after fixing TWO dataset drifts on the 4090: xnli train pages
+  missing, massive train pool a truncated 26-of-40 old fetch). The accuracy
+  did NOT stay byte-identical — the engine itself moved at HEAD (072-era
+  ladder changes), so the publish carries the HEAD truth on BOTH hosts with
+  per-cell source stamps; deltas disclosed in the bench record. All 15 m3
+  modelless cells now quotable; unfit count 26 → 11 (all T3's ANE rows).
   ⚠ Blocked 2026-09-27: (a) the published modelless run's `results.json`
   (`6199e5e`, 03:27:37Z) is in no repo, so its exact posture flags aren't
   recorded; (b) a concurrent riir-reflex session is changing the modelless
