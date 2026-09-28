@@ -49,7 +49,7 @@ echo "== 4/5 docs-mirror parity"
 python3 "$SITE_ROOT/scripts/sync_mirror.py" --check
 
 echo "== 5/5 bench-page smoke"
-if node -e "require('playwright')" >/dev/null 2>&1; then
+if (cd "$SITE_ROOT" && node -e "require('playwright')" >/dev/null 2>&1); then
     node "$SITE_ROOT/scripts/bench_page_smoke.cjs"
 else
     echo "SKIP (loud): playwright not installed — install with:"

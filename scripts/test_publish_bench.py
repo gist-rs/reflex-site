@@ -329,12 +329,59 @@ def case_population_reset_ack_without_mismatch_refuses():
     assert merged is None and "no extra doc carries that suite with a population mismatch" in err, err
 
 
-def case_extra_suite_absent_in_primary_refuses():
+def case_unknown_suite_join_rides_an_update():
+    # reflex Bench 074: an update doc may ADD suites (the Thai probe
+    # suites) when it also carries at least one suite the primary knows —
+    # the new rows join with the doc's own lanes, loudly. A doc with NO
+    # known suite still refuses (the hosts row would land with nothing on
+    # the shared table — the silent-vanish shape).
+    primary = doc("m3", "sha-m3", {"s1": {"modelless_acc": PRE_ACC}})
+    update = doc("m3", "sha-th", {"s1": {"modelless_acc": PRE_ACC}})
+    update["suites"].append({
+        "name": "thai_wisesight", "n_questions": 400, "n_cases": 5,
+        "openthai": {"lane": "openthai", "model": "openthai-systemone",
+                     "hard": {"accuracy": 0.475}},
+    })
+    merged, err = merge_refusing(primary, update)
+    assert merged is not None, f"join must pass, got: {err}"
+    names = [s["name"] for s in merged["suites"]]
+    assert names == ["s1", "thai_wisesight"], names
+    row = next(s for s in merged["suites"] if s["name"] == "thai_wisesight")
+    assert row["openthai"]["hard"]["accuracy"] == 0.475
+    assert "modelless" not in row  # the join lands only what the doc declares
+
+    # a KNOWN host adding only unknown suites still joins (its row anchors
+    # the doc; the join is loud per suite)
+    extension = doc("m3", "sha-x", {"martian": {"modelless_acc": 0.5}})
+    merged2, err2 = merge_refusing(primary, extension)
+    assert merged2 is not None, "a known host's all-new suites must join"
+    assert any(s["name"] == "martian" for s in merged2["suites"])
+
+    # a BRAND-NEW host with only unknown suites refuses — phantom host +
+    # phantom rows in one step is the silent-vanish shape. (Fresh name:
+    # merge() mutates the shared primary dict, so `martian` above is
+    # already "known" by the time this doc merges.)
+    stranger = doc("mars", "sha-y", {"venusian": {"modelless_acc": 0.5}})
+    merged3, err3 = merge_refusing(primary, stranger)
+    assert merged3 is None, "a new host with no known suite must refuse"
+    assert "venusian" in err3
+
+
+def case_extra_suite_absent_in_primary_joins_loudly():
+    # reflex Bench 074 join law (was a hard refuse): a doc may ADD a suite
+    # the primary lacks when it also anchors at least one known suite —
+    # the new row joins with the doc's own lanes, and the join is loud.
+    # A doc with no known suite still refuses (case_…_join… covers it).
     primary = doc("m3", "sha-m3", {"s1": {"modelless_acc": 0.5}})
     extra = doc("4090", "sha-4090", {"s1": {"modelless_acc": 0.5},
                                      "unknown_suite": {"modelless_acc": 0.9}})
     merged, err = merge_refusing(primary, extra)
-    assert merged is None and "unknown_suite" in err
+    assert merged is not None, f"join must pass, got: {err}"
+    row = next(s for s in merged["suites"] if s["name"] == "unknown_suite")
+    # 4090 is a JOINING host: its lanes land in extra_host_lanes
+    entry = row["extra_host_lanes"]["4090"]
+    assert entry["modelless"]["hard"]["accuracy"] == 0.9
+    assert "join" in err and "unknown_suite" in err
 
 
 def run_main(docs, root, extra_argv=()):
@@ -723,6 +770,60 @@ def case_agentjev_lane_rides_an_update():
     assert d["suites"][0]["agentjev"]["lane"] == "agentjev (reference)"
 
 
+
+
+def case_openthai_lane_rides_an_update():
+    # reflex Plan 003 / Bench 074: the OpenThai comparison lane rides the
+    # same carry law as agentjev — an update declares it, the merged state
+    # carries it on the host's entry, and the display rename reaches both
+    # surfaces. An external service: a device-variant host skips it like
+    # every other comparison lane.
+    primary = doc("m3", "sha-m3", {"s1": {"modelless_acc": PRE_ACC}})
+    update = doc("m3", "sha-ot", {"s1": {"modelless_acc": PRE_ACC}})
+    update["suites"][0]["openthai"] = {
+        "lane": "openthai", "model": "openthai-systemone@5d04bcca",
+        "hard": {"accuracy": 0.8382}, "latency_p50_ms": 110.0,
+    }
+    merged, err = merge_refusing(primary, update)
+    assert merged is not None, f"merge must pass, got: {err}"
+    s1 = next(s for s in merged["suites"] if s["name"] == "s1")
+    assert s1["openthai"]["hard"]["accuracy"] == 0.8382
+    assert s1["openthai"]["lane"] == "openthai"  # machine field pre-rename
+    row = next(h for h in merged["meta"]["hosts"] if h["host"] == "m3")
+    assert row["lane_sources"]["openthai"]["git_sha"] == "sha-ot"
+
+    # a later openthai-bearing update replaces the lane (lane-scoped update)
+    later = doc("m3", "sha-ot2", {"s1": {"modelless_acc": PRE_ACC}})
+    later["suites"][0]["openthai"] = {
+        "lane": "openthai", "model": "openthai-systemone@5d04bcca",
+        "hard": {"accuracy": 0.89}, "latency_p50_ms": 105.0,
+    }
+    merged2, err2 = merge_refusing(merged, later)
+    assert merged2 is not None, f"second merge must pass, got: {err2}"
+    s1b = next(s for s in merged2["suites"] if s["name"] == "s1")
+    assert s1b["openthai"]["hard"]["accuracy"] == 0.89
+
+    # the display rename reaches the openthai lane (primary + extra surfaces)
+    d = {"suites": [{"openthai": {"lane": "openthai"}}]}
+    pb.rename_lanes(d)
+    assert d["suites"][0]["openthai"]["lane"] == "openthai (reference)"
+
+    # device-variant posture: an openthai lane under m3-max-ane is skipped
+    # (external service, no device-sensitive surface) — disclosed loudly.
+    primary_ane = doc("m3", "sha-m3", {"s1": {"modelless_acc": PRE_ACC, "laya_p50": 4.0}})
+    ane = doc("m3-ane", "sha-ane", {"s1": {"modelless_acc": PRE_ACC, "laya_p50": 2.0}})
+    ane["suites"][0]["openthai"] = {
+        "lane": "openthai", "model": "openthai-systemone@5d04bcca",
+        "hard": {"accuracy": 0.83}, "latency_p50_ms": 108.0,
+    }
+    pb.rename_hosts(ane)  # load_run's rename half — merge sees one spelling
+    merged3, err3 = merge_refusing(primary_ane, ane)
+    assert merged3 is not None, f"device-variant merge must pass, got: {err3}"
+    s1c = next(s for s in merged3["suites"] if s["name"] == "s1")
+    entry = s1c["extra_host_lanes"]["m3-max-ane"]
+    assert "openthai" not in entry, (
+        "a device-variant host's openthai lane must be skipped, never merged")
+    assert "openthai@m3-max-ane" in err3, "the skip must be disclosed loudly"
 
 
 def case_hybrid_lane_rides_an_update():
@@ -1497,11 +1598,13 @@ CASES = [
     case_host_display_rename_at_load_boundary,
     case_gliner_lane_rides_an_update,
     case_agentjev_lane_rides_an_update,
+    case_openthai_lane_rides_an_update,
     case_hybrid_lane_rides_an_update,
     case_paw_lanes_ride_an_update,
     case_publish_bench_lanes_filter,
     case_device_variant_host_drops_modelless,
-    case_extra_suite_absent_in_primary_refuses,
+    case_unknown_suite_join_rides_an_update,
+    case_extra_suite_absent_in_primary_joins_loudly,
     case_end_to_end_main,
     case_pairing_differs_on_cross_sample_runs,
     case_pairing_same_when_digests_match,

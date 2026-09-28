@@ -206,6 +206,11 @@ LANE_DISPLAY = {
     # lane's payload, so the display names carry it.
     "paw": "paw (hosted)",
     "paw-local": "paw (local)",
+    # reflex Plan 003 T2 (Bench 074): the OpenThai-SystemOne comparison
+    # lane — their FastAPI service answers the same decision questions
+    # (the agentjev/clm family law: their stack serves, our Rust
+    # measures), so the display name carries the (reference) qualifier.
+    "openthai": "openthai (reference)",
 }
 
 # Both spellings of the python lane: the machine field in a fresh harness
@@ -285,6 +290,7 @@ def rename_lanes(d):
             + ([s["hybrid"]] if s.get("hybrid") else [])
             + ([s["paw"]] if s.get("paw") else [])
             + ([s["paw_local"]] if s.get("paw_local") else [])
+            + ([s["openthai"]] if s.get("openthai") else [])
         )
         for l in lanes:
             # The model column renders the harness's own field — the modelless
@@ -505,7 +511,8 @@ def merge(primary, extras):
             continue
         cells = ([s.get("modelless")] + list((s.get("laya") or {}).values())
                  + [s.get(k) for k in ("clm", "gliner", "agentjev",
-                                       "paw", "paw_local", "hybrid")])
+                                       "paw", "paw_local", "hybrid",
+                                       "openthai")])
         for cell in cells:
             if isinstance(cell, dict):
                 cell.setdefault("cases_digest", dg)
@@ -518,7 +525,8 @@ def merge(primary, extras):
         for s in p_suites.values():
             cells = ([s.get("modelless")] + list((s.get("laya") or {}).values())
                      + [s.get(k) for k in ("clm", "gliner", "agentjev",
-                                           "paw", "paw_local", "hybrid")])
+                                           "paw", "paw_local", "hybrid",
+                                           "openthai")])
             for cell in cells:
                 if isinstance(cell, dict):
                     cell.setdefault("latency_quotable", pq)
@@ -558,6 +566,15 @@ def merge(primary, extras):
             hosts_by_name[ehost] = host_row(emeta)
             hosts_order.append(ehost)
         excluded = []
+        # Suite-join guard input: the suites this doc carries that the
+        # primary already knows. A doc may ADD suites (the reflex Bench
+        # 074 Thai probe suites rode exactly such a doc) — the join is
+        # loud per suite. A BRAND-NEW host whose every suite is new is
+        # still an error: it would mint a phantom host AND phantom rows
+        # in one step, the silent-vanish shape the superset refusal
+        # exists to catch (a known host's row anchors the doc instead).
+        known_before = [q.get("name") for q in extra.get("suites", [])
+                        if q.get("name") in p_suites]
         updated_lanes = {}
         python_lanes = False
         # Device-variant host (the DEVICE_VARIANT_HOSTS law): only the
@@ -569,10 +586,30 @@ def merge(primary, extras):
             name = s["name"]
             p = p_suites.get(name)
             if p is None:
-                print(f"error: host {ehost} has suite {name} which the "
-                      f"primary run lacks — publish the superset run as the "
-                      "primary (first argument)", file=sys.stderr)
-                sys.exit(1)
+                if not known_before and is_join:
+                    print(f"error: host {ehost} has suite {name} which the "
+                          f"primary run lacks, and a new host with no known "
+                          f"suite cannot join — publish the superset run as "
+                          "the primary (first argument)", file=sys.stderr)
+                    sys.exit(1)
+                # The suite JOIN path: create the row from the doc's own
+                # facts and let the ordinary lane merge below land the
+                # doc's lanes on it. Loud, and one-directional — a joined
+                # row carries only what its docs declare, so nothing
+                # already published can shrink (the Issue-034 wall's
+                # update-path twin stays walled above).
+                p = {"name": name,
+                     "n_questions": s.get("n_questions"),
+                     "n_cases": s.get("n_cases")}
+                p_suites[name] = p
+                primary.setdefault("suites", []).append(p)
+                print(
+                    f"note: join — host {ehost} adds suite {name} "
+                    f"(nq {s.get('n_questions')}, n_cases "
+                    f"{s.get('n_cases')}; not in the primary run; the "
+                    "doc's own lanes land on the new row)",
+                    file=sys.stderr,
+                )
             # Population guard: a suite row is only mergeable when both
             # hosts answered the SAME question set. code_fixtures harvests
             # fn spans from the repo's own sources at RUNTIME, so its
@@ -695,6 +732,16 @@ def merge(primary, extras):
                 updated_lanes["hybrid"] = True
             elif eh:
                 skipped_variant_lanes.append(f"hybrid@{ehost}")
+            # The OpenThai comparison lane (reflex Plan 003 / Bench 074):
+            # the same carry law — an external service measured per-host,
+            # no bit-identity claim applies.
+            eo = s.get("openthai")
+            if eo and not device_variant:
+                stamp_cell(eo, s, emeta)
+                entry["openthai"] = eo
+                updated_lanes["openthai"] = True
+            elif eo:
+                skipped_variant_lanes.append(f"openthai@{ehost}")
             # The Issue-024 leak block (T4): a slice property of the
             # DATASETS + registry caps, not of the host — the latest
             # run's scan is the published one (a doc without it never
@@ -958,7 +1005,7 @@ def _carry_into(lane, incumbent):
 # the inventory expands it per checkpoint key, because a publish that drops
 # one checkpoint drops published cells even though the class survives.
 LANE_CLASSES = ("modelless", "laya", "clm", "gliner", "agentjev", "hybrid",
-                "paw", "paw_local")
+                "paw", "paw_local", "openthai")
 
 
 def lane_inventory(d):
@@ -1288,6 +1335,8 @@ def main() -> int:
                 + ([host_lanes["paw"]] if host_lanes.get("paw")
                    else [])
                 + ([host_lanes["paw_local"]] if host_lanes.get("paw_local")
+                   else [])
+                + ([host_lanes["openthai"]] if host_lanes.get("openthai")
                    else [])
             )
             for l in lanes:

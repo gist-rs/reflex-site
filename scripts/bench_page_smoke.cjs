@@ -66,7 +66,7 @@ const server = http.createServer((req, res) => {
   // 2) the filter bar: 5 chips (the two laya spellings may both exist)
   const chips = await page.$$eval("#lane-filter input[type=checkbox]", (xs) => xs.map((x) => x.dataset.key));
   console.log("chips:", chips.join(","));
-  for (const k of ["katgpt", "rust", "python", "clm", "gliner", "agentjev"]) {
+  for (const k of ["katgpt", "rust", "python", "clm", "gliner", "agentjev", "openthai"]) {
     if (!chips.includes(k)) fail(`filter chip missing: ${k}`);
   }
   if (chips.length >= 5) console.log("ok: filter chips present");
@@ -85,10 +85,27 @@ const server = http.createServer((req, res) => {
   if (ajRows < 10) fail(`expected >=10 agentjev table rows, got ${ajRows}`);
   else console.log(`ok: ${ajRows} agentjev table rows`);
 
-  // 4) hero bars: gliner lane bar present (not "not run")
+  // 3c) openthai rows (reflex Plan 003 / Bench 074): the Thai board's
+  // comparison lane — row floor grows only upward
+  const otRows = await page.$$eval("#tables tr", (trs) => trs.filter((t) => { const c = t.querySelector("td"); return c && /^openthai · /.test(c.textContent); }).length);
+  if (otRows < 4) fail(`expected >=4 openthai table rows, got ${otRows}`);
+  else console.log(`ok: ${otRows} openthai table rows`);
+
+  // 4) hero bars: a lane's not-run bars must be EXACTLY the suites the
+  //    lane never measured (read from the data — the suite set grows over
+  //    time; the reflex Bench 074 Thai suites joined without clm/gliner/
+  //    agentjev cells). A not-run on a suite WITH a lane cell is the
+  //    extra-host fallback failing — the defect this check exists for.
+  const benchData = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "data", "bench.json"), "utf8"));
+  const laneHasCell = (s, k) => !!(s[k] || Object.values(s.extra_host_lanes || {}).some((h) => h[k]));
   const notRun = await page.$$eval("#bench-hero .bc-hbar.bc-none", (xs) => xs.map((x) => x.textContent.trim()));
   console.log("hero not-run bars:", notRun.join(" | ") || "(none)");
-  if (notRun.some((t) => t.startsWith("gliner"))) fail("gliner hero bar reads not-run — the extra-host fallback failed");
+  for (const [key, label] of [["gliner", "gliner"], ["agentjev", "agentjev"], ["openthai", "openthai"]]) {
+    const expected = benchData.suites.filter((s) => !laneHasCell(s, key)).length;
+    const got = notRun.filter((t) => t.startsWith(label)).length;
+    if (got !== expected) fail(`${label}: ${got} hero not-run bars vs ${expected} suites without a ${label} cell — a not-run on a measured suite means the extra-host fallback failed`);
+    else if (expected > 0) console.log(`ok: ${label} not-run only on its ${expected} unmeasured suite(s)`);
+  }
 
   // 5) toggle gliner OFF: rows disappear everywhere
   await page.check('#lane-filter input[data-key="gliner"]').catch(() => {});
@@ -174,7 +191,8 @@ const server = http.createServer((req, res) => {
     const bench = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "data", "bench.json"), "utf8"));
     const cells = bench.suites.flatMap((s) => [s.modelless, ...Object.values(s.laya || {}),
       ...Object.values(s.extra_host_lanes || {}).flatMap((h) => [h.modelless, ...Object.values(h.laya || {}),
-        h.clm, h.gliner, h.agentjev, h.hybrid]), s.clm, s.gliner, s.agentjev, s.hybrid]).filter(Boolean);
+        h.clm, h.gliner, h.agentjev, h.hybrid, h.openthai]), s.clm, s.gliner, s.agentjev, s.hybrid,
+      s.openthai]).filter(Boolean);
     const unfit = cells.filter((c) => c.latency_quotable === false).length;
     const kmUnfit = bench.suites.filter((s) => s.modelless?.latency_quotable === false).length;
     const dom = await page.evaluate(() => [...document.querySelectorAll("td.unq")]

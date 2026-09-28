@@ -28,6 +28,10 @@
     // The instinct hybrid (riir-instinct): magenta slot, distinct from all
     // six existing hues under the same dark-surface ≥3:1 contrast rule.
     { key: "instinct", label: "Instinct (hybrid)", color: "#e06ab4", match: (l) => l.lane === "Instinct (hybrid)" },
+    // The OpenThai comparison lane (reflex Plan 003): red slot, distinct
+    // from the seven existing hues under the same dark-surface ≥3:1
+    // contrast rule (~5:1 measured against #140b08 / #1d110c).
+    { key: "openthai", label: "openthai", color: "#e0524f", match: (l) => l.lane === "openthai (reference)" },
   ];
   const OTHER = { key: "other", label: "other", color: "#8a7468" };
   const laneOf = (l) => LANES.find((x) => x.match(l)) || OTHER;
@@ -143,6 +147,7 @@
     if (s.clm) out.push(s.clm);
     if (s.gliner) out.push(s.gliner);
     if (s.agentjev) out.push(s.agentjev);
+    if (s.openthai) out.push(s.openthai);
     if (s.hybrid) out.push(s.hybrid);
     return out;
   }
@@ -154,6 +159,7 @@
       if (hl.clm) out.push([hl.clm, host]);
       if (hl.gliner) out.push([hl.gliner, host]);
       if (hl.agentjev) out.push([hl.agentjev, host]);
+      if (hl.openthai) out.push([hl.openthai, host]);
       if (hl.hybrid) out.push([hl.hybrid, host]);
     }
     return out;
@@ -317,7 +323,7 @@
       }
     const extraHosts = d.suites.some((s) => s.extra_host_lanes);
     const note = `laya bars use each suite's best non-multilingual checkpoint${picks.size ? ` (${[...picks].join(", ")}; english elsewhere)` : " (english)"}. ` +
-      `Comparison-lane bars (clm, gliner, agentjev) carry the host they ran on in the tooltip${extraHosts ? " — other hosts' rows stay in the tables below" : ""}.` +
+      `Comparison-lane bars (clm, gliner, agentjev, openthai) carry the host they ran on in the tooltip${extraHosts ? " — other hosts' rows stay in the tables below" : ""}.` +
       (M.log ? " Latency is log-scale (each gridline = 10×) — shorter is faster." : " Chance level differs per suite — compare lanes within a row, not rows with each other.") + sortNote(heroSort, sLane);
     return `<div class="bc-hgrid"><div></div>${axis(m)}${rows}<div></div>${axis(m)}</div><p class="bc-note">${esc(note)}</p>`;
   }
