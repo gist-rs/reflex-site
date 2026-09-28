@@ -34,7 +34,12 @@ if [ "$#" -lt 1 ]; then
 fi
 
 echo "== 1/5 publish_bench self-test"
-python3 "$SITE_ROOT/scripts/test_publish_bench.py"
+# Env-clean: the merge-law self-test must be deterministic regardless of the
+# caller lane-scoping/ack env — with PUBLISH_BENCH_LANES exported (the
+# documented usage), the scoping filtered the test own extras and its
+# update assertions failed. Steps 3/3.5 keep the env deliberately.
+env -u PUBLISH_BENCH_LANES -u PUBLISH_ALLOW_SAMPLE_MISMATCH \
+    python3 "$SITE_ROOT/scripts/test_publish_bench.py"
 
 echo "== 2/5 chart render smoke (pre-publish state)"
 node "$SITE_ROOT/scripts/chart_render_smoke.cjs"
