@@ -221,6 +221,31 @@ const server = http.createServer((req, res) => {
     if (!process.exitCode) console.log(`ok: ${dom.length} latency cells marked unfit (${unfit} unfit cells in the data)`);
   }
 
+  // 9b) the modelless-scoped disclosures follow the modelless lane's filter
+  //     (the reported "G1 PASS under openthai" leftover: the G1 verdict,
+  //     gate fit and count tables are the MODELLESS lane's gates — they
+  //     hide with it and never float over a table the filter emptied of the
+  //     modelless row; the chip names the lane so it cannot be read as the
+  //     visible lane's verdict).
+  {
+    const g1Chips = () => page.$$eval("#tables summary .chip", (xs) => xs.filter((c) => /^G1 \(modelless\)/.test(c.textContent)).length);
+    const g1Lines = () => page.$$eval("#tables p.g1", (xs) => xs.length);
+    const beforeChips = await g1Chips(), beforeLines = await g1Lines();
+    if (!beforeChips) fail("expected visible G1 (modelless) chips with the modelless lane shown");
+    else if (!beforeLines) fail("expected G1/gate-fit/count-table lines with the modelless lane shown");
+    else console.log(`ok: ${beforeChips} G1 chips + ${beforeLines} modelless-scoped lines with the lane shown`);
+    await page.uncheck('#lane-filter input[data-key="katgpt"]');
+    await page.waitForTimeout(200);
+    const hiddenChips = await g1Chips(), hiddenLines = await g1Lines();
+    if (hiddenChips !== 0) fail(`G1 chips must hide with the modelless lane, got ${hiddenChips}`);
+    else if (hiddenLines !== 0) fail(`G1/gate-fit/count-table lines must hide with the modelless lane, got ${hiddenLines}`);
+    else console.log("ok: G1 verdict + gate fit + count tables hide with the modelless lane");
+    await page.check('#lane-filter input[data-key="katgpt"]');
+    await page.waitForTimeout(200);
+    if ((await g1Chips()) !== beforeChips) fail("G1 chips must return with the modelless lane");
+    else console.log("ok: G1 chips return with the modelless lane");
+  }
+
   // restore the default posture for the screenshot
   await page.click('#bench-hero button[data-metric="acc"]');
   await page.click('#bench-hero button[data-sort="data"]');

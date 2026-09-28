@@ -428,12 +428,20 @@ function suiteSection(s) {
   const shownExtra = window.BenchFilter ? extraRows.filter(([l]) => BenchFilter.visible(l)) : extraRows;
   const bestAcc = Math.max(...shown.concat(shownExtra.map(([l]) => l)).map((l) => (l.hard || {}).accuracy ?? 0));
   const m = s.modelless;
+  // The lane filter governs EVERY section of the page (the filter bar's own
+  // promise), and the G1 verdict / gate fit / count tables are MODELLESS-lane
+  // disclosures — so they hide with the modelless lane. Rendered beside a
+  // table the filter emptied of the modelless row, they read as another
+  // lane's leftover (the reported typed_decisions "G1 PASS under openthai"
+  // confusion). The !m guard is load-bearing: BenchFilter.visible(null)
+  // would dereference null in laneOf's matchers.
+  const mlVisible = !window.BenchFilter || !m || BenchFilter.visible(m);
   // The G1 verdict: g1_verdict (pass/fail/no_claim) when the run carries it;
   // the g1_pass boolean is the pre-no-claim fallback. no_claim = the
   // calibrator never fitted — never rendered as FAIL.
   const v = m ? (m.g1_verdict || (m.g1_pass === true ? "pass" : m.g1_pass === false ? "fail" : null)) : null;
   const g1Word = v === "pass" ? "PASS" : v === "fail" ? "FAIL" : v === "no_claim" ? "NO CLAIM" : null;
-  const g1 = g1Word
+  const g1 = g1Word && mlVisible
     ? `<p class="g1">G1 (modelless calibration): raw ${fmt(m.readout_ece_raw, 4)} · calibrated ${fmt(m.readout_ece_calibrated, 4)} · conformal-naive floor ${fmt(m.floor_ece, 4)} → <span class="${v === "pass" ? "pass" : v === "fail" ? "fail" : "noclaim"}">${g1Word}</span>${v === "no_claim" ? " <span class=\"cases\">— the calibrator never fitted (cal window below the occupancy floor); nothing to pass or fail</span>" : ""}</p>`
     : "";
   // The Issue-024 leak scan (counts, never a rate): the corpus+cal to eval
@@ -443,10 +451,10 @@ function suiteSection(s) {
     : "";
 
   return `<h3 class="suite" id="suite-${s.name}"><a class="hlink" href="#suite-${s.name}">${s.name}</a> <span class="cases">— ${s.n_cases} cases / ${s.n_questions} questions</span></h3>
-  ${window.BenchCharts ? BenchCharts.suite(s) : ""}<details class="more"><summary>Table · calibration · gate fit${g1Word ? ` <span class="chip ${v === "pass" ? "pass" : v === "fail" ? "fail" : ""}">G1 ${g1Word}</span>` : ""}</summary><div class="scroll"><table class="bench">
+  ${window.BenchCharts ? BenchCharts.suite(s) : ""}<details class="more"><summary>Table · calibration · gate fit${g1Word && mlVisible ? ` <span class="chip ${v === "pass" ? "pass" : v === "fail" ? "fail" : ""}">G1 (modelless) ${g1Word}</span>` : ""}</summary><div class="scroll"><table class="bench">
     <thead><tr><th>lane · model</th><th>acc</th><th>macro F1</th><th>ECE(maxp)</th><th>Brier</th><th>acc@50cov</th><th>rECE cal (raw)</th><th>abst / sel-acc</th><th>p50</th><th>p99</th><th>det</th></tr></thead>
     <tbody>${shown.map((l) => laneRow(l, bestAcc, PRIMARY_HOST)).join("")}${shownExtra.map(([l, host]) => laneRow(l, bestAcc, host)).join("")}</tbody>
-  </table></div>${leakLine}${g1}${gateFit(s.modelless)}${nbLines(s.modelless)}</details>`;
+  </table></div>${leakLine}${g1}${mlVisible ? gateFit(s.modelless) + nbLines(s.modelless) : ""}</details>`;
 }
 
 function render(d) {
