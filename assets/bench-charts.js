@@ -116,13 +116,33 @@
   // One log domain for EVERY latency bar on the page, so a bar in one suite is
   // comparable with a bar in another. Snapped to whole decades.
   let logDomain = [-3, 3];
+  // ── the broken latency axis (the /#sizes break-sign idiom) ──────────────
+  // BREAK_AT is a design threshold (the owner's "past 500 ms earns the break
+  // sign"), not a measured number — every latency still comes from the data.
+  // A page whose slowest p50 stays under it renders exactly as before
+  // (full-track log, no break). When something crosses, the ≤500 ms region
+  // takes LIN_SPAN of the track — so the fast lanes keep their real
+  // proportions — a dashed break gridline marks the seam, and every bar past
+  // it continues on a compressed log tail (the break … the slowest read)
+  // over the rest, carrying the slanted break sign where the scale changes.
+  const BREAK_AT = 500;
+  const LIN_SPAN = 0.8;
+  const TAIL_FLOOR = 0.12;
+  let latBroken = false, latMax = BREAK_AT;
   function setLogDomain(d) {
     const vs = [];
     for (const s of d.suites || []) {
       for (const l of allLanes(s)) if (num(l.latency_p50_ms) && l.latency_p50_ms > 0) vs.push(l.latency_p50_ms);
       for (const [l] of extraLanes(s)) if (num(l.latency_p50_ms) && l.latency_p50_ms > 0) vs.push(l.latency_p50_ms);
     }
-    if (vs.length) logDomain = [Math.floor(Math.log10(Math.min(...vs))), Math.ceil(Math.log10(Math.max(...vs)))];
+    if (vs.length) {
+      latMax = Math.max(...vs);
+      latBroken = latMax > BREAK_AT;
+      // broken: the readable region ends AT the break (not at the next
+      // decade past the slowest read — the tail carries that)
+      logDomain = [Math.floor(Math.log10(Math.min(...vs))),
+        latBroken ? Math.log10(BREAK_AT) : Math.ceil(Math.log10(latMax))];
+    }
     if (logDomain[1] <= logDomain[0]) logDomain[1] = logDomain[0] + 1;
   }
   const frac = (m, v) => {
@@ -130,12 +150,28 @@
     if (!METRICS[m].log) return Math.max(0, Math.min(1, v));
     if (v <= 0) return 0;
     const [lo, hi] = logDomain;
-    return Math.max(0.004, Math.min(1, (Math.log10(v) - lo) / (hi - lo)));
+    if (!latBroken) return Math.max(0.004, Math.min(1, (Math.log10(v) - lo) / (hi - lo)));
+    // broken axis: ≤ the break logs over [0, LIN_SPAN]; past it a compressed
+    // log tail over [LIN_SPAN, 1], floored so the break sign always sits
+    // inside the bar (the size chart's TAIL_FLOOR rule)
+    const lv = Math.log10(v);
+    if (v <= BREAK_AT) return Math.max(0.004, (lv - lo) / (hi - lo)) * LIN_SPAN;
+    return LIN_SPAN + (1 - LIN_SPAN) * Math.max(TAIL_FLOOR, (lv - hi) / (Math.log10(latMax) - hi));
   };
   const ticks = (m) => {
     if (!METRICS[m].log) return [0, 0.25, 0.5, 0.75, 1].map((t) => [t, t * 100 + "%"]);
     const [lo, hi] = logDomain, out = [];
-    for (let e = lo; e <= hi; e++) out.push([(e - lo) / (hi - lo), lat(Math.pow(10, e))]);
+    const span = latBroken ? LIN_SPAN : 1;
+    for (let e = lo; e <= hi; e++) {
+      const f = ((e - lo) / (hi - lo)) * span;
+      // a decade crowded against the break tick keeps its gridline, drops
+      // its label (the narrow-track courtesy the size chart's ticks carry)
+      out.push([f, latBroken && LIN_SPAN - f < 0.055 ? "" : lat(Math.pow(10, e))]);
+    }
+    if (latBroken) {
+      out.push([LIN_SPAN, lat(BREAK_AT)]);
+      out.push([1, lat(latMax)]);
+    }
     return out;
   };
 
@@ -227,7 +263,8 @@
 
   const axis = (m) => `<div class="bc-axis">${ticks(m).map(([f, t]) =>
     `<span style="left:${(f * 100).toFixed(2)}%">${esc(t)}</span>`).join("")}</div>`;
-  const grid = (m) => ticks(m).map(([f]) => `<i class="bc-grid" style="left:${(f * 100).toFixed(2)}%"></i>`).join("");
+  const grid = (m) => ticks(m).map(([f]) =>
+    `<i class="bc-grid${latBroken && METRICS[m].log && Math.abs(f - LIN_SPAN) < 1e-9 ? " sz-grid-break" : ""}" style="left:${(f * 100).toFixed(2)}%"></i>`).join("");
 
   // ── sort: a minimal order toggle for the charts ──────────────────────────
   // "data" is the harness's own suite order / the lane order as published.
@@ -308,8 +345,10 @@
         const v = l ? M.get(l) : null;
         const fr = frac(m, v);
         if (fr === null) return `<div class="bc-hbar bc-none">${esc(lane.label)} — not run</div>`;
+        const brk = M.log && latBroken && v > BREAK_AT
+          ? `<i class="sz-break" aria-hidden="true" style="left:${(LIN_SPAN * 100).toFixed(2)}%"></i>` : "";
         return `<div class="bc-hbar" tabindex="0" data-tip="${esc(`<span class="bc-mut">${esc(s.name)}</span><br>` + tipHtml(l, host ? "@" + host : ""))}" aria-label="${esc(`${s.name} ${lane.label} ${l.model}${host ? " on " + host : ""}: ${f(v)}`)}">` +
-          `<i style="width:${(fr * 100).toFixed(2)}%;background:${lane.color}"></i></div>`;
+          `<i style="width:${(fr * 100).toFixed(2)}%;background:${lane.color}"></i>${brk}</div>`;
       }).join("");
       return `<a class="bc-hlabel" href="#suite-${esc(s.name)}">${esc(s.name)}</a><div class="bc-htrack">${grid(m)}${bars}</div>`;
     }).join("");
@@ -324,7 +363,10 @@
     const extraHosts = d.suites.some((s) => s.extra_host_lanes);
     const note = `laya bars use each suite's best non-multilingual checkpoint${picks.size ? ` (${[...picks].join(", ")}; english elsewhere)` : " (english)"}. ` +
       `Comparison-lane bars (clm, gliner, agentjev, openthai) carry the host they ran on in the tooltip${extraHosts ? " — other hosts' rows stay in the tables below" : ""}.` +
-      (M.log ? " Latency is log-scale (each gridline = 10×) — shorter is faster." : " Chance level differs per suite — compare lanes within a row, not rows with each other.") + sortNote(heroSort, sLane);
+      (M.log ? (latBroken
+        ? ` Latency is log-scale up to ${lat(BREAK_AT)} (each gridline = 10×); a bar past the break sign runs on a compressed log scale (${lat(BREAK_AT)} … ${lat(latMax)}) — read its value from the tooltip. Shorter is faster.`
+        : " Latency is log-scale (each gridline = 10×) — shorter is faster.")
+        : " Chance level differs per suite — compare lanes within a row, not rows with each other.") + sortNote(heroSort, sLane);
     return `<div class="bc-hgrid"><div></div>${axis(m)}${rows}<div></div>${axis(m)}</div><p class="bc-note">${esc(note)}</p>`;
   }
 
@@ -359,7 +401,11 @@
   function cell(m, l, extra) {
     const v = METRICS[m].get(l), fr = frac(m, v);
     if (fr === null) return `<div class="bc-cell bc-none">—</div>`;
-    return `<div class="bc-cell" tabindex="0" data-tip="${esc(tipHtml(l, extra))}"><i style="width:calc((100% - 64px) * ${fr.toFixed(4)});background:${laneOf(l).color}"></i><span>${esc(fmtOf(m)(v))}</span></div>`;
+    // the break sign rides the fill region's own coordinate space (the same
+    // (100% - 64px) span the value label reserves), never the value column
+    const brk = METRICS[m].log && latBroken && v > BREAK_AT
+      ? `<i class="sz-break" aria-hidden="true" style="left:calc((100% - 64px) * ${LIN_SPAN})"></i>` : "";
+    return `<div class="bc-cell" tabindex="0" data-tip="${esc(tipHtml(l, extra))}"><i style="width:calc((100% - 64px) * ${fr.toFixed(4)});background:${laneOf(l).color}"></i>${brk}<span>${esc(fmtOf(m)(v))}</span></div>`;
   }
 
   function suite(s) {
@@ -368,7 +414,7 @@
       .filter(([l]) => visible(l)), suiteSort, ([l]) => sortKeyOf(l, suiteSort));
     if (!rows.length) return "";
     return `<div class="bc-suite" data-bc-suite="${esc(s.name)}" aria-label="${esc(s.name)} lanes compared">` +
-      `<div class="bc-sh"></div><div class="bc-sh">accuracy</div><div class="bc-sh">p50 latency · log · shorter is faster</div>` +
+      `<div class="bc-sh"></div><div class="bc-sh">accuracy</div><div class="bc-sh">p50 latency · log${latBroken ? ` · break at ${lat(BREAK_AT)}` : ""} · shorter is faster</div>` +
       rows.map(([l, host]) =>
         `<div class="bc-slabel" title="${esc(`${shortLane(l)} · ${l.model}${host ? " @" + host : ""}`)}"><i class="bc-sw" style="background:${laneOf(l).color}"></i>${esc(shortLane(l))} · ${esc(l.model)}${host ? ` <span class="bc-mut">@${esc(host)}</span>` : ""}</div>` +
         cell("acc", l, host ? "@" + host : "") + cell("p50", l, host ? "@" + host : "")).join("") +
@@ -438,16 +484,23 @@
       // tick (to its left once the mean sits past ~78%, so the chip never
       // runs off the track's right edge); the chip backdrop keeps it legible
       // mid-band
-      const valStyle = fAv <= 0.78
+      // a mean chip that would run into the break sign flips left of its
+      // tick (0.78 stays the off-the-right-edge threshold on a whole axis)
+      const flipAt = M.log && latBroken ? LIN_SPAN - 0.10 : 0.78;
+      const valStyle = fAv <= flipAt
         ? `left:calc(${(fAv * 100).toFixed(2)}% + 5px);transform:translate(0,-50%);`
         : `left:${(fAv * 100).toFixed(2)}%;transform:translate(calc(-100% - 5px),-50%);`;
+      const brk = M.log && latBroken && a.max > BREAK_AT
+        ? `<i class="sz-break" aria-hidden="true" style="left:${(LIN_SPAN * 100).toFixed(2)}%"></i>` : "";
       return `<div class="bc-hlabel"><i class="bc-sw" style="background:${lane.color}"></i>${esc(lane.label)}</div>` +
         `<div class="bc-htrack">${grid(m)}` +
         `<div class="bc-hbar" tabindex="0" data-tip="${esc(tip)}" aria-label="${esc(`${lane.label} averaged: ${f(a.value)} over ${a.n} suites (min ${f(a.min)}, max ${f(a.max)})`)}">` +
-        `${band}<i class="bc-mark" style="left:${(fAv * 100).toFixed(2)}%;background:${lane.color}"></i><span class="bc-val" style="${valStyle}">${f(a.value)}</span></div></div>`;
+        `${band}${brk}<i class="bc-mark" style="left:${(fAv * 100).toFixed(2)}%;background:${lane.color}"></i><span class="bc-val" style="${valStyle}">${f(a.value)}</span></div></div>`;
     }).join("");
     const note = (M.log
-      ? "Band = min → max suite p50; tick = geometric mean; each gridline 10×, shorter is faster. "
+      ? (latBroken
+        ? `Band = min → max suite p50; tick = geometric mean; log to ${lat(BREAK_AT)}, then a compressed tail past the break sign — exact values on the tooltip. Shorter is faster. `
+        : "Band = min → max suite p50; tick = geometric mean; each gridline 10×, shorter is faster. ")
       : "Band = min → max suite accuracy; tick = macro-average; chance differs per suite — compare lanes, not suites. ") +
       `Rows sorted ${M.log ? "fastest" : "best"} average first. ` +
       `Over ${(d.suites || []).length} published suites — hover a bar for per-suite values.`;

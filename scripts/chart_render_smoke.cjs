@@ -89,6 +89,22 @@ function checkMetric(metric, bodySel) {
 
 const p50 = checkMetric("p50", "summary");
 
+// The broken latency axis (the /#sizes break-sign idiom): the published data
+// carries exactly one past-500 ms lane read (openthai's slowest suite), so
+// the p50 body renders exactly one sz-break sign, the dashed break gridline
+// once per axis (top + bottom), and an axis tick naming the break. Re-pin
+// the count when the data's slowest read moves across the break.
+const p50Html = captured["summary"].innerHTML;
+const p50Breaks = (p50Html.match(/class="sz-break"/g) || []).length;
+if (p50Breaks !== 1) { console.error(`FAIL[p50-break]: expected exactly 1 sz-break sign, got ${p50Breaks}`); process.exit(1); }
+const p50GridBreaks = (p50Html.match(/sz-grid-break/g) || []).length;
+const p50Rows = (p50Html.match(/class="bc-hbar"/g) || []).length;
+// the grid rides EVERY row track (one per lane row), so the break gridline
+// count must equal the row count — a grid that lost the break tick reds here
+if (p50Rows < 2 || p50GridBreaks !== p50Rows) { console.error(`FAIL[p50-break]: expected a break gridline on every row track (${p50Rows}), got ${p50GridBreaks}`); process.exit(1); }
+if (!/style="left:80\.00%">500 ms<\/span>/.test(p50Html)) { console.error("FAIL[p50-break]: the axis does not name the 500 ms break tick"); process.exit(1); }
+console.log(`[p50-break] 1 break sign, ${p50GridBreaks} break gridlines (one per row track), axis names the 500 ms break`);
+
 // Switch the metric via the captured click handler (accuracy: log=false path).
 const toggle = captured[".bc-toggle"];
 if (!toggle || !toggle.handlers.click) { console.error("FAIL: metric toggle not wired"); process.exit(1); }
@@ -96,6 +112,8 @@ toggle.handlers.click({
   target: { closest: (s) => (s === "button[data-metric]" ? { dataset: { metric: "acc" } } : null) },
 });
 const acc = checkMetric("acc", ".bc-summary-body");
+const accBreaks = (captured[".bc-summary-body"].innerHTML.match(/class="sz-break"/g) || []).length;
+if (accBreaks !== 0) { console.error(`FAIL[acc-break]: the accuracy axis must carry no break sign, got ${accBreaks}`); process.exit(1); }
 toggle.handlers.click({
   target: { closest: (s) => (s === "button[data-metric]" ? { dataset: { metric: "acc50" } } : null) },
 });
@@ -109,4 +127,4 @@ toggle.handlers.click({
 const oldStyle = /<i style="width:[\d.]+%;background:/.test(captured[".bc-summary-body"].innerHTML);
 if (oldStyle) { console.error("FAIL: legacy fill-only bar still rendered"); process.exit(1); }
 
-console.log(`chart render smoke PASS (p50: ${p50.bands} bands / ${p50.labels} lanes; acc: ${acc.bands} bands / ${acc.labels} lanes)`);
+console.log(`chart render smoke PASS (p50: ${p50.bands} bands / ${p50.labels} lanes, broken at 500 ms; acc: ${acc.bands} bands / ${acc.labels} lanes)`);

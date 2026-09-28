@@ -27,7 +27,7 @@
   .bc-suite { display: grid; grid-template-columns: minmax(150px, 300px) 1fr 1fr; column-gap: 14px; row-gap: 5px; align-items: center; margin: 8px 0 10px; font-size: 12px; }
   .bc-sh { color: var(--muted); font-size: 11px; }
   .bc-slabel { color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .bc-cell { display: flex; align-items: center; gap: 6px; height: 12px; }
+  .bc-cell { display: flex; align-items: center; gap: 6px; height: 12px; position: relative; }
   .bc-cell i { height: 9px; }
   .bc-cell span { color: var(--muted); font-size: 11.5px; white-space: nowrap; font-variant-numeric: tabular-nums; }
   .bc-cell.bc-none { color: var(--muted); }
@@ -170,7 +170,10 @@
       <details class="faq">
         <summary>Why is latency on a log scale?</summary>
       <p>The lanes are orders of magnitude apart. On a linear axis every modelless bar would be invisible; on the log
-        axis each gridline is 10×, so bar length compares ratios, not differences.</p>
+        axis each gridline is 10×, so bar length compares ratios, not differences. When a lane lands far past the
+        readable range the axis breaks — the same slanted break sign the <a href="/#sizes">sizes chart</a> uses: the
+        log axis runs to 500 ms over most of the track, and a bar past the sign continues on a compressed scale, its
+        exact value on the cell and in the tooltip.</p>
       </details>
       <details class="faq">
         <summary>What do acc@50cov and abstain / sel-acc mean?</summary>
