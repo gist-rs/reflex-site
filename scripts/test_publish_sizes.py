@@ -48,6 +48,7 @@ FAKE_HF = {
     "aimeigaoshou/agent-jev": {"siblings": [{"rfilename": "model.safetensors", "size": 2_300_000_000}]},
     "Qwen/Qwen3-0.6B": {"siblings": [{"rfilename": "model.safetensors", "size": 1_500_000_000}]},
     "Qwen/Qwen3-8B": {"siblings": [{"rfilename": "model.safetensors", "size": 16_000_000_000}]},
+    "iapp/OpenThai-SystemOne": {"siblings": [{"rfilename": "model.safetensors", "size": 1_500_000_000}]},
     "Contrastive-LM/CLM-v0.1-8B": {"siblings": [{"rfilename": "CLM_v0.1-8B.pt", "size": 75_000_000}]},
 }
 
@@ -61,6 +62,7 @@ FAKE_RECORDED = {k: {"key": k, "bytes": v, "what": f"{k} fake", "host": "fake-ho
                      "instinct_serve_binary": 1_800_000,
                      "instinct_datasets_t20k": 20_000_000,
                      "instinct_winner_vessels": 20_000_000,
+                     "openthai_venv": 700_000_000,
                  }.items()}
 
 FAILURES = []
@@ -115,7 +117,7 @@ def local_bytes_patcher():
 @case("every candidate renders with the full field set")
 def _():
     d = patched_build()
-    assert len(d["candidates"]) == 8, len(d["candidates"])
+    assert len(d["candidates"]) == 9, len(d["candidates"])
     for c in d["candidates"]:
         for f in ("key", "name", "framework", "engine_bytes", "engine_what",
                   "model_what", "targets", "engine_provenance"):

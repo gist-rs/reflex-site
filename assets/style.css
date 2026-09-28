@@ -327,8 +327,11 @@ h1.page-title { font-size: 36px; margin: 44px 0 8px; }
 .sz-stack i { border-radius: 0; outline: none; min-width: 2px; position: relative; overflow: hidden; }
 .sz-stack i:last-child { border-radius: 0 3px 3px 0; }
 .sz-stack i + i { box-shadow: inset 2px 0 0 var(--bg2); }
-/* the break sign: a slanted cut through the bar at the 1 GB line (size-charts.js BREAK_AT) */
-.sz-stack .sz-break { position: absolute; top: -4px; bottom: -4px; width: 9px; min-width: 0; margin-left: -4.5px;
+/* the break sign: a slanted cut through the bar at the 1 GB line (size-charts.js BREAK_AT).
+   height:auto matters: `.bc-hbar i` (the same element) sets height:100%, and an abs-positioned
+   box with top+height set ignores `bottom` - so the sign rode 4px high, covering only the
+   bar's top half. height:auto lets top/bottom stretch it to 16px, centered on the bar. */
+.bc-hbar i.sz-break { position: absolute; top: -4px; bottom: -4px; height: auto; width: 9px; min-width: 0; margin-left: -4.5px;
   background: var(--bg); border-left: 2px solid var(--text); border-right: 2px solid var(--text);
   transform: skewX(-22deg); border-radius: 0; box-shadow: none; pointer-events: none; }
 .bc-grid.sz-grid-break { background: none; border-left: 1px dashed var(--muted); opacity: .6; }

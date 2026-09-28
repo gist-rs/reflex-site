@@ -131,6 +131,17 @@ CANDIDATES = [
         "note": "their boot loads BOTH the agent-jev checkpoint and the Qwen3-0.6B base from the HF cache — both counted",
     },
     {
+        "key": "openthai",
+        "name": "OpenThai-SystemOne",
+        "framework": "their FastAPI service in a torch venv (the Thai/English decision comparison lane)",
+        "engine": ("recorded", "openthai_venv"),
+        "engine_what": "their service venv (torch + transformers + fastapi/uvicorn + their openthai_systemone package)",
+        "model": ("hf_total", "iapp/OpenThai-SystemOne"),
+        "model_what": "their model tree (Qwen3.5-0.8B text tower + the 256-slot decision head, safetensors + tokenizer)",
+        "targets": ["python env", "GPU (MPS/CUDA)"],
+        "note": "the bench board's Thai-capability lane (Apache-2.0) — served on loopback, measured by our harness",
+    },
+    {
         "key": "clm",
         "name": "CLM v0.1-8B",
         "framework": "vLLM docker image + their clm-serve head",

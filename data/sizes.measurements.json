@@ -3,8 +3,8 @@
     "recorded_utc": "2026-09-25T09:30:00Z",
     "law": "box-specific footprint facts, measured once per bench window with the command in `how` recorded verbatim; the live half of the size report (release archives, HF model trees, local wasm) refreshes in data/sizes.json on every publish_sizes run. A recorded row is a MEASUREMENT, never an estimate.",
     "hosts": {
-      "m3-max-metal": "Apple M3 Max, macOS \u2014 the host that runs the modelless + laya (rust) + laya (python) lanes",
-      "4090-win": "RTX 4090, Windows \u2014 the host that runs the gliner / agentjev / clm comparison lanes"
+      "m3-max-metal": "Apple M3 Max, macOS — the host that runs the modelless + laya (rust) + laya (python) lanes",
+      "4090-win": "RTX 4090, Windows — the host that runs the gliner / agentjev / clm comparison lanes"
     }
   },
   "measurements": [
@@ -22,7 +22,7 @@
       "what": "the gliner2 venv (torch-cu + transformers + peft + accelerate + their gliner2 package)",
       "host": "4090-win",
       "date_utc": "2026-09-25",
-      "how": "PowerShell (Get-ChildItem -Recurse -Force -File | Measure-Object -Sum Length).Sum over E:\\git\\riir-reflex\\.raw\\gliner-env \u2192 4234.7 MiB \u00d7 1048576"
+      "how": "PowerShell (Get-ChildItem -Recurse -Force -File | Measure-Object -Sum Length).Sum over E:\\git\\riir-reflex\\.raw\\gliner-env → 4234.7 MiB × 1048576"
     },
     {
       "key": "agentjev_venv",
@@ -30,7 +30,7 @@
       "what": "their jev_service venv (torch-cu + deps)",
       "host": "4090-win",
       "date_utc": "2026-09-25",
-      "how": "PowerShell (Get-ChildItem -Recurse -Force -File | Measure-Object -Sum Length).Sum over E:\\git\\riir-reflex\\.raw\\agentjev-env \u2192 4309.6 MiB \u00d7 1048576"
+      "how": "PowerShell (Get-ChildItem -Recurse -Force -File | Measure-Object -Sum Length).Sum over E:\\git\\riir-reflex\\.raw\\agentjev-env → 4309.6 MiB × 1048576"
     },
     {
       "key": "clm_docker",
@@ -38,7 +38,7 @@
       "what": "the vLLM serving image (vllm/vllm-openai:nightly) their CLM stack boots in",
       "host": "4090-win",
       "date_utc": "2026-09-25",
-      "how": "docker images --format '{{.Repository}}:{{.Tag}} {{.Size}}' \u2192 '30.7GB' (docker-reported, one decimal, decimal GB)"
+      "how": "docker images --format '{{.Repository}}:{{.Tag}} {{.Size}}' → '30.7GB' (docker-reported, one decimal, decimal GB)"
     },
     {
       "key": "clm_repo",
@@ -46,12 +46,12 @@
       "what": "their CLM repo checkout @ cca045ff + the trained head (checkpoints/CLM_v0.1-8B.pt)",
       "host": "4090-win",
       "date_utc": "2026-09-25",
-      "how": "PowerShell recursive file-length sum over E:\\git\\riir-reflex\\.raw\\CLM \u2192 74.2 MiB \u00d7 1048576"
+      "how": "PowerShell recursive file-length sum over E:\\git\\riir-reflex\\.raw\\CLM → 74.2 MiB × 1048576"
     },
     {
       "key": "instinct_serve_binary",
       "bytes": 1787744,
-      "what": "the riir-instinct `serve` release binary (aarch64-apple-darwin) \u2014 the hosted hybrid lane's serving edge",
+      "what": "the riir-instinct `serve` release binary (aarch64-apple-darwin) — the hosted hybrid lane's serving edge",
       "host": "m3-max-metal",
       "date_utc": "2026-09-27",
       "how": "lstat over ../riir-instinct/target/release/serve (cargo build --release --bin serve)"
@@ -59,7 +59,7 @@
     {
       "key": "instinct_datasets_t20k",
       "bytes": 20808524,
-      "what": "the six t20k dataset suites the serving posture stages (ag_news 6,324,897 \u00b7 emotion 2,719,177 \u00b7 sst5 1,799,678 \u00b7 massive_intent_en 2,516,925 \u00b7 banking77 2,157,368 \u00b7 xnli_en 5,290,479) \u2014 the Reflex half's corpora and question seats",
+      "what": "the six t20k dataset suites the serving posture stages (ag_news 6,324,897 · emotion 2,719,177 · sst5 1,799,678 · massive_intent_en 2,516,925 · banking77 2,157,368 · xnli_en 5,290,479) — the Reflex half's corpora and question seats",
       "host": "m3-max-metal",
       "date_utc": "2026-09-27",
       "how": "sum of lstat sizes over ../riir-reflex/.raw/datasets_t20k/{ag_news,emotion,sst5,massive_intent_en,banking77,xnli_en} (the deploy.yaml files: rows)"
@@ -67,10 +67,18 @@
     {
       "key": "instinct_winner_vessels",
       "bytes": 20320298,
-      "what": "the six sealed winner vessels (BLAKE3 + ed25519, HOSTED-ONLY): ag_news 524,381 \u00b7 emotion 786,545 \u00b7 sst5 655,460 \u00b7 massive_intent_en 7,865,749 \u00b7 banking77 10,094,864 \u00b7 xnli_en 393,299",
+      "what": "the six sealed winner vessels (BLAKE3 + ed25519, HOSTED-ONLY): ag_news 524,381 · emotion 786,545 · sst5 655,460 · massive_intent_en 7,865,749 · banking77 10,094,864 · xnli_en 393,299",
       "host": "m3-max-metal",
       "date_utc": "2026-09-27",
       "how": "sum of lstat sizes over ../riir-train/data/instinct_specialists/{ag_news,emotion,sst5,massive_intent_en,banking77,xnli_en}_winner_v1.bin (the deploy.yaml files: rows)"
+    },
+    {
+      "key": "openthai_venv",
+      "bytes": 677613688,
+      "what": "the openthai-systemone service venv (python 3.12: torch + transformers + numpy + pydantic + fastapi/uvicorn + their openthai_systemone package installed from source @ 5d04bcca)",
+      "host": "m3-max-metal",
+      "date_utc": "2026-09-28",
+      "how": "uv venv --python 3.12 + `uv pip install torch transformers numpy pydantic fastapi uvicorn` + `uv pip install -e` their openthai-systemone @ iapp-technology/openthai-systemone 5d04bcca (the Bench-074 pin); sum of file sizes (676,763,544) + dir entries (850,144) over the venv, matching the lstat convention of the sibling venv rows. The Bench-074 venv itself was removed with .raw after the record — re-created once to re-measure the same dep set."
     }
   ]
 }
