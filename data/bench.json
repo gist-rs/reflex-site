@@ -90,8 +90,8 @@
       "date_utc": "2026-09-27T02:09:04Z"
      },
      "openthai": {
-      "git_sha": "70993ab",
-      "date_utc": "2026-09-28T01:25:54Z"
+      "git_sha": "3a7be30",
+      "date_utc": "2026-09-28T15:36:40Z"
      }
     },
     "head_posture": "OFF (head_scale 0 \u2014 the published baseline posture)"
@@ -7969,16 +7969,16 @@
     "brier_soft": null,
     "score_mae": null,
     "within_1": null,
-    "latency_p50_ms": 106.0,
-    "latency_p99_ms": 210.0,
+    "latency_p50_ms": 111.0,
+    "latency_p99_ms": 164.0,
     "latency_tail_support": 4,
     "latency_extremes": {
-     "first_ms": 211.0,
-     "max_ms": 241.0,
+     "first_ms": 125.0,
+     "max_ms": 178.0,
      "argmax_case": 4
     },
     "determinism_ok": true,
-    "seconds": 37.315856959,
+    "seconds": 41.818258584,
     "n_cases": 300,
     "n_questions": 300,
     "score_threshold": null,
@@ -7996,8 +7996,8 @@
     "cases_digest": "fnv1a64-b136750e5af1d412",
     "latency_quotable": true,
     "source_run": {
-     "git_sha": "8569e23",
-     "date_utc": "2026-09-27T23:33:19Z"
+     "git_sha": "3a7be30",
+     "date_utc": "2026-09-28T15:36:40Z"
     }
    }
   },
@@ -9152,16 +9152,16 @@
     "brier_soft": null,
     "score_mae": null,
     "within_1": null,
-    "latency_p50_ms": 1630.0,
-    "latency_p99_ms": 1801.0,
+    "latency_p50_ms": 1710.0,
+    "latency_p99_ms": 2384.0,
     "latency_tail_support": 4,
     "latency_extremes": {
-     "first_ms": 1866.0,
-     "max_ms": 1866.0,
-     "argmax_case": 0
+     "first_ms": 1705.0,
+     "max_ms": 2410.0,
+     "argmax_case": 182
     },
     "determinism_ok": true,
-    "seconds": 518.039723291,
+    "seconds": 567.472480792,
     "n_cases": 300,
     "n_questions": 300,
     "score_threshold": null,
@@ -9179,8 +9179,8 @@
     "cases_digest": "fnv1a64-49390c8b80475849",
     "latency_quotable": true,
     "source_run": {
-     "git_sha": "8569e23",
-     "date_utc": "2026-09-27T23:33:19Z"
+     "git_sha": "3a7be30",
+     "date_utc": "2026-09-28T15:36:40Z"
     }
    }
   },
@@ -16452,16 +16452,16 @@
     "brier_soft": null,
     "score_mae": null,
     "within_1": null,
-    "latency_p50_ms": 111.0,
-    "latency_p99_ms": 406.0,
+    "latency_p50_ms": 107.0,
+    "latency_p99_ms": 393.0,
     "latency_tail_support": 5,
     "latency_extremes": {
-     "first_ms": 130.0,
-     "max_ms": 966.0,
+     "first_ms": 119.0,
+     "max_ms": 946.0,
      "argmax_case": 123
     },
     "determinism_ok": true,
-    "seconds": 54.024009459,
+    "seconds": 46.735881167,
     "n_cases": 400,
     "n_questions": 400,
     "score_threshold": null,
@@ -16479,8 +16479,8 @@
     "cases_digest": "fnv1a64-fb7285428b60cfa1",
     "latency_quotable": true,
     "source_run": {
-     "git_sha": "70993ab",
-     "date_utc": "2026-09-28T01:25:54Z"
+     "git_sha": "3a7be30",
+     "date_utc": "2026-09-28T15:36:40Z"
     }
    },
    "extra_host_lanes": {
@@ -16579,16 +16579,16 @@
     "brier_soft": null,
     "score_mae": null,
     "within_1": null,
-    "latency_p50_ms": 115.0,
-    "latency_p99_ms": 188.0,
+    "latency_p50_ms": 112.0,
+    "latency_p99_ms": 178.0,
     "latency_tail_support": 3,
     "latency_extremes": {
-     "first_ms": 132.0,
-     "max_ms": 238.0,
+     "first_ms": 116.0,
+     "max_ms": 227.0,
      "argmax_case": 102
     },
     "determinism_ok": true,
-    "seconds": 27.986351125,
+    "seconds": 27.023358125,
     "n_cases": 204,
     "n_questions": 204,
     "score_threshold": null,
@@ -16606,8 +16606,8 @@
     "cases_digest": "fnv1a64-b6e532604b031e8d",
     "latency_quotable": true,
     "source_run": {
-     "git_sha": "70993ab",
-     "date_utc": "2026-09-28T01:25:54Z"
+     "git_sha": "3a7be30",
+     "date_utc": "2026-09-28T15:36:40Z"
     }
    },
    "extra_host_lanes": {
