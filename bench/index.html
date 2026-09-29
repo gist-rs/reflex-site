@@ -149,7 +149,11 @@
         Reflex — the modelless lane's fused gate decides when to consult it; the cell is the registered arm's single frozen test read
         over the same seat and protocol as every other lane (per suite, only where a hybrid arm won pre-registration).
         <strong>openthai</strong> — the external OpenThai-SystemOne decision specialist (Apache-2.0, not affiliated, Qwen3.5-0.8B backbone):
-        their FastAPI service answers the same decision questions, measured gold-label on our splits — a comparison lane, and the board's Thai-capability row.</p>
+        their FastAPI service answers the same decision questions, measured gold-label on our splits — a comparison lane, and the board's Thai-capability row.
+        <strong>paw</strong> — the external ProgramAsWeights compile-a-classifier lane (MIT SDK, not affiliated): one neural program compiled
+        per question shape from our committed spec, answered over their hosted REST — or through their local llama.cpp runtime as the
+        <code>paw (local)</code> posture — a comparison lane, never a product lane (free-text answers under the exact-match law, so it
+        carries no confidence columns).</p>
       </details>
       <details class="faq">
         <summary>Tell me more about the clm lane</summary>
@@ -296,6 +300,18 @@
         (Apache-2.0, pinned <code>cca045ff</code>) · head
         <a href="https://huggingface.co/Contrastive-LM/CLM-v0.1-8B">CLM-v0.1-8B</a> ·
         <a href="https://contrastive-lm.notion.site">project blog</a></li>
+      <li>gliner reference: <a href="https://huggingface.co/fastino/GLiNER2.5-Decide">fastino/GLiNER2.5-Decide</a>
+        (Apache-2.0) · their <code>gliner2</code> package · GLiNER2 paper
+        <a href="https://arxiv.org/abs/2507.18546">arXiv:2507.18546</a></li>
+      <li>agentjev reference: <a href="https://github.com/malevrigns/agent-jev">malevrigns/agent-jev</a>
+        (Apache-2.0) · weights
+        <a href="https://huggingface.co/aimeigaoshou/agent-jev">aimeigaoshou/agent-jev</a> (Qwen3-0.6B backbone)</li>
+      <li>openthai reference: <a href="https://huggingface.co/iapp/OpenThai-SystemOne">iapp/OpenThai-SystemOne</a>
+        (Apache-2.0, Qwen3.5-0.8B backbone)</li>
+      <li>paw reference: <a href="https://programasweights.com">ProgramAsWeights</a> (MIT) ·
+        Python SDK <a href="https://github.com/programasweights/programasweights-python">programasweights-python</a> ·
+        <a href="https://programasweights.readthedocs.io">docs</a></li>
+      <li>Instinct (hybrid): our lane — the hybrid seat over Reflex; described in the FAQ above (private repo).</li>
     </ul></div>
 
     <h2 id="machines" style="margin-top:40px"><a class="hlink" href="#machines">Machines</a></h2>
