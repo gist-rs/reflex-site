@@ -111,7 +111,11 @@ const server = http.createServer((req, res) => {
   const laneHasCell = (s, k) => !!(s[k] || Object.values(s.extra_host_lanes || {}).some((h) => h[k]));
   const notRun = await page.$$eval("#bench-hero .bc-hbar.bc-none", (xs) => xs.map((x) => x.textContent.trim()));
   console.log("hero not-run bars:", notRun.join(" | ") || "(none)");
-  for (const [key, label] of [["gliner", "gliner"], ["agentjev", "agentjev"], ["openthai", "openthai"]]) {
+  // paw rides the same pin: its cells are acc-only (top-level `accuracy`,
+  // no hard block) and a pick() that gated on `hard` rendered the whole
+  // lane "not run" on all nine measured suites while the tables scored
+  // them fine (the user-reported ag_news case).
+  for (const [key, label] of [["gliner", "gliner"], ["agentjev", "agentjev"], ["openthai", "openthai"], ["paw", "paw"]]) {
     const expected = benchData.suites.filter((s) => !laneHasCell(s, key)).length;
     const got = notRun.filter((t) => t.startsWith(label)).length;
     if (got !== expected) fail(`${label}: ${got} hero not-run bars vs ${expected} suites without a ${label} cell — a not-run on a measured suite means the extra-host fallback failed`);

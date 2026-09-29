@@ -321,17 +321,23 @@
   // Hero pick: per suite and lane, the best-accuracy NON-multilingual
   // checkpoint on the primary host; when the primary never ran the lane
   // (the comparison lanes run on their own host), the best EXTRA-HOST cell
-  // fills the bar, host-tagged in the tooltip. Picked once by accuracy, so
-  // every metric toggle shows the SAME run (no per-metric cherry-pick);
-  // accuracy is box-independent and may mix hosts (reflex .issues/027
-  // amendment 2), latency bars disclose the host in the tooltip.
+  // fills the bar, host-tagged in the tooltip. Accuracy is read through
+  // accOf — the acc-only comparison cells (paw, reflex 5f76526) carry a
+  // top-level `accuracy` with no hard block, and gating on `hard` here
+  // rendered the whole lane "not run" beside tables that scored it fine.
+  // Picked once by accuracy, so every metric toggle shows the SAME run (no
+  // per-metric cherry-pick); accuracy is box-independent and may mix hosts
+  // (reflex .issues/027 amendment 2), latency bars disclose the host in the
+  // tooltip.
   function pick(s, lane) {
     let best = null;
     // scopedPairs: rig-aware, primary host first (the earlier-in-list
     // tie-break keeps the primary cell when hosts measure a lane equally).
     for (const [l, host] of scopedPairs(s)) {
-      if (laneOf(l) !== lane || l.model === "multilingual" || !l.hard) continue;
-      if (!best || (l.hard.accuracy ?? -1) > (best[0].hard.accuracy ?? -1)) best = [l, host];
+      if (laneOf(l) !== lane || l.model === "multilingual") continue;
+      const a = accOf(l);
+      if (!num(a)) continue;
+      if (!best || a > accOf(best[0])) best = [l, host];
     }
     return best;
   }
@@ -366,8 +372,9 @@
   const tipHtml = (l, extra) => {
     const h = l.hard || {};
     const lane = laneOf(l);
+    const acc = accOf(l);
     return `<span class="bc-sw" style="background:${lane.color}"></span><b>${esc(shortLane(l))} · ${esc(l.model)}</b>${extra ? ` <span class="bc-mut">${esc(extra)}</span>` : ""}<br>` +
-      `accuracy ${num(h.accuracy) ? pct(h.accuracy) : "—"} · acc@50cov ${num(h.acc_at_50_coverage) ? pct(h.acc_at_50_coverage) : "—"}<br>` +
+      `accuracy ${num(acc) ? pct(acc) : "—"} · acc@50cov ${num(h.acc_at_50_coverage) ? pct(h.acc_at_50_coverage) : "—"}<br>` +
       `p50 ${num(l.latency_p50_ms) ? lat(l.latency_p50_ms) : "—"} · p99 ${num(l.latency_p99_ms) ? lat(l.latency_p99_ms) : "—"}` +
       (num(h.n) ? ` · n=${h.n}` : "");
   };
@@ -409,7 +416,8 @@
 
   function sortKeyOf(l, kind) {
     if (!l) return null;
-    const v = kind === "acc" ? (l.hard || {}).accuracy : l.latency_p50_ms;
+    // accOf, same as pick(): the acc-only paw cells must be sortable too.
+    const v = kind === "acc" ? accOf(l) : l.latency_p50_ms;
     return typeof v === "number" && isFinite(v) ? v : null;
   }
   function sortPairs(pairs, kind, keyOf) {
@@ -476,7 +484,7 @@
       }
     const extraHosts = d.suites.some((s) => s.extra_host_lanes);
     const note = `laya bars use each suite's best non-multilingual checkpoint${picks.size ? ` (${[...picks].join(", ")}; english elsewhere)` : " (english)"}. ` +
-      `Comparison-lane bars (clm, gliner, agentjev, openthai) carry the host they ran on in the tooltip${extraHosts ? " — other hosts' rows stay in the tables below" : ""}.` +
+      `Comparison-lane bars (clm, gliner, agentjev, openthai, paw) carry the host they ran on in the tooltip${extraHosts ? " — other hosts' rows stay in the tables below" : ""}.` +
       (M.log ? (latBroken
         ? ` Latency is log-scale up to ${lat(BREAK_AT)} (each gridline = 10×); a bar past the break sign runs on a compressed log scale (${lat(BREAK_AT)} … ${lat(latMax)}) — read its value from the tooltip. Shorter is faster.`
         : " Latency is log-scale (each gridline = 10×) — shorter is faster.")
