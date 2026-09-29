@@ -14,7 +14,7 @@ const fs = require("fs");
 const path = require("path");
 
 const ROOT = path.resolve(__dirname, "..");
-const MIME = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".json": "application/json" };
+const MIME = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".json": "application/json", ".svg": "image/svg+xml" };
 const server = http.createServer((req, res) => {
   let rel = decodeURIComponent(req.url.split("?")[0]);
   if (rel.endsWith("/")) rel += "index.html";
@@ -90,6 +90,12 @@ const server = http.createServer((req, res) => {
     const tl = await page.textContent("#tldr-body");
     if (anyUnfit !== /not quotable/.test(tl)) fail(`home TL;DR unfit caveat: expected=${anyUnfit}, rendered=${!anyUnfit}`);
     else console.log(`ok: home TL;DR unfit-timing caveat ${anyUnfit ? "shown" : "absent"} as the data says`);
+
+    // 3c. The home/arena TL;DR row laws (2026-09-29 move + majority call):
+    // the home compact TL;DR never carries the verdict rows; the Instinct
+    // row lives on /bench/#instinct only (the arena stays Reflex's).
+    if (/Instinct/.test(tl)) fail("home TL;DR carries an Instinct row — Instinct verdicts live on /bench/#instinct");
+    else console.log("ok: home TL;DR carries no Instinct row (moved to /bench/#instinct)");
   }
 
   // 4. the hero bench chart still renders (shared page, no regression)

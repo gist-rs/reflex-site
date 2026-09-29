@@ -220,7 +220,12 @@ a.brand:hover { text-decoration: underline; text-decoration-color: var(--line); 
 }
 
 /* ── TL;DR strip — the measured lead on a page (home hero + arena share the
-   visual language; the arena's per-row ✓/✗ styling lives in arena.css) ── */
+   visual language). The verdict-row vocabulary is the BASE here (style.css
+   is the one stylesheet every page loads), so the bench page's Instinct
+   rows render identically; arena.css repeats the same rules as page-local
+   refinements. "warn" = the yellow ✓: a majority verdict that is not a
+   sweep (owner call 2026-09-29 — Reflex at-or-above on most suites shows
+   as a win, trailing minority still named). ── */
 .tldr {
   border: 1px solid var(--line); border-left: 3px solid var(--ember);
   background: var(--panel); border-radius: 10px;
@@ -229,6 +234,14 @@ a.brand:hover { text-decoration: underline; text-decoration-color: var(--line); 
 .tldr > b { color: var(--ember); letter-spacing: 0.06em; margin-right: 6px; }
 .tldr p { margin: 0 0 6px; display: inline; }
 .tldr .num { color: var(--ember); font-weight: 700; }
+.tldr ul { list-style: none; margin: 8px 0 0; padding: 0; }
+.tldr li { margin: 4px 0; }
+.tldr li b { color: var(--text); }
+.tldr li i { font-style: normal; font-weight: 700; display: inline-block; width: 1.2em; }
+.tldr li.ok i { color: var(--ok); }
+.tldr li.warn i { color: var(--warn); }
+.tldr li.gap i { color: var(--ember); }
+.tldr li.eq i { color: var(--muted); }
 
 /* ── bench-charts.js — minimal bars (lane colors validated all-pairs on the
    dark surfaces; shared by /bench/ and the home summary card) ────────── */
@@ -425,6 +438,8 @@ details.more > summary .chip { margin-left: 6px; }
 .chip { font-size: 11.5px; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); font-weight: 600; }
 .chip.pass { border-color: var(--ok); color: var(--ok); }
 .chip.fail { border-color: var(--warn); color: var(--warn); }
+.chip.ok { border-color: var(--ok); color: var(--ok); }
+.chip.poc { border-color: var(--warn); color: var(--warn); }
 
 /* Notes & sources — the long-form material, cited. */
 .notes-list { padding-left: 20px; margin: 8px 0 0; }

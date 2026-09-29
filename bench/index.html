@@ -38,6 +38,18 @@
   .lf-chip input { accent-color: var(--accent, #d95926); margin: 0; }
   .lf-chip .bc-sw { width: 9px; height: 9px; border-radius: 2px; flex: none; }
   .lf-hint { font-size: 12px; color: var(--muted); margin: 2px 0 8px; }
+  /* the rig radio — mirrors the lane-filter chips, radio semantics: exactly
+     one machine scope at a time (all | M3 Max | RTX 4090); styled beside the
+     filter bar but as its own row so the two bars never read as one control */
+  .rf-bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 10px 12px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; margin: 0 0 4px; }
+  .rf-chip { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--text); border: 1px solid var(--line); border-radius: 999px; padding: 4px 10px 4px 8px; cursor: pointer; user-select: none; }
+  .rf-chip:has(input:checked) { border-color: color-mix(in srgb, var(--accent, #d95926) 55%, var(--line)); }
+  .rf-chip input { accent-color: var(--accent, #d95926); margin: 0; }
+  .rf-hint { font-size: 12px; color: var(--muted); margin: 2px 0 8px; }
+  /* the Instinct section (PoC) — the verdict rows reuse the shared .tldr li
+     vocabulary from style.css; the figure matches the home flow figure */
+  .instinct .figure { margin: 14px 0 6px; }
+  .instinct .figure img { max-width: 100%; height: auto; }
   /* the runs strip: one chip per host run (host · device · sha · when) */
   #bench-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; margin: 10px 0 2px; color: var(--muted); font-size: 13.5px; }
   .run-chip { display: inline-flex; align-items: baseline; gap: 7px; border: 1px solid var(--line); background: var(--panel); border-radius: 8px; padding: 4px 10px; font-size: 12.5px; white-space: nowrap; }
@@ -84,6 +96,7 @@
       <a href="/arena/">See it play →</a></p>
     <div id="lane-filter"></div>
     <p class="lf-hint">Filter lanes — applies to every chart and table (remembered).</p>
+    <div id="rig-filter"></div>
     <div id="bench-hero" aria-live="polite"></div>
 
     <h2 id="per-suite"><a class="hlink" href="#per-suite">Per suite</a></h2>
@@ -96,6 +109,26 @@
     <details class="more"><summary>Corpus, calibration, floor and divergence rules (from the run's own metadata)</summary>
     <div id="protocol"></div>
     </details>
+
+    <h2 id="instinct" style="margin-top:40px"><a class="hlink" href="#instinct">Instinct — the trained add-on (PoC)</a></h2>
+    <div class="instinct">
+      <p class="sub"><strong>Instinct</strong> (<a href="https://github.com/gist-rs/riir-instinct">gist-rs/riir-instinct</a>) is Reflex's trained sibling: per-domain
+        specialist models — distilled, BLAKE3-sealed, hot-swapped as whole artifacts — composed <em>on top of</em> the free engine, never instead of it.
+        Reflex always answers first and answers free; the specialist is consulted only where Reflex's calibrated gate declines, and it pays off only
+        where it measured ahead. Until it is the best published lane on <em>every</em> suite it covers, it is a promising PoC and lives here on the
+        benchmark page — the arena TL;DR stays Reflex's.</p>
+      <figure class="figure">
+        <img src="/assets/instinct_flow.svg" width="2304" height="574"
+          alt="The Instinct composition flow: the same typed question runs Reflex's modelless engine first; a confident fused-gate answer returns in microseconds and the specialist is never paid; an abstain prunes to the top-k candidates, the sealed per-domain specialist scores them, an H1 cascade or H2 prior fusion calibrates the pick, and the answer ships with a decision receipt — while arsenal.toml, the only selection surface, hot-swaps registered arms monotonically"
+          loading="lazy">
+        <figcaption>Registered arms only: a specialist joins the manifest solely where it beat free Reflex pre-registration, on one frozen test read
+          (the GOAT gate). Write-up:
+          <a href="https://github.com/gist-rs/riir-instinct/blob/HEAD/.docs/03_decision_flow/instinct_flow.md">instinct_flow.md</a>.</figcaption>
+      </figure>
+      <div class="tldr" id="instinct-verdict">
+        <p class="sub" style="margin:0">loading the Instinct verdicts from <a href="/data/bench.json">data/bench.json</a>…</p>
+      </div>
+    </div>
 
     <h2 id="faq" style="margin-top:40px"><a class="hlink" href="#faq">FAQ</a></h2>
     <div class="faqs">
@@ -303,10 +336,12 @@
 
 <script src="/assets/bench-charts.js"></script>
 <script src="/assets/bench_provenance.js"></script>
+<script src="/assets/instinct.js"></script>
 <script>
 // Table numbers: 3 decimals for scores, 3 significant digits for latency
 // (the chart's own formatter — one rule for bars and cells; harness latency
 // is whole-ms above 1 ms, so a trailing ".0" was precision the data lacks).
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 const fmt = (v, d = 3) => (v === null || v === undefined) ? "—" : (typeof v === "number" ? v.toFixed(d) : String(v));
 const ms = (v) => (typeof v !== "number" || !isFinite(v)) ? "—"
   : window.BenchCharts && BenchCharts.lat ? BenchCharts.lat(v) : +v.toPrecision(3) + " ms";
@@ -314,11 +349,16 @@ const ms = (v) => (typeof v !== "number" || !isFinite(v)) ? "—"
 function laneRow(l, bestAcc, hostTag) {
   const h = l.hard || {};
   const tds = [];
-  const accCell = h.accuracy === bestAcc ? "best" : "";
+  // Accuracy across cell shapes: full cells carry it under `hard`; the
+  // acc-only comparison cells (paw) carry a top-level `accuracy` — same
+  // reader as the charts (BenchCharts.accOf), so a cell never highlights or
+  // blanks differently between chart and table.
+  const acc = window.BenchCharts && BenchCharts.accOf ? BenchCharts.accOf(l) : (h.accuracy != null ? h.accuracy : l.accuracy);
+  const accCell = acc === bestAcc ? "best" : "";
   // "KatGPT" is the lane's DATA id (publish_bench.py); the product name is Reflex.
   const laneName = l.lane === "KatGPT" ? "Reflex" : String(l.lane).replace(/ \(reference\)$/, "");
   tds.push(`<td>${fmt(laneName)} · ${fmt(l.model)}${hostTag ? ` <span class="host">@${hostTag}</span>` : ""}</td>`);
-  tds.push(`<td class="${accCell}">${fmt(h.accuracy)}</td>`);
+  tds.push(`<td class="${accCell}">${fmt(acc)}</td>`);
   tds.push(`<td>${fmt(h.macro_f1)}</td>`);
   tds.push(`<td>${fmt(h.ece, 3)}</td>`);
   tds.push(`<td>${fmt(h.brier, 3)}</td>`);
@@ -328,10 +368,13 @@ function laneRow(l, bestAcc, hostTag) {
   tds.push(`<td>${abst ? fmt(abst.abstain_rate, 2) + " / " + fmt(abst.selective_accuracy, 3) : "—"}</td>`);
   // The Issue-021 verdict of the run this TIMING came from (stamped per
   // cell by publish_bench.py): unfit → marked, never silently a result.
+  // The mark rides a NUMBER: an acc-only cell (paw) can carry the verdict
+  // with no latency fields at all, and † on "—" marks nothing.
+  const hasP50 = typeof l.latency_p50_ms === "number";
   const q = l.latency_quotable;
-  const latCls = q === false ? ' class="unq" title="from a run whose own box check judged the machine unfit (load/power) — shown, not quotable"'
+  const latCls = !hasP50 ? "" : q === false ? ' class="unq" title="from a run whose own box check judged the machine unfit (load/power) — shown, not quotable"'
     : q === null ? ' title="box state unjudged (the host has no box probes)"' : "";
-  const mark = q === false ? "<sup>†</sup>" : "";
+  const mark = hasP50 && q === false ? "<sup>†</sup>" : "";
   tds.push(`<td${latCls}>${ms(l.latency_p50_ms)}${mark}</td>`);
   tds.push(`<td${latCls}>${ms(l.latency_p99_ms)}${mark}</td>`);
   tds.push(`<td>${l.determinism_ok === true ? "✓" : l.determinism_ok === false ? "✗" : "—"}</td>`);
@@ -392,51 +435,75 @@ const runChip = (h) =>
 let PRIMARY_HOST = null;
 
 function suiteSection(s) {
-  const lanes = [];
-  if (s.modelless) lanes.push(s.modelless);
-  for (const k of Object.keys(s.laya || {})) lanes.push(s.laya[k]);
-  // The CLM comparison lane (reflex .issues/027): the external
-  // Contrastive-LM reference over /v1/systemone — same questions, their
-  // rendering law, an honest comparison row (never a product lane).
-  if (s.clm) lanes.push(s.clm);
-  // The GLiNER comparison lane (reflex .issues/029): fastino/GLiNER2.5-Decide
-  // over their gliner2 package — same questions, their probability readout,
-  // another honest comparison row (never a product lane).
-  if (s.gliner) lanes.push(s.gliner);
-  // The AgentJev comparison lane (reflex .issues/025 amendment 4): their
-  // jev_service answered over HTTP — the MEASURE-vs-SERVE split; the
-  // gold-label row beside their published teacher-argmax number.
-  if (s.agentjev) lanes.push(s.agentjev);
-  // The OpenThai comparison lane (reflex Plan 003 / Bench 074): their
-  // OpenThai-SystemOne service over /v1/systemone — same questions, their
-  // probability readout, another honest comparison row (never a product
-  // lane); the Thai probe suites' specialist cell.
-  if (s.openthai) lanes.push(s.openthai);
-  // The instinct HYBRID lane (riir-instinct .issues/003): the trained
-  // specialist composed with Reflex over the same seat — the registered
-  // arm's frozen test read, published per suite where a hybrid arm won
-  // registration.
-  if (s.hybrid) lanes.push(s.hybrid);
+  // The RIG-SCOPED lane cells (BenchRig.scoped: primary-host cells first when
+  // the rig includes the primary host, then the active rig's extra-host cells,
+  // each tagged). The lane filter composes on top — rig narrows the host set,
+  // the filter the lanes. The unscoped walk below is the BenchRig-less
+  // fallback (bench-charts.js failed to load = the page is broken anyway),
+  // kept so the section renders its shape instead of throwing.
+  let lanes, extraRows;
+  if (window.BenchRig && BenchRig.scoped) {
+    const scoped = BenchRig.scoped(s);
+    lanes = scoped.filter(([l, h]) => !h).map(([l]) => l);
+    extraRows = scoped.filter(([l, h]) => !!h);
+  } else {
+    lanes = [];
+    if (s.modelless) lanes.push(s.modelless);
+    for (const k of Object.keys(s.laya || {})) lanes.push(s.laya[k]);
+    // The CLM comparison lane (reflex .issues/027): the external
+    // Contrastive-LM reference over /v1/systemone — same questions, their
+    // rendering law, an honest comparison row (never a product lane).
+    if (s.clm) lanes.push(s.clm);
+    // The GLiNER comparison lane (reflex .issues/029): fastino/GLiNER2.5-Decide
+    // over their gliner2 package — same questions, their probability readout,
+    // another honest comparison row (never a product lane).
+    if (s.gliner) lanes.push(s.gliner);
+    // The AgentJev comparison lane (reflex .issues/025 amendment 4): their
+    // jev_service answered over HTTP — the MEASURE-vs-SERVE split; the
+    // gold-label row beside their published teacher-argmax number.
+    if (s.agentjev) lanes.push(s.agentjev);
+    // The OpenThai comparison lane (reflex Plan 003 / Bench 074): their
+    // OpenThai-SystemOne service over /v1/systemone — same questions, their
+    // probability readout, another honest comparison row (never a product
+    // lane); the Thai probe suites' specialist cell.
+    if (s.openthai) lanes.push(s.openthai);
+    // The PAW comparison lanes (reflex .issues/033): ProgramAsWeights hosted
+    // + local postures — same questions, their compiled-program answers.
+    if (s.paw) lanes.push(s.paw);
+    if (s.paw_local) lanes.push(s.paw_local);
+    // The instinct HYBRID lane (riir-instinct .issues/003): the trained
+    // specialist composed with Reflex over the same seat — the registered
+    // arm's frozen test read, published per suite where a hybrid arm won
+    // registration.
+    if (s.hybrid) lanes.push(s.hybrid);
+    extraRows = [];
+    for (const [host, hl] of Object.entries(s.extra_host_lanes || {})) {
+      if (hl.modelless) extraRows.push([hl.modelless, host]);
+      for (const k of Object.keys(hl.laya || {})) extraRows.push([hl.laya[k], host]);
+      if (hl.clm) extraRows.push([hl.clm, host]);
+      if (hl.gliner) extraRows.push([hl.gliner, host]);
+      if (hl.agentjev) extraRows.push([hl.agentjev, host]);
+      if (hl.openthai) extraRows.push([hl.openthai, host]);
+      if (hl.paw) extraRows.push([hl.paw, host]);
+      if (hl.paw_local) extraRows.push([hl.paw_local, host]);
+      if (hl.hybrid) extraRows.push([hl.hybrid, host]);
+    }
+  }
   // The lane filter (governs every section): hidden lanes drop out of the
   // tables, the per-suite bars, and the hero — and the best-acc highlight
   // recomputes over the visible rows only.
   const shown = window.BenchFilter ? lanes.filter((l) => BenchFilter.visible(l)) : lanes;
-  // Extra-host lanes (Issue 018 T5 — the fleet merge): the SAME questions
-  // answered on other silicon. Same row renderer, host-tagged label; they
-  // compete for the best-acc highlight honestly (identical questions).
-  const extraRows = [];
-  for (const [host, hl] of Object.entries(s.extra_host_lanes || {})) {
-    if (hl.modelless) extraRows.push([hl.modelless, host]);
-    for (const k of Object.keys(hl.laya || {})) extraRows.push([hl.laya[k], host]);
-    if (hl.clm) extraRows.push([hl.clm, host]);
-    if (hl.gliner) extraRows.push([hl.gliner, host]);
-    if (hl.agentjev) extraRows.push([hl.agentjev, host]);
-    if (hl.openthai) extraRows.push([hl.openthai, host]);
-    if (hl.hybrid) extraRows.push([hl.hybrid, host]);
-  }
   const shownExtra = window.BenchFilter ? extraRows.filter(([l]) => BenchFilter.visible(l)) : extraRows;
-  const bestAcc = Math.max(...shown.concat(shownExtra.map(([l]) => l)).map((l) => (l.hard || {}).accuracy ?? 0));
-  const m = s.modelless;
+  // Best accuracy over the visible cells — accOf, same as the charts, so the
+  // acc-only paw cells compete for the highlight honestly (identical questions).
+  const accOf = (l) => (window.BenchCharts && BenchCharts.accOf ? BenchCharts.accOf(l) : ((l.hard || {}).accuracy != null ? (l.hard || {}).accuracy : l.accuracy));
+  const bestAcc = Math.max(...shown.concat(shownExtra.map(([l]) => l)).map(accOf), 0);
+  // The G1 verdict / gate fit / count tables are the MODELLESS lane's
+  // disclosures and follow the RIG: under a 4090 scope the rig's own
+  // modelless cell (which carries its own g1 verdict) is the disclosure's
+  // source — never the primary cell of a host the scope excludes.
+  const isModelless = (l) => l.lane === "KatGPT" || l.model === "modelless";
+  const m = shown.concat(shownExtra.map(([l]) => l)).find(isModelless) || null;
   // The lane filter governs EVERY section of the page (the filter bar's own
   // promise), and the G1 verdict / gate fit / count tables are MODELLESS-lane
   // disclosures — so they hide with the modelless lane. Rendered beside a
@@ -459,7 +526,7 @@ function suiteSection(s) {
     ? `<p class="cases">leak scan (024): exact ${s.leak.exact} / near ${s.leak.near} over ${s.leak.n_eval} eval rows (${s.leak.n_reference} reference rows) — near-duplicate train/eval overlap disclosed per lane as acc_deleaked</p>`
     : "";
 
-  // An EMPTY suite: the filter left no visible lane with data here. The
+  // An EMPTY suite: the filter + rig left no visible lane with data here. The
   // per-suite chart already renders nothing in that state (suite() returns
   // "" on zero visible rows), so the header-row-only table beside it read
   // as a broken render — answer "not run" the hero's way instead of the
@@ -469,11 +536,11 @@ function suiteSection(s) {
   return `<h3 class="suite" id="suite-${s.name}"><a class="hlink" href="#suite-${s.name}">${s.name}</a> <span class="cases">— ${s.n_cases} cases / ${s.n_questions} questions</span></h3>
   ${window.BenchCharts ? BenchCharts.suite(s) : ""}` +
     (emptyNotRun
-      ? `<p class="cases">not run — every lane with data on this suite is hidden by the lane filter (re-enable a lane above)</p>`
+      ? `<p class="cases">not run — no visible lane has a cell on this suite for the current rig and filter (switch rigs above or re-enable a lane)</p>`
       : `<details class="more"><summary>Table · calibration · gate fit${g1Word && mlVisible ? ` <span class="chip ${v === "pass" ? "pass" : v === "fail" ? "fail" : ""}">G1 (modelless) ${g1Word}</span>` : ""}</summary><div class="scroll"><table class="bench">
     <thead><tr><th>lane · model</th><th>acc</th><th>macro F1</th><th>ECE(maxp)</th><th>Brier</th><th>acc@50cov</th><th>rECE cal (raw)</th><th>abst / sel-acc</th><th>p50</th><th>p99</th><th>det</th></tr></thead>
     <tbody>${shown.map((l) => laneRow(l, bestAcc, PRIMARY_HOST)).join("")}${shownExtra.map(([l, host]) => laneRow(l, bestAcc, host)).join("")}</tbody>
-  </table></div>${leakLine}${g1}${mlVisible ? gateFit(s.modelless) + nbLines(s.modelless) : ""}</details>`);
+  </table></div>${leakLine}${g1}${mlVisible && m ? gateFit(m) + nbLines(m) : ""}</details>`);
 }
 
 function render(d) {
@@ -492,22 +559,35 @@ function render(d) {
     }
   }
   if (window.BenchCharts) BenchCharts.hero(d);
+  // The rig radio (after hero(): BenchRig.init runs inside hero() and the
+  // radio's onchange re-renders the WHOLE page — charts, tables, provenance).
+  const rf = document.getElementById("rig-filter");
+  if (rf && window.BenchRig) {
+    rf.innerHTML = BenchRig.bar();
+    BenchRig.wire(rf, () => render(d));
+  }
   const hosts = meta.hosts;
   let provenance;
   // The provenance strip: one chip per host run (host · device · sha · when)
   // + the generation note; population notes ride in their own block below.
+  // The RIG scope narrows it: a scope pinned to one machine shows that
+  // machine's chips (and its population notes) only, with the scope named.
+  const rigScoped = window.BenchRig && BenchRig.inited() && BenchRig.active() !== "all";
+  const onRigHost = (h) => !rigScoped || BenchRig.onRig(h.host || h);
   let provNotes = "";
   if (Array.isArray(hosts) && hosts.length) {
-    // Issue 018 T6: the provenance row names EVERY host. The modelless
-    // accuracy columns are bit-identical across these runs (the merge
-    // script refuses to publish drift); latency rows are per-host.
-    provenance = hosts.map(runChip).join("") +
-      '<span class="rc-note">generated from the harness, never hand-typed</span>';
+    // Issue 018 T6: the provenance row names EVERY host (within the active
+    // rig scope). The modelless accuracy columns are bit-identical across
+    // these runs (the merge script refuses to publish drift); latency rows
+    // are per-host.
+    provenance = hosts.filter(onRigHost).map(runChip).join("") +
+      '<span class="rc-note">generated from the harness, never hand-typed</span>' +
+      (rigScoped ? `<span class="rc-note">— scoped to the <b>${esc(BenchRig.label())}</b> rig</span>` : "");
     // Population-guard disclosure (the merge script's excluded/absent
     // notes): a suite missing on one host is a fact about the MERGE, not a
     // silent hole in the table — name it under the provenance strip.
     const notes = [];
-    for (const h of hosts) {
+    for (const h of hosts.filter(onRigHost)) {
       if (Array.isArray(h.excluded_suites) && h.excluded_suites.length)
         notes.push(`<span class="cases">not merged on ${h.host || "?"}: ${h.excluded_suites.map(String).join(" · ")} — population differs across hosts, never compared</span>`);
       if (Array.isArray(h.absent_suites) && h.absent_suites.length)

@@ -139,26 +139,32 @@ try {
     fail(`lane-note heights differ within a row: ${JSON.stringify(box)}`);
   }
 
-  // TL;DR renders from data/bench.json — four verdict rows + Reflex vs Instinct (when the bench carries an Instinct arm)
+  // TL;DR renders from data/bench.json — the four Reflex verdict rows. The
+  // Instinct row MOVED to /bench/#instinct (owner call 2026-09-29): the
+  // arena TL;DR carries NO Instinct row, whatever the bench data says.
   await page.waitForFunction(() => document.querySelectorAll("#tldr li").length >= 4, { timeout: 10000 });
   console.log(`[demo-smoke] TL;DR: ${(await page.textContent("#tldr")).replace(/\s+/g, " ").trim().slice(0, 240)}…`);
   {
-    const benchHasInstinct = JSON.parse(readFileSync(path.join(siteDir, "data", "bench.json"), "utf8"))
-      .suites.some((s) => s.modelless && s.hybrid);
     const tl = await page.textContent("#tldr");
     // A trailing suite is a gap to close, never a pick for the other lane
     // (Reflex wins latency + size): the TL;DR must not hand out verdicts.
     if (/better pick/.test(tl)) fail("TL;DR names another lane 'the better pick' — state the gap to win instead");
-    if (benchHasInstinct !== /Instinct vs Reflex/.test(tl)) fail(`TL;DR Instinct-vs-Reflex row: bench has an Instinct arm=${benchHasInstinct}, row rendered=${!benchHasInstinct}`);
-    // The row's mark is Instinct's verdict: ✓ only when STRICTLY ahead of
-    // Reflex on every suite with an arm (Reflex is free; a tie sells nothing).
-    if (benchHasInstinct) {
-      const b2 = JSON.parse(readFileSync(path.join(siteDir, "data", "bench.json"), "utf8"));
-      const allAhead = b2.suites.filter((s) => s.modelless?.hard && s.hybrid?.hard)
-        .every((s) => s.hybrid.hard.accuracy > s.modelless.hard.accuracy);
+    if (/Instinct vs Reflex/.test(tl)) fail("TL;DR still carries the Instinct vs Reflex row — it moved to /bench/#instinct (instinct.js)");
+    else console.log("[demo-smoke] ok: no Instinct row on the arena TL;DR (lives on /bench/#instinct)");
+    // The Reflex-vs-laya accuracy row's mark follows the MAJORITY call
+    // (owner 2026-09-29): ✓ when at-or-above on ALL suites with the trio,
+    // yellow ✓ (class "warn") when at-or-above on a strict majority, ✗
+    // otherwise — computed from the same bench.json the row renders from.
+    {
+      const bench = JSON.parse(readFileSync(path.join(siteDir, "data", "bench.json"), "utf8"));
+      const trio = bench.suites.filter((s) => s.modelless?.hard?.accuracy != null
+        && s.laya?.english?.hard?.accuracy != null && s.laya?.["py/english"]?.hard?.accuracy != null);
+      const atOrAbove = trio.filter((s) => s.modelless.hard.accuracy >= s.laya.english.hard.accuracy).length;
+      const expect = trio.length === 0 ? null : atOrAbove === trio.length ? "ok" : atOrAbove * 2 > trio.length ? "warn" : "gap";
       const mark = await page.evaluate(() => [...document.querySelectorAll("#tldr li")]
-        .find((li) => /Instinct vs Reflex/.test(li.textContent))?.className);
-      if (mark !== (allAhead ? "ok" : "gap")) fail(`Instinct row mark ${mark} but strictly-ahead-everywhere=${allAhead}`);
+        .find((li) => /Reflex vs laya, accuracy/.test(li.textContent))?.className);
+      if (expect && mark !== expect) fail(`Reflex-vs-laya accuracy mark ${mark} but majority rule says ${expect} (${atOrAbove}/${trio.length})`);
+      else if (expect) console.log(`[demo-smoke] ok: Reflex-vs-laya accuracy mark ${mark} (${atOrAbove}/${trio.length} at-or-above)`);
     }
     // Issue-021 verdicts: a speed row over timing a run judged unfit must
     // say so, and the lead names the NEWEST run, never meta's original one.

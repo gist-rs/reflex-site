@@ -7,6 +7,12 @@
 //   BenchCharts.hero(d)   → the grouped "all suites × lane" chart at the top
 //   BenchCharts.suite(s)  → the per-suite bar table above each suite's table
 //
+// Two governing bars compose: the LANE filter (which lanes render) and the
+// RIG scope (BenchRig — which machine's rows render; "all" is the default
+// and the page's original behavior). Every rendered path goes through
+// scopedPairs(); only the filter's key derivation walks all rigs, so the
+// checkbox set never changes under a rig switch.
+//
 // Palette: three categorical slots validated all-pairs on the site's dark
 // surfaces (#140b08 and #1d110c) — CVD ΔE 9.4, normal-vision ΔE 20.9, all
 // ≥ 3:1 contrast. Color follows the LANE, never its rank.
@@ -32,6 +38,12 @@
     // from the seven existing hues under the same dark-surface ≥3:1
     // contrast rule (~5:1 measured against #140b08 / #1d110c).
     { key: "openthai", label: "openthai", color: "#7e57c2", match: (l) => l.lane === "openthai (reference)" },
+    // The PAW comparison lanes (reflex .issues/033): ProgramAsWeights — the
+    // hosted and local postures share ONE palette slot and ONE filter chip
+    // (same lane, two serving postures); the table row label carries the
+    // posture ("paw (hosted)" / "paw (local)"). Lime slot, added under the
+    // same dark-surface contrast rule.
+    { key: "paw", label: "paw", color: "#cddc39", match: (l) => String(l.lane).startsWith("paw") },
   ];
   const OTHER = { key: "other", label: "other", color: "#8a7468" };
   const laneOf = (l) => LANES.find((x) => x.match(l)) || OTHER;
@@ -101,8 +113,87 @@
   }
   window.BenchFilter = { init, visible, bar, wire };
 
+  // ── rig scope (one radio group; governs every chart + table on the page) ──
+  // The fleet merge publishes extra hosts beside the primary run; the rig
+  // radio scopes EVERY rendered section to one machine's rows ("all" is the
+  // default and the page's original every-row view). Rigs DERIVE from the
+  // data: the primary host + every extra_host_lanes key; a host ending in a
+  // known device suffix is a DEVICE ROW of its base machine (@m3-max-ane is
+  // the M3 Max's ANE row, not a third box). Labels are the Machines
+  // section's display names, never measurements. Persisted like the filter.
+  const RIG_KEY = "bench-rig-scope";
+  // The fleet names device rows <machine>-<device> (@m3-max-ane is the M3
+  // Max's ANE row). A device row joins the PRIMARY host's rig when its
+  // stripped name is a prefix of the primary host name — a data-anchored
+  // rule (no synthetic rig ids); anything else stands as its own rig.
+  const DEVICE_SUFFIXES = ["-ane"];
+  const RIG_LABELS = { "m3-max-metal": "M3 Max", "4090-win": "RTX 4090" };
+  const rig = { id: "all", hosts: null, ready: false }; // hosts: null = every rig
+  let rigs = [];
+  function loadRig() {
+    try { rig.id = localStorage.getItem(RIG_KEY) || "all"; } catch (e) { rig.id = "all"; }
+  }
+  loadRig();
+  function rigBase(h) {
+    for (const sfx of DEVICE_SUFFIXES) {
+      if (!h.endsWith(sfx)) continue;
+      const stem = h.slice(0, -sfx.length);
+      if (primaryHost && primaryHost.startsWith(stem)) return primaryHost;
+      return stem;
+    }
+    return h;
+  }
+  function initRigs(d) {
+    const hosts = [];
+    const push = (h) => { if (h && !hosts.includes(h)) hosts.push(h); };
+    push(d && d.meta && d.meta.host);
+    for (const row of (d && d.meta && d.meta.hosts) || []) push(row.host);
+    for (const s of (d && d.suites) || [])
+      for (const h of Object.keys(s.extra_host_lanes || {})) push(h);
+    rigs = [];
+    for (const h of hosts) {
+      const base = rigBase(h);
+      let r = rigs.find((x) => x.id === base);
+      if (!r) { r = { id: base, label: RIG_LABELS[base] || base, hosts: [] }; rigs.push(r); }
+      r.hosts.push(h);
+    }
+    if (rig.id !== "all" && !rigs.some((x) => x.id === rig.id)) rig.id = "all";
+    rig.hosts = rig.id === "all" ? null : new Set(rigs.find((x) => x.id === rig.id).hosts);
+    rig.ready = true;
+  }
+  const onRig = (host) => !rig.hosts || rig.hosts.has(host);
+  function rigBar() {
+    if (!rig.ready || rigs.length <= 1) return "";
+    const opts = [{ id: "all", label: "All rigs" }, ...rigs].map((r) =>
+      `<label class="rf-chip"><input type="radio" name="bench-rig" value="${esc(r.id)}"${rig.id === r.id ? " checked" : ""}>${esc(r.label)}</label>`).join("");
+    return `<div class="rf-bar" role="radiogroup" aria-label="benchmark rig">${opts}</div>` +
+      `<p class="rf-hint">Scope every chart and table to one benchmark rig (remembered) — a comparison lane renders where its host ran.</p>`;
+  }
+  function wireRig(el, rerender) {
+    // Property assignment, like the lane filter: render() re-wires on every
+    // re-render and assignment never accumulates listeners.
+    el.onchange = (e) => {
+      const b = e.target.closest("input[type=radio][name=bench-rig]");
+      if (!b || b.value === rig.id) return;
+      rig.id = b.value;
+      rig.hosts = rig.id === "all" ? null : new Set(rigs.find((x) => x.id === rig.id).hosts);
+      try { localStorage.setItem(RIG_KEY, rig.id); } catch (err) { /* non-fatal */ }
+      rerender();
+    };
+  }
+  window.BenchRig = {
+    init: initRigs,
+    bar: rigBar,
+    wire: wireRig,
+    onRig,
+    scoped: null, // assigned with the BenchCharts export (scopedPairs hoists)
+    active: () => rig.id,
+    label: () => (rigs.find((x) => x.id === rig.id) || {}).label || "all",
+    inited: () => rig.ready,
+  };
+
   const METRICS = {
-    acc: { label: "accuracy", get: (l) => (l.hard || {}).accuracy, log: false },
+    acc: { label: "accuracy", get: accOf, log: false },
     acc50: { label: "acc@50% coverage", get: (l) => (l.hard || {}).acc_at_50_coverage, log: false },
     p50: { label: "p50 latency", get: (l) => l.latency_p50_ms, log: true },
   };
@@ -112,6 +203,13 @@
   const pct = (v) => (v * 100).toFixed(1) + "%";
   const lat = (v) => v < 1 ? +(v * 1000).toPrecision(3) + " µs" : v < 1000 ? +v.toPrecision(3) + " ms" : +(v / 1000).toPrecision(3) + " s";
   const fmtOf = (m) => (METRICS[m].log ? lat : pct);
+  // Accuracy across cell shapes: full cells carry it under `hard`; the
+  // acc-only comparison cells (paw, reflex 5f76526) carry a top-level
+  // `accuracy` with no hard block at all. One reader for every surface.
+  function accOf(l) {
+    const h = (l.hard || {}).accuracy;
+    return h != null ? h : l.accuracy;
+  }
 
   // One log domain for EVERY latency bar on the page, so a bar in one suite is
   // comparable with a bar in another. Snapped to whole decades.
@@ -131,10 +229,8 @@
   let latBroken = false, latMax = BREAK_AT;
   function setLogDomain(d) {
     const vs = [];
-    for (const s of d.suites || []) {
-      for (const l of allLanes(s)) if (num(l.latency_p50_ms) && l.latency_p50_ms > 0) vs.push(l.latency_p50_ms);
-      for (const [l] of extraLanes(s)) if (num(l.latency_p50_ms) && l.latency_p50_ms > 0) vs.push(l.latency_p50_ms);
-    }
+    for (const s of d.suites || [])
+      for (const [l] of scopedPairs(s)) if (num(l.latency_p50_ms) && l.latency_p50_ms > 0) vs.push(l.latency_p50_ms);
     if (vs.length) {
       latMax = Math.max(...vs);
       latBroken = latMax > BREAK_AT;
@@ -184,6 +280,8 @@
     if (s.gliner) out.push(s.gliner);
     if (s.agentjev) out.push(s.agentjev);
     if (s.openthai) out.push(s.openthai);
+    if (s.paw) out.push(s.paw);
+    if (s.paw_local) out.push(s.paw_local);
     if (s.hybrid) out.push(s.hybrid);
     return out;
   }
@@ -196,8 +294,27 @@
       if (hl.gliner) out.push([hl.gliner, host]);
       if (hl.agentjev) out.push([hl.agentjev, host]);
       if (hl.openthai) out.push([hl.openthai, host]);
+      if (hl.paw) out.push([hl.paw, host]);
+      if (hl.paw_local) out.push([hl.paw_local, host]);
       if (hl.hybrid) out.push([hl.hybrid, host]);
     }
+    return out;
+  }
+  // The RIG-SCOPED enumeration — every rendered path (charts, tables, the
+  // log domain, per-suite picks, the Instinct verdicts) reads lanes through
+  // this: primary-host cells first (when the rig includes the primary),
+  // then the active rig's extra-host cells, each tagged with its host. The
+  // filter's key derivation deliberately stays on the UNSCOPED walk
+  // (allLanes/extraLanes), so the checkbox set is stable across rig swaps.
+  function scopedPairs(s) {
+    const out = [];
+    // An UNSET primary host (a direct setLogDomain/summary call before any
+    // page render — the render smokes) means the pre-fleet data model:
+    // the primary cells ARE the data, never dropped. Once set, the rig
+    // decides (a 4090 scope excludes the m3 primary via onRig).
+    if (!primaryHost || onRig(primaryHost))
+      for (const l of allLanes(s)) out.push([l, null]);
+    for (const [l, host] of extraLanes(s)) if (onRig(host)) out.push([l, host]);
     return out;
   }
 
@@ -210,14 +327,11 @@
   // amendment 2), latency bars disclose the host in the tooltip.
   function pick(s, lane) {
     let best = null;
-    for (const l of allLanes(s)) {
+    // scopedPairs: rig-aware, primary host first (the earlier-in-list
+    // tie-break keeps the primary cell when hosts measure a lane equally).
+    for (const [l, host] of scopedPairs(s)) {
       if (laneOf(l) !== lane || l.model === "multilingual" || !l.hard) continue;
-      if (!best || (l.hard.accuracy ?? -1) > (best.hard.accuracy ?? -1)) best = l;
-    }
-    if (best) return [best, null];
-    for (const [l, host] of extraLanes(s)) {
-      if (laneOf(l) !== lane || l.model === "multilingual" || !l.hard) continue;
-      if (!best || (l.hard.accuracy ?? -1) > (best.hard.accuracy ?? -1)) best = [l, host];
+      if (!best || (l.hard.accuracy ?? -1) > (best[0].hard.accuracy ?? -1)) best = [l, host];
     }
     return best;
   }
@@ -375,6 +489,7 @@
     if (!el || !d || !d.suites) return;
     heroData = d;
     setPrimaryHost(d.meta && d.meta.host);
+    initRigs(d);
     setLogDomain(d);
     const q = new URLSearchParams(location.search).get("m"); // shareable view: /bench/?m=p50
     if (METRICS[q]) heroMetric = q;
@@ -410,8 +525,7 @@
 
   function suite(s) {
     suiteStore.set(s.name, s);
-    const rows = sortPairs(allLanes(s).map((l) => [l, primaryHost]).concat(extraLanes(s))
-      .filter(([l]) => visible(l)), suiteSort, ([l]) => sortKeyOf(l, suiteSort));
+    const rows = sortPairs(scopedPairs(s).filter(([l]) => visible(l)), suiteSort, ([l]) => sortKeyOf(l, suiteSort));
     if (!rows.length) return "";
     return `<div class="bc-suite" data-bc-suite="${esc(s.name)}" aria-label="${esc(s.name)} lanes compared">` +
       `<div class="bc-sh"></div><div class="bc-sh">accuracy</div><div class="bc-sh">p50 latency · log${latBroken ? ` · break at ${lat(BREAK_AT)}` : ""} · shorter is faster</div>` +
@@ -540,5 +654,6 @@
     if (ctrl) for (const b of ctrl.querySelectorAll("button[data-sort]")) b.setAttribute("aria-pressed", b.dataset.sort === suiteSort);
   }
 
-  window.BenchCharts = { hero, suite, setLogDomain, summary, suiteSortControl, setSuiteSort, setPrimaryHost, lat };
+  window.BenchCharts = { hero, suite, setLogDomain, summary, suiteSortControl, setSuiteSort, setPrimaryHost, lat, accOf };
+  window.BenchRig.scoped = scopedPairs;
 })();

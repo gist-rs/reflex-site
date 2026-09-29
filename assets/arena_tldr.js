@@ -43,7 +43,6 @@ const median = (xs) => {
   return v.length ? v[Math.floor(v.length / 2)] : null;
 };
 const ms = (x) => (x < 1 ? x.toFixed(3) : x < 10 ? x.toFixed(2) : String(Math.round(x)));
-const pct = (x) => (x * 100).toFixed(1) + "%";
 // The 95% Wilson score interval of one lane's accuracy at its own n —
 // the same screen Bench 068 ran by hand (reflex .benchmarks/068). A
 // trailing suite whose opponent sits INSIDE Reflex's interval is a
@@ -76,8 +75,13 @@ const gapList = (xs, cap = 5) => {
 
 function row(ok, text) {
   const li = document.createElement("li");
-  li.className = ok === true ? "ok" : ok === false ? "gap" : "eq";
-  li.innerHTML = `<i>${ok === true ? "✓" : ok === false ? "✗" : "="}</i> ${text}`;
+  // "warn" = a majority verdict that is not a sweep: a YELLOW ✓. Reserved
+  // for the Reflex-vs-laya accuracy row (the owner's 2026-09-29 call):
+  // Reflex at-or-above on most suites is a win worth showing as a win — the
+  // trailing minority is still named in full beside it. Red ✗ stays for a
+  // minority result; "=" stays undecided.
+  li.className = ok === true ? "ok" : ok === false ? "gap" : ok === "warn" ? "warn" : "eq";
+  li.innerHTML = `<i>${ok === true || ok === "warn" ? "✓" : ok === false ? "✗" : "="}</i> ${text}`;
   return li;
 }
 
@@ -165,54 +169,23 @@ function render(bench) {
     (comparable.length ? " — a parity port, by design." : " — nothing comparable published yet.")));
   const noiseList = (xs) => xs
     .map((r) => `${r.name} +${(r.gap * 100).toFixed(1)} pt (n=${r.kmN})`).join(", ");
-  ul.appendChild(row(kmGaps.length === 0,
+  // The majority call (owner, 2026-09-29): at-or-above on MORE THAN HALF the
+  // suites is a yellow ✓ even where real gaps remain — winning 9/14 is the
+  // verdict, and the gap list beside it keeps every loss said. A tie or a
+  // minority result is still the red ✗.
+  const accState = kmGaps.length === 0 ? true : (kmAccAtLeast.length * 2 > n ? "warn" : false);
+  ul.appendChild(row(accState,
     `<b>Reflex vs laya, accuracy:</b> at or above laya on <b>${kmAccAtLeast.length}/${n}</b>` +
     (kmGaps.length ? `; gap to win the other ${kmGaps.length}: ${gapList(kmGaps)}` : "") +
     (kmNoise.length
       ? `; within noise at this n: ${noiseList(kmNoise)} — more questions, not a new mechanism`
       : "") +
     "."));
-  // Instinct vs Reflex — told from Instinct's side: Reflex is free, so
-  // Instinct is the paid lane and must EARN its place by beating Reflex.
-  // ✓ only when it is STRICTLY ahead on every suite it has an arm for (a
-  // tie is no reason to pay); its leads are the pitch, its gaps are stated
-  // as gaps, and its coverage (suites with an arm) is disclosed.
-  const withKm = (bench.suites || []).filter((s) => s.modelless?.hard?.accuracy != null);
-  const inst = withKm
-    .filter((s) => s.hybrid?.hard?.accuracy != null)
-    .map((s) => ({ name: s.name, km: s.modelless.hard.accuracy, inst: s.hybrid.hard.accuracy }));
-  if (inst.length) {
-    const byGap = (a, b) => (b.inst - b.km) - (a.inst - a.km);
-    const ahead = inst.filter((r) => r.inst > r.km).sort(byGap);
-    const notAhead = inst.filter((r) => r.inst <= r.km).sort((a, b) => byGap(b, a));
-    const pt = (r) => `${r.name} ${pct(r.inst)} vs ${pct(r.km)}`;
-    const instGaps = notAhead.map((r) => ({
-        name: r.name,
-        gap: r.km - r.inst,
-        instAcc: r.inst,
-        instN: nOf(bench.suites.find((s) => s.name === r.name)?.hybrid),
-      }))
-      .sort((a, b) => b.gap - a.gap);
-    const noArm = withKm.length - inst.length;
-    // The same Bench-068 screen, one side over: a suite where REFLEX's
-    // lead is inside Instinct's interval is disclosed as noise — but the
-    // verdict is unchanged (Reflex is free; a statistical tie earns no
-    // download, so the row stays ✗ unless Instinct is strictly ahead).
-    const instGapsReal = instGaps.filter((r) => !inWilson(r.instAcc, r.instN, r.instAcc + r.gap));
-    const instGapsNoise = instGaps.filter((r) => inWilson(r.instAcc, r.instN, r.instAcc + r.gap));
-    const instNoiseList = (xs) => xs
-      .map((r) => `${r.name} +${(r.gap * 100).toFixed(1)} pt (n=${r.instN})`).join(", ");
-    ul.appendChild(row(notAhead.length === 0,
-      `<b>Instinct vs Reflex, accuracy:</b> ahead of Reflex on <b>${ahead.length}/${inst.length}</b> suites with an Instinct arm` +
-      (ahead.length ? ` (widest: ${pt(ahead[0])}) — where its trained specialists earn the download` : "") +
-      (instGapsReal.length
-        ? `; gap to win the other ${instGapsReal.length}: ${gapList(instGapsReal)}`
-        : "") +
-      (instGapsNoise.length
-        ? `; within noise at this n: ${instNoiseList(instGapsNoise)}`
-        : "") +
-      (noArm > 0 ? `; no Instinct arm yet on ${noArm} of ${withKm.length} suites.` : ".")));
-  }
+  // Instinct verdicts MOVED (owner, 2026-09-29): the arena TL;DR stays
+  // Reflex's. The "Instinct vs Reflex" row now renders on /bench/#instinct
+  // (assets/instinct.js) beside the raised "vs best lane" row and the PoC
+  // framing — it returns here only when Instinct beats every lane (owner
+  // call, instinct .issues/008 T9).
   body.append(lead, ul);
 }
 

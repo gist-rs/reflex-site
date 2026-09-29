@@ -1,12 +1,18 @@
 #!/usr/bin/env python3
-"""Render the arena's "How each lane decides" figures from their doc source.
+"""Render the flow figures from their doc sources (two-mirror law).
 
-SOURCE OF TRUTH: katgpt-rs `.docs/06_game_arenas/tetris_lane_flows.md` (the
-Tetris lanes are katgpt-rs's arena book; riir-reflex stays game-free). Each
-```mermaid block there carries two header comments:
+SOURCES OF TRUTH — one doc per owning repo, each ```mermaid block carrying
+two header comments:
 
-    %% file: tetris_flow_<lane>.svg      the output name
-    %% aria: <one sentence>              the SVG's aria-label
+    %% file: <name>.svg      the output name
+    %% aria: <one sentence>  the SVG's aria-label
+
+  1. katgpt-rs `.docs/06_game_arenas/tetris_lane_flows.md` — the Tetris lane
+     figures (the lanes are katgpt-rs's arena book; riir-reflex stays
+     game-free).
+  2. riir-instinct `.docs/03_decision_flow/instinct_flow.md` — the Instinct
+     composition figure embedded on reflex-site /bench/#instinct (the site
+     is Reflex's; the trained add-on's diagram lives with its repo).
 
 This renders every block through mermaid.ink (the same service + palette the
 riir-reflex hero `decision_flow.svg` uses: theme `base`, `#241410` node fill,
@@ -15,8 +21,9 @@ transparent background, monospace), post-processes per the Issue-131
 conventions (no `@import`, every selector scoped to the SVG's own id,
 `role="img"` + the aria sentence), and writes the SAME bytes to both mirrors:
 
-    <katgpt-rs>/.docs/06_game_arenas/<file>      beside the doc
-    <reflex-site>/assets/<file>                   what the page embeds
+    <owning repo>/<doc dir>/<file>     beside the doc
+    <reflex-site>/assets/<file>        what the page embeds (instinct figures;
+                                       tetris figures also mirror to assets)
 
 Modes:
     (default)  render + write both mirrors, print a byte report.
@@ -24,7 +31,8 @@ Modes:
                missing (a stale mirror ships a stale figure). Never a silent
                green: a source with zero blocks is a finding.
 
-The katgpt-rs checkout: $KATGPT_RS_CHECKOUT, else ../katgpt-rs beside this repo.
+Checkouts: $KATGPT_RS_CHECKOUT else ../katgpt-rs; $INSTINCT_CHECKOUT else
+../riir-instinct, both beside this repo.
 """
 
 import argparse
@@ -41,7 +49,20 @@ for _s in (sys.stdout, sys.stderr):
     _s.reconfigure(encoding="utf-8", errors="backslashreplace")
 
 SITE = Path(__file__).resolve().parent.parent
-DOC_REL = ".docs/06_game_arenas/tetris_lane_flows.md"
+
+def katgpt_root() -> Path:
+    env = os.environ.get("KATGPT_RS_CHECKOUT")
+    return Path(env).expanduser().resolve() if env else (SITE.parent / "katgpt-rs").resolve()
+
+def instinct_root() -> Path:
+    env = os.environ.get("INSTINCT_CHECKOUT")
+    return Path(env).expanduser().resolve() if env else (SITE.parent / "riir-instinct").resolve()
+
+# (root resolver, doc rel path) per owning repo, in render order.
+SOURCES = (
+    (katgpt_root, ".docs/06_game_arenas/tetris_lane_flows.md"),
+    (instinct_root, ".docs/03_decision_flow/instinct_flow.md"),
+)
 
 THEME = {
     "theme": "base",
@@ -62,11 +83,6 @@ THEME = {
     },
     "flowchart": {"htmlLabels": True, "curve": "basis"},
 }
-
-
-def katgpt_root() -> Path:
-    env = os.environ.get("KATGPT_RS_CHECKOUT")
-    return Path(env).expanduser().resolve() if env else (SITE.parent / "katgpt-rs").resolve()
 
 
 def blocks(md: str):
@@ -118,34 +134,36 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--check", action="store_true")
     args = ap.parse_args()
-    root = katgpt_root()
-    doc = root / DOC_REL
-    if not doc.exists():
-        print(f"✗ source missing: {doc}")
-        return 2
-    items = list(blocks(doc.read_text(encoding="utf-8")))
-    if not items:
-        print(f"✗ {doc} has zero mermaid blocks — nothing rendered is not a pass")
-        return 1
     bad = 0
-    for file, aria, code in items:
-        a, b = doc.parent / file, SITE / "assets" / file
-        if args.check:
-            if not a.exists() or not b.exists():
-                print(f"✗ {file}: missing mirror ({'doc' if not a.exists() else 'site'})")
-                bad += 1
-            elif a.read_bytes() != b.read_bytes():
-                print(f"✗ {file}: mirrors differ — re-render")
-                bad += 1
-            else:
-                print(f"✓ {file} ({b.stat().st_size} B)")
+    for root_fn, rel in SOURCES:
+        doc = root_fn() / rel
+        if not doc.exists():
+            print(f"✗ source missing: {doc}")
+            bad += 1
             continue
-        svg = postprocess(render(code), file, aria)
-        for dst in (a, b):
-            dst.write_text(svg, encoding="utf-8", newline="\n")
-        print(f"✓ rendered {file} ({len(svg)} B) → both mirrors")
+        items = list(blocks(doc.read_text(encoding="utf-8")))
+        if not items:
+            print(f"✗ {doc} has zero mermaid blocks — nothing rendered is not a pass")
+            bad += 1
+            continue
+        for file, aria, code in items:
+            a, b = doc.parent / file, SITE / "assets" / file
+            if args.check:
+                if not a.exists() or not b.exists():
+                    print(f"✗ {file}: missing mirror ({'doc' if not a.exists() else 'site'})")
+                    bad += 1
+                elif a.read_bytes() != b.read_bytes():
+                    print(f"✗ {file}: mirrors differ — re-render")
+                    bad += 1
+                else:
+                    print(f"✓ {file} ({b.stat().st_size} B)")
+                continue
+            svg = postprocess(render(code), file, aria)
+            for dst in (a, b):
+                dst.write_text(svg, encoding="utf-8", newline="\n")
+            print(f"✓ rendered {file} ({len(svg)} B) → both mirrors")
     if args.check:
-        print(("✗ " if bad else "✓ ") + f"{len(items) - bad}/{len(items)} figures in sync")
+        print(("✗ " if bad else "✓ ") + (f"{bad} figure problem(s)" if bad else "all figures in sync"))
     return 1 if bad else 0
 
 

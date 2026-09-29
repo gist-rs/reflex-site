@@ -11,7 +11,7 @@ const fs = require("fs");
 const path = require("path");
 
 const ROOT = require("path").resolve(__dirname, "..");
-const MIME = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".json": "application/json" };
+const MIME = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".json": "application/json", ".svg": "image/svg+xml" };
 const server = http.createServer((req, res) => {
   let rel = decodeURIComponent(req.url.split("?")[0]);
   if (rel.endsWith("/")) rel += "index.html";
@@ -86,10 +86,21 @@ const server = http.createServer((req, res) => {
   else console.log(`ok: ${ajRows} agentjev table rows`);
 
   // 3c) openthai rows (reflex Plan 003 / Bench 074): the Thai board's
-  // comparison lane — row floor grows only upward
+  //     comparison lane — row floor grows only upward
   const otRows = await page.$$eval("#tables tr", (trs) => trs.filter((t) => { const c = t.querySelector("td"); return c && /^openthai · /.test(c.textContent); }).length);
   if (otRows < 4) fail(`expected >=4 openthai table rows, got ${otRows}`);
   else console.log(`ok: ${otRows} openthai table rows`);
+
+  // 3d) paw rows (reflex .issues/033 — hosted + local postures of the
+  //     ProgramAsWeights comparison lane): the cells were published into
+  //     bench.json before any renderer carried them (the invisible-lane
+  //     class) — the count is derived from the data, grows only upward.
+  const pawRows = await page.$$eval("#tables tr", (trs) => trs.filter((t) => { const c = t.querySelector("td"); return c && /^paw \(/.test(c.textContent); }).length);
+  const pawData = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "data", "bench.json"), "utf8"));
+  const expectedPaw = pawData.suites.reduce((n, s) => n + (s.paw ? 1 : 0) + (s.paw_local ? 1 : 0)
+    + Object.values(s.extra_host_lanes || {}).reduce((m, h) => m + (h.paw ? 1 : 0) + (h.paw_local ? 1 : 0), 0), 0);
+  if (pawRows !== expectedPaw) fail(`paw rows ${pawRows} != data ${expectedPaw}`);
+  else console.log(`ok: ${pawRows} paw table rows (data-derived)`);
 
   // 4) hero bars: a lane's not-run bars must be EXACTLY the suites the
   //    lane never measured (read from the data — the suite set grows over
@@ -223,8 +234,8 @@ const server = http.createServer((req, res) => {
     const bench = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "data", "bench.json"), "utf8"));
     const cells = bench.suites.flatMap((s) => [s.modelless, ...Object.values(s.laya || {}),
       ...Object.values(s.extra_host_lanes || {}).flatMap((h) => [h.modelless, ...Object.values(h.laya || {}),
-        h.clm, h.gliner, h.agentjev, h.hybrid, h.openthai]), s.clm, s.gliner, s.agentjev, s.hybrid,
-      s.openthai]).filter(Boolean);
+        h.clm, h.gliner, h.agentjev, h.hybrid, h.openthai, h.paw, h.paw_local]), s.clm, s.gliner, s.agentjev, s.hybrid,
+      s.openthai, s.paw, s.paw_local]).filter(Boolean);
     const unfit = cells.filter((c) => c.latency_quotable === false).length;
     const kmUnfit = bench.suites.filter((s) => s.modelless?.latency_quotable === false).length;
     const dom = await page.evaluate(() => [...document.querySelectorAll("td.unq")]
@@ -278,6 +289,119 @@ const server = http.createServer((req, res) => {
     const back = await page.$$eval('#tables table.bench', (xs) => xs.length);
     if (back < 10) fail(`re-enabling every lane must restore the tables, got ${back}`);
     else console.log(`ok: lanes restored -> ${back} suite tables`);
+  }
+
+  // 10) the rig radio: derived from the fleet merge (all | M3 Max | RTX
+  //     4090), default "all", governs EVERY section — tables, per-suite
+  //     charts, the hero, and the provenance strip. The M3 Max scope keeps
+  //     the ANE device rows (same machine, device suffix rule); the 4090
+  //     scope keeps the comparison lanes that ran there. Counts derived
+  //     from the data; the scope survives a reload.
+  {
+    const rigValues = await page.$$eval("#rig-filter input[name=bench-rig]", (xs) => xs.map((x) => x.value));
+    if (!(rigValues.includes("all") && rigValues.some((v) => v.startsWith("m3-max")) && rigValues.includes("4090-win")))
+      fail(`rig radios wrong: ${rigValues.join(",")}`);
+    else console.log(`ok: rig radios present (${rigValues.join(" · ")})`);
+    const checked0 = await page.$eval("#rig-filter input[name=bench-rig]:checked", (x) => x.value);
+    if (checked0 !== "all") fail(`default rig must be "all", got ${checked0}`);
+    else console.log("ok: default rig is all");
+
+    const bench = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "data", "bench.json"), "utf8"));
+    const hostRowCount = (host) => bench.suites.reduce((n, s) => {
+      const hl = (s.extra_host_lanes || {})[host];
+      if (!hl) return n;
+      return n + (hl.modelless ? 1 : 0) + Object.keys(hl.laya || {}).length
+        + ["clm", "gliner", "agentjev", "openthai", "paw", "paw_local", "hybrid"].filter((k) => hl[k]).length;
+    }, 0);
+
+    // RTX 4090 scope: no m3 rows (primary rows are unlabeled — the
+    // PRIMARY_HOST tag — so ANY unlabeled row is a leak), every row tagged
+    // @4090-win, and the provenance strip scoped to the 4090 chip.
+    await page.check('#rig-filter input[value="4090-win"]');
+    await page.waitForTimeout(300);
+    const hostTags = await page.$$eval("#tables .host", (xs) => xs.map((x) => x.textContent.trim()));
+    const unlabeled = await page.$$eval("#tables tbody tr", (trs) => trs.filter((t) => !t.querySelector(".host")).length);
+    const m3Tags = hostTags.filter((t) => /m3-max/.test(t)).length;
+    if (m3Tags !== 0 || unlabeled !== 0) fail(`4090 scope leaks m3 rows: ${m3Tags} @m3 tags, ${unlabeled} unlabeled rows`);
+    const expect4090 = hostRowCount("4090-win");
+    if (hostTags.filter((t) => t === "@4090-win").length !== expect4090)
+      fail(`4090 scope: ${hostTags.filter((t) => t === "@4090-win").length} @4090-win rows vs ${expect4090} cells in the data`);
+    else console.log(`ok: 4090 scope renders exactly the ${expect4090} 4090-win cells`);
+    const provChips = await page.$$eval("#bench-meta .run-chip b", (xs) => xs.map((x) => x.textContent));
+    if (provChips.some((h) => /m3-max/.test(h))) fail(`provenance strip not scoped: ${provChips}`);
+    else console.log(`ok: provenance strip scoped (${provChips.join(", ")})`);
+
+    await page.reload({ waitUntil: "networkidle" });
+    await page.waitForFunction(() => document.querySelectorAll("#tables table.bench").length >= 10, { timeout: 15000 });
+    const still = await page.$eval("#rig-filter input[name=bench-rig]:checked", (x) => x.value);
+    if (still !== "4090-win") fail("rig scope must survive a reload");
+    else console.log("ok: rig scope survives a reload");
+
+    // M3 Max scope: no 4090 rows; the ANE device rows stay (same machine);
+    // 4090-only comparison lanes (clm/gliner/agentjev/paw) vanish.
+    await page.check('#rig-filter input[value="m3-max-metal"]');
+    await page.waitForTimeout(300);
+    const winTags = await page.$$eval("#tables .host", (xs) => xs.filter((x) => /4090-win/.test(x.textContent)).length);
+    if (winTags !== 0) fail(`M3 scope still shows ${winTags} @4090-win rows`);
+    const expectAne = hostRowCount("m3-max-ane");
+    const aneTags = await page.$$eval("#tables .host", (xs) => xs.filter((x) => x.textContent.trim() === "@m3-max-ane").length);
+    if (aneTags !== expectAne) fail(`M3 scope: ${aneTags} @m3-max-ane rows vs ${expectAne} in the data`);
+    else console.log(`ok: M3 scope keeps the ${aneTags} ANE device rows, zero 4090 rows`);
+    const clmUnderM3 = await page.$$eval("#tables tr", (trs) => trs.filter((t) => { const c = t.querySelector("td"); return c && /^clm · /.test(c.textContent); }).length);
+    if (clmUnderM3 !== 0) fail(`clm (a 4090 lane) still renders under the M3 scope: ${clmUnderM3} rows`);
+    else console.log("ok: 4090-only lanes vanish under the M3 scope");
+
+    // back to all: the comparison lanes return.
+    await page.check('#rig-filter input[value="all"]');
+    await page.waitForTimeout(300);
+    const glinerBack = await page.$$eval("#tables tr", (trs) => trs.filter((t) => { const c = t.querySelector("td"); return c && /^gliner · /.test(c.textContent); }).length);
+    if (glinerBack < 10) fail(`"all" scope must restore the comparison lanes, got ${glinerBack} gliner rows`);
+    else console.log("ok: all-rigs scope restores the comparison lanes");
+  }
+
+  // 11) the Instinct section (#instinct): sits between Protocol and FAQ,
+  //     embeds the two-mirror flow figure, and renders BOTH verdict rows
+  //     + the PoC/GOAT chip from the data (the same computation as
+  //     instinct.js — the smoke re-derives the expected chip state).
+  {
+    const order = await page.evaluate(() => {
+      const p = document.getElementById("protocol-section"), i = document.getElementById("instinct"), f = document.getElementById("faq");
+      if (!p || !i || !f) return null;
+      return !!(p.compareDocumentPosition(i) & Node.DOCUMENT_POSITION_FOLLOWING)
+        && !!(i.compareDocumentPosition(f) & Node.DOCUMENT_POSITION_FOLLOWING);
+    });
+    if (!order) fail("#instinct must sit after #protocol-section and before #faq");
+    else console.log("ok: #instinct sits after Protocol, before FAQ");
+    const figEl = await page.$(".instinct img");
+    await figEl.scrollIntoViewIfNeeded();
+    await page.waitForFunction(() => { const i = document.querySelector(".instinct img"); return i && i.naturalWidth > 0; }, null, { timeout: 10000 });
+    const fig = await page.$eval(".instinct img", (x) => ({ src: x.getAttribute("src"), w: x.naturalWidth }));
+    if (fig.src !== "/assets/instinct_flow.svg" || !fig.w) fail(`instinct figure broken: ${JSON.stringify(fig)}`);
+    else console.log(`ok: instinct flow figure loads (${fig.w}px)`);
+    await page.waitForFunction(() => document.querySelectorAll("#instinct-verdict li").length >= 2, { timeout: 10000 });
+    const accOf = (l) => { if (!l) return null; const h = (l.hard || {}).accuracy; return h != null ? h : l.accuracy; };
+    const bench = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "data", "bench.json"), "utf8"));
+    const cells = (s) => {
+      const out = [s.modelless, ...Object.values(s.laya || {}), s.clm, s.gliner, s.agentjev, s.openthai, s.paw, s.paw_local, s.hybrid]
+        .filter(Boolean);
+      for (const hl of Object.values(s.extra_host_lanes || {}))
+        out.push(hl.modelless, ...Object.values(hl.laya || {}), hl.clm, hl.gliner, hl.agentjev, hl.openthai, hl.paw, hl.paw_local, hl.hybrid);
+      return out.filter(Boolean);
+    };
+    const armed = bench.suites.filter((s) => accOf(s.modelless) != null && cells(s).some((l) => l.lane === "Instinct (hybrid)"));
+    const strictlyAll = armed.length > 0 && armed.every((s) => {
+      const hyb = Math.max(...cells(s).filter((l) => l.lane === "Instinct (hybrid)").map(accOf));
+      const bestOther = Math.max(...cells(s).filter((l) => l.lane !== "Instinct (hybrid)" && l.model !== "multilingual").map(accOf));
+      return hyb - bestOther > 1e-9;
+    });
+    const chip = await page.$eval("#instinct-verdict .chip", (x) => x.className);
+    if (chip !== (strictlyAll ? "chip ok" : "chip poc")) fail(`instinct chip "${chip}" but the data says ${strictlyAll ? "chip ok" : "chip poc"}`);
+    else console.log(`ok: instinct chip ${chip} matches the data (${armed.length} armed suites)`);
+    const verdict = await page.textContent("#instinct-verdict");
+    if (!/Instinct vs Reflex, accuracy/.test(verdict)) fail("the vs-Reflex row (moved law) is missing");
+    if (!/Instinct vs best lane, accuracy/.test(verdict)) fail("the vs-best-lane row (the raised bar) is missing");
+    if (!/no Instinct arm yet/.test(verdict)) fail("the no-arm disclosure is missing");
+    if (!process.exitCode) console.log("ok: instinct verdict rows render (vs Reflex + vs best lane + no-arm)");
   }
 
   // restore the default posture for the screenshot
