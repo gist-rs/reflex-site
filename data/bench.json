@@ -86,8 +86,8 @@
       "date_utc": "2026-09-28T06:10:12Z"
      },
      "paw": {
-      "git_sha": "de67f50",
-      "date_utc": "2026-09-27T02:09:04Z"
+      "git_sha": "bb86069",
+      "date_utc": "2026-09-29T00:02:21Z"
      },
      "openthai": {
       "git_sha": "00bddd1",
@@ -11452,6 +11452,37 @@
     "source_run": {
      "git_sha": "00bddd1",
      "date_utc": "2026-09-28T16:27:36Z"
+    }
+   },
+   "paw": {
+    "lane": "paw (hosted)",
+    "model": "paw-ft-bs48-20260530",
+    "posture": "hosted-anonymous",
+    "program_id": "e5c9b00b49fb144810e4,1788474fc4e77eb38e3f",
+    "spec_file": "scripts/paw_specs/code_fixtures.module.txt,scripts/paw_specs/code_fixtures.is_pub.txt",
+    "spec_blake3": "c327469170449a2c0934e754ddc037222622be993bb9c76dff8112d5ddef6752,d1c6382cc8a44a44f96233d8e1afb318232c77a09a07997795f644e2295bdbb2",
+    "compile_cache_hit": false,
+    "compile_wall_s": 246.145184917,
+    "n_cases": 16,
+    "n_questions": 32,
+    "n_answered": 31,
+    "refusals": 1,
+    "quote_stripped": 0,
+    "accuracy": 0.625,
+    "answered_accuracy": 0.6451612903225806,
+    "refusal_rate": 0.03125,
+    "score_mae_answered": null,
+    "within_1_answered": null,
+    "refusal_samples": [
+     "harness::families"
+    ],
+    "server_latency_p50_ms": 77.0,
+    "determinism_ok": true,
+    "cases_digest": "fnv1a64-93583fda4fc64946",
+    "latency_quotable": false,
+    "source_run": {
+     "git_sha": "bb86069",
+     "date_utc": "2026-09-29T00:02:21Z"
     }
    }
   },
