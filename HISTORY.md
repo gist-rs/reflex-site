@@ -4,6 +4,28 @@ One hash-pinned line per removed issue (the fleet noise-reduction convention:
 an issue file is removed once its work is verifiably landed; this file is the
 durable record). Full narrative of each: `git log --follow -- .issues/<file>`.
 
+- **2026-09-30 — the modelless lane re-published at the promoted gate
+  posture (Issue 056's close-out); the deploy ships the pending typed-H2
+  publish too.** Lane-scoped publish over `data/bench.json` as primary
+  with two coordinated fresh docs — reflex Bench 096 (m3, quotable load
+  3.92→4.16) + 097 (4090-windows, UNJUDGED-standing) at `d4051c8`, the
+  076+077 flow verbatim (canonical pool, nb/oc/ridge select, heads off):
+  hard accuracy bit-identical to every incumbent cell on all 15 suites
+  BOTH hosts (cross-host bit-identity re-proven), the gate cells move to
+  `--gate-fit-calibrated` (calibrated_abstain == the old fitted raw
+  target on every dataset suite — ag_news 0.525, emotion 0.4675, sst5
+  0.5817, typed 0.717; raw_abstain 1.0 by construction, the documented
+  Bench-095 lever artifact), source stamps to `d4051c8` on both host
+  rows. Timing carried per the Issue-032 law (both sides quotable →
+  incumbent wins; provenance note on every cell). All gates green:
+  publish self-test 52/52, chart smoke, drift gate, pairing, mirror
+  parity, bench-page smoke. Deployed from the M3 (the CF-creded box) —
+  resolving the 2026-09-29 deploy-pending note: this push serves BOTH
+  the typed H2 hybrid cell and the promoted gate posture. Known gap
+  filed: reflex Issue 057 (the typed m3 p50 0.517 carry predates the
+  1200-row corpus; no corpus-axis LANE_CARRY escape exists —
+  owner-gated).
+
 - **2026-09-29 — the typed H2 serving posture published (`4b729d4`); DEPLOY
   PENDING on this box (no CF token — every prior deploy was M3-side).**
   `data/bench.json`'s typed_decisions hybrid cell: A1 0.6300 ->

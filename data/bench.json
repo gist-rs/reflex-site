@@ -54,8 +54,8 @@
     "corpus_cap_mode": "registry defaults",
     "lane_sources": {
      "modelless": {
-      "git_sha": "7e1bb07",
-      "date_utc": "2026-09-28T03:49:21Z"
+      "git_sha": "d4051c8",
+      "date_utc": "2026-09-29T20:51:01Z"
      },
      "laya:english": {
       "git_sha": "fe7c123",
@@ -119,8 +119,8 @@
     "corpus_cap_mode": "registry defaults",
     "lane_sources": {
      "modelless": {
-      "git_sha": "2cbbce7",
-      "date_utc": "2026-09-28T05:43:30Z"
+      "git_sha": "d4051c8",
+      "date_utc": "2026-09-29T21:37:07Z"
      },
      "laya:english": {
       "git_sha": "97c2b1f",
@@ -180,19 +180,19 @@
      "acc_at_50_coverage": 0.676,
      "acc_at_80_coverage": 0.613125
     },
-    "readout_ece": 0.011377324399847628,
+    "readout_ece": 0.04959756752848618,
     "raw_abstain": {
+     "abstain_rate": 1.0,
+     "selective_accuracy": 0.0,
+     "selective_n": 0
+    },
+    "calibrated_abstain": {
      "abstain_rate": 0.717,
      "selective_accuracy": 0.6537102473498233,
      "selective_n": 566
     },
-    "calibrated_abstain": {
-     "abstain_rate": 0.9415,
-     "selective_accuracy": 0.8888888888888888,
-     "selective_n": 117
-    },
     "readout_ece_raw": 0.48374495857954025,
-    "readout_ece_calibrated": 0.011377324399847628,
+    "readout_ece_calibrated": 0.04959756752848618,
     "floor_ece": 0.18175548902195604,
     "g1_pass": true,
     "g1_verdict": "pass",
@@ -250,7 +250,7 @@
     "seconds": 6.570574541,
     "n_cases": 400,
     "n_questions": 2000,
-    "score_threshold": 0.067736804,
+    "score_threshold": 0.57852864,
     "distance_threshold": 0.91222644,
     "threshold_recommendation": {
      "posture": {
@@ -258,7 +258,7 @@
       "rho": 0.3
      },
      "score": {
-      "threshold": 0.067736804,
+      "threshold": 0.57852864,
       "status": "fitted",
       "targetAccuracy": 0.45714286,
       "support": {
@@ -535,8 +535,8 @@
     "cases_digest": "fnv1a64-6e37760ee2a5b6c9",
     "latency_quotable": true,
     "source_run": {
-     "git_sha": "7e1bb07",
-     "date_utc": "2026-09-28T03:49:21Z"
+     "git_sha": "d4051c8",
+     "date_utc": "2026-09-29T20:51:01Z"
     },
     "latency_provenance": {
      "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
@@ -1114,19 +1114,19 @@
        "acc_at_50_coverage": 0.676,
        "acc_at_80_coverage": 0.613125
       },
-      "readout_ece": 0.011377324399847628,
+      "readout_ece": 0.04959756752848618,
       "raw_abstain": {
+       "abstain_rate": 1.0,
+       "selective_accuracy": 0.0,
+       "selective_n": 0
+      },
+      "calibrated_abstain": {
        "abstain_rate": 0.717,
        "selective_accuracy": 0.6537102473498233,
        "selective_n": 566
       },
-      "calibrated_abstain": {
-       "abstain_rate": 0.9415,
-       "selective_accuracy": 0.8888888888888888,
-       "selective_n": 117
-      },
       "readout_ece_raw": 0.48374495854973787,
-      "readout_ece_calibrated": 0.011377324399847628,
+      "readout_ece_calibrated": 0.04959756752848618,
       "floor_ece": 0.18175548902195604,
       "g1_pass": true,
       "g1_verdict": "pass",
@@ -1184,7 +1184,7 @@
       "seconds": 1.0189545,
       "n_cases": 400,
       "n_questions": 2000,
-      "score_threshold": 0.067736804,
+      "score_threshold": 0.57852864,
       "distance_threshold": 0.91222644,
       "threshold_recommendation": {
        "posture": {
@@ -1192,7 +1192,7 @@
         "rho": 0.3
        },
        "score": {
-        "threshold": 0.067736804,
+        "threshold": 0.57852864,
         "status": "fitted",
         "targetAccuracy": 0.45714286,
         "support": {
@@ -1469,8 +1469,8 @@
       "cases_digest": "fnv1a64-6e37760ee2a5b6c9",
       "latency_quotable": null,
       "source_run": {
-       "git_sha": "2cbbce7",
-       "date_utc": "2026-09-28T05:43:30Z"
+       "git_sha": "d4051c8",
+       "date_utc": "2026-09-29T21:37:07Z"
       },
       "latency_provenance": {
        "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
@@ -2314,19 +2314,19 @@
      "acc_at_50_coverage": 0.94,
      "acc_at_80_coverage": 0.934375
     },
-    "readout_ece": 0.009999999620191182,
+    "readout_ece": 0.034149250127375116,
     "raw_abstain": {
+     "abstain_rate": 1.0,
+     "selective_accuracy": 0.0,
+     "selective_n": 0
+    },
+    "calibrated_abstain": {
      "abstain_rate": 0.525,
      "selective_accuracy": 0.9421052631578948,
      "selective_n": 190
     },
-    "calibrated_abstain": {
-     "abstain_rate": 0.9,
-     "selective_accuracy": 1.0,
-     "selective_n": 40
-    },
     "readout_ece_raw": 0.7420057836174965,
-    "readout_ece_calibrated": 0.009999999620191182,
+    "readout_ece_calibrated": 0.034149250127375116,
     "floor_ece": 0.2684203980099501,
     "g1_pass": true,
     "g1_verdict": "pass",
@@ -2347,7 +2347,7 @@
     "seconds": 3.683479417,
     "n_cases": 400,
     "n_questions": 400,
-    "score_threshold": 0.022354484,
+    "score_threshold": 0.7799508,
     "distance_threshold": 0.41053298,
     "threshold_recommendation": {
      "posture": {
@@ -2355,7 +2355,7 @@
       "rho": 0.3
      },
      "score": {
-      "threshold": 0.022354484,
+      "threshold": 0.7799508,
       "status": "fitted",
       "targetAccuracy": 0.9071429,
       "support": {
@@ -2605,8 +2605,11 @@
     "cases_digest": "fnv1a64-07eff23c06505584",
     "latency_quotable": true,
     "source_run": {
-     "git_sha": "c464a8a",
-     "date_utc": "2026-09-28T02:17:48Z"
+     "git_sha": "d4051c8",
+     "date_utc": "2026-09-29T20:51:01Z"
+    },
+    "latency_provenance": {
+     "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
     }
    },
    "laya": {
@@ -2788,19 +2791,19 @@
        "acc_at_50_coverage": 0.94,
        "acc_at_80_coverage": 0.934375
       },
-      "readout_ece": 0.009999999620191182,
+      "readout_ece": 0.034149263240396965,
       "raw_abstain": {
+       "abstain_rate": 1.0,
+       "selective_accuracy": 0.0,
+       "selective_n": 0
+      },
+      "calibrated_abstain": {
        "abstain_rate": 0.525,
        "selective_accuracy": 0.9421052631578948,
        "selective_n": 190
       },
-      "calibrated_abstain": {
-       "abstain_rate": 0.9,
-       "selective_accuracy": 1.0,
-       "selective_n": 40
-      },
       "readout_ece_raw": 0.7420057834684849,
-      "readout_ece_calibrated": 0.009999999620191182,
+      "readout_ece_calibrated": 0.034149263240396965,
       "floor_ece": 0.2684203980099501,
       "g1_pass": true,
       "g1_verdict": "pass",
@@ -2821,7 +2824,7 @@
       "seconds": 0.2119005,
       "n_cases": 400,
       "n_questions": 400,
-      "score_threshold": 0.022354484,
+      "score_threshold": 0.7799508,
       "distance_threshold": 0.41053298,
       "threshold_recommendation": {
        "posture": {
@@ -2829,7 +2832,7 @@
         "rho": 0.3
        },
        "score": {
-        "threshold": 0.022354484,
+        "threshold": 0.7799508,
         "status": "fitted",
         "targetAccuracy": 0.9071429,
         "support": {
@@ -3079,8 +3082,8 @@
       "cases_digest": "fnv1a64-07eff23c06505584",
       "latency_quotable": null,
       "source_run": {
-       "git_sha": "c464a8a",
-       "date_utc": "2026-09-28T03:03:08Z"
+       "git_sha": "d4051c8",
+       "date_utc": "2026-09-29T21:37:07Z"
       },
       "latency_provenance": {
        "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
@@ -3537,19 +3540,19 @@
      "acc_at_50_coverage": 0.94,
      "acc_at_80_coverage": 0.86875
     },
-    "readout_ece": 0.0,
+    "readout_ece": 0.09687871081754566,
     "raw_abstain": {
+     "abstain_rate": 1.0,
+     "selective_accuracy": 0.0,
+     "selective_n": 0
+    },
+    "calibrated_abstain": {
      "abstain_rate": 0.4675,
      "selective_accuracy": 0.892018779342723,
      "selective_n": 213
     },
-    "calibrated_abstain": {
-     "abstain_rate": 0.9875,
-     "selective_accuracy": 1.0,
-     "selective_n": 5
-    },
     "readout_ece_raw": 0.7509009411931038,
-    "readout_ece_calibrated": 0.0,
+    "readout_ece_calibrated": 0.09687871081754566,
     "floor_ece": 0.17743781094527358,
     "g1_pass": true,
     "g1_verdict": "pass",
@@ -3570,7 +3573,7 @@
     "seconds": 9.910171583,
     "n_cases": 400,
     "n_questions": 400,
-    "score_threshold": 0.005817294,
+    "score_threshold": 0.48624706,
     "distance_threshold": 0.4265421,
     "threshold_recommendation": {
      "posture": {
@@ -3578,7 +3581,7 @@
       "rho": 0.3
      },
      "score": {
-      "threshold": 0.005817294,
+      "threshold": 0.48624706,
       "status": "fitted",
       "targetAccuracy": 0.7285714,
       "support": {
@@ -3828,8 +3831,11 @@
     "cases_digest": "fnv1a64-6feefd1c947dd008",
     "latency_quotable": true,
     "source_run": {
-     "git_sha": "c464a8a",
-     "date_utc": "2026-09-28T02:17:48Z"
+     "git_sha": "d4051c8",
+     "date_utc": "2026-09-29T20:51:01Z"
+    },
+    "latency_provenance": {
+     "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
     }
    },
    "laya": {
@@ -4011,19 +4017,19 @@
        "acc_at_50_coverage": 0.94,
        "acc_at_80_coverage": 0.86875
       },
-      "readout_ece": 0.0,
+      "readout_ece": 0.0969173070602119,
       "raw_abstain": {
+       "abstain_rate": 1.0,
+       "selective_accuracy": 0.0,
+       "selective_n": 0
+      },
+      "calibrated_abstain": {
        "abstain_rate": 0.4675,
        "selective_accuracy": 0.892018779342723,
        "selective_n": 213
       },
-      "calibrated_abstain": {
-       "abstain_rate": 0.9875,
-       "selective_accuracy": 1.0,
-       "selective_n": 5
-      },
       "readout_ece_raw": 0.7509009388089181,
-      "readout_ece_calibrated": 0.0,
+      "readout_ece_calibrated": 0.0969173070602119,
       "floor_ece": 0.17743781094527358,
       "g1_pass": true,
       "g1_verdict": "pass",
@@ -4044,7 +4050,7 @@
       "seconds": 0.1283859,
       "n_cases": 400,
       "n_questions": 400,
-      "score_threshold": 0.0058172345,
+      "score_threshold": 0.48624888,
       "distance_threshold": 0.4265421,
       "threshold_recommendation": {
        "posture": {
@@ -4052,7 +4058,7 @@
         "rho": 0.3
        },
        "score": {
-        "threshold": 0.0058172345,
+        "threshold": 0.48624888,
         "status": "fitted",
         "targetAccuracy": 0.7285714,
         "support": {
@@ -4302,8 +4308,8 @@
       "cases_digest": "fnv1a64-6feefd1c947dd008",
       "latency_quotable": null,
       "source_run": {
-       "git_sha": "c464a8a",
-       "date_utc": "2026-09-28T03:03:08Z"
+       "git_sha": "d4051c8",
+       "date_utc": "2026-09-29T21:37:07Z"
       },
       "latency_provenance": {
        "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
@@ -4762,19 +4768,19 @@
      "acc_at_50_coverage": 0.18333333333333332,
      "acc_at_80_coverage": 0.19166666666666668
     },
-    "readout_ece": 0.04344530922671161,
+    "readout_ece": 0.06578970318039258,
     "raw_abstain": {
+     "abstain_rate": 1.0,
+     "selective_accuracy": 0.0,
+     "selective_n": 0
+    },
+    "calibrated_abstain": {
      "abstain_rate": 0.5816666666666667,
      "selective_accuracy": 0.20717131474103587,
      "selective_n": 251
     },
-    "calibrated_abstain": {
-     "abstain_rate": 0.315,
-     "selective_accuracy": 0.20437956204379562,
-     "selective_n": 411
-    },
     "readout_ece_raw": 0.20093427270650863,
-    "readout_ece_calibrated": 0.04344530922671161,
+    "readout_ece_calibrated": 0.06578970318039258,
     "floor_ece": 0.3342868988391377,
     "g1_pass": true,
     "g1_verdict": "pass",
@@ -4795,7 +4801,7 @@
     "seconds": 3.689643708,
     "n_cases": 600,
     "n_questions": 600,
-    "score_threshold": 0.00019133091,
+    "score_threshold": 0.20488091,
     "distance_threshold": 0.41663086,
     "threshold_recommendation": {
      "posture": {
@@ -4803,7 +4809,7 @@
       "rho": 0.3
      },
      "score": {
-      "threshold": 0.00019133091,
+      "threshold": 0.20488091,
       "status": "fitted",
       "targetAccuracy": 0.29285714,
       "support": {
@@ -5048,8 +5054,11 @@
     "cases_digest": "fnv1a64-ad64a6cb0039e916",
     "latency_quotable": true,
     "source_run": {
-     "git_sha": "c464a8a",
-     "date_utc": "2026-09-28T02:17:48Z"
+     "git_sha": "d4051c8",
+     "date_utc": "2026-09-29T20:51:01Z"
+    },
+    "latency_provenance": {
+     "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
     }
    },
    "laya": {
@@ -5231,19 +5240,19 @@
        "acc_at_50_coverage": 0.18333333333333332,
        "acc_at_80_coverage": 0.19166666666666668
       },
-      "readout_ece": 0.04344530922671161,
+      "readout_ece": 0.06578970318039258,
       "raw_abstain": {
+       "abstain_rate": 1.0,
+       "selective_accuracy": 0.0,
+       "selective_n": 0
+      },
+      "calibrated_abstain": {
        "abstain_rate": 0.5816666666666667,
        "selective_accuracy": 0.20717131474103587,
        "selective_n": 251
       },
-      "calibrated_abstain": {
-       "abstain_rate": 0.315,
-       "selective_accuracy": 0.20437956204379562,
-       "selective_n": 411
-      },
       "readout_ece_raw": 0.20093427270650863,
-      "readout_ece_calibrated": 0.04344530922671161,
+      "readout_ece_calibrated": 0.06578970318039258,
       "floor_ece": 0.3342868988391377,
       "g1_pass": true,
       "g1_verdict": "pass",
@@ -5264,7 +5273,7 @@
       "seconds": 0.1531139,
       "n_cases": 600,
       "n_questions": 600,
-      "score_threshold": 0.00019133091,
+      "score_threshold": 0.20488091,
       "distance_threshold": 0.41663086,
       "threshold_recommendation": {
        "posture": {
@@ -5272,7 +5281,7 @@
         "rho": 0.3
        },
        "score": {
-        "threshold": 0.00019133091,
+        "threshold": 0.20488091,
         "status": "fitted",
         "targetAccuracy": 0.29285714,
         "support": {
@@ -5517,8 +5526,8 @@
       "cases_digest": "fnv1a64-ad64a6cb0039e916",
       "latency_quotable": null,
       "source_run": {
-       "git_sha": "c464a8a",
-       "date_utc": "2026-09-28T03:03:08Z"
+       "git_sha": "d4051c8",
+       "date_utc": "2026-09-29T21:37:07Z"
       },
       "latency_provenance": {
        "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
@@ -5975,19 +5984,19 @@
      "acc_at_50_coverage": 0.896551724137931,
      "acc_at_80_coverage": 0.8369565217391305
     },
-    "readout_ece": 0.034753404962133624,
+    "readout_ece": 0.09491884348721336,
     "raw_abstain": {
+     "abstain_rate": 1.0,
+     "selective_accuracy": 0.0,
+     "selective_n": 0
+    },
+    "calibrated_abstain": {
      "abstain_rate": 0.6810344827586207,
      "selective_accuracy": 0.9459459459459459,
      "selective_n": 37
     },
-    "calibrated_abstain": {
-     "abstain_rate": 0.9051724137931034,
-     "selective_accuracy": 1.0,
-     "selective_n": 11
-    },
     "readout_ece_raw": 0.674452191282963,
-    "readout_ece_calibrated": 0.034753404962133624,
+    "readout_ece_calibrated": 0.09491884348721336,
     "floor_ece": 0.3622396722430863,
     "g1_pass": true,
     "g1_verdict": "pass",
@@ -6008,7 +6017,7 @@
     "seconds": 1.566039125,
     "n_cases": 116,
     "n_questions": 116,
-    "score_threshold": 0.06746811,
+    "score_threshold": 0.7991401,
     "distance_threshold": 0.46189553,
     "threshold_recommendation": {
      "posture": {
@@ -6016,7 +6025,7 @@
       "rho": 0.3
      },
      "score": {
-      "threshold": 0.06746811,
+      "threshold": 0.7991401,
       "status": "fitted",
       "targetAccuracy": 0.8,
       "support": {
@@ -6263,8 +6272,11 @@
     "cases_digest": "fnv1a64-5080803ec29f2423",
     "latency_quotable": true,
     "source_run": {
-     "git_sha": "c464a8a",
-     "date_utc": "2026-09-28T02:17:48Z"
+     "git_sha": "d4051c8",
+     "date_utc": "2026-09-29T20:51:01Z"
+    },
+    "latency_provenance": {
+     "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
     }
    },
    "laya": {
@@ -6446,19 +6458,19 @@
        "acc_at_50_coverage": 0.896551724137931,
        "acc_at_80_coverage": 0.8369565217391305
       },
-      "readout_ece": 0.034753404962133624,
+      "readout_ece": 0.09491884348721336,
       "raw_abstain": {
+       "abstain_rate": 1.0,
+       "selective_accuracy": 0.0,
+       "selective_n": 0
+      },
+      "calibrated_abstain": {
        "abstain_rate": 0.6810344827586207,
        "selective_accuracy": 0.9459459459459459,
        "selective_n": 37
       },
-      "calibrated_abstain": {
-       "abstain_rate": 0.9051724137931034,
-       "selective_accuracy": 1.0,
-       "selective_n": 11
-      },
       "readout_ece_raw": 0.674452191282963,
-      "readout_ece_calibrated": 0.034753404962133624,
+      "readout_ece_calibrated": 0.09491884348721336,
       "floor_ece": 0.3622396722430863,
       "g1_pass": true,
       "g1_verdict": "pass",
@@ -6479,7 +6491,7 @@
       "seconds": 0.0193963,
       "n_cases": 116,
       "n_questions": 116,
-      "score_threshold": 0.06746811,
+      "score_threshold": 0.7991401,
       "distance_threshold": 0.46189553,
       "threshold_recommendation": {
        "posture": {
@@ -6487,7 +6499,7 @@
         "rho": 0.3
        },
        "score": {
-        "threshold": 0.06746811,
+        "threshold": 0.7991401,
         "status": "fitted",
         "targetAccuracy": 0.8,
         "support": {
@@ -6734,8 +6746,8 @@
       "cases_digest": "fnv1a64-5080803ec29f2423",
       "latency_quotable": null,
       "source_run": {
-       "git_sha": "c464a8a",
-       "date_utc": "2026-09-28T03:03:08Z"
+       "git_sha": "d4051c8",
+       "date_utc": "2026-09-29T21:37:07Z"
       },
       "latency_provenance": {
        "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
@@ -7170,19 +7182,19 @@
      "acc_at_50_coverage": 0.6733333333333333,
      "acc_at_80_coverage": 0.55
     },
-    "readout_ece": 0.03167710304260263,
+    "readout_ece": 0.06764442006746929,
     "raw_abstain": {
+     "abstain_rate": 1.0,
+     "selective_accuracy": 0.0,
+     "selective_n": 0
+    },
+    "calibrated_abstain": {
      "abstain_rate": 0.5766666666666667,
      "selective_accuracy": 0.6377952755905512,
      "selective_n": 127
     },
-    "calibrated_abstain": {
-     "abstain_rate": 0.3233333333333333,
-     "selective_accuracy": 0.5320197044334976,
-     "selective_n": 203
-    },
     "readout_ece_raw": 0.5011935889720917,
-    "readout_ece_calibrated": 0.03167710304260263,
+    "readout_ece_calibrated": 0.06764442006746929,
     "floor_ece": 0.15804311774461027,
     "g1_pass": true,
     "g1_verdict": "pass",
@@ -7203,7 +7215,7 @@
     "seconds": 2.8615633750000002,
     "n_cases": 300,
     "n_questions": 300,
-    "score_threshold": 0.00041854382,
+    "score_threshold": 0.4735195,
     "distance_threshold": 0.51104105,
     "threshold_recommendation": {
      "posture": {
@@ -7211,7 +7223,7 @@
       "rho": 0.3
      },
      "score": {
-      "threshold": 0.00041854382,
+      "threshold": 0.4735195,
       "status": "fitted",
       "targetAccuracy": 0.57857144,
       "support": {
@@ -7495,8 +7507,11 @@
     "cases_digest": "fnv1a64-b136750e5af1d412",
     "latency_quotable": true,
     "source_run": {
-     "git_sha": "c464a8a",
-     "date_utc": "2026-09-28T02:17:48Z"
+     "git_sha": "d4051c8",
+     "date_utc": "2026-09-29T20:51:01Z"
+    },
+    "latency_provenance": {
+     "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
     }
    },
    "laya": {
@@ -7678,19 +7693,19 @@
        "acc_at_50_coverage": 0.6733333333333333,
        "acc_at_80_coverage": 0.55
       },
-      "readout_ece": 0.031677110393842134,
+      "readout_ece": 0.0676441549261411,
       "raw_abstain": {
+       "abstain_rate": 1.0,
+       "selective_accuracy": 0.0,
+       "selective_n": 0
+      },
+      "calibrated_abstain": {
        "abstain_rate": 0.5766666666666667,
        "selective_accuracy": 0.6377952755905512,
        "selective_n": 127
       },
-      "calibrated_abstain": {
-       "abstain_rate": 0.3233333333333333,
-       "selective_accuracy": 0.5320197044334976,
-       "selective_n": 203
-      },
       "readout_ece_raw": 0.5011935889720917,
-      "readout_ece_calibrated": 0.031677110393842134,
+      "readout_ece_calibrated": 0.0676441549261411,
       "floor_ece": 0.15804311774461027,
       "g1_pass": true,
       "g1_verdict": "pass",
@@ -7711,7 +7726,7 @@
       "seconds": 0.0925256,
       "n_cases": 300,
       "n_questions": 300,
-      "score_threshold": 0.00041854382,
+      "score_threshold": 0.47351938,
       "distance_threshold": 0.51104105,
       "threshold_recommendation": {
        "posture": {
@@ -7719,7 +7734,7 @@
         "rho": 0.3
        },
        "score": {
-        "threshold": 0.00041854382,
+        "threshold": 0.47351938,
         "status": "fitted",
         "targetAccuracy": 0.57857144,
         "support": {
@@ -8003,8 +8018,8 @@
       "cases_digest": "fnv1a64-b136750e5af1d412",
       "latency_quotable": null,
       "source_run": {
-       "git_sha": "c464a8a",
-       "date_utc": "2026-09-28T03:03:08Z"
+       "git_sha": "d4051c8",
+       "date_utc": "2026-09-29T21:37:07Z"
       },
       "latency_provenance": {
        "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
@@ -8439,19 +8454,19 @@
      "acc_at_50_coverage": 0.7333333333333333,
      "acc_at_80_coverage": 0.5041666666666667
     },
-    "readout_ece": 0.15893543645739558,
+    "readout_ece": 0.15893535643815995,
     "raw_abstain": {
+     "abstain_rate": 1.0,
+     "selective_accuracy": 0.0,
+     "selective_n": 0
+    },
+    "calibrated_abstain": {
      "abstain_rate": 0.65,
      "selective_accuracy": 0.7333333333333333,
      "selective_n": 105
     },
-    "calibrated_abstain": {
-     "abstain_rate": 0.39,
-     "selective_accuracy": 0.45901639344262296,
-     "selective_n": 183
-    },
     "readout_ece_raw": 0.28174716458966337,
-    "readout_ece_calibrated": 0.15893543645739558,
+    "readout_ece_calibrated": 0.15893535643815995,
     "floor_ece": 0.07446102819237145,
     "g1_pass": false,
     "g1_verdict": "fail",
@@ -8472,7 +8487,7 @@
     "seconds": 40.0554235,
     "n_cases": 300,
     "n_questions": 300,
-    "score_threshold": 0.11401239,
+    "score_threshold": 0.53526974,
     "distance_threshold": 0.6283059,
     "threshold_recommendation": {
      "posture": {
@@ -8480,7 +8495,7 @@
       "rho": 0.3
      },
      "score": {
-      "threshold": 0.11401239,
+      "threshold": 0.53526974,
       "status": "fitted",
       "targetAccuracy": 0.8142857,
       "support": {
@@ -8761,8 +8776,11 @@
     "cases_digest": "fnv1a64-49390c8b80475849",
     "latency_quotable": true,
     "source_run": {
-     "git_sha": "c464a8a",
-     "date_utc": "2026-09-28T02:17:48Z"
+     "git_sha": "d4051c8",
+     "date_utc": "2026-09-29T20:51:01Z"
+    },
+    "latency_provenance": {
+     "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
     }
    },
    "laya": {
@@ -8893,19 +8911,19 @@
        "acc_at_50_coverage": 0.7333333333333333,
        "acc_at_80_coverage": 0.5041666666666667
       },
-      "readout_ece": 0.15893544659018521,
+      "readout_ece": 0.15893545416494212,
       "raw_abstain": {
+       "abstain_rate": 1.0,
+       "selective_accuracy": 0.0,
+       "selective_n": 0
+      },
+      "calibrated_abstain": {
        "abstain_rate": 0.65,
        "selective_accuracy": 0.7333333333333333,
        "selective_n": 105
       },
-      "calibrated_abstain": {
-       "abstain_rate": 0.39,
-       "selective_accuracy": 0.45901639344262296,
-       "selective_n": 183
-      },
       "readout_ece_raw": 0.2817471646144986,
-      "readout_ece_calibrated": 0.15893544659018521,
+      "readout_ece_calibrated": 0.15893545416494212,
       "floor_ece": 0.07446102819237145,
       "g1_pass": false,
       "g1_verdict": "fail",
@@ -8926,7 +8944,7 @@
       "seconds": 0.0700753,
       "n_cases": 300,
       "n_questions": 300,
-      "score_threshold": 0.11401239,
+      "score_threshold": 0.53526986,
       "distance_threshold": 0.6283059,
       "threshold_recommendation": {
        "posture": {
@@ -8934,7 +8952,7 @@
         "rho": 0.3
        },
        "score": {
-        "threshold": 0.11401239,
+        "threshold": 0.53526986,
         "status": "fitted",
         "targetAccuracy": 0.8142857,
         "support": {
@@ -9215,8 +9233,8 @@
       "cases_digest": "fnv1a64-49390c8b80475849",
       "latency_quotable": null,
       "source_run": {
-       "git_sha": "c464a8a",
-       "date_utc": "2026-09-28T03:03:08Z"
+       "git_sha": "d4051c8",
+       "date_utc": "2026-09-29T21:37:07Z"
       },
       "latency_provenance": {
        "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
@@ -9660,19 +9678,19 @@
      "acc_at_50_coverage": 0.664,
      "acc_at_80_coverage": 0.485
     },
-    "readout_ece": 0.5976595454216003,
+    "readout_ece": 0.3930596325071237,
     "raw_abstain": {
      "abstain_rate": 1.0,
      "selective_accuracy": 0.0,
      "selective_n": 0
     },
     "calibrated_abstain": {
-     "abstain_rate": 0.35,
-     "selective_accuracy": 0.48307692307692307,
-     "selective_n": 325
+     "abstain_rate": 1.0,
+     "selective_accuracy": 0.0,
+     "selective_n": 0
     },
     "readout_ece_raw": 0.3763706115037203,
-    "readout_ece_calibrated": 0.5976595454216003,
+    "readout_ece_calibrated": 0.3930596325071237,
     "floor_ece": 0.39702487562189054,
     "g1_pass": false,
     "g1_verdict": "fail",
@@ -9693,7 +9711,7 @@
     "seconds": 53.399337083,
     "n_cases": 500,
     "n_questions": 500,
-    "score_threshold": 0.05231943,
+    "score_threshold": 0.8755025,
     "distance_threshold": 0.4927639,
     "threshold_recommendation": {
      "posture": {
@@ -9701,7 +9719,7 @@
       "rho": 0.3
      },
      "score": {
-      "threshold": 0.05231943,
+      "threshold": 0.8755025,
       "status": "fitted",
       "targetAccuracy": 0.96428573,
       "support": {
@@ -9998,8 +10016,11 @@
     "cases_digest": "fnv1a64-dd8ab35333abb82a",
     "latency_quotable": true,
     "source_run": {
-     "git_sha": "c464a8a",
-     "date_utc": "2026-09-28T02:17:48Z"
+     "git_sha": "d4051c8",
+     "date_utc": "2026-09-29T20:51:01Z"
+    },
+    "latency_provenance": {
+     "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
     }
    },
    "laya": {
@@ -10130,19 +10151,19 @@
        "acc_at_50_coverage": 0.664,
        "acc_at_80_coverage": 0.485
       },
-      "readout_ece": 0.5976596391201019,
+      "readout_ece": 0.3930596325071237,
       "raw_abstain": {
        "abstain_rate": 1.0,
        "selective_accuracy": 0.0,
        "selective_n": 0
       },
       "calibrated_abstain": {
-       "abstain_rate": 0.35,
-       "selective_accuracy": 0.48307692307692307,
-       "selective_n": 325
+       "abstain_rate": 1.0,
+       "selective_accuracy": 0.0,
+       "selective_n": 0
       },
       "readout_ece_raw": 0.3763706115037203,
-      "readout_ece_calibrated": 0.5976596391201019,
+      "readout_ece_calibrated": 0.3930596325071237,
       "floor_ece": 0.39702487562189054,
       "g1_pass": false,
       "g1_verdict": "fail",
@@ -10163,7 +10184,7 @@
       "seconds": 0.3643084,
       "n_cases": 500,
       "n_questions": 500,
-      "score_threshold": 0.05231943,
+      "score_threshold": 0.8755025,
       "distance_threshold": 0.4927639,
       "threshold_recommendation": {
        "posture": {
@@ -10171,7 +10192,7 @@
         "rho": 0.3
        },
        "score": {
-        "threshold": 0.05231943,
+        "threshold": 0.8755025,
         "status": "fitted",
         "targetAccuracy": 0.96428573,
         "support": {
@@ -10468,8 +10489,8 @@
       "cases_digest": "fnv1a64-dd8ab35333abb82a",
       "latency_quotable": null,
       "source_run": {
-       "git_sha": "c464a8a",
-       "date_utc": "2026-09-28T03:03:08Z"
+       "git_sha": "d4051c8",
+       "date_utc": "2026-09-29T21:37:07Z"
       },
       "latency_provenance": {
        "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
@@ -10946,9 +10967,9 @@
     },
     "readout_ece": 0.09384669177234173,
     "raw_abstain": {
-     "abstain_rate": 0.34375,
-     "selective_accuracy": 0.2857142857142857,
-     "selective_n": 21
+     "abstain_rate": 1.0,
+     "selective_accuracy": 0.0,
+     "selective_n": 0
     },
     "calibrated_abstain": {
      "abstain_rate": 0.34375,
@@ -10977,7 +10998,7 @@
     "seconds": 0.05484925,
     "n_cases": 16,
     "n_questions": 32,
-    "score_threshold": 8.660555e-05,
+    "score_threshold": 0.4606726,
     "distance_threshold": 0.3365353,
     "threshold_recommendation": {
      "posture": {
@@ -10985,13 +11006,13 @@
       "rho": 0.3
      },
      "score": {
-      "threshold": 8.660555e-05,
+      "threshold": 0.4606726,
       "status": "fitted",
-      "targetAccuracy": 0.73333335,
+      "targetAccuracy": 0.703125,
       "support": {
        "n": 64,
-       "nPass": 60,
-       "nAbstain": 4
+       "nPass": 64,
+       "nAbstain": 0
       }
      },
      "distance": {
@@ -11111,8 +11132,8 @@
     "cases_digest": "fnv1a64-93583fda4fc64946",
     "latency_quotable": true,
     "source_run": {
-     "git_sha": "c464a8a",
-     "date_utc": "2026-09-28T02:17:48Z"
+     "git_sha": "d4051c8",
+     "date_utc": "2026-09-29T20:51:01Z"
     },
     "latency_provenance": {
      "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
@@ -11194,9 +11215,9 @@
       },
       "readout_ece": 0.09384669177234173,
       "raw_abstain": {
-       "abstain_rate": 0.34375,
-       "selective_accuracy": 0.2857142857142857,
-       "selective_n": 21
+       "abstain_rate": 1.0,
+       "selective_accuracy": 0.0,
+       "selective_n": 0
       },
       "calibrated_abstain": {
        "abstain_rate": 0.34375,
@@ -11225,7 +11246,7 @@
       "seconds": 0.0973279,
       "n_cases": 16,
       "n_questions": 32,
-      "score_threshold": 8.660555e-05,
+      "score_threshold": 0.4606726,
       "distance_threshold": 0.3365353,
       "threshold_recommendation": {
        "posture": {
@@ -11233,13 +11254,13 @@
         "rho": 0.3
        },
        "score": {
-        "threshold": 8.660555e-05,
+        "threshold": 0.4606726,
         "status": "fitted",
-        "targetAccuracy": 0.73333335,
+        "targetAccuracy": 0.703125,
         "support": {
          "n": 64,
-         "nPass": 60,
-         "nAbstain": 4
+         "nPass": 64,
+         "nAbstain": 0
         }
        },
        "distance": {
@@ -11359,8 +11380,11 @@
       "cases_digest": "fnv1a64-93583fda4fc64946",
       "latency_quotable": null,
       "source_run": {
-       "git_sha": "c464a8a",
-       "date_utc": "2026-09-28T03:03:08Z"
+       "git_sha": "d4051c8",
+       "date_utc": "2026-09-29T21:37:07Z"
+      },
+      "latency_provenance": {
+       "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
       }
      },
      "laya": {
@@ -11520,7 +11544,8 @@
     "source_run": {
      "git_sha": "8bbff09",
      "date_utc": "2026-09-28T10:13:40Z"
-    }
+    },
+    "cases_digest": "fnv1a64-93583fda4fc64946"
    },
    "openthai": {
     "lane": "openthai (reference)",
@@ -11829,8 +11854,11 @@
     "cases_digest": "fnv1a64-6256f41a5d45104d",
     "latency_quotable": true,
     "source_run": {
-     "git_sha": "c464a8a",
-     "date_utc": "2026-09-28T02:17:48Z"
+     "git_sha": "d4051c8",
+     "date_utc": "2026-09-29T20:51:01Z"
+    },
+    "latency_provenance": {
+     "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
     }
    },
    "laya": {
@@ -12209,8 +12237,8 @@
       "cases_digest": "fnv1a64-6256f41a5d45104d",
       "latency_quotable": null,
       "source_run": {
-       "git_sha": "c464a8a",
-       "date_utc": "2026-09-28T03:03:08Z"
+       "git_sha": "d4051c8",
+       "date_utc": "2026-09-29T21:37:07Z"
       },
       "latency_provenance": {
        "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
@@ -12793,8 +12821,11 @@
     "cases_digest": "fnv1a64-12ee83a1c6493b29",
     "latency_quotable": true,
     "source_run": {
-     "git_sha": "c464a8a",
-     "date_utc": "2026-09-28T02:17:48Z"
+     "git_sha": "d4051c8",
+     "date_utc": "2026-09-29T20:51:01Z"
+    },
+    "latency_provenance": {
+     "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
     }
    },
    "laya": {
@@ -13161,8 +13192,8 @@
       "cases_digest": "fnv1a64-12ee83a1c6493b29",
       "latency_quotable": null,
       "source_run": {
-       "git_sha": "c464a8a",
-       "date_utc": "2026-09-28T03:03:08Z"
+       "git_sha": "d4051c8",
+       "date_utc": "2026-09-29T21:37:07Z"
       },
       "latency_provenance": {
        "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
@@ -13733,8 +13764,11 @@
     "cases_digest": "fnv1a64-f8aa91cdb65abf34",
     "latency_quotable": true,
     "source_run": {
-     "git_sha": "c464a8a",
-     "date_utc": "2026-09-28T02:17:48Z"
+     "git_sha": "d4051c8",
+     "date_utc": "2026-09-29T20:51:01Z"
+    },
+    "latency_provenance": {
+     "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
     }
    },
    "laya": {
@@ -14089,8 +14123,8 @@
       "cases_digest": "fnv1a64-f8aa91cdb65abf34",
       "latency_quotable": null,
       "source_run": {
-       "git_sha": "c464a8a",
-       "date_utc": "2026-09-28T03:03:08Z"
+       "git_sha": "d4051c8",
+       "date_utc": "2026-09-29T21:37:07Z"
       },
       "latency_provenance": {
        "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
@@ -14673,8 +14707,11 @@
     "cases_digest": "fnv1a64-2e568b9aa695d41c",
     "latency_quotable": true,
     "source_run": {
-     "git_sha": "c464a8a",
-     "date_utc": "2026-09-28T02:17:48Z"
+     "git_sha": "d4051c8",
+     "date_utc": "2026-09-29T20:51:01Z"
+    },
+    "latency_provenance": {
+     "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
     }
    },
    "laya": {
@@ -15041,8 +15078,8 @@
       "cases_digest": "fnv1a64-2e568b9aa695d41c",
       "latency_quotable": null,
       "source_run": {
-       "git_sha": "c464a8a",
-       "date_utc": "2026-09-28T03:03:08Z"
+       "git_sha": "d4051c8",
+       "date_utc": "2026-09-29T21:37:07Z"
       },
       "latency_provenance": {
        "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
@@ -15625,8 +15662,11 @@
     "cases_digest": "fnv1a64-c0bd4e4084dd9e3f",
     "latency_quotable": true,
     "source_run": {
-     "git_sha": "c464a8a",
-     "date_utc": "2026-09-28T02:17:48Z"
+     "git_sha": "d4051c8",
+     "date_utc": "2026-09-29T20:51:01Z"
+    },
+    "latency_provenance": {
+     "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
     }
    },
    "laya": {
@@ -15993,8 +16033,8 @@
       "cases_digest": "fnv1a64-c0bd4e4084dd9e3f",
       "latency_quotable": null,
       "source_run": {
-       "git_sha": "c464a8a",
-       "date_utc": "2026-09-28T03:03:08Z"
+       "git_sha": "d4051c8",
+       "date_utc": "2026-09-29T21:37:07Z"
       },
       "latency_provenance": {
        "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
@@ -16628,8 +16668,8 @@
     "cases_digest": "fnv1a64-7340affffa39fcad",
     "latency_quotable": true,
     "source_run": {
-     "git_sha": "c464a8a",
-     "date_utc": "2026-09-28T02:17:48Z"
+     "git_sha": "d4051c8",
+     "date_utc": "2026-09-29T20:51:01Z"
     },
     "latency_provenance": {
      "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
@@ -17207,8 +17247,11 @@
       "cases_digest": "fnv1a64-7340affffa39fcad",
       "latency_quotable": null,
       "source_run": {
-       "git_sha": "c464a8a",
-       "date_utc": "2026-09-28T03:03:08Z"
+       "git_sha": "d4051c8",
+       "date_utc": "2026-09-29T21:37:07Z"
+      },
+      "latency_provenance": {
+       "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
       }
      },
      "openthai": {
