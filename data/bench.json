@@ -86,8 +86,8 @@
       "date_utc": "2026-09-28T06:10:12Z"
      },
      "paw": {
-      "git_sha": "bb86069",
-      "date_utc": "2026-09-29T00:02:21Z"
+      "git_sha": "9dc33da",
+      "date_utc": "2026-09-29T02:12:55Z"
      },
      "openthai": {
       "git_sha": "00bddd1",
@@ -2260,6 +2260,38 @@
     "source_run": {
      "git_sha": "00bddd1",
      "date_utc": "2026-09-28T16:27:36Z"
+    }
+   },
+   "paw": {
+    "lane": "paw (hosted)",
+    "model": "paw-ft-bs48-20260530",
+    "posture": "hosted-anonymous",
+    "program_id": "73c963ebfd40a8d25288,f1d08b30f8c84c2fec6c,04a3b05698d9f7afc8cd,3f8d28006aa102c9df04,0189d0989f5222454bea,5c74a4fca552e2471669,0c366580689869c1f689,0522b1a4023281b00c19,c4bf7c8af208cf4374af,19114692867411036ed5,3466ab136a4aa4ae6bdf,84d32e31a96917d47a0b,eeecbb0dbfd3bba96bdb,d8564cd360417f43590c,492c5669e60b7b07a7db",
+    "spec_file": "scripts/paw_specs/typed_decisions.action.txt,scripts/paw_specs/typed_decisions.needs_review.txt,scripts/paw_specs/typed_decisions.outcome.txt,scripts/paw_specs/typed_decisions.risk.txt,scripts/paw_specs/typed_decisions.urgency.txt,scripts/paw_specs/typed_decisions.category.txt,scripts/paw_specs/typed_decisions.churn_risk.txt,scripts/paw_specs/typed_decisions.needs_human.txt,scripts/paw_specs/typed_decisions.discrepancy_severity.txt,scripts/paw_specs/typed_decisions.disposition.txt,scripts/paw_specs/typed_decisions.duplicate.txt,scripts/paw_specs/typed_decisions.matches_order.txt,scripts/paw_specs/typed_decisions.credential_compromise.txt,scripts/paw_specs/typed_decisions.severity.txt,scripts/paw_specs/typed_decisions.true_positive.txt",
+    "spec_blake3": "72055396b7348aa43c7fcc2f56d7617e9d6448defdcd1a37fe46680a29c3973c,c7a474c539477d43c9b1de0d464f695836ecf7744fd3021c64dbf166a482451b,b18771699ebb4d643ef2a95de0890fc3f735e090e58bda0afb4eee4115ee4cd5,8d5ae953d07c1ba75f325e3cee87eec54cccf4a3a2adb05221e287b7c6852a46,dadfd9808e4aa4edbcdcb1ca8445b5070ff132d48e5c6a1d0ce082a80b2e68ea,1e91ffffbd7ecc71492da3dc24f9552cd08d48e162ab1b7923b7cdf1ba42bf66,b3d2713c4a8bea1a38b46ed2c26188ac506c54712b06736daa90240516cad297,0ac1f08efb9a0e0c4bfe8d80cadf12b90221ad20ad3965d5e99685aff3f7c75b,6a6ed8cbcc154f47435e9258a84d560d8fd1292a51edc639be5218d3dcd84016,eb7abb02fb227a9ccd04136c7b46ac9ffd72553780da57e608ddd232cf92212d,bdcd453d1d3e321e39d3ab77685d1e0f00b959f0bdc9c1df59b031f90b91eaf6,175eb2d46596884958f2bafc6786a0945aa8982e08270b81dcb50e05471a9f19,b0edaed6fff9b21a2d8d94406acc82fb7b2d2fda05751eb62346f6e105ff1c61,2173eeb74a3af2ea95857ad6ad8d5963cdab904921d1d42abc96b9784bebe6d9,87c8f166174f846c75f6ec2170e031e3e34dff569e9edb99112c2ecd6da3ca06",
+    "compile_cache_hit": false,
+    "compile_wall_s": 2645.5270762899995,
+    "n_cases": 400,
+    "n_questions": 2000,
+    "n_answered": 1998,
+    "refusals": 2,
+    "quote_stripped": 0,
+    "accuracy": 0.5925,
+    "answered_accuracy": 0.5930930930930931,
+    "refusal_rate": 0.001,
+    "score_mae_answered": 0.6484559450000004,
+    "within_1_answered": 0.79375,
+    "refusal_samples": [
+     "data",
+     "observe"
+    ],
+    "server_latency_p50_ms": 96.6,
+    "determinism_ok": true,
+    "cases_digest": "fnv1a64-6e37760ee2a5b6c9",
+    "latency_quotable": false,
+    "source_run": {
+     "git_sha": "9dc33da",
+     "date_utc": "2026-09-29T02:12:55Z"
     }
    }
   },
@@ -7088,6 +7120,35 @@
      "git_sha": "00bddd1",
      "date_utc": "2026-09-28T16:27:36Z"
     }
+   },
+   "paw": {
+    "lane": "paw (hosted)",
+    "model": "paw-ft-bs48-20260530",
+    "posture": "hosted-anonymous",
+    "program_id": "d9cfba100af1e46f97cd",
+    "spec_file": "scripts/paw_specs/prompt_injections.injection.txt",
+    "spec_blake3": "13ef1026c9cecf47fc9b17a084855d57125af8862018ab6892ceda48275bd51a",
+    "compile_cache_hit": false,
+    "compile_wall_s": 77.575057042,
+    "n_cases": 116,
+    "n_questions": 116,
+    "n_answered": 116,
+    "refusals": 0,
+    "quote_stripped": 0,
+    "accuracy": 0.6379310344827587,
+    "answered_accuracy": 0.6379310344827587,
+    "refusal_rate": 0.0,
+    "score_mae_answered": null,
+    "within_1_answered": null,
+    "refusal_samples": [],
+    "server_latency_p50_ms": 76.6,
+    "determinism_ok": true,
+    "cases_digest": "fnv1a64-5080803ec29f2423",
+    "latency_quotable": false,
+    "source_run": {
+     "git_sha": "9dc33da",
+     "date_utc": "2026-09-29T00:50:51Z"
+    }
    }
   },
   {
@@ -8328,6 +8389,35 @@
      "git_sha": "3a7be30",
      "date_utc": "2026-09-28T15:36:40Z"
     }
+   },
+   "paw": {
+    "lane": "paw (hosted)",
+    "model": "paw-ft-bs48-20260530",
+    "posture": "hosted-anonymous",
+    "program_id": "1949b801cf9746028d56",
+    "spec_file": "scripts/paw_specs/xnli_en.relation.txt",
+    "spec_blake3": "ead96a846bbe50430b7d9c6c635c17ecea8c59a2bd43e36210e93e7574d17c31",
+    "compile_cache_hit": false,
+    "compile_wall_s": 120.965073917,
+    "n_cases": 300,
+    "n_questions": 300,
+    "n_answered": 300,
+    "refusals": 0,
+    "quote_stripped": 0,
+    "accuracy": 0.72,
+    "answered_accuracy": 0.72,
+    "refusal_rate": 0.0,
+    "score_mae_answered": null,
+    "within_1_answered": null,
+    "refusal_samples": [],
+    "server_latency_p50_ms": 96.0,
+    "determinism_ok": true,
+    "cases_digest": "fnv1a64-b136750e5af1d412",
+    "latency_quotable": false,
+    "source_run": {
+     "git_sha": "9dc33da",
+     "date_utc": "2026-09-29T00:50:51Z"
+    }
    }
   },
   {
@@ -9510,6 +9600,44 @@
     "source_run": {
      "git_sha": "3a7be30",
      "date_utc": "2026-09-28T15:36:40Z"
+    }
+   },
+   "paw": {
+    "lane": "paw (hosted)",
+    "model": "paw-ft-bs48-20260530",
+    "posture": "hosted-anonymous",
+    "program_id": "1b5d4b654f60b508602c",
+    "spec_file": "scripts/paw_specs/massive_intent_en.intent.txt",
+    "spec_blake3": "10b2865efdaaeff8129e625e18a36b141e07fd7f5fea6407c759487c31096f17",
+    "compile_cache_hit": false,
+    "compile_wall_s": 88.633114917,
+    "n_cases": 300,
+    "n_questions": 300,
+    "n_answered": 181,
+    "refusals": 119,
+    "quote_stripped": 0,
+    "accuracy": 0.51,
+    "answered_accuracy": 0.8453038674033149,
+    "refusal_rate": 0.39666666666666667,
+    "score_mae_answered": null,
+    "within_1_answered": null,
+    "refusal_samples": [
+     "qa_factoid",
+     "iot_hue_lightchange",
+     "iot_hue_sound",
+     "screen_query",
+     "iot_hue_lightdown",
+     "iot_hue_lightoff",
+     "iot_hub_power",
+     "toaster_query"
+    ],
+    "server_latency_p50_ms": 91.6,
+    "determinism_ok": true,
+    "cases_digest": "fnv1a64-49390c8b80475849",
+    "latency_quotable": false,
+    "source_run": {
+     "git_sha": "9dc33da",
+     "date_utc": "2026-09-29T00:50:51Z"
     }
    }
   },
