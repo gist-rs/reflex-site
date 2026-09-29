@@ -151,11 +151,15 @@ const server = http.createServer((req, res) => {
   //    reader filtered out rendered as an unsorted page — the bars carried
   //    no visible order). The key lane is read by COLOR (the first visible
   //    lane's swatch), widths must be monotone, and suites without the key
-  //    lane must sort last. Covers "by accuracy" AND "by latency".
+  //    lane must sort last. Covers "by accuracy" AND "by latency". The
+  //    width is read from the [data-picked] bar — the cell the pick logic
+  //    chose IS the sort key; in the all-rigs view the lane renders several
+  //    per-host bars and the first DOM bar is the primary host's, not
+  //    necessarily the picked one.
   const heroKeyWidths = (color) => page.$$eval(
     "#bench-hero .bc-htrack",
     (ts, c) => ts.map((t) => {
-      const b = t.querySelector(`.bc-hbar:not(.bc-none) i[style*="${c}"]`);
+      const b = t.querySelector(`.bc-hbar:not(.bc-none)[data-picked] i[style*="${c}"]`);
       return b ? parseFloat(b.style.width) : null;
     }),
     color
@@ -230,6 +234,27 @@ const server = http.createServer((req, res) => {
     const cellBreaks = await page.$$eval("#tables .bc-cell .sz-break", (xs) => xs.length);
     if (cellBreaks !== expectedBreaks) fail(`expected ${expectedBreaks} suite-cell break sign(s) (data-derived), got ${cellBreaks}`);
     else console.log(`ok: suite cells carry the ${expectedBreaks} past-500ms break sign(s) (data-derived)`);
+  }
+
+  // 8b) the all-rigs hero renders ONE BAR PER HOST, labeled @host. The old
+  //     single best-accuracy bar mixed hosts inside one chart with the host
+  //     named only on hover — a 4090 bar read as the M3's (the reported
+  //     banking77 misread). Invariants: every rendered bar names its host,
+  //     and the user's exact case (openthai · banking77) shows BOTH the m3
+  //     and the 4090 bar side by side.
+  {
+    const barCount = await page.$$eval("#bench-hero .bc-hbar:not(.bc-none)", (xs) => xs.length);
+    const labeled = await page.$$eval("#bench-hero .bc-hbar:not(.bc-none) .bc-hhost", (xs) => xs.length);
+    if (labeled !== barCount) fail(`all-rigs hero: ${barCount} bars but ${labeled} @host labels — an unlabeled bar can be misread across rigs`);
+    else console.log(`ok: all ${barCount} all-rigs hero bars carry an @host label`);
+    const otBars = await page.$$eval(
+      '#bench-hero .bc-hbar[aria-label^="banking77 openthai"]',
+      (xs) => xs.map((x) => x.getAttribute("aria-label"))
+    );
+    const m3Bar = otBars.find((a) => a.includes(" on m3-max-metal"));
+    const winBar = otBars.find((a) => a.includes(" on 4090-win"));
+    if (!m3Bar || !winBar || otBars.length !== 2) fail(`openthai · banking77 must render exactly its two host bars (m3 + 4090), got: ${JSON.stringify(otBars)}`);
+    else console.log("ok: openthai · banking77 renders both host bars (@m3-max-metal + @4090-win)");
   }
   // Issue-021 verdicts on the tables: every unfit latency cell renders
   // marked (class + † + reason on hover), and nothing else does. The

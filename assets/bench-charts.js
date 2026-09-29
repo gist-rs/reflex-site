@@ -329,17 +329,24 @@
   // per-metric cherry-pick); accuracy is box-independent and may mix hosts
   // (reflex .issues/027 amendment 2), latency bars disclose the host in the
   // tooltip.
-  function pick(s, lane) {
+  // pickHost narrows the walk to ONE host (want = the host id; primary-host
+  // cells carry host === null, so they compare as primaryHost). pick() is the
+  // unscoped best-across-hosts form. The reflex-site Issue-`hero-host-mix`
+  // fix: in the all-rigs hero the per-host form renders one labeled bar per
+  // host, so a reader can never misread a 4090 bar as the M3's.
+  function pickHost(s, lane, want) {
     let best = null;
-    // scopedPairs: rig-aware, primary host first (the earlier-in-list
-    // tie-break keeps the primary cell when hosts measure a lane equally).
     for (const [l, host] of scopedPairs(s)) {
+      if (want !== null && (host || primaryHost) !== want) continue;
       if (laneOf(l) !== lane || l.model === "multilingual") continue;
       const a = accOf(l);
       if (!num(a)) continue;
       if (!best || a > accOf(best[0])) best = [l, host];
     }
     return best;
+  }
+  function pick(s, lane) {
+    return pickHost(s, lane, null);
   }
 
   // ── tooltip (one per page) ───────────────────────────────────────────────
@@ -459,18 +466,43 @@
     const sLane = sortLane();
     const sorted = sortPairs((d.suites || []).map((s) => [s, null]), heroSort,
       ([s]) => { const p = pick(s, sLane); return sortKeyOf(p ? p[0] : null, heroSort); });
+    // All-rigs + a known primary host: one bar PER HOST per lane (the
+    // host-mix fix — the old single best-accuracy bar put a 4090 cell and an
+    // M3 cell in the same chart with the host named only on hover). Any
+    // other rig scope is single-host-shaped to the reader and keeps the one
+    // picked bar.
+    const allSplit = !rig.hosts && !!primaryHost;
+    const barHtml = (s, lane, l, host, isPicked) => {
+      const v = M.get(l);
+      const fr = frac(m, v);
+      if (fr === null) return null;
+      const brk = M.log && latBroken && v > BREAK_AT
+        ? `<i class="sz-break" aria-hidden="true" style="left:${(LIN_SPAN * 100).toFixed(2)}%"></i>` : "";
+      return `<div class="bc-hbar"${isPicked ? ' data-picked="1"' : ""} tabindex="0" data-tip="${esc(`<span class="bc-mut">${esc(s.name)}</span><br>` + tipHtml(l, host ? "@" + host : ""))}" aria-label="${esc(`${s.name} ${lane.label} ${l.model}${host ? " on " + host : ""}: ${f(v)}`)}">` +
+        `<i style="width:${(fr * 100).toFixed(2)}%;background:${lane.color}"></i>${brk}` +
+        `${host && allSplit ? `<span class="bc-hhost">@${esc(host)}</span>` : ""}</div>`;
+    };
     const rows = sorted.map(([s]) => {
       const bars = shown.map((lane) => {
+        if (allSplit) {
+          const p = pick(s, lane);
+          const pickedHost = p ? p[1] || primaryHost : null;
+          const hosts = [primaryHost, ...Object.keys(s.extra_host_lanes || {})];
+          const parts = [];
+          for (const h of hosts) {
+            const hp = pickHost(s, lane, h);
+            if (!hp) continue;
+            const bar = barHtml(s, lane, hp[0], h, h === pickedHost);
+            if (bar) parts.push(bar);
+          }
+          if (parts.length) return parts.join("");
+          return `<div class="bc-hbar bc-none">${esc(lane.label)} — not run</div>`;
+        }
         const picked = pick(s, lane);
         const l = picked ? picked[0] : null;
         const host = picked ? picked[1] || primaryHost : null;
-        const v = l ? M.get(l) : null;
-        const fr = frac(m, v);
-        if (fr === null) return `<div class="bc-hbar bc-none">${esc(lane.label)} — not run</div>`;
-        const brk = M.log && latBroken && v > BREAK_AT
-          ? `<i class="sz-break" aria-hidden="true" style="left:${(LIN_SPAN * 100).toFixed(2)}%"></i>` : "";
-        return `<div class="bc-hbar" tabindex="0" data-tip="${esc(`<span class="bc-mut">${esc(s.name)}</span><br>` + tipHtml(l, host ? "@" + host : ""))}" aria-label="${esc(`${s.name} ${lane.label} ${l.model}${host ? " on " + host : ""}: ${f(v)}`)}">` +
-          `<i style="width:${(fr * 100).toFixed(2)}%;background:${lane.color}"></i>${brk}</div>`;
+        if (!l) return `<div class="bc-hbar bc-none">${esc(lane.label)} — not run</div>`;
+        return barHtml(s, lane, l, host, true) || `<div class="bc-hbar bc-none">${esc(lane.label)} — not run</div>`;
       }).join("");
       return `<a class="bc-hlabel" href="#suite-${esc(s.name)}">${esc(s.name)}</a><div class="bc-htrack">${grid(m)}${bars}</div>`;
     }).join("");
@@ -484,7 +516,9 @@
       }
     const extraHosts = d.suites.some((s) => s.extra_host_lanes);
     const note = `laya bars use each suite's best non-multilingual checkpoint${picks.size ? ` (${[...picks].join(", ")}; english elsewhere)` : " (english)"}. ` +
-      `Comparison-lane bars (clm, gliner, agentjev, openthai, paw) carry the host they ran on in the tooltip${extraHosts ? " — other hosts' rows stay in the tables below" : ""}.` +
+      (allSplit
+        ? "All-rigs view: each lane renders one bar PER HOST that ran it, labeled @host — hosts are never mixed inside one bar."
+        : `Comparison-lane bars (clm, gliner, agentjev, openthai, paw) carry the host they ran on in the tooltip${extraHosts ? " — other hosts' rows stay in the tables below" : ""}.`) +
       (M.log ? (latBroken
         ? ` Latency is log-scale up to ${lat(BREAK_AT)} (each gridline = 10×); a bar past the break sign runs on a compressed log scale (${lat(BREAK_AT)} … ${lat(latMax)}) — read its value from the tooltip. Shorter is faster.`
         : " Latency is log-scale (each gridline = 10×) — shorter is faster.")
@@ -537,9 +571,14 @@
     if (!rows.length) return "";
     return `<div class="bc-suite" data-bc-suite="${esc(s.name)}" aria-label="${esc(s.name)} lanes compared">` +
       `<div class="bc-sh"></div><div class="bc-sh">accuracy</div><div class="bc-sh">p50 latency · log${latBroken ? ` · break at ${lat(BREAK_AT)}` : ""} · shorter is faster</div>` +
-      rows.map(([l, host]) =>
-        `<div class="bc-slabel" title="${esc(`${shortLane(l)} · ${l.model}${host ? " @" + host : ""}`)}"><i class="bc-sw" style="background:${laneOf(l).color}"></i>${esc(shortLane(l))} · ${esc(l.model)}${host ? ` <span class="bc-mut">@${esc(host)}</span>` : ""}</div>` +
-        cell("acc", l, host ? "@" + host : "") + cell("p50", l, host ? "@" + host : "")).join("") +
+      rows.map(([l, host]) => {
+        // The primary host labels its rows too — an untagged row read as
+        // "the machine" while every comparison row named its host (the
+        // missing @m3-max-metal).
+        const hh = host || primaryHost;
+        return `<div class="bc-slabel" title="${esc(`${shortLane(l)} · ${l.model}${hh ? " @" + hh : ""}`)}"><i class="bc-sw" style="background:${laneOf(l).color}"></i>${esc(shortLane(l))} · ${esc(l.model)}${hh ? ` <span class="bc-mut">@${esc(hh)}</span>` : ""}</div>` +
+        cell("acc", l, hh ? "@" + hh : "") + cell("p50", l, hh ? "@" + hh : "");
+      }).join("") +
       `</div>`;
   }
 
