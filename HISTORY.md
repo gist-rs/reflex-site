@@ -64,3 +64,16 @@ durable record). Full narrative of each: `git log --follow -- .issues/<file>`.
   octet-stream — production wrangler was never affected). Validation:
   chart_render PASS, bench_page PASS, home_page PASS, arena_demo PASS,
   pairing gate 29/0, publish tests 52/52, figures `--check` in sync.
+
+- **Owner pass 2026-09-29 (later) — the Instinct flow figure reflowed to two bands.**
+  The owner ask: the one-row LR figure was too wide and rendered small. The
+  source mermaid (`riir-instinct/.docs/03_decision_flow/instinct_flow.md`)
+  now uses the Reflex hero's flywheel shape — top band "the question in —
+  Reflex · modelless, always first, free" (question → embed/route/score →
+  fused gate → confident answer), bottom band "on abstain — the trained
+  add-on, paid only here" (top-k prune → specialist → fuse → calibrated
+  answer), the thresholds + arsenal.toml boxes dotted in from outside — and
+  re-rendered to both mirrors by the same script (viewBox 2304×574 →
+  1751×730, the hero's ~2.4:1 shape). `bench/index.html` img dims + alt
+  updated to match. Verified: Chromium raster of the SVG (UTF-8 intact),
+  figures `--check` in sync, `bench_page_smoke.cjs` PASS.
