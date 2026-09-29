@@ -4,6 +4,24 @@ One hash-pinned line per removed issue (the fleet noise-reduction convention:
 an issue file is removed once its work is verifiably landed; this file is the
 durable record). Full narrative of each: `git log --follow -- .issues/<file>`.
 
+- **2026-09-29 — the typed H2 serving posture published (`4b729d4`); DEPLOY
+  PENDING on this box (no CF token — every prior deploy was M3-side).**
+  `data/bench.json`'s typed_decisions hybrid cell: A1 0.6300 ->
+  H2(beta=0.5,nmin=2,tau=2) 0.6475, `serves` + the certification note follow
+  (paired LB95 +0.0580 vs A0'), source stamps re-attributed to instinct
+  `8bbff09` (the Benches 019/020 landing). Lane-scoped publish:
+  `PUBLISH_BENCH_LANES=hybrid sh scripts/republish_bench.sh data/bench.json
+  ../riir-instinct/.benchmarks/020_typed_h2_full_pool/hybrid_lane_doc.json`
+  (the 020 merged doc, instinct `9449e10`, was the prepared input that never
+  got published). All gates green: publish self-test 52/52, chart smoke,
+  pairing gate, mirror parity, bench-page smoke (chip poc - 15 armed -
+  vs-Reflex warn 8/15 - vs-best gap 3/15). Node gate on this box: latest
+  wrangler requires Node >= 22, the box has v20 - `npx wrangler@3.114.4
+  deploy` runs but then needs `CLOUDFLARE_API_TOKEN`, which lives on the M3.
+  **The shipping command (M3 or any creded box): `cd reflex-site && npx
+  wrangler deploy`** - until then reflex.gist.rs serves the pre-publish
+  bytes (verified live: typed hybrid still reads A1 0.63).
+
 - **Issue 001 — arena four lanes + honest µs timing + bench-driven TL;DR: DONE 2026-09-24.**
   All 7 tasks landed (lane labels, 2-per-row grid, sub-ms honest timing, laya (Rust)
   naming, 4-lane demo oracle, TL;DR from `data/bench.json`). Verified by
