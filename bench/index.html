@@ -53,6 +53,48 @@
      vocabulary from style.css; the figure matches the home flow figure */
   .instinct .figure { margin: 14px 0 6px; }
   .instinct .figure img { max-width: 100%; height: auto; }
+  /* the per-suite verdict lines (instinct.js): headline + a segmented
+     "remain" bar + ONE LINE PER SUITE — fill = Instinct (its lane color),
+     tick = the compared lane (its color), the dim span between = the gap */
+  .instinct .tldr > ul > li { display: flex; gap: .4em; align-items: flex-start; }
+  .instinct .tldr > ul > li > i { flex: none; }
+  /* style.css's `.tldr p { display: inline }` is the arena TL;DR's prose
+     shape — here the chip, the lead and the legend are separate lines */
+  .instinct .tldr > p { display: block; }
+  .iv-main { flex: 1; min-width: 0; }
+  .iv-head { display: block; }
+  .iv-seg { display: flex; height: 9px; margin: 7px 0 3px; border: 1px solid var(--line); border-radius: 5px; overflow: hidden; background: var(--bg2); }
+  .iv-seg i { min-width: 3px; }
+  .iv-seg .up { background: var(--ok); }
+  .iv-seg .down { background: var(--ember); }
+  .iv-seg .eq { background: var(--muted); opacity: .4; }
+  .iv-seg .none { background: repeating-linear-gradient(45deg, transparent 0 3px, var(--line) 3px 5px); min-width: 0; }
+  .iv-legend { font-size: 11.5px; color: var(--muted); margin: 2px 0 6px; }
+  .iv-legend .iv-sw { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 4px; }
+  .iv-legend .iv-tickdemo { display: inline-block; width: 2px; height: 10px; background: var(--muted); margin: 0 4px 0 8px; vertical-align: -1px; }
+  .iv-lines { list-style: none; margin: 5px 0 2px; padding: 0; }
+  .iv-line { display: table; width: 100%; table-layout: auto; padding: 1.5px 0; font-size: 12px; border-spacing: 10px 0; }
+  .iv-suite { display: table-cell; width: 12.5em; max-width: 12.5em; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; vertical-align: middle; }
+  .iv-bar { display: table-cell; position: relative; width: auto; height: 13px; background: var(--bg2); border: 1px solid var(--line); border-radius: 6px; overflow: hidden; vertical-align: middle; }
+  .iv-bar::after { content: ""; position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: var(--line); }
+  .iv-fill { position: absolute; top: 0; bottom: 0; left: 0; border-radius: 5px 0 0 5px; }
+  .iv-gap { position: absolute; top: 0; bottom: 0; opacity: .35; }
+  .iv-tick { position: absolute; top: -1px; bottom: -1px; width: 2px; border-radius: 1px; }
+  .iv-nums { display: table-cell; width: 1px; white-space: nowrap; color: var(--muted); font-variant-numeric: tabular-nums; vertical-align: middle; }
+  .iv-nums b { font-weight: 600; }
+  .iv-host { font-style: normal; font-size: 10px; color: var(--muted); }
+  .iv-delta { display: table-cell; width: 3.2em; text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; vertical-align: middle; }
+  .iv-delta.up { color: var(--ok); }
+  .iv-delta.down { color: var(--ember); }
+  .iv-delta.eq { color: var(--muted); font-weight: 400; }
+  .iv-delta.noise { color: var(--warn); }
+  @media (max-width: 760px) {
+    .iv-line, .iv-line tbody { display: block; }
+    .iv-line { position: relative; padding-right: 3.4em; }
+    .iv-suite, .iv-bar, .iv-nums, .iv-delta { display: block; width: auto; }
+    .iv-delta { position: absolute; right: 0; top: 1px; }
+    .iv-bar { margin: 2px 0; }
+  }
   /* the runs strip: one chip per host run (host · device · sha · when) */
   #bench-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; margin: 10px 0 2px; color: var(--muted); font-size: 13.5px; }
   .run-chip { display: inline-flex; align-items: baseline; gap: 7px; border: 1px solid var(--line); background: var(--panel); border-radius: 8px; padding: 4px 10px; font-size: 12.5px; white-space: nowrap; }

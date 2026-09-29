@@ -1,16 +1,18 @@
 /* instinct.js — the Instinct verdict block on /bench/#instinct, rendered
    from data/bench.json at load (the site's number law: never hand-typed).
 
-   Two rows, told from Instinct's side:
+   Two verdict groups, told from Instinct's side, each = a short headline
+   (the majority-law mark) + a segmented "remain" bar + ONE LINE PER SUITE
+   (owner ask 2026-09-29: the prose rows were unreadable):
 
    1. "Instinct vs Reflex" — the row law MOVED here from the arena TL;DR
       (owner call 2026-09-29): the arena stays Reflex's; Reflex is free, so
       Instinct must EARN its place. The MARK follows the majority law (the
       same one the Reflex-vs-laya row uses): green ✓ only when ahead on
       EVERY suite with an arm, YELLOW ✓ on a strict majority, red ✗ on a
-      minority or a tie-heavy board — a tie is still no reason to pay, and
-      the text names every gap either way. The Bench-068 Wilson screen
-      splits within-noise trailing suites out of the gap claim.
+      minority or a tie-heavy board — a tie is still no reason to pay.
+      The Bench-068 Wilson screen marks within-noise trailing suites ≈ on
+      their own lines instead of enumerating them in prose.
 
    2. "Instinct vs best lane" — the RAISED bar (instinct .issues/008
       amendment, 2026-09-29): free Reflex is the floor, not the bar. The
@@ -18,8 +20,13 @@
       lane included (laya's best non-multilingual checkpoint, clm, gliner,
       agentjev, openthai, paw), any host (accuracy is box-independent, the
       same law the charts' pick() uses). Same majority mark: green only
-      when strictly best everywhere (the GOAT chip flips with it), yellow
-      on a majority, red ✗ on a minority (3/15 today).
+      when strictly best everywhere (the GOAT chip flips with it).
+
+   Per-suite line: a loading bar — fill = Instinct (its lane color), a
+   tick at the compared lane's accuracy (THAT lane's palette color, one
+   home: BenchLanes in bench-charts.js), the dim span between = the gap
+   (what remains). Colors follow the LANE, never the verdict, so a line
+   reads the same as the charts above it.
 
    Status chip: "PoC" until Instinct is strictly ahead of every other lane
    on every suite it covers; when that flips, the chip reads GOAT and the
@@ -74,14 +81,68 @@ function cellsOf(s) {
 function row(state, text) {
   const li = document.createElement("li");
   li.className = state === true ? "ok" : state === false ? "gap" : state === "warn" ? "warn" : "eq";
-  li.innerHTML = `<i>${state === true || state === "warn" ? "✓" : state === false ? "✗" : "="}</i> ${text}`;
+  li.innerHTML = `<i>${state === true || state === "warn" ? "✓" : state === false ? "✗" : "="}</i><div class="iv-main"></div>`;
+  li.querySelector(".iv-main").innerHTML = text;
   return li;
 }
-// Widest first, capped so a long tail cannot swamp a row (the arena_tldr law).
-const gapList = (xs, fmt) => {
-  const shown = xs.slice(0, 5).map(fmt).join(", ");
-  return xs.length > 5 ? `${shown}, +${xs.length - 5} more` : shown;
-};
+
+const ivEsc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+// The segmented "remain" bar: one segment per state, flex = the count, so
+// the bar IS the fraction (how many won / tied / remain / have no arm yet).
+function segBar(parent, up, eq, down, none) {
+  const seg = (cls, n, title) => n > 0 || cls === "none"
+    ? `<i class="${cls}" style="flex:${Math.max(n, 0.0001)}" title="${ivEsc(title)}"></i>` : "";
+  const d = document.createElement("div");
+  d.className = "iv-seg";
+  d.innerHTML = seg("up", up, `${up} won`) + seg("eq", eq, `${eq} tied`) +
+    seg("down", down, `${down} remain`) +
+    (none > 0 ? seg("none", none, `${none} of the published suites have no Instinct arm yet`) : "");
+  parent.appendChild(d);
+}
+
+// One suite line: suite | loading bar (fill = Instinct, tick + dim gap
+// span = the compared lane, in THAT lane's palette color) | numbers | delta.
+function suiteLine(L, r, cmp, opts = {}) {
+  const li = document.createElement("li");
+  li.className = "iv-line";
+  const w = (x) => Math.max(0, Math.min(100, x * 100)).toFixed(2);
+  const instW = w(r.inst);
+  const cmpW = cmp.acc == null ? null : w(cmp.acc);
+  const lo = cmpW == null ? +instW : Math.min(+instW, +cmpW);
+  const hi = cmpW == null ? +instW : Math.max(+instW, +cmpW);
+  const d = cmp.acc == null ? null : r.inst - cmp.acc;
+  let cls = "eq", delta = "±0.0", title = "";
+  if (d != null && d > 1e-9) { cls = "up"; delta = `+${(d * 100).toFixed(1)}`; }
+  else if (d != null && d < -1e-9) { cls = "down"; delta = `−${(Math.abs(d) * 100).toFixed(1)}`; }
+  if (opts.noise && d != null && d < -1e-9) {
+    cls = "noise"; delta = `≈ −${(Math.abs(d) * 100).toFixed(1)}`;
+    title = ` within noise at this arm's n=${r.instN} (the Bench-068 Wilson screen)`;
+  }
+  const cmpColor = L.color(cmp.lane);
+  li.innerHTML =
+    `<span class="iv-suite" title="${ivEsc(r.name)}">${ivEsc(r.name)}</span>` +
+    `<span class="iv-bar">` +
+      `<i class="iv-fill" style="width:${instW}%;background:${L.instinct}"></i>` +
+      (cmpW != null && hi > lo + 1e-9 ? `<i class="iv-gap" style="left:${lo.toFixed(2)}%;width:${(hi - lo).toFixed(2)}%;background:${cmpColor}"></i>` : "") +
+      (cmpW != null ? `<b class="iv-tick" style="left:${cmpW}%;background:${cmpColor}"></b>` : "") +
+    `</span>` +
+    `<span class="iv-nums"><b style="color:${L.instinct}">${pct(r.inst)}</b> vs ` +
+      (cmpW != null
+        ? `<span style="color:${cmpColor}">${pct(cmp.acc)} ${ivEsc(cmp.lane)}</span>` +
+          (cmp.host ? ` <span class="iv-host">@${ivEsc(cmp.host)}</span>` : "")
+        : `<span class="iv-host">no Reflex row</span>`) +
+    `</span>` +
+    `<span class="iv-delta ${cls}"${title ? ` title="${ivEsc(title.trim())}"` : ""}>${delta}</span>`;
+  return li;
+}
+
+function linesUl(items) {
+  const ul = document.createElement("ul");
+  ul.className = "iv-lines";
+  for (const el of items) ul.appendChild(el);
+  return ul;
+}
 
 function render(bench) {
   const box = document.getElementById("instinct-verdict");
@@ -121,32 +182,47 @@ function render(bench) {
     (newest ? ` · latest run ${newest.git_sha} (${(newest.date_utc || "?").slice(0, 10)}) · ${newest.host}` : "") +
     ` · single frozen test read per registered arm.`;
   const ul = document.createElement("ul");
+  const L = window.BenchLanes ||
+    { instinct: "#e06ab4", reflex: "#d95926", color: () => "#8a7468" };
+  const noArmTotal = suites.length - armed.length; // a suite with no Reflex row is also unsold (thai_*)
 
-  // ── row 1: vs Reflex (the floor) — the moved arena law, unchanged ──────
+  // ── row 1: vs Reflex (the floor) — the moved arena law ──────────────
   if (armed.length) {
     const ahead = armed.filter((r) => r.km != null && r.inst > r.km)
       .sort((a, b) => (b.inst - b.km) - (a.inst - a.km));
     const notAhead = armed.filter((r) => r.km == null || r.inst <= r.km)
       .sort((a, b) => ((b.km ?? b.inst) - b.inst) - ((a.km ?? a.inst) - a.inst));
+    const tied = notAhead.filter((r) => r.km != null && Math.abs(r.inst - r.km) <= 1e-9);
     const gaps = notAhead
       .filter((r) => r.km != null && r.km > r.inst)
       .map((r) => ({ name: r.name, gap: r.km - r.inst, acc: r.inst, n: r.instN }))
       .sort((a, b) => b.gap - a.gap);
     const gapsReal = gaps.filter((r) => !inWilson(r.acc, r.n, r.acc + r.gap));
     const gapsNoise = gaps.filter((r) => inWilson(r.acc, r.n, r.acc + r.gap));
-    const noArm = suites.length - armed.length; // a suite with no Reflex row is also unsold (thai_*)
+    const noArm = noArmTotal;
     // The majority mark (owner call, matching the Reflex-vs-laya row):
-    // green ✓ only when ahead EVERYWHERE, YELLOW ✓ on a strict majority
-    // (8/15 today), red ✗ on a minority or a tie-heavy board — the text
-    // names every gap either way.
+    // green ✓ only when ahead EVERYWHERE, YELLOW ✓ on a strict majority,
+    // red ✗ on a minority or a tie-heavy board — the lines name every gap.
     const vsReflexState = notAhead.length === 0 ? true
       : ahead.length * 2 > armed.length ? "warn" : false;
-    ul.appendChild(row(vsReflexState,
-      `<b>Instinct vs Reflex, accuracy:</b> ahead of Reflex on <b>${ahead.length}/${armed.length}</b> suites with an Instinct arm` +
-      (ahead.length ? ` (widest: ${ahead[0].name} ${pct(ahead[0].inst)} vs ${pct(ahead[0].km)}) — where its trained specialists earn the consult` : "") +
-      (gapsReal.length ? `; gap to win the other ${gapsReal.length}: ${gapList(gapsReal, (r) => `${r.name} +${(r.gap * 100).toFixed(1)} pt`)}` : "") +
-      (gapsNoise.length ? `; within noise at this n: ${gapsNoise.map((r) => `${r.name} +${(r.gap * 100).toFixed(1)} pt (n=${r.n})`).join(", ")}` : "") +
-      (noArm > 0 ? `; no Instinct arm yet on ${noArm} of ${suites.length} published suites.` : ".")));
+    const li = row(vsReflexState,
+      `<div class="iv-head"><b>Instinct vs Reflex, accuracy</b> — ahead on <b>${ahead.length}/${armed.length}</b> suites with an arm` +
+      (gapsReal.length + gapsNoise.length ? ` · behind on ${gapsReal.length + gapsNoise.length}` +
+        (gapsNoise.length ? ` (${gapsNoise.length} ≈ within noise)` : "") : "") +
+      (tied.length ? ` · tied on ${tied.length}` : "") +
+      (noArm > 0 ? ` · no Instinct arm yet on ${noArm} of ${suites.length} published suites.` : "."));
+    const main = li.querySelector(".iv-main");
+    segBar(main, ahead.length, tied.length, gapsReal.length + gapsNoise.length, noArm);
+    const lines = [
+      ...ahead.map((r) => suiteLine(L, r, { acc: r.km, lane: "Reflex", host: null })),
+      ...tied.map((r) => suiteLine(L, r, { acc: r.km, lane: "Reflex", host: null })),
+      ...notAhead.filter((r) => r.km != null && r.km > r.inst).map((r) =>
+        suiteLine(L, r, { acc: r.km, lane: "Reflex", host: null },
+          { noise: gapsNoise.some((g) => g.name === r.name) })),
+      ...notAhead.filter((r) => r.km == null).map((r) => suiteLine(L, r, { acc: null, lane: "Reflex", host: null })),
+    ];
+    main.appendChild(linesUl(lines));
+    ul.appendChild(li);
   }
 
   // ── row 2: vs the best published lane (the bar) ────────────────────────
@@ -166,19 +242,35 @@ function render(bench) {
     // Same majority law, one lane wider: the bar is EVERY published lane,
     // so the mark is green only when strictly best everywhere (the GOAT
     // chip flips with it), YELLOW on a strict majority, red ✗ on a
-    // minority (3/15 today — most of the board still beats Instinct).
+    // minority.
     const vsBestState = strictlyAll ? true
       : best.length * 2 > armed.length ? "warn" : false;
-    ul.appendChild(row(vsBestState,
-      `<b>Instinct vs best lane, accuracy:</b> the best published lane on <b>${best.length}/${armed.length}</b> suites with an arm` +
-      (best.length ? ` (widest: ${best[0].name} ${pct(best[0].inst)} vs ${pct(best[0].bestAcc)} ${best[0].bestLane}${best[0].bestHost ? " @" + best[0].bestHost : ""})` : "") +
-      (trailing.length ? `; trails the best on ${trailing.length}: ${gapList(trailing, (r) => `${r.name} −${(Math.abs(r.edge) * 100).toFixed(1)} pt (best: ${r.bestLane} ${pct(r.bestAcc)})`)}` : "") +
-      (tied.length ? `; tied on ${tied.length} (a tie sells nothing — the specialist adds nothing measurable there)` : "") +
-      "."));
+    const li = row(vsBestState,
+      `<div class="iv-head"><b>Instinct vs best lane, accuracy</b> — strictly best on <b>${best.length}/${armed.length}</b> suites with an arm` +
+      (trailing.length ? ` · trails the best on ${trailing.length}` : "") +
+      (tied.length ? ` · tied on ${tied.length} (a tie sells nothing)` : "") + ".");
+    const main = li.querySelector(".iv-main");
+    segBar(main, best.length, tied.length, trailing.length, noArmTotal);
+    const cmpOf = (r) => ({ acc: r.bestAcc, lane: r.bestLane, host: r.bestHost });
+    main.appendChild(linesUl([
+      ...best.map((r) => suiteLine(L, r, cmpOf(r))),
+      ...tied.map((r) => suiteLine(L, r, cmpOf(r))),
+      ...trailing.map((r) => suiteLine(L, r, cmpOf(r))),
+    ]));
+    ul.appendChild(li);
   } else {
     chip = document.createElement("p");
     chip.innerHTML = `<span class="chip poc">PoC</span> no registered arm published yet.`;
   }
 
-  box.append(chip, lead, ul);
+  box.append(chip, lead);
+  if (armed.length) {
+    const legend = document.createElement("p");
+    legend.className = "iv-legend";
+    legend.innerHTML =
+      `per suite: <i class="iv-sw" style="background:${L.instinct}"></i>bar = Instinct · <i class="iv-tickdemo"></i>tick = the compared lane (its lane color) · dim span = the gap · ≈ = within noise · grey hatch = no Instinct arm yet`;
+    box.append(legend, ul);
+  } else {
+    box.append(ul);
+  }
 }

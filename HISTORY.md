@@ -65,6 +65,28 @@ durable record). Full narrative of each: `git log --follow -- .issues/<file>`.
   chart_render PASS, bench_page PASS, home_page PASS, arena_demo PASS,
   pairing gate 29/0, publish tests 52/52, figures `--check` in sync.
 
+- **Owner pass 2026-09-29 (later still) — the verdict rows became per-suite loading bars.**
+  Owner ask: the two prose rows were unreadable. `assets/instinct.js` now
+  renders each verdict as a short headline (same majority-law mark, the
+  smoke's re-derivation unchanged) + a segmented "remain" bar (won/tied/
+  remain/no-arm, flex = count, hatch = no arm yet) + ONE LINE PER SUITE:
+  a loading bar — fill = Instinct (its lane color), tick = the compared
+  lane (THAT lane's palette color), the dim span between = the gap — plus
+  colored numbers and a ±delta chip. The palette stays single-sourced:
+  `bench-charts.js` now exposes `window.BenchLanes` (display-label color
+  lookup) instead of instinct.js re-deriving the lane→color map. Two
+  findings en route, both fixed at root: (1) style.css's
+  `.tldr p { display: inline }` (the arena TL;DR prose shape) merged the
+  chip/lead/legend into one flow — `.instinct .tldr > p` restored block;
+  (2) the host tag `<i class="iv-host">` measured with broken intrinsic
+  width (the synthetic-italic face: the engine sized the cell ~47px
+  narrow in flex, grid AND table — a `<span>` measures full) — the host
+  tag is a span now. Suite lines are `display: table` (content-sized
+  nums cell via the width:1px + nowrap trick, the bar cell takes the
+  rest); mobile stacks bar/numbers under the name. Verified: Chromium
+  rasters desktop + 420px, `bench_page_smoke.cjs` PASS (marks, chip,
+  phrases all re-derived from bench.json), no page errors.
+
 - **Owner pass 2026-09-29 (later) — the Instinct flow figure reflowed to two bands.**
   The owner ask: the one-row LR figure was too wide and rendered small. The
   source mermaid (`riir-instinct/.docs/03_decision_flow/instinct_flow.md`)

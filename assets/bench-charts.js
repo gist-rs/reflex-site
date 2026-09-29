@@ -52,6 +52,23 @@
   // "KatGPT" is the modelless lane's DATA id (publish_bench.py); display it as the product.
   const shortLane = (l) => (l.lane === "KatGPT" ? "Reflex" : String(l.lane).replace(/ \(reference\)$/, ""));
 
+  // The palette's one home, exposed for the sibling renderers that draw
+  // lane-colored marks outside the charts (instinct.js's per-suite verdict
+  // bars). Keyed by the same DISPLAY forms shortLane() renders ("Reflex",
+  // "paw (hosted)", "laya (rust)", …) so a caller never re-derives the
+  // lane→color mapping (a second palette is a drift waiting to happen).
+  window.BenchLanes = {
+    instinct: LANES.find((x) => x.key === "instinct").color,
+    reflex: LANES.find((x) => x.key === "katgpt").color,
+    color(label) {
+      const s = String(label).replace(/ \(reference\)$/, "");
+      const hit = LANES.find((x) => x.key === "katgpt" ? (s === "Reflex" || s === "KatGPT")
+        : x.key === "paw" ? s.startsWith("paw")
+        : s === x.label);
+      return (hit || OTHER).color;
+    },
+  };
+
   // ── lane filter (one checkbox bar, governs EVERY section of the page) ────
   // The filter keys on the CANONICAL lane key (laneOf(l).key — "katgpt",
   // "rust", …), never on display spellings, so the charts, the tables, and
