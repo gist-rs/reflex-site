@@ -401,6 +401,32 @@ const server = http.createServer((req, res) => {
     if (!/Instinct vs Reflex, accuracy/.test(verdict)) fail("the vs-Reflex row (moved law) is missing");
     if (!/Instinct vs best lane, accuracy/.test(verdict)) fail("the vs-best-lane row (the raised bar) is missing");
     if (!/no Instinct arm yet/.test(verdict)) fail("the no-arm disclosure is missing");
+    // Both row marks follow the MAJORITY law (owner call, the Reflex-vs-laya
+    // rule one lane over): green everywhere, YELLOW on a strict majority,
+    // red on a minority — re-derived here from the same bench.json.
+    const rowMark = (label) => page.$eval("#instinct-verdict ul", (ul, l) => {
+      const li = [...ul.querySelectorAll("li")].find((x) => x.textContent.includes(l));
+      return li ? li.className : null;
+    }, label);
+    const markOf = (wins, n) => (wins === n ? "ok" : wins * 2 > n ? "warn" : "gap");
+    const vsReflexWins = armed.filter((s) => {
+      const hyb = Math.max(...cells(s).filter((l) => l.lane === "Instinct (hybrid)").map(accOf));
+      const km = Math.max(...cells(s).filter((l) => l.lane === "KatGPT" || l.model === "modelless").map(accOf));
+      return hyb > km;
+    }).length;
+    const expectReflex = markOf(vsReflexWins, armed.length);
+    if ((await rowMark("Instinct vs Reflex")) !== expectReflex)
+      fail(`vs-Reflex mark ${await rowMark("Instinct vs Reflex")} but majority rule says ${expectReflex} (${vsReflexWins}/${armed.length})`);
+    else console.log(`ok: vs-Reflex mark ${expectReflex} (${vsReflexWins}/${armed.length} ahead)`);
+    const vsBestWins = armed.filter((s) => {
+      const hyb = Math.max(...cells(s).filter((l) => l.lane === "Instinct (hybrid)").map(accOf));
+      const bestOther = Math.max(...cells(s).filter((l) => l.lane !== "Instinct (hybrid)" && l.model !== "multilingual").map(accOf));
+      return hyb - bestOther > 1e-9;
+    }).length;
+    const expectBest = markOf(vsBestWins, armed.length);
+    if ((await rowMark("Instinct vs best lane")) !== expectBest)
+      fail(`vs-best mark ${await rowMark("Instinct vs best lane")} but majority rule says ${expectBest} (${vsBestWins}/${armed.length})`);
+    else console.log(`ok: vs-best mark ${expectBest} (${vsBestWins}/${armed.length} strictly best)`);
     if (!process.exitCode) console.log("ok: instinct verdict rows render (vs Reflex + vs best lane + no-arm)");
   }
 
