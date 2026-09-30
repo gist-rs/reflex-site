@@ -74,16 +74,25 @@ const server = http.createServer((req, res) => {
   // 3) gliner rows in the tables (the 4090 extra-host rows) — matched on the
   //    lane-label cell ("gliner · <model>"): laneRow strips " (reference)",
   //    and the old "gliner (reference)" substring matched ZERO rows, so the
-  //    vanish / persist steps below passed on an empty set.
+  //    vanish / persist steps below passed on an empty set. The count is
+  //    DATA-DERIVED (the paw precedent): the suite population is a decision
+  //    (the T8 family drop shrank it 17→11), so a hard floor rots the first
+  //    time the board legitimately shrinks. Only the >=1 liveness floor is
+  //    hardcoded — a zero means the lane vanished from the tables.
+  const laneData = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "data", "bench.json"), "utf8"));
+  const expectedLaneRows = (lane) => laneData.suites.reduce((n, s) => n + (s[lane] ? 1 : 0)
+    + Object.values(s.extra_host_lanes || {}).reduce((m, h) => m + (h[lane] ? 1 : 0), 0), 0);
   const glinerRows = await page.$$eval("#tables tr", (trs) => trs.filter((t) => { const c = t.querySelector("td"); return c && /^gliner · /.test(c.textContent); }).length);
-  if (glinerRows < 10) fail(`expected >=10 gliner table rows, got ${glinerRows}`);
-  else console.log(`ok: ${glinerRows} gliner table rows`);
+  const expectedGliner = expectedLaneRows("gliner");
+  if (glinerRows !== expectedGliner || expectedGliner < 1) fail(`gliner rows ${glinerRows} != data ${expectedGliner}`);
+  else console.log(`ok: ${glinerRows} gliner table rows (data-derived)`);
 
   // 3b) agentjev rows (reflex .issues/025 amendment 4 — the same 4090
-  // extra-host law; 14 suites carry the lane)
+  // extra-host law; data-derived for the same population reason)
   const ajRows = await page.$$eval("#tables tr", (trs) => trs.filter((t) => { const c = t.querySelector("td"); return c && /^agentjev · /.test(c.textContent); }).length);
-  if (ajRows < 10) fail(`expected >=10 agentjev table rows, got ${ajRows}`);
-  else console.log(`ok: ${ajRows} agentjev table rows`);
+  const expectedAj = expectedLaneRows("agentjev");
+  if (ajRows !== expectedAj || expectedAj < 1) fail(`agentjev rows ${ajRows} != data ${expectedAj}`);
+  else console.log(`ok: ${ajRows} agentjev table rows (data-derived)`);
 
   // 3c) openthai rows (reflex Plan 003 / Bench 074): the Thai board's
   //     comparison lane — row floor grows only upward
@@ -96,9 +105,7 @@ const server = http.createServer((req, res) => {
   //     bench.json before any renderer carried them (the invisible-lane
   //     class) — the count is derived from the data, grows only upward.
   const pawRows = await page.$$eval("#tables tr", (trs) => trs.filter((t) => { const c = t.querySelector("td"); return c && /^paw \(/.test(c.textContent); }).length);
-  const pawData = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "data", "bench.json"), "utf8"));
-  const expectedPaw = pawData.suites.reduce((n, s) => n + (s.paw ? 1 : 0) + (s.paw_local ? 1 : 0)
-    + Object.values(s.extra_host_lanes || {}).reduce((m, h) => m + (h.paw ? 1 : 0) + (h.paw_local ? 1 : 0), 0), 0);
+  const expectedPaw = expectedLaneRows("paw") + expectedLaneRows("paw_local");
   if (pawRows !== expectedPaw) fail(`paw rows ${pawRows} != data ${expectedPaw}`);
   else console.log(`ok: ${pawRows} paw table rows (data-derived)`);
 
@@ -144,7 +151,7 @@ const server = http.createServer((req, res) => {
   await page.check('#lane-filter input[data-key="gliner"]');
   await page.waitForTimeout(300);
   const glinerBack = await page.$$eval("#tables tr", (trs) => trs.filter((t) => { const c = t.querySelector("td"); return c && /^gliner · /.test(c.textContent); }).length);
-  if (glinerBack < 10) fail(`gliner rows must return when re-checked, got ${glinerBack}`);
+  if (glinerBack !== expectedGliner) fail(`gliner rows must return when re-checked, got ${glinerBack} (data ${expectedGliner})`);
   else console.log("ok: gliner rows restored");
 
   // 8) hero sort follows the FIRST VISIBLE lane (sorting by a lane the
@@ -384,7 +391,7 @@ const server = http.createServer((req, res) => {
     await page.check('#rig-filter input[value="all"]');
     await page.waitForTimeout(300);
     const glinerBack = await page.$$eval("#tables tr", (trs) => trs.filter((t) => { const c = t.querySelector("td"); return c && /^gliner · /.test(c.textContent); }).length);
-    if (glinerBack < 10) fail(`"all" scope must restore the comparison lanes, got ${glinerBack} gliner rows`);
+    if (glinerBack !== expectedGliner) fail(`"all" scope must restore the comparison lanes, got ${glinerBack} gliner rows (data ${expectedGliner})`);
     else console.log("ok: all-rigs scope restores the comparison lanes");
   }
 
