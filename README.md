@@ -15,7 +15,11 @@ static assets.
   anything) or *Ask this tab* (the same wasm, in-tab), with the latency
   capsule for each.
 - `/bench/` — the per-task arena tables, rendered client-side from
-  `data/bench.json`.
+  `data/bench.json`. The **Areas & index** section adds the radar view:
+  one spoke per area (the decision index) and one per benchmark,
+  chance-corrected so suites with different option counts share a radius
+  (the chances ride `data/bench.json`'s `areas` block, emitted by
+  `scripts/publish_bench.py` from the harness's own option construction).
 - `/arena/` — the live games, four lanes, 2 per row: laya (Python) | laya
   (Rust), KatGPT modelless | raw baseline, under a TL;DR rendered from
   `data/bench.json`. Tetris adds a fifth, replay-only board — **Reflexer**,

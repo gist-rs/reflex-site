@@ -126,6 +126,17 @@ a violation).
 The bench page renders whatever bench.json carries — regenerating the site
 tables is: re-run the harness in riir-reflex, then run this script, commit,
 deploy. A hand-typed number on the site is a defect by definition.
+
+The area rollups (the /bench/ radar cards, 2026-09-30): compute_areas()
+emits d["areas"] — per-lane chance-corrected scores rolled into four
+curated areas (Language & intent, Sentiment, Reasoning & safety, Decisions
+& code) plus the per-benchmark grid, so the page renders the rollups and
+never re-derives them (the compute_pairings precedent). The chances are
+dataset facts read off the harness's own option construction; the rollup
+covers the four product lanes (Reflex / Instinct (hybrid) / Rethink
+(encoder) / laya (rust)) on the primary host's served rows and discloses
+per-lane coverage (the Rethink encoder lane is 1/9, record-only — a
+partial index is disclosed as partial, never padded).
 """
 
 import copy
@@ -222,7 +233,17 @@ LANE_DISPLAY = {
     # serve). A SEPARATE lane from the hybrid cell: the hybrid cell keeps
     # publishing the SERVING arm; this publishes the measured-but-refused
     # read with its latency class (the refusal's ground).
-    "encoder": "Instinct (encoder)",
+    # Display spelling per the riir-instinct naming law (riir-ai Proposal
+    # 051): "Instinct (encoder)" rebrands to "Rethink (encoder)". The lane
+    # KEY ("encoder") never changes — only this display spelling does — and
+    # the legacy spelling maps too, so re-publishing a bench.json that
+    # carries the old name lands the new one (the dual-spelling law). The
+    # lane's RESULTS are still 1/9 suites (record-only) — tracked as a
+    # blocker in this repo's .issues until 051 Phase 1 + encoder serving
+    # results land.
+    "encoder": "Rethink (encoder)",
+    "instinct (encoder)": "Rethink (encoder)",
+    "Instinct (encoder)": "Rethink (encoder)",
     # reflex .issues/033: the ProgramAsWeights comparison lanes. "paw" is
     # their HOSTED REST posture (compile-a-classifier, server-side),
     # "paw-local" their LOCAL llama.cpp runtime — the posture axis is the
@@ -434,6 +455,160 @@ def compute_pairings(d):
         if block:
             s["pairing"] = block
     return paired
+
+
+# ── The area rollups (the /bench/ radar cards) ────────────────────────────
+# One curation table: suite → area, plus the suite's CHANCE baseline — the
+# mean per-question random-pick probability — so scores from suites with
+# different option counts become comparable (0 = random guessing, 1 =
+# every question right).
+#
+# The chances are DATASET facts read off the harness's own option
+# construction (riir-reflex src/harness/suites.rs + runner.rs +
+# .docs/02_protocols/dataset_manifest.md), never measurements:
+#   ag_news 4 labels, all presented (CRIT[4])          → 1/4
+#   massive_intent_en 20 presented per question (gold +
+#     19 sampled distractors, build_massive_intent_en) → 1/20
+#   banking77 all 77 intents presented (build_banking77_mteb) → 1/77
+#   sst5 5 levels (LEVELS[5])                          → 1/5
+#   emotion 6 names (NAMES[6])                         → 1/6
+#   xnli_en 3 NLI labels (NLI_CRIT[3])                 → 1/3
+#   prompt_injections noul, 2 options                  → 1/2
+#   typed_decisions 20 head types (the dataset manifest's table): eleven
+#     4-way choice/score, three 5-way, six 2-way noul → unweighted mean
+#     over head types (11·¼ + 3·⅕ + 6·½) / 20 = 0.3175
+#   code_fixtures one 8-way module choice + one 2-way noul per case
+#     (code_case) → (1/8 + 1/2) / 2 = 0.3125
+AREA_CHANCE = {
+    "ag_news": 1 / 4,
+    "massive_intent_en": 1 / 20,
+    "banking77": 1 / 77,
+    "sst5": 1 / 5,
+    "emotion": 1 / 6,
+    "xnli_en": 1 / 3,
+    "prompt_injections": 1 / 2,
+    "typed_decisions": 6.35 / 20,
+    "code_fixtures": (1 / 8 + 1 / 2) / 2,
+}
+
+# The area grouping (the radar's spokes). Only suites carrying at least one
+# of the four product lanes are grouped — the Thai suites publish a single
+# comparison lane (openthai) and would render an all-empty spoke.
+AREA_DEFS = (
+    ("language", "Language & intent",
+     ("ag_news", "massive_intent_en", "banking77")),
+    ("sentiment", "Sentiment", ("sst5", "emotion")),
+    ("reasoning", "Reasoning & safety", ("xnli_en", "prompt_injections")),
+    ("decisions", "Decisions & code", ("typed_decisions", "code_fixtures")),
+)
+
+# The radar's lane rows: a stable key (the areas block's per-lane key), the
+# published display spelling, and the page's palette key (bench-charts.js
+# LANES key — the JS maps key → color; the palette itself is never
+# duplicated here).
+AREA_LANES = (
+    ("modelless", "Reflex", "katgpt"),
+    ("hybrid", "Instinct (hybrid)", "instinct"),
+    ("encoder", "Rethink (encoder)", "instinct-encoder"),
+    ("laya", "laya (rust)", "rust"),
+)
+
+
+def _area_lane_cell(s, lane):
+    """The primary-host lane cell of one suite for the radar, or None.
+
+    laya uses the charts' own pick rule: the best-accuracy NON-multilingual
+    checkpoint (typed on typed_decisions, english elsewhere) — the same
+    rule hero()/summary() render with, so the radar never disagrees with
+    the bars beside it. Returns (cell, checkpoint_or_None)."""
+    if lane == "laya":
+        best = None
+        for cell in (s.get("laya") or {}).values():
+            if cell.get("model") == "multilingual":
+                continue
+            acc = (cell.get("hard") or {}).get("accuracy")
+            if acc is None:
+                continue
+            if best is None or acc > (best[0].get("hard") or {}).get("accuracy"):
+                best = (cell, cell.get("model"))
+        return best
+    cell = s.get(lane)
+    if isinstance(cell, dict) and (cell.get("hard") or {}).get("accuracy") is not None:
+        return (cell, None)
+    return None
+
+
+def compute_areas(d):
+    """Emit d["areas"] — the per-area + per-suite chance-corrected rollups
+    the /bench/ radar cards render (the compute_pairings precedent:
+    derived verdicts ride the published bench.json; the page renders them,
+    never re-derives them).
+
+    Only the PRIMARY host's top-level lane cells roll up (a lane-scoped
+    update replaces its cell in place, so this is the current served row;
+    extra-host rows stay in the per-suite tables). A lane missing a suite
+    simply lacks that suite's entry — the block carries per-lane coverage,
+    and a partial lane's index is the mean over what it measured
+    (disclosed, never padded with zeros). Re-running replaces the block
+    wholesale, so a publish over an already-augmented bench.json is
+    idempotent."""
+    d.pop("areas", None)
+    suites = {s["name"]: s for s in d.get("suites", [])}
+    suite_meta = {}
+    members = {}
+    for area_id, _label, names in AREA_DEFS:
+        for name in names:
+            if name in suites and name in AREA_CHANCE:
+                suite_meta[name] = {"area": area_id,
+                                    "chance": round(AREA_CHANCE[name], 6)}
+                members.setdefault(area_id, []).append(name)
+    lanes_out = {}
+    for key, display, color_key in AREA_LANES:
+        per_suite = {}
+        area_vals = {}
+        for area_id, names in members.items():
+            vals = []
+            for name in names:
+                picked = _area_lane_cell(suites[name], key)
+                if picked is None:
+                    continue
+                cell, ck = picked
+                acc = cell["hard"]["accuracy"]
+                chance = AREA_CHANCE[name]
+                entry = {"acc": round(acc, 6),
+                         "cc": round((acc - chance) / (1.0 - chance), 6)}
+                if ck:
+                    entry["ck"] = ck
+                per_suite[name] = entry
+                vals.append(entry["cc"])
+            if vals:
+                area_vals[area_id] = round(sum(vals) / len(vals), 6)
+        if per_suite:
+            lanes_out[key] = {
+                "display": display,
+                "color_key": color_key,
+                "per_suite": per_suite,
+                "areas": area_vals,
+                "index": (round(sum(area_vals.values()) / len(area_vals), 6)
+                          if area_vals else None),
+                "coverage": {"suites": len(per_suite),
+                             "of": len(suite_meta)},
+                "complete": len(per_suite) == len(suite_meta),
+            }
+    d["areas"] = {
+        "version": 1,
+        "scale": ("chance-corrected accuracy: cc = (acc - chance) / "
+                  "(1 - chance); 0 = random guessing, 1 = every question "
+                  "right; per-suite chance = the mean per-question "
+                  "random-pick probability of the harness's own option "
+                  "construction (a dataset fact, not a measurement)"),
+        "suites": suite_meta,
+        "areas": [{"id": a, "label": lbl, "suites": list(members.get(a, []))}
+                  for a, lbl, _ in AREA_DEFS if a in members],
+        "lanes": lanes_out,
+        "primary_host_only": True,
+    }
+    return d["areas"]
 
 
 def stamp_cell(cell, suite, meta=None):
@@ -1526,6 +1701,7 @@ def main() -> int:
             row.pop(k, None)
     rename_lanes(d)
     n_paired = compute_pairings(d)
+    compute_areas(d)
     for s in d.get("suites", []):
         for host_lanes in (s.get("extra_host_lanes") or {}).values():
             lanes = (

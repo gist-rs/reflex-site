@@ -1813,6 +1813,125 @@ def case_unknown_host_refused_at_load():
             raise AssertionError("unknown host must refuse")
 
 
+def area_cell(lane, acc, model=None):
+    cell = {"lane": lane, "hard": {"accuracy": acc}}
+    if model:
+        cell["model"] = model
+    return cell
+
+
+def area_doc():
+    """A synthetic doc over ALL nine area suites with hand-checkable
+    accuracies. Lanes: modelless everywhere; hybrid everywhere; encoder on
+    sst5 only; laya on ag_news (english 0.95 beats typed 0.50) and
+    typed_decisions (typed 0.90 beats english 0.40)."""
+    acc = {
+        "ag_news": 0.8625, "massive_intent_en": 0.4066667, "banking77": 0.402,
+        "sst5": 0.2016667, "emotion": 0.77, "xnli_en": 0.5033333,
+        "prompt_injections": 0.7672414, "typed_decisions": 0.5725,
+        "code_fixtures": 0.375,
+    }
+    hyb = dict(acc, sst5=0.4216667)
+    rows = []
+    for name in pb.AREA_CHANCE:
+        s = {"name": name, "n_questions": 100, "n_cases": 50,
+             "modelless": area_cell("modelless", acc[name]),
+             "hybrid": area_cell("Instinct (hybrid)", hyb[name])}
+        if name == "sst5":
+            s["encoder"] = area_cell("encoder", 0.5266667)
+        if name == "ag_news":
+            s["laya"] = {"english": area_cell("laya (rust)", 0.95, model="english"),
+                         "typed": area_cell("laya (rust)", 0.50, model="typed")}
+        if name == "typed_decisions":
+            s["laya"] = {"english": area_cell("laya (rust)", 0.40, model="english"),
+                         "typed": area_cell("laya (rust)", 0.90, model="typed")}
+        rows.append(s)
+    return {"meta": {"host": "m3", "git_sha": "sha-a", "date_utc": "2026-09-30T00:00:00Z"},
+            "suites": rows}
+
+
+def cc_of(name, a):
+    ch = pb.AREA_CHANCE[name]
+    return round((a - ch) / (1.0 - ch), 6)
+
+
+def case_area_rollups_math_and_coverage():
+    a = pb.compute_areas(area_doc())
+    assert a["version"] == 1
+    # every area suite present → coverage floor 9
+    assert len(a["suites"]) == 9 and [x["id"] for x in a["areas"]] == \
+        ["language", "sentiment", "reasoning", "decisions"]
+    ml = a["lanes"]["modelless"]
+    assert ml["complete"] and ml["coverage"] == {"suites": 9, "of": 9}
+    # cc math, spot-checked
+    assert ml["per_suite"]["ag_news"]["cc"] == cc_of("ag_news", 0.8625)
+    assert ml["per_suite"]["sst5"]["cc"] == cc_of("sst5", 0.2016667)
+    # area score = mean of the area's suite ccs; index = mean of areas
+    lang = [cc_of("ag_news", 0.8625), cc_of("massive_intent_en", 0.4066667),
+            cc_of("banking77", 0.402)]
+    assert ml["areas"]["language"] == round(sum(lang) / 3, 6)
+    assert ml["index"] == round(sum(ml["areas"].values()) / 4, 6)
+
+
+def case_area_laya_picks_best_checkpoint():
+    a = pb.compute_areas(area_doc())
+    lay = a["lanes"]["laya"]
+    # ag_news: english 0.95 beats typed 0.50 → english
+    assert lay["per_suite"]["ag_news"]["acc"] == 0.95
+    assert lay["per_suite"]["ag_news"]["ck"] == "english"
+    # typed_decisions: typed 0.90 beats english 0.40 → typed
+    assert lay["per_suite"]["typed_decisions"]["acc"] == 0.90
+    assert lay["per_suite"]["typed_decisions"]["ck"] == "typed"
+
+
+def case_area_partial_lane_discloses_and_never_pads():
+    a = pb.compute_areas(area_doc())
+    enc = a["lanes"]["encoder"]
+    assert enc["coverage"] == {"suites": 1, "of": 9}
+    assert enc["complete"] is False
+    # the index is the mean over WHAT WAS MEASURED (one suite), disclosed as
+    # partial — never padded with zeros
+    assert enc["index"] == cc_of("sst5", 0.5266667)
+    assert list(enc["per_suite"]) == ["sst5"]
+    assert list(enc["areas"]) == ["sentiment"]
+
+
+def case_area_absent_lane_and_absent_suite_shrink_honestly():
+    d = area_doc()
+    for s in d["suites"]:
+        s.pop("hybrid", None)   # a lane with zero cells vanishes from the block
+    d["suites"] = [s for s in d["suites"] if s["name"] != "banking77"]
+    a = pb.compute_areas(d)
+    assert "hybrid" not in a["lanes"]
+    # the denominators re-derive from what the doc carries (8 suites)
+    for lane in a["lanes"].values():
+        assert lane["coverage"]["of"] == 8
+    assert "banking77" not in a["suites"]
+
+
+def case_area_rollup_is_idempotent():
+    d = area_doc()
+    first = pb.compute_areas(d)
+    second = pb.compute_areas(d)
+    assert first == second
+
+
+def case_encoder_lane_display_rebrands_to_rethink():
+    # the riir-instinct naming law (riir-ai Proposal 051): the encoder arm's
+    # DISPLAY spelling is "Rethink (encoder)"; the lane KEY never changes,
+    # and a previously-published bench.json carrying the old display name
+    # lands the new one on re-publish (the dual-spelling law)
+    assert pb.LANE_DISPLAY["encoder"] == "Rethink (encoder)"
+    assert pb.LANE_DISPLAY["Instinct (encoder)"] == "Rethink (encoder)"
+    d = area_doc()
+    d["suites"][3]["encoder"]["lane"] = "Instinct (encoder)"
+    pb.rename_lanes(d)
+    assert d["suites"][3]["encoder"]["lane"] == "Rethink (encoder)"
+    # and the areas block's display spelling agrees
+    a = pb.compute_areas(d)
+    assert a["lanes"]["encoder"]["display"] == "Rethink (encoder)"
+
+
 CASES = [
     case_lane_carry_keeps_incumbent_timing,
     case_republish_never_carries_an_untouched_lane,
@@ -1871,6 +1990,12 @@ CASES = [
     case_pre_stamp_cells_still_fall_back_to_lane_sources,
     case_a0_stands_label_rides_the_cell,
     case_unknown_host_refused_at_load,
+    case_area_rollups_math_and_coverage,
+    case_area_laya_picks_best_checkpoint,
+    case_area_partial_lane_discloses_and_never_pads,
+    case_area_absent_lane_and_absent_suite_shrink_honestly,
+    case_area_rollup_is_idempotent,
+    case_encoder_lane_display_rebrands_to_rethink,
 ]
 
 def main() -> int:

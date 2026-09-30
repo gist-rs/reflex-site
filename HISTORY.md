@@ -143,3 +143,41 @@ durable record). Full narrative of each: `git log --follow -- .issues/<file>`.
   1751×730, the hero's ~2.4:1 shape). `bench/index.html` img dims + alt
   updated to match. Verified: Chromium raster of the SVG (UTF-8 intact),
   figures `--check` in sync, `bench_page_smoke.cjs` PASS.
+
+- **Areas & index radar + the Rethink rename + a chance-corrected range metric (2026-09-30).**
+  The owner ask: leaderboard-style radar cards on `/bench/` for the four
+  product lanes (Reflex · modelless, Instinct (hybrid), Rethink (encoder),
+  laya (rust)) across all areas, plus the min–avg–max range-per-lane chart
+  on the landing page. Three landings, all data-driven (the hand-typed-
+  number law): (1) `publish_bench.py` gains `compute_areas()` — it emits
+  `data/bench.json` `areas`: per-lane chance-corrected scores
+  (cc = (acc − chance)/(1 − chance)) rolled into four curated areas
+  (Language & intent, Sentiment, Reasoning & safety, Decisions & code) over
+  the nine product-lane suites, with per-suite chance baselines that are
+  DATASET facts read off the harness's own option construction (ag_news 4,
+  massive 20 presented/question, banking77 77, sst5 5, emotion 6, xnli 3,
+  prompt 2, typed 20-head-type mean 0.3175, code (1/8+1/2)/2 — cited in the
+  constant's comment); the page renders the rollups, never re-derives them
+  (the compute_pairings precedent). Laya uses the charts' own pick rule
+  (best non-multilingual checkpoint: typed on typed_decisions, english
+  elsewhere); lanes disclose coverage, and a partial lane's index is the
+  mean over what it measured, never padded. (2) `bench-charts.js` renders
+  the radar — two cards ("All areas · decision index", "All benchmarks ·
+  9 spokes"), polygons only for complete lanes, measured-dots-only for
+  partials (the Rethink encoder arm is 1/9, gaps are unmeasured, never
+  zero), tooltips with raw accuracy + the chance baseline, the lane filter
+  governs it, and the legend names coverage + the partial disclosure in
+  both cards. Same landing: a **chance-corrected acc** metric on the
+  min–avg–max range charts (home + `/bench/` hero) — the same cc scale, so
+  the landing page's ranged bars finally compare a 4-way and a 77-way
+  suite on one axis (bars clip at the 0% chance line; tooltips carry exact
+  values). (3) The encoder lane rebrands per the riir-instinct naming law
+  (riir-ai Proposal 051): display spelling `Instinct (encoder)` →
+  `Rethink (encoder)` in LANE_DISPLAY with the legacy spelling mapped
+  (the dual-spelling law), the palette label + match updated; the lane KEY
+  never changes. The results are still 1/9 (record-only, serve ✗) —
+  blocker tracked in `.issues/004_rethink_encoder_lane_partial.md` (051
+  Phase 1 + the encoder serving deploy). Verified: test_publish_bench
+  63/63 (6 new area-rollup cases), chart_render_smoke (cc + radar arms),
+  bench_page_smoke (radar renders, partial disclosed on both cards, the
+  filter governs it), home_page_smoke, check_lane_pairing, mirrors --check.

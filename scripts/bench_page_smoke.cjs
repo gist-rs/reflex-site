@@ -327,6 +327,35 @@ const server = http.createServer((req, res) => {
     else console.log(`ok: lanes restored -> ${back} suite tables`);
   }
 
+  // 9d) the area radar (#bench-areas): two cards render from data.areas —
+  //     polygons only for complete lanes, dots for measured spokes, the
+  //     partial lane (Rethink encoder, 1/9) disclosed in BOTH legends, and
+  //     the lane filter governs it like every other section (hiding a lane
+  //     removes its rows from both cards).
+  {
+    await page.waitForFunction(() => document.querySelectorAll("#bench-areas .area-card svg").length === 2, { timeout: 10000 });
+    const cards = await page.$$eval("#bench-areas .area-card", (xs) => xs.length);
+    if (cards !== 2) fail(`expected 2 area cards, got ${cards}`);
+    const polys = await page.$$eval("#bench-areas .rd-poly", (xs) => xs.length);
+    if (polys < 6) fail(`expected >=6 radar polygons (modelless/hybrid/laya x 2 cards), got ${polys}`);
+    const dots = await page.$$eval("#bench-areas .rd-dot", (xs) => xs.length);
+    if (dots < 40) fail(`expected >=40 radar dots, got ${dots}`);
+    const legendTxt = await page.$eval("#bench-areas", (x) => x.textContent);
+    if (!legendTxt.includes("Rethink (encoder)") || !legendTxt.includes("1/9"))
+      fail("the radar legends must disclose the partial Rethink encoder lane (1/9)");
+    const encRows = await page.$$eval("#bench-areas .rd-lg", (xs) => xs.filter((x) => x.textContent.includes("Rethink (encoder)")).length);
+    if (encRows !== 2) fail(`expected a Rethink legend row on both cards, got ${encRows}`);
+    else console.log(`ok: area radar renders (${polys} polygons, ${dots} dots, partial lane disclosed on both cards)`);
+    // the filter governs the radar: hiding the encoder lane empties its rows
+    await page.uncheck('#lane-filter input[data-key="instinct-encoder"]');
+    await page.waitForTimeout(300);
+    const encAfter = await page.$$eval("#bench-areas .rd-lg", (xs) => xs.filter((x) => x.textContent.includes("Rethink (encoder)")).length);
+    if (encAfter !== 0) fail(`hiding the encoder lane must empty its radar rows, got ${encAfter}`);
+    else console.log("ok: the lane filter governs the area radar");
+    await page.check('#lane-filter input[data-key="instinct-encoder"]');
+    await page.waitForTimeout(300);
+  }
+
   // 10) the rig radio: derived from the fleet merge (all | M3 Max | RTX
   //     4090), default "all", governs EVERY section — tables, per-suite
   //     charts, the hero, and the provenance strip. The M3 Max scope keeps

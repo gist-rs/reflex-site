@@ -6006,7 +6006,7 @@
     }
    },
    "encoder": {
-    "lane": "Instinct (encoder)",
+    "lane": "Rethink (encoder)",
     "model": "ENC-t6s0 (laya-english encoder + NLEH v1 head)",
     "hard": {
      "n": 600,
@@ -11976,5 +11976,275 @@
     }
    }
   }
- ]
+ ],
+ "areas": {
+  "version": 1,
+  "scale": "chance-corrected accuracy: cc = (acc - chance) / (1 - chance); 0 = random guessing, 1 = every question right; per-suite chance = the mean per-question random-pick probability of the harness's own option construction (a dataset fact, not a measurement)",
+  "suites": {
+   "ag_news": {
+    "area": "language",
+    "chance": 0.25
+   },
+   "massive_intent_en": {
+    "area": "language",
+    "chance": 0.05
+   },
+   "banking77": {
+    "area": "language",
+    "chance": 0.012987
+   },
+   "sst5": {
+    "area": "sentiment",
+    "chance": 0.2
+   },
+   "emotion": {
+    "area": "sentiment",
+    "chance": 0.166667
+   },
+   "xnli_en": {
+    "area": "reasoning",
+    "chance": 0.333333
+   },
+   "prompt_injections": {
+    "area": "reasoning",
+    "chance": 0.5
+   },
+   "typed_decisions": {
+    "area": "decisions",
+    "chance": 0.3175
+   },
+   "code_fixtures": {
+    "area": "decisions",
+    "chance": 0.3125
+   }
+  },
+  "areas": [
+   {
+    "id": "language",
+    "label": "Language & intent",
+    "suites": [
+     "ag_news",
+     "massive_intent_en",
+     "banking77"
+    ]
+   },
+   {
+    "id": "sentiment",
+    "label": "Sentiment",
+    "suites": [
+     "sst5",
+     "emotion"
+    ]
+   },
+   {
+    "id": "reasoning",
+    "label": "Reasoning & safety",
+    "suites": [
+     "xnli_en",
+     "prompt_injections"
+    ]
+   },
+   {
+    "id": "decisions",
+    "label": "Decisions & code",
+    "suites": [
+     "typed_decisions",
+     "code_fixtures"
+    ]
+   }
+  ],
+  "lanes": {
+   "modelless": {
+    "display": "Reflex",
+    "color_key": "katgpt",
+    "per_suite": {
+     "ag_news": {
+      "acc": 0.8625,
+      "cc": 0.816667
+     },
+     "massive_intent_en": {
+      "acc": 0.406667,
+      "cc": 0.375439
+     },
+     "banking77": {
+      "acc": 0.402,
+      "cc": 0.394132
+     },
+     "sst5": {
+      "acc": 0.201667,
+      "cc": 0.002083
+     },
+     "emotion": {
+      "acc": 0.77,
+      "cc": 0.724
+     },
+     "xnli_en": {
+      "acc": 0.503333,
+      "cc": 0.255
+     },
+     "prompt_injections": {
+      "acc": 0.767241,
+      "cc": 0.534483
+     },
+     "typed_decisions": {
+      "acc": 0.5725,
+      "cc": 0.373626
+     },
+     "code_fixtures": {
+      "acc": 0.375,
+      "cc": 0.090909
+     }
+    },
+    "areas": {
+     "language": 0.528746,
+     "sentiment": 0.363041,
+     "reasoning": 0.394742,
+     "decisions": 0.232268
+    },
+    "index": 0.379699,
+    "coverage": {
+     "suites": 9,
+     "of": 9
+    },
+    "complete": true
+   },
+   "hybrid": {
+    "display": "Instinct (hybrid)",
+    "color_key": "instinct",
+    "per_suite": {
+     "ag_news": {
+      "acc": 0.8975,
+      "cc": 0.863333
+     },
+     "massive_intent_en": {
+      "acc": 0.826667,
+      "cc": 0.817544
+     },
+     "banking77": {
+      "acc": 0.854,
+      "cc": 0.852079
+     },
+     "sst5": {
+      "acc": 0.421667,
+      "cc": 0.277083
+     },
+     "emotion": {
+      "acc": 0.885,
+      "cc": 0.862
+     },
+     "xnli_en": {
+      "acc": 0.523333,
+      "cc": 0.285
+     },
+     "prompt_injections": {
+      "acc": 0.853448,
+      "cc": 0.706897
+     },
+     "typed_decisions": {
+      "acc": 0.6475,
+      "cc": 0.483516
+     },
+     "code_fixtures": {
+      "acc": 0.5625,
+      "cc": 0.363636
+     }
+    },
+    "areas": {
+     "language": 0.844319,
+     "sentiment": 0.569542,
+     "reasoning": 0.495949,
+     "decisions": 0.423576
+    },
+    "index": 0.583346,
+    "coverage": {
+     "suites": 9,
+     "of": 9
+    },
+    "complete": true
+   },
+   "encoder": {
+    "display": "Rethink (encoder)",
+    "color_key": "instinct-encoder",
+    "per_suite": {
+     "sst5": {
+      "acc": 0.526667,
+      "cc": 0.408333
+     }
+    },
+    "areas": {
+     "sentiment": 0.408333
+    },
+    "index": 0.408333,
+    "coverage": {
+     "suites": 1,
+     "of": 9
+    },
+    "complete": false
+   },
+   "laya": {
+    "display": "laya (rust)",
+    "color_key": "rust",
+    "per_suite": {
+     "ag_news": {
+      "acc": 0.95,
+      "cc": 0.933333,
+      "ck": "english"
+     },
+     "massive_intent_en": {
+      "acc": 0.693333,
+      "cc": 0.677193,
+      "ck": "english"
+     },
+     "banking77": {
+      "acc": 0.422,
+      "cc": 0.414395,
+      "ck": "english"
+     },
+     "sst5": {
+      "acc": 0.371667,
+      "cc": 0.214583,
+      "ck": "english"
+     },
+     "emotion": {
+      "acc": 0.5925,
+      "cc": 0.511,
+      "ck": "english"
+     },
+     "xnli_en": {
+      "acc": 0.86,
+      "cc": 0.79,
+      "ck": "english"
+     },
+     "prompt_injections": {
+      "acc": 0.698276,
+      "cc": 0.396552,
+      "ck": "english"
+     },
+     "typed_decisions": {
+      "acc": 0.7445,
+      "cc": 0.625641,
+      "ck": "typed"
+     },
+     "code_fixtures": {
+      "acc": 0.40625,
+      "cc": 0.136364,
+      "ck": "english"
+     }
+    },
+    "areas": {
+     "language": 0.674974,
+     "sentiment": 0.362791,
+     "reasoning": 0.593276,
+     "decisions": 0.381003
+    },
+    "index": 0.503011,
+    "coverage": {
+     "suites": 9,
+     "of": 9
+    },
+    "complete": true
+   }
+  },
+  "primary_host_only": true
+ }
 }

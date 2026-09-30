@@ -36,8 +36,13 @@
     { key: "instinct", label: "Instinct (hybrid)", color: "#e06ab4", match: (l) => l.lane === "Instinct (hybrid)" },
     // riir-instinct issue 014 C1: the record-only encoder arm — a paler
     // magenta beside the hybrid slot (the same instinct family, the
-    // measured-but-refused read: serve ✗).
-    { key: "instinct-encoder", label: "Instinct (encoder)", color: "#b895d0", match: (l) => l.lane === "Instinct (encoder)" },
+    // measured-but-refused read: serve ✗). Display spelling per the
+    // riir-instinct naming law (riir-ai Proposal 051): "Rethink
+    // (encoder)" — the lane KEY never changes, and the match keeps the
+    // legacy spelling so an un-re-published bench.json still renders. Its
+    // results are still 1/9 suites — tracked in reflex-site .issues until
+    // 051 Phase 1 + encoder serving results land.
+    { key: "instinct-encoder", label: "Rethink (encoder)", color: "#b895d0", match: (l) => l.lane === "Rethink (encoder)" || l.lane === "Instinct (encoder)" },
     // The OpenThai comparison lane (reflex Plan 003): red slot, distinct
     // from the seven existing hues under the same dark-surface ≥3:1
     // contrast rule (~5:1 measured against #140b08 / #1d110c).
@@ -132,7 +137,7 @@
       rerender();
     };
   }
-  window.BenchFilter = { init, visible, bar, wire };
+  window.BenchFilter = { init, visible, visibleKey, bar, wire, ready: () => filter.ready };
 
   // ── rig scope (one radio group; governs every chart + table on the page) ──
   // The fleet merge publishes extra hosts beside the primary run; the rig
@@ -216,6 +221,21 @@
   const METRICS = {
     acc: { label: "accuracy", get: accOf, log: false },
     acc50: { label: "acc@50% coverage", get: (l) => (l.hard || {}).acc_at_50_coverage, log: false },
+    // Chance-corrected accuracy — cc = (acc − chance) / (1 − chance), the
+    // same scale the /bench/ area radar rolls up (data.areas). 0 = random
+    // guessing on that suite's option count, so suites with different
+    // option counts (4-way ag_news vs 77-way banking77) finally share an
+    // axis. The chances ride data.areas.suites (publish_bench.py — dataset
+    // facts, not measurements); a suite with no entry is skipped, never
+    // guessed.
+    cc: {
+      label: "chance-corrected acc",
+      get: (l, s) => {
+        const a = accOf(l), ch = chanceOf(s);
+        return num(a) && num(ch) ? (a - ch) / (1 - ch) : null;
+      },
+      log: false,
+    },
     p50: { label: "p50 latency", get: (l) => l.latency_p50_ms, log: true },
   };
 
@@ -249,6 +269,7 @@
   const TAIL_FLOOR = 0.12;
   let latBroken = false, latMax = BREAK_AT;
   function setLogDomain(d) {
+    areasBlock = (d && d.areas) || null;
     const vs = [];
     for (const s of d.suites || [])
       for (const [l] of scopedPairs(s)) if (num(l.latency_p50_ms) && l.latency_p50_ms > 0) vs.push(l.latency_p50_ms);
@@ -293,6 +314,14 @@
   };
 
   // Primary-host lanes first, then the fleet merge's extra_host_lanes (tagged).
+  // The data's area-rollup block (publish_bench.py compute_areas) — the
+  // chance baselines the cc metric reads. Set by setLogDomain (both the
+  // home figure and the bench hero call it before any render).
+  let areasBlock = null;
+  function chanceOf(s) {
+    const sm = areasBlock && areasBlock.suites;
+    return s && sm && sm[s.name] ? sm[s.name].chance : null;
+  }
   function allLanes(s) {
     const out = [];
     if (s.modelless) out.push(s.modelless);
@@ -630,7 +659,7 @@
       const picked = pick(s, lane);
       const l = picked ? picked[0] : null;
       if (!l) continue;
-      const v = METRICS[m].get(l);
+      const v = METRICS[m].get(l, s);
       if (!num(v) || (METRICS[m].log && v <= 0)) continue;
       vals.push(v);
       perSuite.push([s.name, v]);
@@ -685,7 +714,9 @@
       ? (latBroken
         ? `Band = min → max suite p50; tick = geometric mean; log to ${lat(BREAK_AT)}, then a compressed tail past the break sign — exact values on the tooltip. Shorter is faster. `
         : "Band = min → max suite p50; tick = geometric mean; each gridline 10×, shorter is faster. ")
-      : "Band = min → max suite accuracy; tick = macro-average; chance differs per suite — compare lanes, not suites. ") +
+      : m === "cc"
+        ? "Band = min → max suite chance-corrected accuracy; tick = macro-average; 0% = random guessing on that suite's option count (the same scale as the area radar), so suites compare — bars clip at the 0% chance line, tooltips carry exact values. "
+        : "Band = min → max suite accuracy; tick = macro-average; chance differs per suite — compare lanes, not suites. ") +
       `Rows sorted ${M.log ? "fastest" : "best"} average first. ` +
       `Over ${(d.suites || []).length} published suites — hover a bar for per-suite values.`;
     return `<div class="bc-hgrid"><div></div>${axis(m)}${rows}<div></div>${axis(m)}</div><p class="bc-note">${esc(note)}</p>`;
@@ -724,6 +755,151 @@
     if (ctrl) for (const b of ctrl.querySelectorAll("button[data-sort]")) b.setAttribute("aria-pressed", b.dataset.sort === suiteSort);
   }
 
-  window.BenchCharts = { hero, suite, setLogDomain, summary, suiteSortControl, setSuiteSort, setPrimaryHost, lat, accOf };
+  // ── the area radar (the /bench/ decision-index cards) ────────────────
+  // Renders data.areas — publish_bench.py's compute_areas block (the
+  // derived rollups ride the published bench.json; the page never
+  // re-derives them). Two cards, the leaderboard's shape: "All areas"
+  // (one spoke per area, each the lane's mean chance-corrected score over
+  // the area's benchmarks; the index is the mean of the spokes) and "All
+  // benchmarks" (one spoke per suite). Chance-corrected so a 4-way and a
+  // 77-way suite share a radius: 0 = random guessing, 1 = every question
+  // right. Lanes honor the lane filter; the rollups are primary-host rows
+  // (disclosed in the card note). A partial lane (the Rethink encoder
+  // arm, 1/9) draws only its measured spokes — missing suites are gaps,
+  // never zeros dressed as data.
+  const AREA_LANE_KEYS = { modelless: "katgpt", hybrid: "instinct", encoder: "instinct-encoder", laya: "rust" };
+
+  function radarLaneRows(A) {
+    return Object.entries(A.lanes).map(([key, ld]) => {
+      const meta = LANES.find((x) => x.key === (AREA_LANE_KEYS[key] || key)) || OTHER;
+      return { key, meta, label: ld.display || meta.label, color: meta.color, data: ld };
+    }).filter((l) => !(window.BenchFilter && window.BenchFilter.ready()) || window.BenchFilter.visibleKey(l.meta.key));
+  }
+
+  function radarSvg(spokes, laneRows, valuesOf, tipOf, ariaOf) {
+    const n = spokes.length;
+    const W = 430, H = 344, cx = 215, cy = 172, R = 112;
+    const f2 = (v) => (+v).toFixed(2);
+    const pt = (i, r) => {
+      const a = ((-90 + (i * 360) / n) * Math.PI) / 180;
+      return [cx + r * Math.cos(a), cy + r * Math.sin(a)];
+    };
+    let out = `<svg class="rd-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="radar chart, ${esc(String(n))} spokes">`;
+    for (const f of [0.25, 0.5, 0.75, 1]) {
+      const pts = spokes.map((_, i) => pt(i, f * R).map(f2).join(",")).join(" ");
+      out += `<polygon class="rd-ring${f === 1 ? " rd-ring-outer" : ""}" points="${pts}"/>`;
+    }
+    for (let i = 0; i < n; i++) {
+      const [x, y] = pt(i, R);
+      out += `<line class="rd-spoke" x1="${cx}" y1="${cy}" x2="${f2(x)}" y2="${f2(y)}"/>`;
+    }
+    spokes.forEach((label, i) => {
+      const a = ((-90 + (i * 360) / n) * Math.PI) / 180;
+      const c = Math.cos(a);
+      const [x, y] = pt(i, R + 14);
+      const anchor = c > 0.35 ? "start" : c < -0.35 ? "end" : "middle";
+      out += `<text class="rd-label" x="${f2(x)}" y="${f2(y + 3.5)}" text-anchor="${anchor}">${esc(String(label))}</text>`;
+    });
+    for (const lane of laneRows) {
+      const measured = [];
+      valuesOf(lane).forEach((v, i) => {
+        if (!num(v)) return;
+        measured.push([i, pt(i, Math.max(0, Math.min(1, v)) * R)]);
+      });
+      if (measured.length >= 3) {
+        const d = measured.map(([, p], j) => `${j ? "L" : "M"}${f2(p[0])},${f2(p[1])}`).join("") +
+          (measured.length === n ? "Z" : "");
+        out += `<path class="rd-poly" d="${d}" style="stroke:${lane.color};fill:${lane.color}"/>`;
+      } else if (measured.length === 2) {
+        const [[, p1], [, p2]] = measured;
+        out += `<line class="rd-polyline" x1="${f2(p1[0])}" y1="${f2(p1[1])}" x2="${f2(p2[0])}" y2="${f2(p2[1])}" style="stroke:${lane.color}"/>`;
+      }
+      for (const [i, p] of measured) {
+        out += `<circle class="rd-dot" cx="${f2(p[0])}" cy="${f2(p[1])}" r="3.2" style="fill:${lane.color}"` +
+          ` data-tip="${esc(tipOf(lane, i))}" tabindex="0" aria-label="${esc(ariaOf(lane, i))}"/>`;
+      }
+    }
+    return out + "</svg>";
+  }
+
+  function radarLegend(laneRows, scoreOf, partialNote) {
+    return laneRows.map((lane) => {
+      const partial = lane.data.complete === false;
+      return `<div class="rd-lg">` +
+        `<i class="bc-sw" style="background:${lane.color}"></i>` +
+        `<b>${esc(lane.label)}</b>` +
+        `<span class="rd-lg-idx">${num(scoreOf(lane)) ? pct(scoreOf(lane)) : "—"}</span>` +
+        `<span class="bc-mut">${lane.data.coverage ? `${lane.data.coverage.suites}/${lane.data.coverage.of}` : ""}` +
+        (partial ? ` · partial — results pending (${esc(partialNote)})` : "") +
+        `</span></div>`;
+    }).join("");
+  }
+
+  function areas(d, el) {
+    if (!el) return;
+    const A = d && d.areas;
+    if (!A || !A.areas || !A.lanes || !A.suites) {
+      el.innerHTML = "<p class=\"bc-note\">area rollups are not in this bench.json yet — re-publish with the compute_areas-capable publish_bench.py</p>";
+      return;
+    }
+    tooltip();
+    setPrimaryHost(d.meta && d.meta.host);
+    const laneRows = radarLaneRows(A);
+    const chanceTxt = (name) => (A.suites[name] ? pct(A.suites[name].chance) : "?");
+    // card 1 — one spoke per area
+    const areaDefs = A.areas;
+    const areaVals = (lane) => areaDefs.map((a) => {
+      const v = lane.data.areas ? lane.data.areas[a.id] : undefined;
+      return v === undefined ? null : v;
+    });
+    const areaTip = (lane, i) => {
+      const a = areaDefs[i];
+      const rows = a.suites.map((name) => {
+        const e = lane.data.per_suite[name];
+        return e ? `${esc(name)}: <b>${pct(e.acc)}</b> raw` : `${esc(name)}: not run`;
+      }).join("<br>");
+      return `<span class="bc-sw" style="background:${lane.color}"></span><b>${esc(lane.label)}</b> · ${esc(a.label)}<br>` +
+        `area score ${num((lane.data.areas || {})[a.id]) ? pct(lane.data.areas[a.id]) : "—"} (chance-corrected mean)<br>` +
+        `<span class="bc-mut">${rows}</span>`;
+    };
+    const areaAria = (lane, i) =>
+      `${lane.label} ${areaDefs[i].label}: ${num((lane.data.areas || {})[areaDefs[i].id]) ? pct(lane.data.areas[areaDefs[i].id]) : "not run"}`;
+    // card 2 — one spoke per benchmark (data.areas.suites insertion order)
+    const suiteNames = Object.keys(A.suites);
+    const suiteVals = (lane) => suiteNames.map((name) => {
+      const e = lane.data.per_suite[name];
+      return e ? e.cc : null;
+    });
+    const suiteTip = (lane, i) => {
+      const name = suiteNames[i];
+      const e = lane.data.per_suite[name];
+      if (!e) return `<span class="bc-sw" style="background:${lane.color}"></span><b>${esc(lane.label)}</b> · ${esc(name)}<br>not run`;
+      return `<span class="bc-sw" style="background:${lane.color}"></span><b>${esc(lane.label)}</b> · ${esc(name)}${e.ck ? ` <span class="bc-mut">(${esc(e.ck)} checkpoint)</span>` : ""}<br>` +
+        `chance-corrected <b>${pct(e.cc)}</b> · accuracy <b>${pct(e.acc)}</b> (chance ${chanceTxt(name)})`;
+    };
+    const suiteAria = (lane, i) => {
+      const name = suiteNames[i];
+      const e = lane.data.per_suite[name];
+      return `${lane.label} ${name}: ${e ? pct(e.cc) + " chance-corrected" : "not run"}`;
+    };
+    const laneMean = (lane) => {
+      const vs = suiteNames.map((name) => (lane.data.per_suite[name] || {}).cc).filter(num);
+      return vs.length ? vs.reduce((a, v) => a + v, 0) / vs.length : null;
+    };
+    const partialNote = "see the Instinct section";
+    el.innerHTML =
+      `<div class="area-cards">` +
+      `<div class="area-card"><h3>All areas <span class="bc-mut">· decision index</span></h3>` +
+      radarSvg(areaDefs.map((a) => a.label), laneRows, areaVals, areaTip, areaAria) +
+      `<div class="rd-legend">${radarLegend(laneRows, (l) => l.data.index, partialNote)}</div>` +
+      `<p class="bc-note">${esc("One spoke per area — the lane's mean chance-corrected score over the area's benchmarks; the index is the mean of the spokes. " + A.scale + ". Primary-host rows.")}</p></div>` +
+      `<div class="area-card"><h3>All benchmarks <span class="bc-mut">· ${esc(String(suiteNames.length))} spokes</span></h3>` +
+      radarSvg(suiteNames, laneRows, suiteVals, suiteTip, suiteAria) +
+      `<div class="rd-legend">${radarLegend(laneRows, laneMean, partialNote)}</div>` +
+      `<p class="bc-note">${esc(`One spoke per benchmark (${suiteNames.length}), chance-corrected — hover a point for the raw accuracy. A partial lane draws only its measured spokes; gaps are unmeasured, never zero. Primary-host rows.`)}</p></div>` +
+      `</div>`;
+  }
+
+  window.BenchCharts = { hero, suite, setLogDomain, summary, areas, suiteSortControl, setSuiteSort, setPrimaryHost, lat, accOf };
   window.BenchRig.scoped = scopedPairs;
 })();

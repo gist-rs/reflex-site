@@ -127,4 +127,46 @@ toggle.handlers.click({
 const oldStyle = /<i style="width:[\d.]+%;background:/.test(captured[".bc-summary-body"].innerHTML);
 if (oldStyle) { console.error("FAIL: legacy fill-only bar still rendered"); process.exit(1); }
 
-console.log(`chart render smoke PASS (p50: ${p50.bands} bands / ${p50.labels} lanes, broken at 500 ms; acc: ${acc.bands} bands / ${acc.labels} lanes)`);
+toggle.handlers.click({
+  target: { closest: (s) => (s === "button[data-metric]" ? { dataset: { metric: "cc" } } : null) },
+});
+const cc = checkMetric("cc", ".bc-summary-body");
+const ccHtml = captured[".bc-summary-body"].innerHTML;
+if (!ccHtml.includes("random guessing")) {
+  console.error("FAIL[cc]: the chance-corrected note is missing");
+  process.exit(1);
+}
+if (!/data-metric="cc"/.test(captured["summary"].innerHTML)) {
+  console.error("FAIL[cc]: no chance-corrected metric button rendered");
+  process.exit(1);
+}
+console.log(`[cc] ${cc.bands} bands / ${cc.labels} lanes, note names the chance baseline`);
+
+// The area radar (the /bench/ decision-index cards): renders data.areas —
+// two cards (4 area spokes + 9 benchmark spokes), a polygon per complete
+// lane, measured-dots-only for the partial encoder lane, and legend rows
+// naming coverage (the 1/9 partial disclosure).
+const areaEl = fakeEl("areas");
+window.BenchCharts.areas(d, areaEl);
+const aHtml = captured["areas"].innerHTML;
+if (!aHtml.includes("<svg") || !aHtml.includes("rd-poly")) {
+  console.error("FAIL[radar]: no radar svg/polygons rendered");
+  process.exit(1);
+}
+const polys = (aHtml.match(/class="rd-poly"/g) || []).length;
+const dots = (aHtml.match(/class="rd-dot"/g) || []).length;
+const legends = (aHtml.match(/class="rd-lg"/g) || []).length;
+if (polys < 3) { console.error(`FAIL[radar]: expected >=3 lane polygons (modelless/hybrid/laya complete), got ${polys}`); process.exit(1); }
+if (legends !== 8) { console.error(`FAIL[radar]: expected 8 legend rows (4 lanes x 2 cards), got ${legends}`); process.exit(1); }
+if (!aHtml.includes("1/9") || !aHtml.includes("Rethink (encoder)")) {
+  console.error("FAIL[radar]: the partial-lane disclosure (Rethink encoder 1/9) is missing");
+  process.exit(1);
+}
+// encoder (1 measured suite) must draw DOTS but NO polygon on either card
+if ((aHtml.match(/rd-polyline/g) || []).length !== 0) {
+  console.error("FAIL[radar]: a 1-point lane drew a polyline");
+  process.exit(1);
+}
+console.log(`[radar] ${polys} polygons, ${dots} dots, 2 cards, ${legends} legend rows, partial lane disclosed`);
+
+console.log(`chart render smoke PASS (p50: ${p50.bands} bands / ${p50.labels} lanes, broken at 500 ms; acc: ${acc.bands} bands / ${acc.labels} lanes; cc: ${cc.bands} bands; radar: ${polys} polys / ${dots} dots)`);
