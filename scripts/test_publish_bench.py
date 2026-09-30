@@ -1521,6 +1521,137 @@ def case_wall_judges_a_quotable_update_over_an_unfit_incumbent():
         "a suppressed carry publishes the update's own timing — the wall must judge it"
 
 
+def case_corpus_digest_gates_the_carry():
+    """Issue 057: a corpus change (the typed 800→1200-row lift — question
+    set byte-identical, so the population reset cannot fire) must not
+    carry the incumbent timing: both cells carry corpus_digest and they
+    differ, carrying would re-attach stale timing by construction.
+    Digest-EQUAL still carries (same corpus — the law's normal case), and
+    a digest missing on either side still carries (adoption-stable: the
+    served incumbent predates the stamp; the one-time ack retires it)."""
+    def run(inc_dg, upd_dg):
+        primary = doc("m3", "sha-base", {"s1": {"modelless_acc": 0.5}})
+        primary["meta"]["hosts"] = [{"host": "m3-max-metal"}]
+        primary["suites"][0]["modelless"]["latency_p50_ms"] = 0.517
+        if inc_dg is not None:
+            primary["suites"][0]["modelless"]["corpus_digest"] = inc_dg
+        upd = doc("m3", "sha-lift", {"s1": {"modelless_acc": 0.7}})
+        upd["suites"][0]["modelless"]["latency_p50_ms"] = 0.764
+        if upd_dg is not None:
+            upd["suites"][0]["modelless"]["corpus_digest"] = upd_dg
+        pb.rename_hosts(primary); pb.rename_hosts(upd)
+        return merge_refusing(primary, upd)
+
+    # equal digests -> the carry still fires (same corpus, the normal case)
+    merged, err = run("pool-a", "pool-a")
+    assert merged is not None, err
+    cell = merged["suites"][0]["modelless"]
+    assert cell["latency_p50_ms"] == 0.517, "same corpus still carries"
+    assert cell["corpus_digest"] == "pool-a"  # the carried cell keeps its own digest
+
+    # digests differ -> no carry; the fresh timing stands + loud note
+    merged, err = run("pool-a", "pool-b")
+    assert merged is not None, err
+    cell = merged["suites"][0]["modelless"]
+    assert cell["latency_p50_ms"] == 0.764, \
+        "a corpus change must never re-attach the incumbent's stale timing"
+    assert cell["hard"]["accuracy"] == 0.7
+    assert "corpus_digest differs" in err, "the suppression is loud"
+    assert "latency_provenance" not in cell, "the fresh timing is the update's own"
+
+    # incumbent has no digest (the served shape today) -> adoption-stable carry
+    merged, err = run(None, "pool-b")
+    assert merged is not None, err
+    assert merged["suites"][0]["modelless"]["latency_p50_ms"] == 0.517, \
+        "a digest-less incumbent still carries — the ack is the retirement path"
+
+    # update has no digest -> same
+    merged, err = run("pool-a", None)
+    assert merged is not None, err
+    assert merged["suites"][0]["modelless"]["latency_p50_ms"] == 0.517
+
+
+def case_wall_judges_a_corpus_changed_slot():
+    """Issue 057 verdict correction 2: the publish wall reads the SAME
+    predicate, so a corpus-mismatch slot is JUDGED instead of
+    assumed-carried — an unquotable update on a changed corpus can no
+    longer dodge the wall as 'will be carried' and then not be carried."""
+    primary = doc("m3", "sha-base", {"s1": {"modelless_acc": 0.5}})
+    primary["meta"]["hosts"] = [{"host": "m3-max-metal"}]
+    primary["suites"][0]["modelless"]["latency_p50_ms"] = 1.0
+    primary["suites"][0]["modelless"]["corpus_digest"] = "pool-a"
+    pb.rename_hosts(primary)
+    extra = doc("m3", "sha-loaded", {"s1": {"modelless_acc": 0.5}})
+    extra["meta"]["box_state"] = _box(False, False)
+    extra["suites"][0]["modelless"]["latency_p50_ms"] = 9.0
+    extra["suites"][0]["modelless"]["corpus_digest"] = "pool-b"
+    pb.rename_hosts(extra)
+    incumbent = copy.deepcopy(primary)
+    for row in incumbent["suites"]:
+        row["_phost"] = "m3-max-metal"
+    assert pb._latency_slots(extra, incumbent) == ["modelless@m3-max-metal/s1"], \
+        "a corpus-changed slot is judged by the wall, never assumed-carried"
+    # ...and the digest-equal shape keeps its exemption (the carry will
+    # replace the timing, so the update's own never reaches the page).
+    extra["suites"][0]["modelless"]["corpus_digest"] = "pool-a"
+    assert pb._latency_slots(extra, incumbent) == [], \
+        "a same-corpus carried lane stays exempt from the wall"
+
+
+def case_corpus_reset_ack_exempts_and_fires():
+    """The one-time ack: a named suite is exempt from the carry regardless
+    of digest state (the incumbent has no digest — that is the point), the
+    update's own timing publishes, and the fire is loud."""
+    primary = doc("m3", "sha-base", {"s1": {"modelless_acc": 0.5}})
+    primary["meta"]["hosts"] = [{"host": "m3-max-metal"}]
+    primary["suites"][0]["modelless"]["latency_p50_ms"] = 0.517
+    # no corpus_digest on the incumbent — the exact served shape
+    pb.rename_hosts(primary)
+    upd = doc("m3", "sha-lift", {"s1": {"modelless_acc": 0.7}})
+    upd["suites"][0]["modelless"]["latency_p50_ms"] = 0.764
+    upd["suites"][0]["modelless"]["corpus_digest"] = "pool-b"
+    pb.rename_hosts(upd)
+    restore = _with_env(PUBLISH_BENCH_CORPUS_RESET="s1")
+    try:
+        merged, err = merge_refusing(primary, upd)
+    finally:
+        restore()
+    assert merged is not None, err
+    cell = merged["suites"][0]["modelless"]
+    assert cell["latency_p50_ms"] == 0.764, "the acked suite's fresh timing publishes"
+    assert "PUBLISH_BENCH_CORPUS_RESET — s1 exempt" in err
+
+
+def case_corpus_reset_stale_ack_refuses():
+    """An ack cannot outlive the corpus change it was written for:
+    - an update cell with NO corpus_digest refuses (no post-landing run);
+    - an update whose digest EQUALS the incumbent's refuses (nothing changed);
+    - a suite that publishes nowhere in this run refuses."""
+    def run(ack, inc_dg, upd_dg, suite="s1"):
+        primary = doc("m3", "sha-base", {"s1": {"modelless_acc": 0.5}})
+        primary["meta"]["hosts"] = [{"host": "m3-max-metal"}]
+        primary["suites"][0]["modelless"]["latency_p50_ms"] = 1.0
+        if inc_dg is not None:
+            primary["suites"][0]["modelless"]["corpus_digest"] = inc_dg
+        upd = doc("m3", "sha-lift", {"s1": {"modelless_acc": 0.7}})
+        upd["suites"][0]["modelless"]["latency_p50_ms"] = 2.0
+        if upd_dg is not None:
+            upd["suites"][0]["modelless"]["corpus_digest"] = upd_dg
+        pb.rename_hosts(primary); pb.rename_hosts(upd)
+        restore = _with_env(PUBLISH_BENCH_CORPUS_RESET=ack)
+        try:
+            return merge_refusing(primary, upd)
+        finally:
+            restore()
+
+    merged, err = run("s1", "pool-a", None)
+    assert merged is None and "carries no" in err and "corpus_digest" in err, err
+    merged, err = run("s1", "pool-a", "pool-a")
+    assert merged is None and "already" in err and "equals" in err, err
+    merged, err = run("s2", "pool-a", "pool-b")
+    assert merged is None and "s2" in err and "no such suite" in err, err
+
+
 def case_source_run_stamp_is_per_suite():
     """Issue-003 T4: a one-suite update re-labels the host row's
     lane_sources for the whole lane CLASS — the summary cannot be a
@@ -1688,6 +1819,10 @@ CASES = [
     case_carry_still_serves_an_unquotable_update,
     case_carry_still_serves_an_unjudged_update,
     case_wall_judges_a_quotable_update_over_an_unfit_incumbent,
+    case_corpus_digest_gates_the_carry,
+    case_wall_judges_a_corpus_changed_slot,
+    case_corpus_reset_ack_exempts_and_fires,
+    case_corpus_reset_stale_ack_refuses,
     case_source_run_stamp_is_per_suite,
     case_source_run_stamp_survives_remerge_and_digest_wins,
     case_pre_stamp_cells_still_fall_back_to_lane_sources,

@@ -81,6 +81,23 @@ named suite the extras do not carry, or one whose population already
 matches, exits 1 — an acknowledgement cannot outlive the population change
 it was written for.
 
+PUBLISH_BENCH_CORPUS_RESET="<suite>[,<suite>]" (2026-09-30, reflex Issue 057,
+the corpus-axis companion of the population reset): a suite whose CORPUS
+pool changed without its question set changing (the typed_decisions
+800→1200-row lift — the exact specimen) has no population mismatch for the
+reset above, so LANE_CARRY would carry the incumbent timing forever. The
+carry law gains a corpus-mismatch exemption (both cells carry
+`corpus_digest` and they differ — carrying would re-attach stale timing by
+construction; the `corpus_digest` stamp rides the modelless CELL, the
+cases_digest pattern, and is hashed by the harness over the pool it
+ACTUALLY timed, reflex `7e03117`). Missing digests on either side are NOT
+an exemption (adoption-stable — the served incumbent predates the stamp),
+which is what this one-time ack retires: a named suite is exempt from the
+carry regardless of digest state, and the ack REFUSES stale — a named suite
+absent from the publish, one whose update cell carries no corpus_digest, or
+one whose digest already EQUALS the incumbent's exits 1. The republish
+comes from a NEW post-landing run on a fit box.
+
 Docs apply in argv order. The first doc's suites shape the tables (run the
 superset run first). A previously-published data/bench.json is a valid
 primary for a re-publish (its meta.hosts seed the seen-host set) — and since
@@ -425,10 +442,19 @@ def stamp_cell(cell, suite, meta=None):
     CELL, beside the timing it describes, so a LANE_CARRY replaces both
     together (_carry_into) and no row-level field can pair one run's
     verdict with another run's numbers. The run's own identity rides the
-    cell too (`source_run`, Issue-003 T4): lane_sources is keyed per
+    too (`source_run`, Issue-003 T4): lane_sources is keyed per
     (host, lane CLASS), so a one-suite update re-labels every suite's
     source there — the cell stamp is the per-suite truth lane_identity
-    reads first, and lane_sources stays a host-row summary."""
+    reads first, and lane_sources stays a host-row summary.
+
+    Issue 057: the `corpus_digest` rides the modelless CELL by the same
+    per-cell law — it arrives on the results.json lane dict verbatim
+    (reflex `7e03117` hashes the pool the harness ACTUALLY timed) and
+    survives merge by reference; laya cells never carry one. No synthesis
+    here: the carry comparison (carry_applies) reads cells, never rows,
+    because extra_host_lanes slots can come from runs on a different
+    corpus and a row-level comparison answers wrong for every non-primary
+    host."""
     if not isinstance(cell, dict):
         return
     if suite.get("cases_digest"):
@@ -922,6 +948,47 @@ def merge(primary, extras):
     return primary
 
 
+def corpus_reset_set():
+    """The PUBLISH_BENCH_CORPUS_RESET ack set (Issue 057) — the named
+    suites are exempt from LANE_CARRY regardless of digest state (their
+    incumbents predate the corpus_digest stamp; that is the point)."""
+    env = os.environ.get("PUBLISH_BENCH_CORPUS_RESET", "")
+    return {x.strip() for x in env.split(",") if x.strip()}
+
+
+def carry_applies(src_lane, target_cell, update_quotable, suite_name=""):
+    """True when the incumbent timing must replace the update's, per the
+    LANE_CARRY law. The ONE vocabulary both the carry loop
+    (apply_lane_carry) and the publish wall (_latency_slots) read, so an
+    exempted carry can never leak an unjudged slot past the wall (Issue 057
+    verdict correction 2). Exemptions, checked in order:
+
+    - same source run (re-stamp would fabricate provenance);
+    - unfit incumbent + quotable update (Issue-003 T2);
+    - corpus mismatch: BOTH cells carry `corpus_digest` and they differ —
+      carrying would re-attach stale timing by construction (Issue 057;
+      the stamp rides the modelless CELL, the cases_digest pattern,
+      hashed by the harness over the pool it actually timed). A named
+      `suite_name` in the PUBLISH_BENCH_CORPUS_RESET ack is exempt from
+      the carry outright (digest state irrelevant — the ack exists
+      exactly for the digest-less incumbent).
+
+    Missing digests on either side are NOT an exemption (adoption-stable;
+    the one-time ack retires the stale incumbent)."""
+    if suite_name and suite_name in corpus_reset_set():
+        return False
+    tsr = (target_cell or {}).get("source_run")
+    if tsr is not None and tsr == (src_lane or {}).get("source_run"):
+        return False
+    if carry_beats_incumbent(src_lane, update_quotable):
+        return False
+    sd = (src_lane or {}).get("corpus_digest")
+    td = (target_cell or {}).get("corpus_digest")
+    if sd is not None and td is not None and sd != td:
+        return False
+    return True
+
+
 def apply_lane_carry(d, incumbent_snapshot, extras):
     """The LANE-CARRY law (LANE_CARRY, Issue 032, owner call 2026-09-26):
     an updated lane of a carried class keeps its fresh ACCURACY columns but
@@ -931,9 +998,16 @@ def apply_lane_carry(d, incumbent_snapshot, extras):
     its extra_host_lanes cover every host the publish knew before this
     run). Without this law a lane-scoped update would silently replace
     validated latency cells with box-invalidated ones — the accuracy
-    bit-identity gate cannot see timing."""
+    bit-identity gate cannot see timing.
+
+    Issue 057: the corpus-mismatch exemption (carry_applies) plus the
+    one-time PUBLISH_BENCH_CORPUS_RESET ack, whose staleness is adjudicated
+    HERE (after the merge, before anything is written)."""
     reset_env = os.environ.get("PUBLISH_BENCH_POPULATION_RESET", "")
     population_reset = {x.strip() for x in reset_env.split(",") if x.strip()}
+    corpus_reset = corpus_reset_set()
+    corpus_fired = set()
+    phost = display_host((d.get("meta") or {}).get("host") or "(primary)")
     for s in d.get("suites", []):
         if s["name"] in population_reset:
             # A population-reset row's incumbent timing measured the OLD
@@ -946,11 +1020,49 @@ def apply_lane_carry(d, incumbent_snapshot, extras):
                 file=sys.stderr,
             )
             continue
+        if s["name"] in corpus_reset:
+            # The Issue-057 ack: exempt regardless of digest state, but the
+            # ack must EARN its keep — the update cell must carry a fresh
+            # corpus_digest that is not already the incumbent's (an ack
+            # cannot outlive the corpus change it was written for).
+            snap0 = next((r for r in incumbent_snapshot.get("suites", [])
+                          if r["name"] == s["name"]), None)
+            inc0 = _host_lane_slot(snap0, phost, "modelless") if snap0 else None
+            upd0 = s.get("modelless") or {}
+            up_dg = upd0.get("corpus_digest")
+            inc_dg = (inc0 or {}).get("corpus_digest")
+            if up_dg is None:
+                print(
+                    f"⛔ refusing: PUBLISH_BENCH_CORPUS_RESET names "
+                    f"{s['name']}, but its update cell carries no "
+                    "corpus_digest — the republish must come from a NEW "
+                    "post-landing harness run (reflex 7e03117 stamps it); "
+                    "drop the stale ack",
+                    file=sys.stderr,
+                )
+                sys.exit(1)
+            if inc_dg is not None and up_dg == inc_dg:
+                print(
+                    f"⛔ refusing: PUBLISH_BENCH_CORPUS_RESET names "
+                    f"{s['name']}, but its update corpus_digest already "
+                    "equals the incumbent's — the ack cannot outlive the "
+                    "corpus change it was written for; drop the stale ack",
+                    file=sys.stderr,
+                )
+                sys.exit(1)
+            print(
+                f"note: PUBLISH_BENCH_CORPUS_RESET — {s['name']} exempt "
+                "from LANE_CARRY latency (the incumbent timing measured the "
+                "old corpus pool; the update's own timing publishes, stamped "
+                f"corpus_digest {str(up_dg)[:12]})",
+                file=sys.stderr,
+            )
+            corpus_fired.add(s["name"])
+            continue
         snap = next((r for r in incumbent_snapshot.get("suites", [])
                      if r["name"] == s["name"]), None)
         if snap is None:
             continue
-        phost = display_host((d.get("meta") or {}).get("host") or "(primary)")
         for lane_key in LANE_CARRY["latency"]:
             for host, target in _host_lane_slots(s, lane_key, phost):
                 src_lane = _host_lane_slot(snap, host, lane_key)
@@ -964,18 +1076,45 @@ def apply_lane_carry(d, incumbent_snapshot, extras):
                 # (a real update) is eligible for the carry.
                 if target.get("source_run") == src_lane.get("source_run"):
                     continue
-                if carry_beats_incumbent(src_lane, target.get("latency_quotable")):
-                    print(
-                        f"note: LANE_CARRY suppressed — {lane_key}@{host}/"
-                        f"{s['name']}: the incumbent timing is judged NOT "
-                        "QUOTABLE and this update's own timing is quotable; "
-                        "the fresh timing publishes (Issue-003 T2 — a carry "
-                        "that kept the unfit incumbent would defeat the "
-                        "law's own purpose)",
-                        file=sys.stderr,
-                    )
+                if not carry_applies(src_lane, target,
+                                     target.get("latency_quotable"),
+                                     suite_name=s["name"]):
+                    if carry_beats_incumbent(src_lane,
+                                             target.get("latency_quotable")):
+                        print(
+                            f"note: LANE_CARRY suppressed — {lane_key}@{host}/"
+                            f"{s['name']}: the incumbent timing is judged NOT "
+                            "QUOTABLE and this update's own timing is quotable; "
+                            "the fresh timing publishes (Issue-003 T2 — a carry "
+                            "that kept the unfit incumbent would defeat the "
+                            "law's own purpose)",
+                            file=sys.stderr,
+                        )
+                    else:
+                        print(
+                            f"note: LANE_CARRY suppressed — {lane_key}@{host}/"
+                            f"{s['name']}: the update's corpus_digest differs "
+                            "from the incumbent's; carrying would re-attach "
+                            "stale timing by construction (Issue 057). When "
+                            "the exemption fires on an unquotable update, the "
+                            "cell keeps its own latency_quotable: false stamp "
+                            "and the publish wall refuses it — a stale timing "
+                            "that looks quotable must not quietly become a "
+                            "fresh one that is unjudged",
+                            file=sys.stderr,
+                        )
                     continue
                 _carry_into(target, src_lane)
+    stale_corpus = corpus_reset - corpus_fired
+    if stale_corpus:
+        print(
+            f"⛔ refusing: PUBLISH_BENCH_CORPUS_RESET names "
+            f"{', '.join(sorted(stale_corpus))}, but no such suite publishes "
+            "in this run — a reset ack cannot outlive the corpus change it "
+            "was written for",
+            file=sys.stderr,
+        )
+        sys.exit(1)
 
 
 def _host_lane_slots(suite, lane_key, phost):
@@ -1227,7 +1366,13 @@ def _latency_slots(d, incumbent=None):
                     continue
                 if snap is not None and k in LANE_CARRY["latency"]:
                     src = _host_lane_slot(snap, host, k)
-                    if src is not None and not carry_beats_incumbent(src, doc_q):
+                    # Issue 057: the SAME predicate the carry loop reads —
+                    # a corpus-mismatch slot (or an acked suite's slot) is
+                    # JUDGED by the wall instead of assumed-carried, so an
+                    # unquotable update on a changed corpus can never dodge
+                    # the wall as "will be carried" and then not be carried.
+                    if src is not None and carry_applies(src, cell, doc_q,
+                                                         suite_name=s["name"]):
                         continue
                 label = k if ck is None else f"laya:{ck}"
                 out.append(f"{label}@{host}/{s['name']}")
