@@ -266,8 +266,11 @@
         (acc@50cov, abstain / sel-acc) — not raw accuracy against a neural model.</p>
       <p>Where the gap was the scorer rather than the domain, it closes. Per-label count tables (naive-Bayes log-odds
         over the train rows, plus a sentence-pair view for premise/hypothesis tasks) are cal-selected per suite, and
-        the test split is read once. That took several suites to or past the laya lanes at the same sub-millisecond
-        latency (riir-reflex Bench 051). The test split never enters a corpus. A separate
+        the test split is read once. At its 051-era posture this took several suites to or past the laya lanes at the
+        same sub-millisecond latency; the current board reads a narrower reflex-vs-laya split (the pool those
+        numbers were selected on and the pool a later re-run rebuilt them from differed — tracked as riir-reflex
+        issue 058), and the hybrid lane composes the reflex engine with per-suite specialists where those win. The
+        test split never enters a corpus. A separate
         <em>transductive</em> line under each table shows what happens if the engine may also read the test
         <em>text</em> (self-labelled, gold never read): it adds nothing, because the train rows already carry the
         vocabulary.</p>
