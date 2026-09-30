@@ -44,6 +44,28 @@ durable record). Full narrative of each: `git log --follow -- .issues/<file>`.
   wrangler deploy`** - until then reflex.gist.rs serves the pre-publish
   bytes (verified live: typed hybrid still reads A1 0.63).
 
+- **Issue 003 — 26 published latency cells from runs that judged their own box unfit: RESOLVED 2026-09-30 (unfit cells on the board: 0).**
+  T1+T2 landed 2026-09-28 (Bench 076+077 m3 modelless re-measure + the
+  `carry_beats_incumbent` suppression); T4 (per-cell `source_run` stamps)
+  2026-09-27; T3 (the m3-ane ANE re-measure) 2026-09-30 — reflex
+  [Bench 098](../../riir-reflex/.benchmarks/098_ane_quotable_rerun.md):
+  preflight-passed spans (5.04/4.64), the five published suites exactly,
+  accuracy bit-identical at HEAD `2f6b58c`, p50 within 1 ms,
+  prompt_injections' 652 ms cold-compile p99 gone. Published via the
+  update path + `PUBLISH_BENCH_LANES=laya` (modelless byproduct dropped —
+  the paw-lane law); deployed `4cb76db`, live-verified cache-busted
+  (unfit 0 / quotable 5). **En-route find (the re-measure's own gate run
+  first, per the lane-change law): the ANE lane had been BROKEN at HEAD
+  since 2026-09-26** — reflex `6535b75` (the KV-table lane's e8 table
+  converter) added `<model>/table_e8` rows to `assets/ane/manifest.json`
+  and riir-infer's `AneManifest::load` required the artifact schema on
+  every row; fixed substrate-side (riir-infer `7eae0e7`: parse only
+  `<model>/L<n>` rows, skip foreign rows per the loader's own
+  schema-grows-freely contract) with a regression pin; G5-ANE parity
+  green after (231 s). T5's residual stays a documented defer (the
+  4090-laya results doc lives on the 4090; those cells read unjudged
+  regardless — no box probes on that host).
+
 - **Issue 001 — arena four lanes + honest µs timing + bench-driven TL;DR: DONE 2026-09-24.**
   All 7 tasks landed (lane labels, 2-per-row grid, sub-ms honest timing, laya (Rust)
   naming, 4-lane demo oracle, TL;DR from `data/bench.json`). Verified by
