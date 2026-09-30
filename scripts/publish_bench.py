@@ -1025,39 +1025,63 @@ def apply_lane_carry(d, incumbent_snapshot, extras):
             # ack must EARN its keep — the update cell must carry a fresh
             # corpus_digest that is not already the incumbent's (an ack
             # cannot outlive the corpus change it was written for).
+            # The update cell lives at the UPDATING DOC's host slot: a
+            # same-host update replaced the row slot, an extra-host doc's
+            # lane landed in extra_host_lanes[<host>] — the merged row's
+            # own modelless slot still holds the PRIMARY host's cell
+            # (measured 2026-09-30, the first live extra-host ack: it read
+            # the primary's digest-less cell and refused a fresh
+            # post-landing run as stale). Same slot vocabulary as the
+            # carry loop below.
             snap0 = next((r for r in incumbent_snapshot.get("suites", [])
                           if r["name"] == s["name"]), None)
-            inc0 = _host_lane_slot(snap0, phost, "modelless") if snap0 else None
-            upd0 = s.get("modelless") or {}
-            up_dg = upd0.get("corpus_digest")
-            inc_dg = (inc0 or {}).get("corpus_digest")
-            if up_dg is None:
+            upd_hosts = sorted({e.get("meta", {}).get("host")
+                                for e in extras
+                                if any(q.get("name") == s["name"]
+                                       for q in e.get("suites", []))
+                                and e.get("meta", {}).get("host")})
+            ack_ok = False
+            for uhost in upd_hosts:
+                ud = display_host(uhost)
+                if ud == phost:
+                    upd0 = s.get("modelless")
+                else:
+                    upd0 = ((s.get("extra_host_lanes") or {})
+                            .get(ud, {}) or {}).get("modelless")
+                inc0 = _host_lane_slot(snap0, ud, "modelless") if snap0 else None
+                up_dg = (upd0 or {}).get("corpus_digest")
+                inc_dg = (inc0 or {}).get("corpus_digest")
+                if up_dg is None:
+                    print(
+                        f"⛔ refusing: PUBLISH_BENCH_CORPUS_RESET names "
+                        f"{s['name']}, but its update cell at {ud} carries "
+                        "no corpus_digest — the republish must come from a "
+                        "NEW post-landing harness run (reflex 7e03117 "
+                        "stamps it); drop the stale ack",
+                        file=sys.stderr,
+                    )
+                    sys.exit(1)
+                if inc_dg is not None and up_dg == inc_dg:
+                    print(
+                        f"⛔ refusing: PUBLISH_BENCH_CORPUS_RESET names "
+                        f"{s['name']}, but its update corpus_digest at {ud} "
+                        "already equals the incumbent's — the ack cannot "
+                        "outlive the corpus change it was written for; "
+                        "drop the stale ack",
+                        file=sys.stderr,
+                    )
+                    sys.exit(1)
                 print(
-                    f"⛔ refusing: PUBLISH_BENCH_CORPUS_RESET names "
-                    f"{s['name']}, but its update cell carries no "
-                    "corpus_digest — the republish must come from a NEW "
-                    "post-landing harness run (reflex 7e03117 stamps it); "
-                    "drop the stale ack",
+                    f"note: PUBLISH_BENCH_CORPUS_RESET — {s['name']} exempt "
+                    f"at {ud} from LANE_CARRY latency (the incumbent timing "
+                    "measured the old corpus pool; the update's own timing "
+                    "publishes, stamped "
+                    f"corpus_digest {str(up_dg)[:12]})",
                     file=sys.stderr,
                 )
-                sys.exit(1)
-            if inc_dg is not None and up_dg == inc_dg:
-                print(
-                    f"⛔ refusing: PUBLISH_BENCH_CORPUS_RESET names "
-                    f"{s['name']}, but its update corpus_digest already "
-                    "equals the incumbent's — the ack cannot outlive the "
-                    "corpus change it was written for; drop the stale ack",
-                    file=sys.stderr,
-                )
-                sys.exit(1)
-            print(
-                f"note: PUBLISH_BENCH_CORPUS_RESET — {s['name']} exempt "
-                "from LANE_CARRY latency (the incumbent timing measured the "
-                "old corpus pool; the update's own timing publishes, stamped "
-                f"corpus_digest {str(up_dg)[:12]})",
-                file=sys.stderr,
-            )
-            corpus_fired.add(s["name"])
+                ack_ok = True
+            if ack_ok:
+                corpus_fired.add(s["name"])
             continue
         snap = next((r for r in incumbent_snapshot.get("suites", [])
                      if r["name"] == s["name"]), None)

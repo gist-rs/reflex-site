@@ -129,8 +129,8 @@
     "corpus_cap_mode": "registry defaults",
     "lane_sources": {
      "modelless": {
-      "git_sha": "d4051c8",
-      "date_utc": "2026-09-29T21:37:07Z"
+      "git_sha": "021e1ae",
+      "date_utc": "2026-09-30T13:04:40Z"
      },
      "laya:english": {
       "git_sha": "97c2b1f",
@@ -1182,16 +1182,16 @@
       "brier_soft": 0.16762865440042116,
       "score_mae": 0.5717842323177501,
       "within_1": 0.81625,
-      "latency_p50_ms": 0.632,
-      "latency_p99_ms": 2.908,
+      "latency_p50_ms": 0.917,
+      "latency_p99_ms": 2.732,
       "latency_tail_support": 5,
       "latency_extremes": {
-       "first_ms": 0.189,
-       "max_ms": 3.003,
-       "argmax_case": 116
+       "first_ms": 0.205,
+       "max_ms": 2.772,
+       "argmax_case": 161
       },
       "determinism_ok": true,
-      "seconds": 1.0189545,
+      "seconds": 9.3050037,
       "n_cases": 400,
       "n_questions": 2000,
       "score_threshold": 0.57852864,
@@ -1476,14 +1476,12 @@
         }
        ]
       },
+      "corpus_digest": "fnv1a64-2fe9ec3132dbc924",
       "cases_digest": "fnv1a64-6e37760ee2a5b6c9",
       "latency_quotable": null,
       "source_run": {
-       "git_sha": "d4051c8",
-       "date_utc": "2026-09-29T21:37:07Z"
-      },
-      "latency_provenance": {
-       "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
+       "git_sha": "021e1ae",
+       "date_utc": "2026-09-30T13:04:40Z"
       }
      },
      "laya": {

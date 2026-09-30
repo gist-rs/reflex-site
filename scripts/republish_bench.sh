@@ -38,7 +38,11 @@ echo "== 1/5 publish_bench self-test"
 # caller lane-scoping/ack env — with PUBLISH_BENCH_LANES exported (the
 # documented usage), the scoping filtered the test own extras and its
 # update assertions failed. Steps 3/3.5 keep the env deliberately.
+# PUBLISH_BENCH_CORPUS_RESET joins the env-clean (Issue 057): the ack is
+# publish-scoped, and inside the self-test its fixtures publish no such
+# suite, so the stale-ack refusal fires and step 1 dies.
 env -u PUBLISH_BENCH_LANES -u PUBLISH_ALLOW_SAMPLE_MISMATCH \
+    -u PUBLISH_BENCH_CORPUS_RESET \
     python3 "$SITE_ROOT/scripts/test_publish_bench.py"
 
 echo "== 2/5 chart render smoke (pre-publish state)"

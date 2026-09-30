@@ -1652,6 +1652,48 @@ def case_corpus_reset_stale_ack_refuses():
     assert merged is None and "s2" in err and "no such suite" in err, err
 
 
+def case_corpus_reset_ack_extra_host_shape():
+    """Issue 057 follow-through (2026-09-30, the first live extra-host ack):
+    the update cell for a NON-primary host lives in
+    extra_host_lanes[<host>].modelless — the merged row's own modelless
+    slot still holds the PRIMARY host's (digest-less) cell. The original
+    adjudication read the row slot, refused a fresh post-landing run as
+    stale, and every existing arm exercised only the same-host shape.
+    Pinned both directions at the extra host."""
+    primary = doc("m3", "sha-base", {"s1": {"modelless_acc": 0.5}})
+    primary["meta"]["hosts"] = [{"host": "m3-max-metal"}]
+    primary["suites"][0]["modelless"]["latency_p50_ms"] = 0.517
+    pb.rename_hosts(primary)
+    upd = doc("4090-windows", "sha-lift", {"s1": {"modelless_acc": 0.5}})
+    upd["suites"][0]["modelless"]["latency_p50_ms"] = 0.917
+    upd["suites"][0]["modelless"]["corpus_digest"] = "pool-b"
+    pb.rename_hosts(upd)
+    restore = _with_env(PUBLISH_BENCH_CORPUS_RESET="s1")
+    try:
+        merged, err = merge_refusing(primary, upd)
+    finally:
+        restore()
+    assert merged is not None, err
+    cell = merged["suites"][0]["extra_host_lanes"]["4090-win"]["modelless"]
+    assert cell["latency_p50_ms"] == 0.917, "the acked extra-host timing publishes"
+    assert cell["corpus_digest"] == "pool-b"
+    assert "s1 exempt" in err and "4090-win" in err
+    # the primary cell is untouched by the extra-host ack
+    assert merged["suites"][0]["modelless"]["latency_p50_ms"] == 0.517
+
+    # negative: the extra-host update without a digest refuses at ITS slot
+    upd2 = doc("4090-windows", "sha-lift", {"s1": {"modelless_acc": 0.5}})
+    upd2["suites"][0]["modelless"]["latency_p50_ms"] = 0.9
+    pb.rename_hosts(upd2)
+    restore = _with_env(PUBLISH_BENCH_CORPUS_RESET="s1")
+    try:
+        merged, err = merge_refusing(primary, upd2)
+    finally:
+        restore()
+    assert merged is None, "a digest-less extra-host ack must refuse"
+    assert "4090-win" in err and "corpus_digest" in err, err
+
+
 def case_source_run_stamp_is_per_suite():
     """Issue-003 T4: a one-suite update re-labels the host row's
     lane_sources for the whole lane CLASS — the summary cannot be a
@@ -1823,6 +1865,7 @@ CASES = [
     case_wall_judges_a_corpus_changed_slot,
     case_corpus_reset_ack_exempts_and_fires,
     case_corpus_reset_stale_ack_refuses,
+    case_corpus_reset_ack_extra_host_shape,
     case_source_run_stamp_is_per_suite,
     case_source_run_stamp_survives_remerge_and_digest_wins,
     case_pre_stamp_cells_still_fall_back_to_lane_sources,
