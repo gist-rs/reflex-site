@@ -1,6 +1,6 @@
 # Issue 003 — 26 published latency cells come from runs that judged their own box unfit
 
-**Status:** OPEN — disclosed on every surface (reflex-site commit landing this file); re-measure + two provenance defects outstanding.
+**Status:** RESOLVED 2026-09-30 — unfit cells on the published board: **0**. T1 (m3 modelless re-measure, Benches 076+077) + T2 (carry-suppression) landed 2026-09-28; T3 (the m3-ane re-measure) landed 2026-09-30 — [Bench 098](../../riir-reflex/.benchmarks/098_ane_quotable_rerun.md), unblocked by the ane_prefill sibling WIP clearing + an en-route ANE-lane regression fix (riir-infer `7eae0e7`: the `table_e8` manifest rows from reflex `6535b75` had broken the lane's manifest loader at HEAD since 2026-09-26 — found by the G5-ANE parity gate run before the re-measure, the lane-change law working). All five m3-max-ane cells published quotable at source `2f6b58c` with bit-identical accuracy. T4 (per-cell source stamps) landed 2026-09-27. T5's residual stays a documented defer (the 4090-laya results doc lives on the 4090; those cells read unjudged regardless — no box probes on that host).
 
 ## What was measured (2026-09-27)
 
@@ -69,12 +69,22 @@ lines now name the newest run, not `meta` (which is Bench 001's).
   rc=0 — all 13 unfit row-level m3 modelless cells flip to fresh quotable
   own-timing, the validated-True incumbent stays carried (Issue-032 law
   intact), 4090 unjudged carries untouched. The real remedy remains T1.
-- [-] T3 — re-measure or drop the m3-max-ane laya:english timing (ANE lane).
-  Deferred 2026-09-28: the ANE lane's substrate (`riir-infer` `ane_prefill`)
-  is sibling-session WIP right now (143 dirty files), so a re-measure would
-  time an in-flight tree; and the drop option is a product call on a
-  closed-negative lane (riir-ai: ANE hybrid default-off/closed-negative) —
-  owner-gated. Re-measure after the ane_prefill work lands, under preflight.
+- [x] T3 — re-measure or drop the m3-max-ane laya:english timing (ANE lane).
+  **DONE 2026-09-30 (Bench 098)**: re-measured under a passing preflight
+  (`PROVENANCE: power=AC Power load=5.24 swap=388.06M canary=117.1us/best5
+  powermode=2(high)`; spans 5.04/4.64, quotable both) at HEAD `2f6b58c`, the
+  five published suites exactly (`--suites
+  ag_news,emotion,sst5,prompt_injections,xnli_en`). Accuracy bit-identical
+  on all five; p50 within 1 ms; prompt_injections' 652 ms cold-compile p99
+  gone (warm cache). Published via the update path +
+  `PUBLISH_BENCH_LANES=laya` (the modelless byproduct dropped loudly — the
+  paw-lane law); `carry_beats_incumbent` replaced the unfit incumbent.
+  En-route (recorded in the bench doc): the ANE lane was BROKEN at HEAD
+  since 2026-09-26 — reflex `6535b75`'s `table_e8` manifest rows vs the
+  artifact-schema loader; fixed riir-infer `7eae0e7`; G5-ANE parity green
+  after (231 s). The earlier defer's stale premises, for the record: the
+  ane_prefill WIP landed (tree clean), so (a) cleared; the drop option
+  stayed owner-gated and is now moot — the lane re-measured clean.
 - [x] T4 — `lane_sources` is keyed per (host, lane), not per suite. A
   one-suite update re-labels the source on every suite: the Bench 067
   typed-only update claims `5ada17a` for 15 suites' laya:english cells, 14 of

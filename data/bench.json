@@ -109,7 +109,13 @@
     "laya_device": "ane (LAYA_DEVICE=ane \u2192 load_ane; whole-graph CoreML encoder, Plan 002)",
     "laya_python_lane": "off (pass --laya-python to add the reference lane)",
     "laya_max_questions": 0,
-    "corpus_cap_mode": "registry defaults"
+    "corpus_cap_mode": "registry defaults",
+    "lane_sources": {
+     "laya:english": {
+      "git_sha": "2f6b58c",
+      "date_utc": "2026-09-30T10:35:35Z"
+     }
+    }
    },
    {
     "host": "4090-win",
@@ -2761,21 +2767,32 @@
        "latency_p99_ms": 34.0,
        "latency_tail_support": 4,
        "latency_extremes": {
-        "first_ms": 882.0,
-        "max_ms": 882.0,
-        "argmax_case": 0
+        "first_ms": 27.0,
+        "max_ms": 36.0,
+        "argmax_case": 50
        },
        "determinism_ok": true,
-       "seconds": 13.996396167,
+       "seconds": 48.386979667,
        "n_cases": 365,
        "n_questions": 365,
        "score_threshold": null,
        "distance_threshold": null,
        "threshold_recommendation": null,
        "corpus_cap": null,
+       "head_selection": null,
+       "nb_selection": null,
+       "oc_selection": null,
+       "ridge_selection": null,
+       "genome_selection": null,
+       "transductive": null,
        "confusion": null,
        "pair_head_ab": null,
-       "latency_quotable": false
+       "cases_digest": "fnv1a64-07eff23c06505584",
+       "latency_quotable": true,
+       "source_run": {
+        "git_sha": "2f6b58c",
+        "date_utc": "2026-09-30T10:35:35Z"
+       }
       }
      }
     },
@@ -3984,24 +4001,35 @@
        "score_mae": null,
        "within_1": null,
        "latency_p50_ms": 19.0,
-       "latency_p99_ms": 26.0,
+       "latency_p99_ms": 24.0,
        "latency_tail_support": 5,
        "latency_extremes": {
-        "first_ms": 891.0,
-        "max_ms": 891.0,
-        "argmax_case": 0
+        "first_ms": 21.0,
+        "max_ms": 25.0,
+        "argmax_case": 119
        },
        "determinism_ok": true,
-       "seconds": 12.382079459,
+       "seconds": 11.97681375,
        "n_cases": 400,
        "n_questions": 400,
        "score_threshold": null,
        "distance_threshold": null,
        "threshold_recommendation": null,
        "corpus_cap": null,
+       "head_selection": null,
+       "nb_selection": null,
+       "oc_selection": null,
+       "ridge_selection": null,
+       "genome_selection": null,
+       "transductive": null,
        "confusion": null,
        "pair_head_ab": null,
-       "latency_quotable": false
+       "cases_digest": "fnv1a64-6feefd1c947dd008",
+       "latency_quotable": true,
+       "source_run": {
+        "git_sha": "2f6b58c",
+        "date_utc": "2026-09-30T10:35:35Z"
+       }
       }
      }
     },
@@ -5206,25 +5234,36 @@
        "brier_soft": null,
        "score_mae": null,
        "within_1": null,
-       "latency_p50_ms": 24.0,
+       "latency_p50_ms": 23.0,
        "latency_p99_ms": 27.0,
        "latency_tail_support": 7,
        "latency_extremes": {
-        "first_ms": 710.0,
-        "max_ms": 710.0,
-        "argmax_case": 0
+        "first_ms": 23.0,
+        "max_ms": 27.0,
+        "argmax_case": 1
        },
        "determinism_ok": true,
-       "seconds": 18.27595,
+       "seconds": 17.972210625,
        "n_cases": 600,
        "n_questions": 600,
        "score_threshold": null,
        "distance_threshold": null,
        "threshold_recommendation": null,
        "corpus_cap": null,
+       "head_selection": null,
+       "nb_selection": null,
+       "oc_selection": null,
+       "ridge_selection": null,
+       "genome_selection": null,
+       "transductive": null,
        "confusion": null,
        "pair_head_ab": null,
-       "latency_quotable": false
+       "cases_digest": "fnv1a64-ad64a6cb0039e916",
+       "latency_quotable": true,
+       "source_run": {
+        "git_sha": "2f6b58c",
+        "date_utc": "2026-09-30T10:35:35Z"
+       }
       }
      }
     },
@@ -6446,24 +6485,35 @@
        "score_mae": null,
        "within_1": null,
        "latency_p50_ms": 23.0,
-       "latency_p99_ms": 652.0,
+       "latency_p99_ms": 30.0,
        "latency_tail_support": 2,
        "latency_extremes": {
-        "first_ms": 682.0,
-        "max_ms": 682.0,
-        "argmax_case": 0
+        "first_ms": 23.0,
+        "max_ms": 31.0,
+        "argmax_case": 40
        },
        "determinism_ok": true,
-       "seconds": 6.525903458,
+       "seconds": 6.534780375,
        "n_cases": 107,
        "n_questions": 107,
        "score_threshold": null,
        "distance_threshold": null,
        "threshold_recommendation": null,
        "corpus_cap": null,
+       "head_selection": null,
+       "nb_selection": null,
+       "oc_selection": null,
+       "ridge_selection": null,
+       "genome_selection": null,
+       "transductive": null,
        "confusion": null,
        "pair_head_ab": null,
-       "latency_quotable": false
+       "cases_digest": "fnv1a64-5080803ec29f2423",
+       "latency_quotable": true,
+       "source_run": {
+        "git_sha": "2f6b58c",
+        "date_utc": "2026-09-30T10:35:35Z"
+       }
       }
      }
     },
@@ -7681,24 +7731,35 @@
        "score_mae": null,
        "within_1": null,
        "latency_p50_ms": 28.0,
-       "latency_p99_ms": 34.0,
+       "latency_p99_ms": 32.0,
        "latency_tail_support": 3,
        "latency_extremes": {
-        "first_ms": 656.0,
-        "max_ms": 656.0,
-        "argmax_case": 0
+        "first_ms": 31.0,
+        "max_ms": 32.0,
+        "argmax_case": 3
        },
        "determinism_ok": true,
-       "seconds": 12.013343,
+       "seconds": 12.437068125,
        "n_cases": 298,
        "n_questions": 298,
        "score_threshold": null,
        "distance_threshold": null,
        "threshold_recommendation": null,
        "corpus_cap": null,
+       "head_selection": null,
+       "nb_selection": null,
+       "oc_selection": null,
+       "ridge_selection": null,
+       "genome_selection": null,
+       "transductive": null,
        "confusion": null,
        "pair_head_ab": null,
-       "latency_quotable": false
+       "cases_digest": "fnv1a64-b136750e5af1d412",
+       "latency_quotable": true,
+       "source_run": {
+        "git_sha": "2f6b58c",
+        "date_utc": "2026-09-30T10:35:35Z"
+       }
       }
      }
     },
