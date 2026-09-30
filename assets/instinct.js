@@ -64,6 +64,10 @@ const inWilson = (p, n, x) => {
 };
 
 // Every lane cell of a suite, tagged with its host (null = primary run).
+// NOTE: the instinct ENCODER lane (riir-instinct issue 014 C1, serve: ✗)
+// is deliberately NOT enumerated — a serve-refused arm is not the serving
+// lane and must not move the "Instinct vs best lane" board (its cell is
+// visible in the tables/charts with its own serves/gate disclosure).
 function cellsOf(s) {
   const out = [];
   const push = (l, host) => { if (l && accOf(l) != null) out.push([l, host]); };

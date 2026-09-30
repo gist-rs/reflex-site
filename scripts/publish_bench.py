@@ -200,6 +200,12 @@ LANE_DISPLAY = {
     # spelling; re-publishing it as primary must land the new one (the
     # PYTHON_LANE_SPELLINGS dual-spelling law).
     "instinct (hybrid)": "Instinct (hybrid)",
+    # riir-instinct issue 014 C1: the encoder-feature arm — a
+    # RECORD-ONLY lane (serve: ✗, the encoder class is refused at
+    # serve). A SEPARATE lane from the hybrid cell: the hybrid cell keeps
+    # publishing the SERVING arm; this publishes the measured-but-refused
+    # read with its latency class (the refusal's ground).
+    "encoder": "Instinct (encoder)",
     # reflex .issues/033: the ProgramAsWeights comparison lanes. "paw" is
     # their HOSTED REST posture (compile-a-classifier, server-side),
     # "paw-local" their LOCAL llama.cpp runtime — the posture axis is the
@@ -288,6 +294,7 @@ def rename_lanes(d):
             + ([s["gliner"]] if s.get("gliner") else [])
             + ([s["agentjev"]] if s.get("agentjev") else [])
             + ([s["hybrid"]] if s.get("hybrid") else [])
+            + ([s["encoder"]] if s.get("encoder") else [])
             + ([s["paw"]] if s.get("paw") else [])
             + ([s["paw_local"]] if s.get("paw_local") else [])
             + ([s["openthai"]] if s.get("openthai") else [])
@@ -522,7 +529,7 @@ def merge(primary, extras):
         cells = ([s.get("modelless")] + list((s.get("laya") or {}).values())
                  + [s.get(k) for k in ("clm", "gliner", "agentjev",
                                        "paw", "paw_local", "hybrid",
-                                       "openthai")])
+                                       "encoder", "openthai")])
         for cell in cells:
             if isinstance(cell, dict):
                 cell.setdefault("cases_digest", dg)
@@ -536,7 +543,7 @@ def merge(primary, extras):
             cells = ([s.get("modelless")] + list((s.get("laya") or {}).values())
                      + [s.get(k) for k in ("clm", "gliner", "agentjev",
                                            "paw", "paw_local", "hybrid",
-                                           "openthai")])
+                                           "encoder", "openthai")])
             for cell in cells:
                 if isinstance(cell, dict):
                     cell.setdefault("latency_quotable", pq)
@@ -742,6 +749,18 @@ def merge(primary, extras):
                 updated_lanes["hybrid"] = True
             elif eh:
                 skipped_variant_lanes.append(f"hybrid@{ehost}")
+            # The instinct ENCODER lane (riir-instinct issue 014 C1):
+            # the record-only encoder-feature arm — same carry law as the
+            # hybrid lane, but NEVER merged into the hybrid cell (the
+            # serving posture is untouched: the hybrid cell keeps the
+            # serving arm; this cell carries serve: ✗).
+            ee = s.get("encoder")
+            if ee and not device_variant:
+                stamp_cell(ee, s, emeta)
+                entry["encoder"] = ee
+                updated_lanes["encoder"] = True
+            elif ee:
+                skipped_variant_lanes.append(f"encoder@{ehost}")
             # The OpenThai comparison lane (reflex Plan 003 / Bench 074):
             # the same carry law — an external service measured per-host,
             # no bit-identity claim applies.
@@ -1023,7 +1042,7 @@ def _carry_into(lane, incumbent):
 # the inventory expands it per checkpoint key, because a publish that drops
 # one checkpoint drops published cells even though the class survives.
 LANE_CLASSES = ("modelless", "laya", "clm", "gliner", "agentjev", "hybrid",
-                "paw", "paw_local", "openthai")
+                "encoder", "paw", "paw_local", "openthai")
 
 
 def lane_inventory(d):

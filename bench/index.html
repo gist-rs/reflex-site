@@ -537,6 +537,12 @@ function suiteSection(s) {
     // arm's frozen test read, published per suite where a hybrid arm won
     // registration.
     if (s.hybrid) lanes.push(s.hybrid);
+    // The instinct ENCODER lane (riir-instinct issue 014 C1): the
+    // record-only encoder-feature arm — the measured-but-refused read
+    // (serve: ✗, the encoder class is refused at serve). Rendered beside
+    // the hybrid cell, never merged into it: the serving posture is
+    // untouched and the cell's own serves/gate fields carry the refusal.
+    if (s.encoder) lanes.push(s.encoder);
     extraRows = [];
     for (const [host, hl] of Object.entries(s.extra_host_lanes || {})) {
       if (hl.modelless) extraRows.push([hl.modelless, host]);
@@ -548,6 +554,7 @@ function suiteSection(s) {
       if (hl.paw) extraRows.push([hl.paw, host]);
       if (hl.paw_local) extraRows.push([hl.paw_local, host]);
       if (hl.hybrid) extraRows.push([hl.hybrid, host]);
+      if (hl.encoder) extraRows.push([hl.encoder, host]);
     }
   }
   // The lane filter (governs every section): hidden lanes drop out of the

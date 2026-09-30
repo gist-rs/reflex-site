@@ -82,8 +82,8 @@
       "date_utc": "2026-09-27T08:00:55Z"
      },
      "hybrid": {
-      "git_sha": "07119b4",
-      "date_utc": "2026-09-30T00:59:53Z"
+      "git_sha": "211c68d",
+      "date_utc": "2026-09-30T02:01:58Z"
      },
      "paw": {
       "git_sha": "9dc33da",
@@ -92,6 +92,10 @@
      "openthai": {
       "git_sha": "00bddd1",
       "date_utc": "2026-09-28T16:27:36Z"
+     },
+     "encoder": {
+      "git_sha": "211c68d",
+      "date_utc": "2026-09-30T02:01:58Z"
      }
     },
     "head_posture": "OFF (head_scale 0 \u2014 the published baseline posture)"
@@ -5895,14 +5899,14 @@
     "consult_rate": 1.0,
     "latency_scope": "arm-only",
     "latency_rows": "questions",
-    "latency_p50_ms": 0.000958,
-    "latency_p99_ms": 0.008875,
+    "latency_p50_ms": 0.000875,
+    "latency_p99_ms": 0.0017909999999999998,
     "latency_tail_support": 7,
     "serves": "A1",
     "gate": "best measured, T2-uncertified (paired LB95 -0.0129) \u2014 certification is more questions, not a posture rollback",
     "source_run": {
-     "git_sha": "8bbff09",
-     "date_utc": "2026-09-28T10:13:40Z"
+     "git_sha": "211c68d",
+     "date_utc": "2026-09-30T02:01:58Z"
     }
    },
    "openthai": {
@@ -5962,6 +5966,27 @@
     "source_run": {
      "git_sha": "00bddd1",
      "date_utc": "2026-09-28T16:27:36Z"
+    }
+   },
+   "encoder": {
+    "lane": "Instinct (encoder)",
+    "model": "ENC-t6s0 (laya-english encoder + NLEH v1 head)",
+    "hard": {
+     "n": 600,
+     "accuracy": 0.5266666666666666
+    },
+    "consult_rate": 1.0,
+    "latency_scope": "arm-only",
+    "latency_rows": "questions",
+    "latency_p50_ms": 14.708917,
+    "latency_p99_ms": 17.452375,
+    "serves": "\u2717 (encoder class refused at serve \u2014 A1 serves; instinct issue 014 C1)",
+    "gate": "T2-certified above the incumbent A1 (paired LB95 +0.0535, mean +0.1050) \u2014 serve REFUSED on the latency class (14.7 ms/row vs the ~0.3 ms provisional bar; issue 014 decision 1)",
+    "device": "metal",
+    "record_only": true,
+    "source_run": {
+     "git_sha": "211c68d",
+     "date_utc": "2026-09-30T02:01:58Z"
     }
    }
   },
@@ -11544,7 +11569,8 @@
     "source_run": {
      "git_sha": "07119b4",
      "date_utc": "2026-09-30T00:59:53Z"
-    }
+    },
+    "cases_digest": "fnv1a64-93583fda4fc64946"
    },
    "openthai": {
     "lane": "openthai (reference)",

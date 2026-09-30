@@ -34,6 +34,10 @@
     // The instinct hybrid (riir-instinct): magenta slot, distinct from all
     // six existing hues under the same dark-surface ≥3:1 contrast rule.
     { key: "instinct", label: "Instinct (hybrid)", color: "#e06ab4", match: (l) => l.lane === "Instinct (hybrid)" },
+    // riir-instinct issue 014 C1: the record-only encoder arm — a paler
+    // magenta beside the hybrid slot (the same instinct family, the
+    // measured-but-refused read: serve ✗).
+    { key: "instinct-encoder", label: "Instinct (encoder)", color: "#b895d0", match: (l) => l.lane === "Instinct (encoder)" },
     // The OpenThai comparison lane (reflex Plan 003): red slot, distinct
     // from the seven existing hues under the same dark-surface ≥3:1
     // contrast rule (~5:1 measured against #140b08 / #1d110c).
@@ -300,6 +304,7 @@
     if (s.paw) out.push(s.paw);
     if (s.paw_local) out.push(s.paw_local);
     if (s.hybrid) out.push(s.hybrid);
+    if (s.encoder) out.push(s.encoder);
     return out;
   }
   function extraLanes(s) {
@@ -314,6 +319,7 @@
       if (hl.paw) out.push([hl.paw, host]);
       if (hl.paw_local) out.push([hl.paw_local, host]);
       if (hl.hybrid) out.push([hl.hybrid, host]);
+      if (hl.encoder) out.push([hl.encoder, host]);
     }
     return out;
   }
