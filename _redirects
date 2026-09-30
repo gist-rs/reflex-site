@@ -1,6 +1,0 @@
-# The env toggle's PATH entry (Plan 042 T3): /devnet (and /devnet/<path>)
-# → the canonical ?env=devnet carrier on THIS site — the server's entire
-# involvement (the widget's script does the rest; #devnet is a free alias
-# that needs no rule). Workers Static Assets serves this file.
-/devnet     /?env=devnet      302
-/devnet/*   /:splat?env=devnet 302
