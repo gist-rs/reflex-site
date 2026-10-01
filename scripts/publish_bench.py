@@ -133,10 +133,11 @@ curated areas (Language & intent, Sentiment, Reasoning & safety, Decisions
 & code) plus the per-benchmark grid, so the page renders the rollups and
 never re-derives them (the compute_pairings precedent). The chances are
 dataset facts read off the harness's own option construction; the rollup
-covers the four product lanes (Reflex / Instinct (hybrid) / Rethink
-(encoder) / laya (rust)) on the primary host's served rows and discloses
-per-lane coverage (the Rethink encoder lane is 1/9, record-only — a
-partial index is disclosed as partial, never padded).
+covers EVERY filterable lane (the product lanes Reflex / Instinct / Rethink
+/ laya (rust) plus the comparison lanes — a lane the primary host never
+ran rolls up host-tagged from its serving host) and discloses per-lane
+coverage (the Rethink lane is 1/9, record-only — a partial index is
+disclosed as partial, never padded).
 """
 
 import copy
@@ -223,27 +224,31 @@ LANE_DISPLAY = {
     "clm": "clm (reference)",
     "gliner": "gliner (reference)",
     "agentjev": "agentjev (reference)",
-    "hybrid": "Instinct (hybrid)",
-    # A previously-published bench.json carries the OLD display
-    # spelling; re-publishing it as primary must land the new one (the
-    # PYTHON_LANE_SPELLINGS dual-spelling law).
-    "instinct (hybrid)": "Instinct (hybrid)",
+    "hybrid": "Instinct",
+    # The qualifier-free spellings are the product names (owner call,
+    # 2026-10-01: the (hybrid)/(encoder) qualifiers were noise on the filter
+    # bar and the radar legends — what each name MEANS is disclosed in the
+    # page's Notes + FAQ + References instead). A previously-published
+    # bench.json carries an OLD spelling; re-publishing it as primary must
+    # land the current one (the dual-spelling law).
+    "instinct (hybrid)": "Instinct",
+    "Instinct (hybrid)": "Instinct",
     # riir-instinct issue 014 C1: the encoder-feature arm — a
     # RECORD-ONLY lane (serve: ✗, the encoder class is refused at
     # serve). A SEPARATE lane from the hybrid cell: the hybrid cell keeps
     # publishing the SERVING arm; this publishes the measured-but-refused
     # read with its latency class (the refusal's ground).
     # Display spelling per the riir-instinct naming law (riir-ai Proposal
-    # 051): "Instinct (encoder)" rebrands to "Rethink (encoder)". The lane
-    # KEY ("encoder") never changes — only this display spelling does — and
-    # the legacy spelling maps too, so re-publishing a bench.json that
-    # carries the old name lands the new one (the dual-spelling law). The
-    # lane's RESULTS are still 1/9 suites (record-only) — tracked as a
-    # blocker in this repo's .issues until 051 Phase 1 + encoder serving
-    # results land.
-    "encoder": "Rethink (encoder)",
-    "instinct (encoder)": "Rethink (encoder)",
-    "Instinct (encoder)": "Rethink (encoder)",
+    # 051): the encoder arm's product name is "Rethink" — qualifier-free
+    # like Instinct (owner call 2026-10-01). The lane KEY ("encoder") never
+    # changes — only this display spelling does — and every legacy spelling
+    # maps too, so re-publishing a bench.json that carries an old name
+    # lands the current one (the dual-spelling law). The lane's RESULTS are
+    # still 1/9 suites (record-only).
+    "encoder": "Rethink",
+    "instinct (encoder)": "Rethink",
+    "Instinct (encoder)": "Rethink",
+    "Rethink (encoder)": "Rethink",
     # reflex .issues/033: the ProgramAsWeights comparison lanes. "paw" is
     # their HOSTED REST posture (compile-a-classifier, server-side),
     # "paw-local" their LOCAL llama.cpp runtime — the posture axis is the
@@ -491,9 +496,9 @@ AREA_CHANCE = {
     "code_fixtures": (1 / 8 + 1 / 2) / 2,
 }
 
-# The area grouping (the radar's spokes). Only suites carrying at least one
-# of the four product lanes are grouped — the Thai suites publish a single
-# comparison lane (openthai) and would render an all-empty spoke.
+# The area grouping (the radar's spokes). The Thai suites stay out of it:
+# no chance baseline is curated for them (AREA_CHANCE), and adding one is
+# an owner curation call, not a publish-time guess.
 AREA_DEFS = (
     ("language", "Language & intent",
      ("ag_news", "massive_intent_en", "banking77")),
@@ -506,34 +511,62 @@ AREA_DEFS = (
 # published display spelling, and the page's palette key (bench-charts.js
 # LANES key — the JS maps key → color; the palette itself is never
 # duplicated here).
+#
+# EVERY filterable lane rolls up, not only the four product lanes (the
+# /bench/#areas "show any selected result" fix): the comparison lanes and
+# the python laya checkpoints are filter chips on the page, so a selected
+# chip must have a radar row. A lane the primary host never measured (clm /
+# gliner / agentjev / paw-local serve from the 4090) rolls up from
+# extra_host_lanes under a host-tagged key ("clm@4090-win") — see
+# compute_areas.
 AREA_LANES = (
     ("modelless", "Reflex", "katgpt"),
-    ("hybrid", "Instinct (hybrid)", "instinct"),
-    ("encoder", "Rethink (encoder)", "instinct-encoder"),
+    ("hybrid", "Instinct", "instinct"),
+    ("encoder", "Rethink", "instinct-encoder"),
     ("laya", "laya (rust)", "rust"),
+    ("python", "laya (python)", "python"),
+    ("clm", "clm", "clm"),
+    ("gliner", "gliner", "gliner"),
+    ("agentjev", "agentjev", "agentjev"),
+    ("openthai", "openthai", "openthai"),
+    ("paw", "paw (hosted)", "paw"),
+    ("paw_local", "paw (local)", "paw"),
 )
 
 
-def _area_lane_cell(s, lane):
-    """The primary-host lane cell of one suite for the radar, or None.
+def _cell_acc(cell):
+    """A cell's accuracy across cell shapes — full cells carry it under
+    `hard`, the acc-only comparison cells (paw / paw-local) at the top
+    level — the same reader as the page's accOf(), so a cell never rolls up
+    on the radar while blanking in the table beside it."""
+    acc = (cell.get("hard") or {}).get("accuracy")
+    return acc if acc is not None else cell.get("accuracy")
 
-    laya uses the charts' own pick rule: the best-accuracy NON-multilingual
-    checkpoint (typed on typed_decisions, english elsewhere) — the same
-    rule hero()/summary() render with, so the radar never disagrees with
-    the bars beside it. Returns (cell, checkpoint_or_None)."""
-    if lane == "laya":
+
+def _area_lane_cell(s, lane):
+    """The lane cell of one suite's lane dict for the radar, or None.
+
+    The laya lanes use the charts' own pick rule: the best-accuracy
+    NON-multilingual checkpoint (typed on typed_decisions, english
+    elsewhere; "python" reads only the py/ checkpoints) — the same rule
+    hero()/summary() render with, so the radar never disagrees with the
+    bars beside it. Returns (cell, checkpoint_or_None)."""
+    if lane in ("laya", "python"):
+        prefix = "py/" if lane == "python" else ""
         best = None
-        for cell in (s.get("laya") or {}).values():
-            if cell.get("model") == "multilingual":
+        best_acc = None
+        for name, cell in (s.get("laya") or {}).items():
+            if (prefix and not name.startswith(prefix)) or \
+                    cell.get("model") == "multilingual":
                 continue
-            acc = (cell.get("hard") or {}).get("accuracy")
+            acc = _cell_acc(cell)
             if acc is None:
                 continue
-            if best is None or acc > (best[0].get("hard") or {}).get("accuracy"):
-                best = (cell, cell.get("model"))
+            if best is None or acc > best_acc:
+                best, best_acc = (cell, cell.get("model")), acc
         return best
     cell = s.get(lane)
-    if isinstance(cell, dict) and (cell.get("hard") or {}).get("accuracy") is not None:
+    if isinstance(cell, dict) and _cell_acc(cell) is not None:
         return (cell, None)
     return None
 
@@ -544,9 +577,14 @@ def compute_areas(d):
     derived verdicts ride the published bench.json; the page renders them,
     never re-derives them).
 
-    Only the PRIMARY host's top-level lane cells roll up (a lane-scoped
-    update replaces its cell in place, so this is the current served row;
-    extra-host rows stay in the per-suite tables). A lane missing a suite
+    Every filterable lane (AREA_LANES) rolls up from the PRIMARY host's
+    top-level cells (a lane-scoped update replaces its cell in place, so
+    this is the current served row; extra-host rows stay in the per-suite
+    tables). A lane the primary host never measured (the 4090 serving-host
+    comparison lanes) rolls up from extra_host_lanes under a host-tagged
+    key ("clm@4090-win") with the serving host recorded on the lane block —
+    the page renders the host beside the display name and the filter's
+    palette key gates every posture of the lane. A lane missing a suite
     simply lacks that suite's entry — the block carries per-lane coverage,
     and a partial lane's index is the mean over what it measured
     (disclosed, never padded with zeros). Re-running replaces the block
@@ -562,18 +600,20 @@ def compute_areas(d):
                 suite_meta[name] = {"area": area_id,
                                     "chance": round(AREA_CHANCE[name], 6)}
                 members.setdefault(area_id, []).append(name)
-    lanes_out = {}
-    for key, display, color_key in AREA_LANES:
-        per_suite = {}
-        area_vals = {}
+
+    def _rollup(key, read):
+        """per_suite/area_vals for one lane, read through `read(suite)` —
+        the identity read for primary-host cells, a host-lane read for the
+        serving-host pass."""
+        per_suite, area_vals = {}, {}
         for area_id, names in members.items():
             vals = []
             for name in names:
-                picked = _area_lane_cell(suites[name], key)
+                picked = _area_lane_cell(read(suites[name]), key)
                 if picked is None:
                     continue
                 cell, ck = picked
-                acc = cell["hard"]["accuracy"]
+                acc = _cell_acc(cell)
                 chance = AREA_CHANCE[name]
                 entry = {"acc": round(acc, 6),
                          "cc": round((acc - chance) / (1.0 - chance), 6)}
@@ -583,20 +623,53 @@ def compute_areas(d):
                 vals.append(entry["cc"])
             if vals:
                 area_vals[area_id] = round(sum(vals) / len(vals), 6)
+        return per_suite, area_vals
+
+    def _lane_block(display, color_key, per_suite, area_vals, host=None):
+        block = {
+            "display": display,
+            "color_key": color_key,
+            "per_suite": per_suite,
+            "areas": area_vals,
+            "index": (round(sum(area_vals.values()) / len(area_vals), 6)
+                      if area_vals else None),
+            "coverage": {"suites": len(per_suite),
+                         "of": len(suite_meta)},
+            "complete": len(per_suite) == len(suite_meta),
+        }
+        if host is not None:
+            block["host"] = host
+        return block
+
+    lanes_out = {}
+    for key, display, color_key in AREA_LANES:
+        per_suite, area_vals = _rollup(key, lambda s: s)
         if per_suite:
-            lanes_out[key] = {
-                "display": display,
-                "color_key": color_key,
-                "per_suite": per_suite,
-                "areas": area_vals,
-                "index": (round(sum(area_vals.values()) / len(area_vals), 6)
-                          if area_vals else None),
-                "coverage": {"suites": len(per_suite),
-                             "of": len(suite_meta)},
-                "complete": len(per_suite) == len(suite_meta),
-            }
+            lanes_out[key] = _lane_block(display, color_key, per_suite, area_vals)
+
+    # Serving-host pass: a lane with NO primary cells anywhere (the 4090
+    # comparison lanes) rolls up per host under a host-tagged key. A lane
+    # with any primary cell never enters this pass — each radar lane stays
+    # single-host by construction, so a partial lane is a coverage gap, not
+    # a host mix.
+    extra_hosts = []
+    for s in d.get("suites", []):
+        for host in (s.get("extra_host_lanes") or {}):
+            if host not in extra_hosts:
+                extra_hosts.append(host)
+    for key, display, color_key in AREA_LANES:
+        if key in lanes_out:
+            continue
+        for host in extra_hosts:
+            per_suite, area_vals = _rollup(
+                key,
+                lambda s, h=host: (s.get("extra_host_lanes") or {}).get(h) or {})
+            if per_suite:
+                lanes_out[f"{key}@{host}"] = _lane_block(
+                    display, color_key, per_suite, area_vals, host=host)
+
     d["areas"] = {
-        "version": 1,
+        "version": 2,
         "scale": ("chance-corrected accuracy: cc = (acc - chance) / "
                   "(1 - chance); 0 = random guessing, 1 = every question "
                   "right; per-suite chance = the mean per-question "
@@ -606,7 +679,9 @@ def compute_areas(d):
         "areas": [{"id": a, "label": lbl, "suites": list(members.get(a, []))}
                   for a, lbl, _ in AREA_DEFS if a in members],
         "lanes": lanes_out,
-        "primary_host_only": True,
+        "scope": ("primary-host rows; a lane the primary host never ran "
+                  "rolls up from its serving host under a host-tagged "
+                  "lane key (clm@4090-win)"),
     }
     return d["areas"]
 

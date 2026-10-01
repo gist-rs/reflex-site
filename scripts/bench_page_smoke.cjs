@@ -341,15 +341,15 @@ const server = http.createServer((req, res) => {
     const dots = await page.$$eval("#bench-areas .rd-dot", (xs) => xs.length);
     if (dots < 40) fail(`expected >=40 radar dots, got ${dots}`);
     const legendTxt = await page.$eval("#bench-areas", (x) => x.textContent);
-    if (!legendTxt.includes("Rethink (encoder)") || !legendTxt.includes("1/9"))
-      fail("the radar legends must disclose the partial Rethink encoder lane (1/9)");
-    const encRows = await page.$$eval("#bench-areas .rd-lg", (xs) => xs.filter((x) => x.textContent.includes("Rethink (encoder)")).length);
+    if (!legendTxt.includes("Rethink") || !legendTxt.includes("1/9"))
+      fail("the radar legends must disclose the partial Rethink lane (1/9)");
+    const encRows = await page.$$eval("#bench-areas .rd-lg", (xs) => xs.filter((x) => x.textContent.includes("Rethink")).length);
     if (encRows !== 2) fail(`expected a Rethink legend row on both cards, got ${encRows}`);
     else console.log(`ok: area radar renders (${polys} polygons, ${dots} dots, partial lane disclosed on both cards)`);
     // the filter governs the radar: hiding the encoder lane empties its rows
     await page.uncheck('#lane-filter input[data-key="instinct-encoder"]');
     await page.waitForTimeout(300);
-    const encAfter = await page.$$eval("#bench-areas .rd-lg", (xs) => xs.filter((x) => x.textContent.includes("Rethink (encoder)")).length);
+    const encAfter = await page.$$eval("#bench-areas .rd-lg", (xs) => xs.filter((x) => x.textContent.includes("Rethink")).length);
     if (encAfter !== 0) fail(`hiding the encoder lane must empty its radar rows, got ${encAfter}`);
     else console.log("ok: the lane filter governs the area radar");
     await page.check('#lane-filter input[data-key="instinct-encoder"]');
@@ -446,6 +446,11 @@ const server = http.createServer((req, res) => {
     await page.waitForFunction(() => document.querySelectorAll("#instinct-verdict li").length >= 2, { timeout: 10000 });
     const accOf = (l) => { if (!l) return null; const h = (l.hard || {}).accuracy; return h != null ? h : l.accuracy; };
     const bench = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "data", "bench.json"), "utf8"));
+    // The hybrid lane's data spelling: "Instinct" since the qualifier-free
+    // product rename (owner call 2026-10-01); "Instinct (hybrid)" matches
+    // so an un-re-published bench.json still reads (the same matcher
+    // instinct.js carries).
+    const isInstinct = (l) => l.lane === "Instinct" || l.lane === "Instinct (hybrid)";
     const cells = (s) => {
       const out = [s.modelless, ...Object.values(s.laya || {}), s.clm, s.gliner, s.agentjev, s.openthai, s.paw, s.paw_local, s.hybrid]
         .filter(Boolean);
@@ -453,10 +458,10 @@ const server = http.createServer((req, res) => {
         out.push(hl.modelless, ...Object.values(hl.laya || {}), hl.clm, hl.gliner, hl.agentjev, hl.openthai, hl.paw, hl.paw_local, hl.hybrid);
       return out.filter(Boolean);
     };
-    const armed = bench.suites.filter((s) => accOf(s.modelless) != null && cells(s).some((l) => l.lane === "Instinct (hybrid)"));
+    const armed = bench.suites.filter((s) => accOf(s.modelless) != null && cells(s).some(isInstinct));
     const strictlyAll = armed.length > 0 && armed.every((s) => {
-      const hyb = Math.max(...cells(s).filter((l) => l.lane === "Instinct (hybrid)").map(accOf));
-      const bestOther = Math.max(...cells(s).filter((l) => l.lane !== "Instinct (hybrid)" && l.model !== "multilingual").map(accOf));
+      const hyb = Math.max(...cells(s).filter(isInstinct).map(accOf));
+      const bestOther = Math.max(...cells(s).filter((l) => !isInstinct(l) && l.model !== "multilingual").map(accOf));
       return hyb - bestOther > 1e-9;
     });
     const chip = await page.$eval("#instinct-verdict .chip", (x) => x.className);
@@ -475,7 +480,7 @@ const server = http.createServer((req, res) => {
     }, label);
     const markOf = (wins, n) => (wins === n ? "ok" : wins * 2 > n ? "warn" : "gap");
     const vsReflexWins = armed.filter((s) => {
-      const hyb = Math.max(...cells(s).filter((l) => l.lane === "Instinct (hybrid)").map(accOf));
+      const hyb = Math.max(...cells(s).filter(isInstinct).map(accOf));
       const km = Math.max(...cells(s).filter((l) => l.lane === "KatGPT" || l.model === "modelless").map(accOf));
       return hyb > km;
     }).length;
@@ -484,8 +489,8 @@ const server = http.createServer((req, res) => {
       fail(`vs-Reflex mark ${await rowMark("Instinct vs Reflex")} but majority rule says ${expectReflex} (${vsReflexWins}/${armed.length})`);
     else console.log(`ok: vs-Reflex mark ${expectReflex} (${vsReflexWins}/${armed.length} ahead)`);
     const vsBestWins = armed.filter((s) => {
-      const hyb = Math.max(...cells(s).filter((l) => l.lane === "Instinct (hybrid)").map(accOf));
-      const bestOther = Math.max(...cells(s).filter((l) => l.lane !== "Instinct (hybrid)" && l.model !== "multilingual").map(accOf));
+      const hyb = Math.max(...cells(s).filter(isInstinct).map(accOf));
+      const bestOther = Math.max(...cells(s).filter((l) => !isInstinct(l) && l.model !== "multilingual").map(accOf));
       return hyb - bestOther > 1e-9;
     }).length;
     const expectBest = markOf(vsBestWins, armed.length);

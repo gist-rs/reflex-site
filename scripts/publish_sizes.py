@@ -88,7 +88,7 @@ CANDIDATES = [
     },
     {
         "key": "instinct_hybrid",
-        "name": "Instinct (hybrid) \u00b7 trained specialists",
+        "name": "Instinct \u00b7 trained specialists",
         "framework": "one serve binary + the Reflex half's dataset seats + BLAKE3-sealed specialist vessels (the hosted serving posture)",
         "engine": ("recorded_sum", "instinct_serve_binary", "instinct_datasets_t20k"),
         "engine_what": "the serve binary + the six t20k dataset suites (the Reflex half's corpora and question seats)",

@@ -156,15 +156,31 @@ if (!aHtml.includes("<svg") || !aHtml.includes("rd-poly")) {
 const polys = (aHtml.match(/class="rd-poly"/g) || []).length;
 const dots = (aHtml.match(/class="rd-dot"/g) || []).length;
 const legends = (aHtml.match(/class="rd-lg"/g) || []).length;
+// Legend rows are data-derived (two cards × every lane the areas block
+// carries — 4 product lanes in the v1 block, every filterable lane in v2):
+// an equality on a hand-typed count would red on the next lane publish.
+const laneCount = Object.keys((d.areas || {}).lanes || {}).length;
 if (polys < 3) { console.error(`FAIL[radar]: expected >=3 lane polygons (modelless/hybrid/laya complete), got ${polys}`); process.exit(1); }
-if (legends !== 8) { console.error(`FAIL[radar]: expected 8 legend rows (4 lanes x 2 cards), got ${legends}`); process.exit(1); }
-if (!aHtml.includes("1/9") || !aHtml.includes("Rethink (encoder)")) {
-  console.error("FAIL[radar]: the partial-lane disclosure (Rethink encoder 1/9) is missing");
+if (legends !== laneCount * 2) { console.error(`FAIL[radar]: expected ${laneCount * 2} legend rows (${laneCount} lanes x 2 cards), got ${legends}`); process.exit(1); }
+if (!aHtml.includes("1/9") || !aHtml.includes("Rethink")) {
+  console.error("FAIL[radar]: the partial-lane disclosure (Rethink 1/9) is missing");
   process.exit(1);
 }
-// encoder (1 measured suite) must draw DOTS but NO polygon on either card
-if ((aHtml.match(/rd-polyline/g) || []).length !== 0) {
-  console.error("FAIL[radar]: a 1-point lane drew a polyline");
+// A 1-point lane (the Rethink encoder arm) must draw DOTS but no connecting
+// line on either card; a 2-point lane draws a legitimate segment. The
+// expected polyline count derives from the data, so the guard keeps its
+// original teeth (an over-line render exceeds it) without reding on the
+// next partial lane that measures exactly two areas.
+const numOk = (v) => typeof v === "number" && isFinite(v);
+const areaDefsS = (d.areas || {}).areas || [];
+const suiteNamesS = Object.keys((d.areas || {}).suites || {});
+let expectedLines = 0;
+for (const ld of Object.values((d.areas || {}).lanes || {})) {
+  if (areaDefsS.filter((a) => numOk((ld.areas || {})[a.id])).length === 2) expectedLines++;
+  if (suiteNamesS.filter((n) => numOk((ld.per_suite || {})[n]) && numOk(ld.per_suite[n].cc)).length === 2) expectedLines++;
+}
+if ((aHtml.match(/rd-polyline/g) || []).length !== expectedLines) {
+  console.error(`FAIL[radar]: expected ${expectedLines} polyline segment(s) (lanes with exactly two measured spokes), got ${(aHtml.match(/rd-polyline/g) || []).length} — a 1-point lane drew a line`);
   process.exit(1);
 }
 console.log(`[radar] ${polys} polygons, ${dots} dots, 2 cards, ${legends} legend rows, partial lane disclosed`);

@@ -4,6 +4,43 @@ One hash-pinned line per removed issue (the fleet noise-reduction convention:
 an issue file is removed once its work is verifiably landed; this file is the
 durable record). Full narrative of each: `git log --follow -- .issues/<file>`.
 
+- **2026-10-01 — #areas shows every selected lane + the qualifier-free lane
+  names (owner calls: "should show any selected result" + "rename … to reduce
+  noise").** Two landings in one publish. (1) The Areas & index radar now
+  rolls up EVERY filterable lane, not only the four product lanes — the
+  comparison lanes (clm, gliner, agentjev, openthai, paw, the python laya
+  checkpoints) were filter chips with no radar row, so selecting one left
+  #areas unchanged. `compute_areas()` v2: `AREA_LANES` extended to every
+  lane; acc-only cells (paw/paw-local top-level accuracy) read via the same
+  `_cell_acc` the page's accOf uses; a lane the primary host never ran (clm
+  / gliner / agentjev / paw-local, all 4090-side) rolls up from
+  extra_host_lanes under a host-tagged key (`clm@4090-win`) with `host` on
+  the lane block — the radar legend renders `clm · RTX 4090` (RIG_LABELS),
+  and one filter chip gates every posture of the lane (the `@host` suffix
+  strips for the palette key). Single-host by construction: a lane with any
+  primary cell never enters the host pass. 11 lanes roll up (9/9: Reflex,
+  Instinct, laya rust, openthai, paw; partial: Rethink 1/9, python 8/9,
+  clm/gliner/agentjev 8/9, paw-local 4/9). (2) The lane display spellings
+  are the qualifier-free product names — `Instinct` (hybrid arm, NOT
+  "Rethink (hybrid)"; the 051-Phase-1 hybrid rebrand is superseded by this
+  call) and `Rethink` (encoder arm) — LANE_DISPLAY + AREA_LANES carry the
+  new spellings with every legacy spelling mapped (dual-spelling law);
+  bench.json re-published in place (the lane-scoped update path) landed
+  them in every cell; the JS matchers keep the legacy spellings so an
+  un-re-published bench.json still renders; what each name MEANS moved to
+  the page's Notes bullet + FAQ lanes answer + References (the
+  "described in prose, not in the lane name" ask). Notes readable-ized:
+  bold lead-ins on every bullet; the G1 and modelless-near-chance bullets
+  dropped (the FAQ entries cover both verbatim); the openthai massive
+  latency explainer MOVED to a FAQ entry (it was a why-is-this-number, not
+  a reading rule). Sizes-page candidate renamed (`Instinct · trained
+  specialists`). Issue 004's naming half marked resolved. Gates: publish
+  self-test 66/66 (+3 new area cases: python laya pick, comparison rollup,
+  serving-host host-tagged rollup), chart smoke (19 polys / 121 dots / 22
+  legend rows, polyline guard now data-derived), pairing gate, mirror
+  parity, bench-page smoke (9 armed, vs-Reflex ok 9/9, vs-best gap 3/9 —
+  the smoke's Instinct re-derivation dual-spelled too).
+
 - **2026-09-30 — the modelless lane re-published at the promoted gate
   posture (Issue 056's close-out); the deploy ships the pending typed-H2
   publish too.** Lane-scoped publish over `data/bench.json` as primary

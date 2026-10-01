@@ -896,15 +896,15 @@ def case_hybrid_lane_rides_an_update():
     # the display rename reaches the hybrid lane (primary + extra surfaces)
     d = {"suites": [{"hybrid": {"lane": "hybrid"}}]}
     pb.rename_lanes(d)
-    assert d["suites"][0]["hybrid"]["lane"] == "Instinct (hybrid)"
+    assert d["suites"][0]["hybrid"]["lane"] == "Instinct"
 
-    # a previously-published bench.json carries the OLD display
-    # spelling — the rename must land the new one on re-publish (the
-    # PYTHON_LANE_SPELLINGS dual-spelling law: machine field in a fresh
-    # harness doc, display name in a published bench.json)
-    d2 = {"suites": [{"hybrid": {"lane": "instinct (hybrid)"}}]}
+    # a previously-published bench.json carries an OLD display spelling
+    # (the PYTHON_LANE_SPELLINGS dual-spelling law: machine field in a fresh
+    # harness doc, display name in a published bench.json — both land the
+    # current qualifier-free product name)
+    d2 = {"suites": [{"hybrid": {"lane": "Instinct (hybrid)"}}]}
     pb.rename_lanes(d2)
-    assert d2["suites"][0]["hybrid"]["lane"] == "Instinct (hybrid)"
+    assert d2["suites"][0]["hybrid"]["lane"] == "Instinct"
 
     # device-variant posture: a hybrid lane under m3-max-ane is skipped
     # (pure-CPU lane, a tagged duplicate of the base machine's row) — the
@@ -1857,7 +1857,7 @@ def cc_of(name, a):
 
 def case_area_rollups_math_and_coverage():
     a = pb.compute_areas(area_doc())
-    assert a["version"] == 1
+    assert a["version"] == 2
     # every area suite present → coverage floor 9
     assert len(a["suites"]) == 9 and [x["id"] for x in a["areas"]] == \
         ["language", "sentiment", "reasoning", "decisions"]
@@ -1882,6 +1882,70 @@ def case_area_laya_picks_best_checkpoint():
     # typed_decisions: typed 0.90 beats english 0.40 → typed
     assert lay["per_suite"]["typed_decisions"]["acc"] == 0.90
     assert lay["per_suite"]["typed_decisions"]["ck"] == "typed"
+
+
+def case_area_python_laya_lane_picks_py_checkpoint():
+    """The python laya lane rolls up from the py/ checkpoints with the same
+    best-non-multilingual pick rule as the rust lane — and the rust lane is
+    untouched by the py/ cells."""
+    d = area_doc()
+    s0 = d["suites"][0]  # ag_news: laya english 0.95 / typed 0.50
+    s0["laya"]["py/english"] = area_cell("laya (python)", 0.93, model="english")
+    s0["laya"]["py/typed"] = area_cell("laya (python)", 0.44, model="typed")
+    a = pb.compute_areas(d)
+    py = a["lanes"]["python"]
+    assert py["display"] == "laya (python)" and py["color_key"] == "python"
+    assert py["per_suite"]["ag_news"]["acc"] == 0.93
+    assert py["per_suite"]["ag_news"]["ck"] == "english"
+    assert py["coverage"] == {"suites": 1, "of": 9}
+    # the rust lane never reads a py/ checkpoint as its pick
+    assert a["lanes"]["laya"]["per_suite"]["ag_news"]["acc"] == 0.95
+    assert a["lanes"]["laya"]["per_suite"]["ag_news"]["ck"] == "english"
+
+
+def case_area_comparison_lanes_roll_up():
+    """The radar carries every filterable lane: an acc-only paw cell
+    (top-level accuracy, no `hard`) and a clm-shaped openthai cell roll up
+    beside the product lanes with their palette keys."""
+    d = area_doc()
+    d["suites"][0]["paw"] = {"lane": "paw (hosted)", "accuracy": 0.55}  # ag_news
+    d["suites"][1]["openthai"] = {"lane": "openthai (reference)",
+                                  "hard": {"accuracy": 0.6}}  # massive_intent_en
+    a = pb.compute_areas(d)
+    paw = a["lanes"]["paw"]
+    assert paw["display"] == "paw (hosted)" and paw["color_key"] == "paw"
+    assert paw["per_suite"]["ag_news"]["acc"] == 0.55
+    assert paw["per_suite"]["ag_news"]["cc"] == cc_of("ag_news", 0.55)
+    assert paw["coverage"] == {"suites": 1, "of": 9} and paw["complete"] is False
+    ot = a["lanes"]["openthai"]
+    assert ot["display"] == "openthai"
+    assert ot["per_suite"]["massive_intent_en"]["acc"] == 0.6
+    assert ot["per_suite"]["massive_intent_en"]["cc"] == cc_of("massive_intent_en", 0.6)
+    # a lane with zero cells still vanishes from the block
+    assert "gliner" not in a["lanes"]
+
+
+def case_area_serving_host_lane_rolls_up_host_tagged():
+    """A lane the primary host never ran (clm on 4090-win) rolls up under a
+    host-tagged key with the serving host recorded — never under the bare
+    key — and a lane WITH primary cells (modelless) never enters the host
+    pass, so no host-tagged duplicate of a primary lane can exist."""
+    d = area_doc()
+    for s in d["suites"][:2]:  # ag_news + massive_intent_en
+        s["extra_host_lanes"] = {"4090-win": {
+            "clm": {"lane": "clm (reference)", "hard": {"accuracy": 0.4}},
+            "modelless": area_cell("KatGPT", 0.9),
+        }}
+    a = pb.compute_areas(d)
+    clm = a["lanes"]["clm@4090-win"]
+    assert clm["host"] == "4090-win" and clm["color_key"] == "clm"
+    assert clm["per_suite"]["ag_news"]["acc"] == 0.4
+    assert clm["per_suite"]["ag_news"]["cc"] == cc_of("ag_news", 0.4)
+    assert clm["coverage"] == {"suites": 2, "of": 9} and clm["complete"] is False
+    assert "clm" not in a["lanes"]
+    # the primary lane's extra-host row never becomes a second radar lane
+    assert "modelless@4090-win" not in a["lanes"]
+    assert a["lanes"]["modelless"]["per_suite"]["ag_news"]["acc"] == 0.8625
 
 
 def case_area_partial_lane_discloses_and_never_pads():
@@ -1917,19 +1981,24 @@ def case_area_rollup_is_idempotent():
 
 
 def case_encoder_lane_display_rebrands_to_rethink():
-    # the riir-instinct naming law (riir-ai Proposal 051): the encoder arm's
-    # DISPLAY spelling is "Rethink (encoder)"; the lane KEY never changes,
-    # and a previously-published bench.json carrying the old display name
-    # lands the new one on re-publish (the dual-spelling law)
-    assert pb.LANE_DISPLAY["encoder"] == "Rethink (encoder)"
-    assert pb.LANE_DISPLAY["Instinct (encoder)"] == "Rethink (encoder)"
+    # the riir-instinct naming law (riir-ai Proposal 051) + the owner call
+    # (2026-10-01): the lane DISPLAY spellings are the qualifier-free
+    # product names — "Rethink" (encoder arm) and "Instinct" (hybrid);
+    # the lane KEYS never change, and every previously-published spelling
+    # lands the current one on re-publish (the dual-spelling law)
+    assert pb.LANE_DISPLAY["encoder"] == "Rethink"
+    assert pb.LANE_DISPLAY["Instinct (encoder)"] == "Rethink"
+    assert pb.LANE_DISPLAY["Rethink (encoder)"] == "Rethink"
+    assert pb.LANE_DISPLAY["hybrid"] == "Instinct"
+    assert pb.LANE_DISPLAY["Instinct (hybrid)"] == "Instinct"
     d = area_doc()
-    d["suites"][3]["encoder"]["lane"] = "Instinct (encoder)"
+    d["suites"][3]["encoder"]["lane"] = "Rethink (encoder)"
     pb.rename_lanes(d)
-    assert d["suites"][3]["encoder"]["lane"] == "Rethink (encoder)"
+    assert d["suites"][3]["encoder"]["lane"] == "Rethink"
     # and the areas block's display spelling agrees
     a = pb.compute_areas(d)
-    assert a["lanes"]["encoder"]["display"] == "Rethink (encoder)"
+    assert a["lanes"]["encoder"]["display"] == "Rethink"
+    assert a["lanes"]["hybrid"]["display"] == "Instinct"
 
 
 CASES = [
@@ -1992,6 +2061,9 @@ CASES = [
     case_unknown_host_refused_at_load,
     case_area_rollups_math_and_coverage,
     case_area_laya_picks_best_checkpoint,
+    case_area_python_laya_lane_picks_py_checkpoint,
+    case_area_comparison_lanes_roll_up,
+    case_area_serving_host_lane_rolls_up_host_tagged,
     case_area_partial_lane_discloses_and_never_pads,
     case_area_absent_lane_and_absent_suite_shrink_honestly,
     case_area_rollup_is_idempotent,

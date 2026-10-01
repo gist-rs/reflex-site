@@ -1,16 +1,19 @@
-# Issue 004 — Rethink (encoder) lane is partial on the site: 1/9 benchmarks, radar row incomplete
+# Issue 004 — Rethink lane is partial on the site: 1/9 benchmarks, radar row incomplete
 
-**Status:** OPEN — blocked on riir-ai Proposal 051 Phase 1 (the mechanical rename) + encoder serving results (riir-instinct issue 014 D1's trigger: a real GPU serving deploy)
+**Status:** OPEN — blocked on encoder serving results (riir-instinct issue 014 D1's trigger: a real GPU serving deploy). The naming half is RESOLVED (2026-10-01, owner call): the lane display spellings are the qualifier-free product names — `Rethink` (encoder arm), `Instinct` (hybrid; stays Instinct, NOT "Rethink (hybrid)" — the 051-Phase-1 hybrid rebrand is superseded by that call).
 
 ## What ships today (the graceful partial)
 
-The `/bench/` Areas & index radar (2026-09-30) renders the Rethink (encoder)
+The `/bench/` Areas & index radar (2026-09-30) renders the Rethink
 lane as a PARTIAL series, disclosed everywhere it appears:
 
-- the lane renamed per the riir-instinct naming law (riir-ai Proposal 051):
-  `Instinct (encoder)` → **`Rethink (encoder)`** — display spelling only;
-  the lane key (`encoder`) never changed, and the legacy spelling maps on
-  re-publish (`publish_bench.py` LANE_DISPLAY dual-spelling law);
+- the lane renamed per the riir-instinct naming law (riir-ai Proposal 051),
+  then made qualifier-free per the owner call 2026-10-01:
+  `Instinct (encoder)` → `Rethink (encoder)` → **`Rethink`** — display
+  spelling only; the lane key (`encoder`) never changed, and every legacy
+  spelling maps on re-publish (`publish_bench.py` LANE_DISPLAY dual-spelling
+  law); what the name means is disclosed in the page's Notes/FAQ/References
+  instead of carried in the lane name;
 - the rollup block (`data/bench.json` `areas`) carries the lane at coverage
   **1/9** (`complete: false`) — the index shown is the mean over what was
   MEASURED (sst5), never padded with zeros;
@@ -27,17 +30,17 @@ lane as a PARTIAL series, disclosed everywhere it appears:
    Only the sst5 arm was measured (Bench 029, record-only, `serve: ✗`).
    The lane fills when a GPU serving deploy exists (issue 014 D1's
    trigger — the production host is DESIGNATED, soak lane Issue 1002).
-2. **The full rename is Phase 1 of riir-ai Proposal 051** and is not yet
-   landed: the hybrid lane still reads `Instinct (hybrid)` here. At Phase 1
-   it rebrands to `Rethink (hybrid)` the same way (display spelling +
-   dual-spelling mapping; alias keeps history landing).
+2. ~~The full rename is Phase 1 of riir-ai Proposal 051~~ RESOLVED
+   2026-10-01 (owner call): the hybrid lane display is **`Instinct`** — the
+   qualifier dropped, the hybrid arm NOT rebranded to "Rethink (hybrid)";
+   every legacy spelling maps in LANE_DISPLAY, and the vocabulary lives in
+   the page's Notes/FAQ/References.
 
 ## Definition of done
 
-- [ ] riir-ai Proposal 051 Phase 1 rename lands → this repo rebrands the
-      hybrid lane display (`Instinct (hybrid)` → `Rethink (hybrid)`) with
-      the legacy-spelling mapping, and this issue's prose stops saying
-      "Rethink = encoder only".
+- [x] The naming question is closed (owner call 2026-10-01): qualifier-free
+      product spellings on both lanes (`Instinct` / `Rethink`), legacy
+      spellings mapped, vocabulary disclosed in Notes + FAQ + References.
 - [ ] An encoder serving deploy exists (riir-instinct issue 014 D1) and a
       harness run covers the encoder lane on all nine area suites →
       re-publish; the `areas` lane flips `complete: true`, coverage 9/9,

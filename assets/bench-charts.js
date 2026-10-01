@@ -33,16 +33,19 @@
     { key: "agentjev", label: "agentjev", color: "#d9a62e", match: (l) => l.lane === "agentjev (reference)" },
     // The instinct hybrid (riir-instinct): magenta slot, distinct from all
     // six existing hues under the same dark-surface ≥3:1 contrast rule.
-    { key: "instinct", label: "Instinct (hybrid)", color: "#e06ab4", match: (l) => l.lane === "Instinct (hybrid)" },
+    // Qualifier-free product spelling (owner call 2026-10-01) — what the
+    // name means is disclosed in the page's Notes/FAQ; the legacy
+    // qualified spelling still matches so an un-re-published bench.json
+    // renders.
+    { key: "instinct", label: "Instinct", color: "#e06ab4", match: (l) => l.lane === "Instinct" || l.lane === "Instinct (hybrid)" },
     // riir-instinct issue 014 C1: the record-only encoder arm — a paler
-    // magenta beside the hybrid slot (the same instinct family, the
-    // measured-but-refused read: serve ✗). Display spelling per the
-    // riir-instinct naming law (riir-ai Proposal 051): "Rethink
-    // (encoder)" — the lane KEY never changes, and the match keeps the
-    // legacy spelling so an un-re-published bench.json still renders. Its
-    // results are still 1/9 suites — tracked in reflex-site .issues until
-    // 051 Phase 1 + encoder serving results land.
-    { key: "instinct-encoder", label: "Rethink (encoder)", color: "#b895d0", match: (l) => l.lane === "Rethink (encoder)" || l.lane === "Instinct (encoder)" },
+    // magenta beside the Instinct slot (the same instinct family, the
+    // measured-but-refused read: serve ✗). Product name "Rethink" per
+    // the naming law (riir-ai Proposal 051), qualifier-free per the
+    // owner call 2026-10-01; both legacy spellings still match so an
+    // un-re-published bench.json renders. Its results are still 1/9
+    // suites (partial — disclosed on the radar legends).
+    { key: "instinct-encoder", label: "Rethink", color: "#b895d0", match: (l) => l.lane === "Rethink" || l.lane === "Rethink (encoder)" || l.lane === "Instinct (encoder)" },
     // The OpenThai comparison lane (reflex Plan 003): red slot, distinct
     // from the seven existing hues under the same dark-surface ≥3:1
     // contrast rule (~5:1 measured against #140b08 / #1d110c).
@@ -763,16 +766,31 @@
   // the area's benchmarks; the index is the mean of the spokes) and "All
   // benchmarks" (one spoke per suite). Chance-corrected so a 4-way and a
   // 77-way suite share a radius: 0 = random guessing, 1 = every question
-  // right. Lanes honor the lane filter; the rollups are primary-host rows
-  // (disclosed in the card note). A partial lane (the Rethink encoder
-  // arm, 1/9) draws only its measured spokes — missing suites are gaps,
-  // never zeros dressed as data.
-  const AREA_LANE_KEYS = { modelless: "katgpt", hybrid: "instinct", encoder: "instinct-encoder", laya: "rust" };
+  // right. Lanes honor the lane filter; the rollups are primary-host rows,
+  // except a lane the primary host never ran — it rolls up from its
+  // serving host under a host-tagged key and renders the host beside its
+  // name. A partial lane (the Rethink encoder arm, 1/9) draws only its
+  // measured spokes — missing suites are gaps, never zeros dressed as
+  // data.
+  const AREA_LANE_KEYS = {
+    modelless: "katgpt", hybrid: "instinct", encoder: "instinct-encoder",
+    laya: "rust", python: "python", clm: "clm", gliner: "gliner",
+    agentjev: "agentjev", openthai: "openthai", paw: "paw", paw_local: "paw",
+  };
+  // The block's lane key → filter palette key: the curated keys map
+  // explicitly, a comparison lane keys as itself, and a serving-host
+  // lane's "@host" suffix strips ("clm@4090-win" → "clm") so ONE filter
+  // chip gates every posture of the lane.
+  const areaPaletteKey = (key) => {
+    const k = String(key);
+    return AREA_LANE_KEYS[k] || AREA_LANE_KEYS[k.split("@")[0]] || k.split("@")[0];
+  };
 
   function radarLaneRows(A) {
     return Object.entries(A.lanes).map(([key, ld]) => {
-      const meta = LANES.find((x) => x.key === (AREA_LANE_KEYS[key] || key)) || OTHER;
-      return { key, meta, label: ld.display || meta.label, color: meta.color, data: ld };
+      const meta = LANES.find((x) => x.key === areaPaletteKey(key)) || OTHER;
+      const host = ld.host ? " · " + (RIG_LABELS[ld.host] || ld.host) : "";
+      return { key, meta, label: (ld.display || meta.label) + host, color: meta.color, data: ld };
     }).filter((l) => !(window.BenchFilter && window.BenchFilter.ready()) || window.BenchFilter.visibleKey(l.meta.key));
   }
 
@@ -892,11 +910,11 @@
       `<div class="area-card"><h3>All areas <span class="bc-mut">· decision index</span></h3>` +
       radarSvg(areaDefs.map((a) => a.label), laneRows, areaVals, areaTip, areaAria) +
       `<div class="rd-legend">${radarLegend(laneRows, (l) => l.data.index, partialNote)}</div>` +
-      `<p class="bc-note">${esc("One spoke per area — the lane's mean chance-corrected score over the area's benchmarks; the index is the mean of the spokes. " + A.scale + ". Primary-host rows.")}</p></div>` +
+      `<p class="bc-note">${esc("One spoke per area — the lane's mean chance-corrected score over the area's benchmarks; the index is the mean of the spokes. " + A.scale + ". Primary-host rows; a lane the primary host never ran renders from its serving host (host named on the lane).")}</p></div>` +
       `<div class="area-card"><h3>All benchmarks <span class="bc-mut">· ${esc(String(suiteNames.length))} spokes</span></h3>` +
       radarSvg(suiteNames, laneRows, suiteVals, suiteTip, suiteAria) +
       `<div class="rd-legend">${radarLegend(laneRows, laneMean, partialNote)}</div>` +
-      `<p class="bc-note">${esc(`One spoke per benchmark (${suiteNames.length}), chance-corrected — hover a point for the raw accuracy. A partial lane draws only its measured spokes; gaps are unmeasured, never zero. Primary-host rows.`)}</p></div>` +
+      `<p class="bc-note">${esc(`One spoke per benchmark (${suiteNames.length}), chance-corrected — hover a point for the raw accuracy. A partial lane draws only its measured spokes; gaps are unmeasured, never zero. Primary-host rows; serving-host lanes carry their host.`)}</p></div>` +
       `</div>`;
   }
 

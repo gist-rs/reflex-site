@@ -48,7 +48,10 @@ const accOf = (l) => {
   return h != null ? h : (l && l.accuracy);
 };
 const isModelless = (l) => l.lane === "KatGPT" || l.model === "modelless";
-const isHybrid = (l) => l.lane === "Instinct (hybrid)";
+// The hybrid lane's data spelling: "Instinct" since the qualifier-free
+// product rename (owner call 2026-10-01); "Instinct (hybrid)" matches so
+// an un-re-published bench.json still renders.
+const isHybrid = (l) => l.lane === "Instinct" || l.lane === "Instinct (hybrid)";
 
 // The 95% Wilson score interval (the arena_tldr.js screen, same constants).
 function wilson(p, n, z = 1.96) {

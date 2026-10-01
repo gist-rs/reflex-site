@@ -2152,7 +2152,7 @@
     }
    },
    "hybrid": {
-    "lane": "Instinct (hybrid)",
+    "lane": "Instinct",
     "model": "H2(\u03b2=0.5,nmin=2,\u03c4=2)",
     "hard": {
      "n": 2000,
@@ -3458,7 +3458,7 @@
     }
    },
    "hybrid": {
-    "lane": "Instinct (hybrid)",
+    "lane": "Instinct",
     "model": "H2(\u03b2=0.25,nmin=2,\u03c4=2)",
     "hard": {
      "n": 400,
@@ -4697,7 +4697,7 @@
     }
    },
    "hybrid": {
-    "lane": "Instinct (hybrid)",
+    "lane": "Instinct",
     "model": "A0",
     "hard": {
      "n": 400,
@@ -5924,7 +5924,7 @@
     }
    },
    "hybrid": {
-    "lane": "Instinct (hybrid)",
+    "lane": "Instinct",
     "model": "A1",
     "hard": {
      "n": 600,
@@ -6006,7 +6006,7 @@
     }
    },
    "encoder": {
-    "lane": "Rethink (encoder)",
+    "lane": "Rethink",
     "model": "ENC-t6s0 (laya-english encoder + NLEH v1 head)",
     "hard": {
      "n": 600,
@@ -7125,7 +7125,7 @@
     }
    },
    "hybrid": {
-    "lane": "Instinct (hybrid)",
+    "lane": "Instinct",
     "model": "A1",
     "hard": {
      "n": 116,
@@ -8408,7 +8408,7 @@
     }
    },
    "hybrid": {
-    "lane": "Instinct (hybrid)",
+    "lane": "Instinct",
     "model": "A0",
     "hard": {
      "n": 300,
@@ -9599,7 +9599,7 @@
     "near": 17
    },
    "hybrid": {
-    "lane": "Instinct (hybrid)",
+    "lane": "Instinct",
     "model": "H2(\u03b2=1,nmin=2,\u03c4=8)",
     "hard": {
      "n": 300,
@@ -10948,7 +10948,7 @@
     }
    },
    "hybrid": {
-    "lane": "Instinct (hybrid)",
+    "lane": "Instinct",
     "model": "H2(\u03b2=2,nmin=8,\u03c4=8)",
     "hard": {
      "n": 500,
@@ -11608,7 +11608,7 @@
    },
    "cases_digest": "fnv1a64-93583fda4fc64946",
    "hybrid": {
-    "lane": "Instinct (hybrid)",
+    "lane": "Instinct",
     "model": "A1",
     "hard": {
      "n": 32,
@@ -11978,7 +11978,7 @@
   }
  ],
  "areas": {
-  "version": 1,
+  "version": 2,
   "scale": "chance-corrected accuracy: cc = (acc - chance) / (1 - chance); 0 = random guessing, 1 = every question right; per-suite chance = the mean per-question random-pick probability of the harness's own option construction (a dataset fact, not a measurement)",
   "suites": {
    "ag_news": {
@@ -12109,7 +12109,7 @@
     "complete": true
    },
    "hybrid": {
-    "display": "Instinct (hybrid)",
+    "display": "Instinct",
     "color_key": "instinct",
     "per_suite": {
      "ag_news": {
@@ -12163,7 +12163,7 @@
     "complete": true
    },
    "encoder": {
-    "display": "Rethink (encoder)",
+    "display": "Rethink",
     "color_key": "instinct-encoder",
     "per_suite": {
      "sst5": {
@@ -12243,8 +12243,360 @@
      "of": 9
     },
     "complete": true
+   },
+   "python": {
+    "display": "laya (python)",
+    "color_key": "python",
+    "per_suite": {
+     "ag_news": {
+      "acc": 0.95,
+      "cc": 0.933333,
+      "ck": "english"
+     },
+     "massive_intent_en": {
+      "acc": 0.693333,
+      "cc": 0.677193,
+      "ck": "english"
+     },
+     "banking77": {
+      "acc": 0.422,
+      "cc": 0.414395,
+      "ck": "english"
+     },
+     "sst5": {
+      "acc": 0.371667,
+      "cc": 0.214583,
+      "ck": "english"
+     },
+     "emotion": {
+      "acc": 0.5925,
+      "cc": 0.511,
+      "ck": "english"
+     },
+     "xnli_en": {
+      "acc": 0.86,
+      "cc": 0.79,
+      "ck": "english"
+     },
+     "prompt_injections": {
+      "acc": 0.698276,
+      "cc": 0.396552,
+      "ck": "english"
+     },
+     "typed_decisions": {
+      "acc": 0.7445,
+      "cc": 0.625641,
+      "ck": "typed"
+     }
+    },
+    "areas": {
+     "language": 0.674974,
+     "sentiment": 0.362791,
+     "reasoning": 0.593276,
+     "decisions": 0.625641
+    },
+    "index": 0.564171,
+    "coverage": {
+     "suites": 8,
+     "of": 9
+    },
+    "complete": false
+   },
+   "openthai": {
+    "display": "openthai",
+    "color_key": "openthai",
+    "per_suite": {
+     "ag_news": {
+      "acc": 0.89,
+      "cc": 0.853333
+     },
+     "massive_intent_en": {
+      "acc": 0.92,
+      "cc": 0.915789
+     },
+     "banking77": {
+      "acc": 0.656,
+      "cc": 0.651474
+     },
+     "sst5": {
+      "acc": 0.43,
+      "cc": 0.2875
+     },
+     "emotion": {
+      "acc": 0.59,
+      "cc": 0.508
+     },
+     "xnli_en": {
+      "acc": 0.896667,
+      "cc": 0.845
+     },
+     "prompt_injections": {
+      "acc": 0.62931,
+      "cc": 0.258621
+     },
+     "typed_decisions": {
+      "acc": 0.5345,
+      "cc": 0.317949
+     },
+     "code_fixtures": {
+      "acc": 0.59375,
+      "cc": 0.409091
+     }
+    },
+    "areas": {
+     "language": 0.806865,
+     "sentiment": 0.39775,
+     "reasoning": 0.55181,
+     "decisions": 0.36352
+    },
+    "index": 0.529986,
+    "coverage": {
+     "suites": 9,
+     "of": 9
+    },
+    "complete": true
+   },
+   "paw": {
+    "display": "paw (hosted)",
+    "color_key": "paw",
+    "per_suite": {
+     "ag_news": {
+      "acc": 0.79,
+      "cc": 0.72
+     },
+     "massive_intent_en": {
+      "acc": 0.51,
+      "cc": 0.484211
+     },
+     "banking77": {
+      "acc": 0.42,
+      "cc": 0.412368
+     },
+     "sst5": {
+      "acc": 0.395,
+      "cc": 0.24375
+     },
+     "emotion": {
+      "acc": 0.5,
+      "cc": 0.4
+     },
+     "xnli_en": {
+      "acc": 0.72,
+      "cc": 0.58
+     },
+     "prompt_injections": {
+      "acc": 0.637931,
+      "cc": 0.275862
+     },
+     "typed_decisions": {
+      "acc": 0.5925,
+      "cc": 0.40293
+     },
+     "code_fixtures": {
+      "acc": 0.625,
+      "cc": 0.454545
+     }
+    },
+    "areas": {
+     "language": 0.53886,
+     "sentiment": 0.321875,
+     "reasoning": 0.427931,
+     "decisions": 0.428737
+    },
+    "index": 0.429351,
+    "coverage": {
+     "suites": 9,
+     "of": 9
+    },
+    "complete": true
+   },
+   "clm@4090-win": {
+    "display": "clm",
+    "color_key": "clm",
+    "per_suite": {
+     "ag_news": {
+      "acc": 0.4025,
+      "cc": 0.203333
+     },
+     "massive_intent_en": {
+      "acc": 0.266667,
+      "cc": 0.22807
+     },
+     "banking77": {
+      "acc": 0.01,
+      "cc": -0.003026
+     },
+     "sst5": {
+      "acc": 0.235,
+      "cc": 0.04375
+     },
+     "emotion": {
+      "acc": 0.295,
+      "cc": 0.154
+     },
+     "xnli_en": {
+      "acc": 0.616667,
+      "cc": 0.425
+     },
+     "prompt_injections": {
+      "acc": 0.534483,
+      "cc": 0.068966
+     },
+     "typed_decisions": {
+      "acc": 0.3465,
+      "cc": 0.042491
+     }
+    },
+    "areas": {
+     "language": 0.142792,
+     "sentiment": 0.098875,
+     "reasoning": 0.246983,
+     "decisions": 0.042491
+    },
+    "index": 0.132785,
+    "coverage": {
+     "suites": 8,
+     "of": 9
+    },
+    "complete": false,
+    "host": "4090-win"
+   },
+   "gliner@4090-win": {
+    "display": "gliner",
+    "color_key": "gliner",
+    "per_suite": {
+     "ag_news": {
+      "acc": 0.7025,
+      "cc": 0.603333
+     },
+     "massive_intent_en": {
+      "acc": 0.823333,
+      "cc": 0.814035
+     },
+     "banking77": {
+      "acc": 0.706,
+      "cc": 0.702132
+     },
+     "sst5": {
+      "acc": 0.438333,
+      "cc": 0.297917
+     },
+     "emotion": {
+      "acc": 0.565,
+      "cc": 0.478
+     },
+     "xnli_en": {
+      "acc": 0.476667,
+      "cc": 0.215
+     },
+     "prompt_injections": {
+      "acc": 0.681034,
+      "cc": 0.362069
+     },
+     "typed_decisions": {
+      "acc": 0.528,
+      "cc": 0.308425
+     }
+    },
+    "areas": {
+     "language": 0.7065,
+     "sentiment": 0.387958,
+     "reasoning": 0.288534,
+     "decisions": 0.308425
+    },
+    "index": 0.422854,
+    "coverage": {
+     "suites": 8,
+     "of": 9
+    },
+    "complete": false,
+    "host": "4090-win"
+   },
+   "agentjev@4090-win": {
+    "display": "agentjev",
+    "color_key": "agentjev",
+    "per_suite": {
+     "ag_news": {
+      "acc": 0.8,
+      "cc": 0.733333
+     },
+     "massive_intent_en": {
+      "acc": 0.623333,
+      "cc": 0.603509
+     },
+     "banking77": {
+      "acc": 0.546,
+      "cc": 0.540026
+     },
+     "sst5": {
+      "acc": 0.438333,
+      "cc": 0.297917
+     },
+     "emotion": {
+      "acc": 0.4225,
+      "cc": 0.307
+     },
+     "xnli_en": {
+      "acc": 0.456667,
+      "cc": 0.185
+     },
+     "prompt_injections": {
+      "acc": 0.482759,
+      "cc": -0.034483
+     },
+     "typed_decisions": {
+      "acc": 0.7715,
+      "cc": 0.665201
+     }
+    },
+    "areas": {
+     "language": 0.625623,
+     "sentiment": 0.302458,
+     "reasoning": 0.075259,
+     "decisions": 0.665201
+    },
+    "index": 0.417135,
+    "coverage": {
+     "suites": 8,
+     "of": 9
+    },
+    "complete": false,
+    "host": "4090-win"
+   },
+   "paw_local@4090-win": {
+    "display": "paw (local)",
+    "color_key": "paw",
+    "per_suite": {
+     "ag_news": {
+      "acc": 0.8,
+      "cc": 0.733333
+     },
+     "banking77": {
+      "acc": 0.412,
+      "cc": 0.404263
+     },
+     "sst5": {
+      "acc": 0.416667,
+      "cc": 0.270833
+     },
+     "emotion": {
+      "acc": 0.4875,
+      "cc": 0.385
+     }
+    },
+    "areas": {
+     "language": 0.568798,
+     "sentiment": 0.327916
+    },
+    "index": 0.448357,
+    "coverage": {
+     "suites": 4,
+     "of": 9
+    },
+    "complete": false,
+    "host": "4090-win"
    }
   },
-  "primary_host_only": true
+  "scope": "primary-host rows; a lane the primary host never ran rolls up from its serving host under a host-tagged lane key (clm@4090-win)"
  }
 }

@@ -165,7 +165,7 @@
     <h2 id="areas"><a class="hlink" href="#areas">Areas &amp; index</a></h2>
     <p class="sub">Chance-corrected so suites with different option counts share a radius — 0 = random guessing on that
       suite's options, 1 = every question right. Two views: one spoke per <b>area</b> (the decision index), one per
-      <b>benchmark</b>. The four product lanes: Reflex · modelless, Instinct (hybrid), Rethink (encoder), laya (rust).</p>
+      <b>benchmark</b>. The product lanes: Reflex · modelless, Instinct, Rethink, laya (rust).</p>
     <div id="bench-areas" aria-live="polite"></div>
 
     <h2 id="per-suite"><a class="hlink" href="#per-suite">Per suite</a></h2>
@@ -186,10 +186,11 @@
         Reflex always answers first and answers free; the specialist is consulted only where Reflex's calibrated gate declines, and it pays off only
         where it measured ahead. Until it is the best published lane on <em>every</em> suite it covers, it is a promising PoC and lives here on the
         benchmark page — the arena TL;DR stays Reflex's.</p>
-      <p class="sub"><strong>Naming:</strong> the encoder arm renders as <strong>Rethink (encoder)</strong> — the new product name for the encoder class per
-        riir-instinct's naming law (riir-ai Proposal 051). It is measured on one suite so far (record-only: the encoder class is refused at serve), so its
-        radar row is partial and its index is not comparable with the complete lanes — results land as the encoder serving deploy exists. At 051 Phase 1 the
-        hybrid lane rebrands to Rethink (hybrid) the same way.</p>
+      <p class="sub"><strong>Naming:</strong> the lane names carry no qualifier — <strong>Instinct</strong> is the hybrid
+        (serving) lane, <strong>Rethink</strong> the encoder arm; the product vocabulary follows riir-instinct's naming law
+        (riir-ai Proposal 051, owner call 2026-10-01). Rethink is measured on one suite so far (record-only: the encoder
+        class is refused at serve), so its radar row is partial and its index is not comparable with the complete lanes —
+        results land as the encoder serving deploy exists.</p>
       <figure class="figure">
         <img src="/assets/instinct_flow.svg" width="1751" height="730"
           alt="The Instinct composition flow in two bands: the top band is the question in — the same typed question runs Reflex's modelless engine first, and a confident fused-gate answer returns in microseconds with the specialist never paid; on abstain the bottom band takes over — top-k prune keeps the candidates, the sealed per-domain specialist scores them, an H1 cascade or H2 prior fusion calibrates the pick, and the answer ships with a decision receipt — while arsenal.toml, the only selection surface, hot-swaps registered arms monotonically"
@@ -221,6 +222,8 @@
         <strong>Instinct</strong> — the trained-specialist hybrid (riir-instinct): a BLAKE3-sealed distilled specialist composed with
         Reflex — the modelless lane's fused gate decides when to consult it; the cell is the registered arm's single frozen test read
         over the same seat and protocol as every other lane (per suite, only where a hybrid arm won pre-registration).
+        <strong>Rethink</strong> — the same family's encoder arm (record-only: the encoder class is refused at serve, so it is
+        measured on one suite so far and its row discloses the partial coverage).
         <strong>openthai</strong> — the external OpenThai-SystemOne decision specialist (Apache-2.0, not affiliated, Qwen3.5-0.8B backbone):
         their FastAPI service answers the same decision questions, measured gold-label on our splits — a comparison lane, and the board's Thai-capability row.
         <strong>paw</strong> — the external ProgramAsWeights compile-a-classifier lane (MIT SDK, not affiliated): one neural program compiled
@@ -281,6 +284,17 @@
         own outputs per suite. What differs is latency — and the python figure includes the subprocess round-trip (IPC).</p>
       </details>
       <details class="faq">
+        <summary>Why is the openthai massive_intent_en row ~1.7 s on <code>@m3-max-metal</code> but ~95 ms on <code>@4090-win</code>?</summary>
+      <p>The openthai model reads every option as prompt text — the input template
+        inlines each option (<code>&lt;|ts_opt_i|&gt; option: description</code>) and one forward scores all 256 slots at the
+        answer position, so per-question cost scales with option count. massive carries <strong>59 options
+        (~203 tokens/question)</strong> vs xnli's 3, and on MPS fp32 that prices at ~29 ms per option
+        (~1.7 s/question). The 4090 prices the identical prompts at ~95 ms — same design, same accuracy
+        (0.9200 byte-identical across both hosts), ~18× cheaper tokens. Verified as real, not box contamination:
+        a preflight-passed exclusive-GPU re-read reproduced the number within 5% and made every
+        <code>@m3-max-metal</code> openthai cell quotable from its own run (riir-reflex Bench 085).</p>
+      </details>
+      <details class="faq">
         <summary>Why is latency on a log scale?</summary>
       <p>The lanes are orders of magnitude apart. On a linear axis every modelless bar would be invisible; on the log
         axis each gridline is 10×, so bar length compares ratios, not differences. When a lane lands far past the
@@ -315,11 +329,12 @@
     <h2 id="notes" style="margin-top:40px"><a class="hlink" href="#notes">Notes</a></h2>
     <details class="more"><summary>How to read these numbers</summary>
     <div class="notes"><ul>
-      <li>Every lane sees byte-identical questions. No single "we win" number exists or will exist.</li>
-      <li>The modelless lane's near-chance rows on out-of-domain text are structural — it is corpus-bound by
-        design — and are published rather than trimmed.</li>
-      <li>G1 gates calibration honesty only (does the fitted confidence beat the raw readout AND the
-        conformal-naive floor?). A FAIL means the calibrator had nothing to improve, never that answers got worse.</li>
+      <li><strong>Fair board</strong> — every lane sees byte-identical questions. No single "we win" number exists or will exist.</li>
+      <li><strong>Instinct / Rethink</strong> are Reflex's trained sibling lanes (riir-instinct, private repo):
+        <strong>Instinct</strong> composes distilled per-domain specialists on top of the free engine — consulted only where
+        Reflex's calibrated gate declines; <strong>Rethink</strong> is the same family's encoder arm (record-only so far —
+        refused at serve, a single-suite partial). Full description: <a href="#faq"><em>What are the lanes?</em></a> and
+        the Instinct section above.</li>
       <li><strong>Every row names its machine</strong> with an <code>@host</code> tag (chip + device):
         <code>@m3-max-metal</code> is this page's baseline machine serving the <em>laya</em> lane from
         Metal, <code>@4090-win</code> is a different box, and <code>@m3-max-ane</code> is the same M3 serving
@@ -330,26 +345,17 @@
         quote latency (load or power, riir-reflex's box check) — shown so nothing is hidden, not quotable. A cell
         with no mark was either fit, unjudged (a host with no box probes; hover for which), or published before
         the check was recorded.</li>
-      <li>Accuracy chance level differs per suite (a 3-way and a 77-way task are not comparable) — compare lanes within
+      <li><strong>Chance level differs per suite</strong> (a 3-way and a 77-way task are not comparable) — compare lanes within
         a suite, never one suite's bar with another's.</li>
-      <li>The hero chart shows one checkpoint per laya lane: the best non-multilingual one for that suite, picked once
-        by accuracy so every metric toggle shows the same run. Every checkpoint (multilingual included) is in the
-        per-suite tables.</li>
-      <li>p99 on a small suite is effectively its maximum (under ~100 samples the 99th percentile lands on the last
+      <li><strong>One checkpoint per laya lane</strong> — the hero chart shows the best non-multilingual checkpoint for that
+        suite, picked once by accuracy so every metric toggle shows the same run. Every checkpoint (multilingual included) is
+        in the per-suite tables.</li>
+      <li><strong>p99 on a small suite</strong> is effectively its maximum (under ~100 samples the 99th percentile lands on the last
         one) — read p99 on the harness_* suites as "worst observed", not a tail estimate.</li>
-      <li>Bit-identity across runs is claimed for the modelless lane only; the laya lanes get the same repeat check,
+      <li><strong>Bit-identity</strong> is claimed for the modelless lane only; the laya lanes get the same repeat check,
         reported under <em>det</em>, not claimed.</li>
-      <li>Latency is wall-clock on the host named in the provenance line above; it moves with the machine and its power
+      <li><strong>Latency</strong> is wall-clock on the host named in the provenance line above; it moves with the machine and its power
         state. Modelless accuracy does not — the publisher refuses to merge a host whose modelless accuracy drifts.</li>
-      <li><strong>Why the openthai massive_intent_en row is ~1.7 s on <code>@m3-max-metal</code> but 95 ms on
-        <code>@4090-win</code></strong>: the openthai model reads every option as prompt text — the input template
-        inlines each option (<code>&lt;|ts_opt_i|&gt; option: description</code>) and one forward scores all 256 slots at the
-        answer position, so per-question cost scales with option count. massive carries <strong>59 options
-        (~203 tokens/question)</strong> vs xnli's 3, and on MPS fp32 that prices at ~29 ms per option
-        (~1.7 s/question). The 4090 prices the identical prompts at 95 ms — same design, same accuracy
-        (0.9200 byte-identical across both hosts), ~18× cheaper tokens. Verified as real, not box contamination:
-        a preflight-passed exclusive-GPU re-read reproduced the number within 5% and made every
-        <code>@m3-max-metal</code> openthai cell quotable from its own run (reflex Bench 085).</li>
     </ul></div>
     </details>
 
@@ -387,7 +393,9 @@
       <li>paw reference: <a href="https://programasweights.com">ProgramAsWeights</a> (MIT) ·
         Python SDK <a href="https://github.com/programasweights/programasweights-python">programasweights-python</a> ·
         <a href="https://programasweights.readthedocs.io">docs</a></li>
-      <li>Instinct (hybrid): our lane — the hybrid seat over Reflex; described in the FAQ above (private repo).</li>
+      <li>Instinct / Rethink — our lanes (riir-instinct, private repo): <strong>Instinct</strong> is the trained-specialist
+        hybrid composed over Reflex; <strong>Rethink</strong> is the encoder arm (record-only so far). Described in the
+        <a href="#faq">FAQ</a> above.</li>
     </ul></div>
 
     <h2 id="machines" style="margin-top:40px"><a class="hlink" href="#machines">Machines</a></h2>
