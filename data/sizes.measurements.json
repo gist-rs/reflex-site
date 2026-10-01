@@ -90,16 +90,16 @@
     },
     {
       "key": "rethink_encoder_heads",
-      "bytes": 9060980,
-      "what": "the four sealed NLEH encoder heads the seated Rethink cells serve: sst5 t6_s0.bin 3,197,988 · xnli_en_encoder_v1.bin 2,131,996 · ag_news_encoder_v1.bin 2,664,992 · typed_encoder_v2.bin 1,066,004 (HOSTED-ONLY: BLAKE3-sealed artifacts)",
+      "bytes": 7994976,
+      "what": "the three sealed NLEH encoder heads the serving lane serves (english-checkpoint paired): sst5 t6_s0.bin 3,197,988 · xnli_en_encoder_v1.bin 2,131,996 · ag_news_encoder_v1.bin 2,664,992. The typed v2 head (typed_encoder_v2.bin, 1,066,004 — same dir) is NOT in this posture: it is trained over the TYPED checkpoint (encoder_serve hardcodes Checkpoint::English; 'a head trained on the typed cache is meaningless over the english encoder') and rides the arena's record-only measurement lane",
       "host": "m3-max-metal",
       "date_utc": "2026-10-01",
-      "how": "sum of lstat sizes over ../riir-train/.raw/t599/{t6_s0.bin,xnli_en_encoder_v1.bin,ag_news_encoder_v1.bin} + ../riir-train/.raw/t608/typed_encoder_v2.bin (the .blake3 sidecars excluded)"
+      "how": "sum of lstat sizes over ../riir-train/.raw/t599/{t6_s0.bin,xnli_en_encoder_v1.bin,ag_news_encoder_v1.bin} (the .blake3 sidecars excluded)"
     },
     {
       "key": "rethink_datasets_typed_full",
       "bytes": 7151877,
-      "what": "the typed full-pool corpus the typed Rethink seat boots from (riir-train Issue 581 / Bench 614's dir — NOT reflex's 800-row t20k envelope; deploy.yaml stages it as datasets/typed_decisions)",
+      "what": "the typed full-pool corpus of the TYPED-CELL measurement lane (riir-train Issue 581 / Bench 614's dir — NOT reflex's 800-row t20k envelope; deploy.yaml stages it as datasets/typed_decisions for the typed BAG serving row). NOT part of the Rethink encoder serving posture — the ENC lanes boot their seats from the t20k suites",
       "host": "m3-max-metal",
       "date_utc": "2026-10-01",
       "how": "sum of file sizes over ../riir-train/.raw/datasets_typed_full/typed_decisions (find -type f | stat)"

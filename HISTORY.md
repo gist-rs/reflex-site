@@ -4,6 +4,25 @@ One hash-pinned line per removed issue (the fleet noise-reduction convention:
 an issue file is removed once its work is verifiably landed; this file is the
 durable record). Full narrative of each: `git log --follow -- .issues/<file>`.
 
+- **2026-10-01 (later) — the Rethink size row CORRECTED: 1.74 GB → 885 MB
+  (owner's size audit: "did Rethink really need that huge encoder?").** The
+  first row folded the typed checkpoint + the typed full-pool corpus + the
+  typed v2 head into the serving posture; the code says otherwise:
+  `encoder_serve.rs` hardcodes `Checkpoint::English` at lane boot (every
+  ENC suite encodes with the english checkpoint), and `encoder_arm.rs`'s
+  own doc carries the pairing law — "a head trained on the typed cache is
+  meaningless over the english encoder" — so the typed v2 head CANNOT ride
+  this posture; the typed cell runs through the arena's `--encoder-ckpt
+  typed` measurement lane, which is record-only. The corrected row: engine
+  = serve-encoder-metal binary + the six t20k suites (28,748,684 B); model
+  = english checkpoint (848,195,504, LIVE) + the three servable v1 heads
+  (7,994,976, recorded — the typed head excluded with the pairing law
+  cited); total 884,939,164 B, sitting just above Reflex + laya · typed
+  (851 MB) and well under OpenThai (2.22 GB). The typed checkpoint +
+  full-pool corpus stay in sizes.measurements.json as the measurement
+  lane's facts, reworded to name what they belong to. Same gates, all
+  green (self-test 13/13, --check, render + home smokes).
+
 - **2026-10-01 — the Rethink (encoder arm) lane joined the /#sizes chart
   (owner ask: "Rethink size not report in chart").** The disk-footprint
   report compared 9 lanes and the encoder arm was not among them; a new
