@@ -224,6 +224,7 @@ LANE_DISPLAY = {
     "clm": "clm (reference)",
     "gliner": "gliner (reference)",
     "agentjev": "agentjev (reference)",
+    "bekko": "bekko (reference)",
     "hybrid": "Instinct",
     # The qualifier-free spellings are the product names (owner call,
     # 2026-10-01: the (hybrid)/(encoder) qualifiers were noise on the filter
@@ -335,6 +336,7 @@ def rename_lanes(d):
             + list((s.get("laya") or {}).values())
             + ([s["clm"]] if s.get("clm") else [])
             + ([s["gliner"]] if s.get("gliner") else [])
+            + ([s["bekko"]] if s.get("bekko") else [])
             + ([s["agentjev"]] if s.get("agentjev") else [])
             + ([s["hybrid"]] if s.get("hybrid") else [])
             + ([s["encoder"]] if s.get("encoder") else [])
@@ -527,6 +529,7 @@ AREA_LANES = (
     ("python", "laya (python)", "python"),
     ("clm", "clm", "clm"),
     ("gliner", "gliner", "gliner"),
+    ("bekko", "bekko", "bekko"),
     ("agentjev", "agentjev", "agentjev"),
     ("openthai", "openthai", "openthai"),
     ("paw", "paw (hosted)", "paw"),
@@ -803,9 +806,9 @@ def merge(primary, extras):
         if not dg:
             continue
         cells = ([s.get("modelless")] + list((s.get("laya") or {}).values())
-                 + [s.get(k) for k in ("clm", "gliner", "agentjev",
-                                       "paw", "paw_local", "hybrid",
-                                       "encoder", "openthai")])
+                 + [s.get(k) for k in ("clm", "gliner", "bekko",
+                                       "agentjev", "paw", "paw_local",
+                                       "hybrid", "encoder", "openthai")])
         for cell in cells:
             if isinstance(cell, dict):
                 cell.setdefault("cases_digest", dg)
@@ -817,9 +820,9 @@ def merge(primary, extras):
         pq = doc_latency_quotable(pmeta)
         for s in p_suites.values():
             cells = ([s.get("modelless")] + list((s.get("laya") or {}).values())
-                     + [s.get(k) for k in ("clm", "gliner", "agentjev",
-                                           "paw", "paw_local", "hybrid",
-                                           "encoder", "openthai")])
+                     + [s.get(k) for k in ("clm", "gliner", "bekko",
+                                           "agentjev", "paw", "paw_local",
+                                           "hybrid", "encoder", "openthai")])
             for cell in cells:
                 if isinstance(cell, dict):
                     cell.setdefault("latency_quotable", pq)
@@ -1047,6 +1050,17 @@ def merge(primary, extras):
                 updated_lanes["openthai"] = True
             elif eo:
                 skipped_variant_lanes.append(f"openthai@{ehost}")
+            # The Bekko comparison lane (reflex Bench 103, owner call
+            # 2026-10-01): the same carry law — an external oracle measured
+            # per-host as a JSONL subprocess (their BekkoSentenceTransformer
+            # runtime; the card assigns NO license yet — measurement-only).
+            ebk = s.get("bekko")
+            if ebk and not device_variant:
+                stamp_cell(ebk, s, emeta)
+                entry["bekko"] = ebk
+                updated_lanes["bekko"] = True
+            elif ebk:
+                skipped_variant_lanes.append(f"bekko@{ehost}")
             # The Issue-024 leak block (T4): a slice property of the
             # DATASETS + registry caps, not of the host — the latest
             # run's scan is the published one (a doc without it never
@@ -1475,8 +1489,8 @@ def _carry_into(lane, incumbent):
 # The lane classes a doc can carry. `laya` is a CLASS of checkpoint slots —
 # the inventory expands it per checkpoint key, because a publish that drops
 # one checkpoint drops published cells even though the class survives.
-LANE_CLASSES = ("modelless", "laya", "clm", "gliner", "agentjev", "hybrid",
-                "encoder", "paw", "paw_local", "openthai")
+LANE_CLASSES = ("modelless", "laya", "clm", "gliner", "bekko", "agentjev",
+                "hybrid", "encoder", "paw", "paw_local", "openthai")
 
 
 def lane_inventory(d):

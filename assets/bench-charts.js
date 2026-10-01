@@ -50,6 +50,11 @@
     // from the seven existing hues under the same dark-surface ≥3:1
     // contrast rule (~5:1 measured against #140b08 / #1d110c).
     { key: "openthai", label: "openthai", color: "#7e57c2", match: (l) => l.lane === "openthai (reference)" },
+    // The Bekko comparison lane (reflex Bench 103, owner call 2026-10-01):
+    // soft-rose slot — distinct from all existing hues under the same
+    // dark-surface ≥3:1 contrast rule (disclosed: not ΔE-validated with the
+    // founding slots' rigor; the next palette pass re-checks all-pairs).
+    { key: "bekko", label: "bekko", color: "#e57373", match: (l) => l.lane === "bekko (reference)" },
     // The PAW comparison lanes (reflex .issues/033): ProgramAsWeights — the
     // hosted and local postures share ONE palette slot and ONE filter chip
     // (same lane, two serving postures); the table row label carries the
@@ -336,6 +341,7 @@
     for (const k of Object.keys(s.laya || {})) out.push(s.laya[k]);
     if (s.clm) out.push(s.clm);
     if (s.gliner) out.push(s.gliner);
+    if (s.bekko) out.push(s.bekko);
     if (s.agentjev) out.push(s.agentjev);
     if (s.openthai) out.push(s.openthai);
     if (s.paw) out.push(s.paw);
@@ -351,6 +357,7 @@
       for (const k of Object.keys(hl.laya || {})) out.push([hl.laya[k], host]);
       if (hl.clm) out.push([hl.clm, host]);
       if (hl.gliner) out.push([hl.gliner, host]);
+      if (hl.bekko) out.push([hl.bekko, host]);
       if (hl.agentjev) out.push([hl.agentjev, host]);
       if (hl.openthai) out.push([hl.openthai, host]);
       if (hl.paw) out.push([hl.paw, host]);

@@ -779,6 +779,46 @@ def case_gliner_lane_rides_an_update():
     assert d["suites"][0]["gliner"]["lane"] == "gliner (reference)"
 
 
+def case_bekko_lane_rides_an_update():
+    # reflex Bench 103 (owner call 2026-10-01): the Bekko comparison lane
+    # rides the same carry law. The SAME-HOST shape (the lane lands
+    # directly on the suite, the modelless lane it measured beside gets
+    # refreshed, lane_sources records the run) — bekko ran on the primary
+    # host m3-max-metal, unlike the clm/gliner/agentjev 4090 cells.
+    # Model column carries the size (the lane field is family-level: one
+    # lane, any bekko-system-one-v0 checkpoint).
+    primary = doc("m3", "sha-m3", {"s1": {"modelless_acc": PRE_ACC}})
+    update = doc("m3", "sha-bk", {"s1": {"modelless_acc": PRE_ACC}})
+    update["suites"][0]["bekko"] = {
+        "lane": "bekko", "model": "hotchpotch/bekko-system-one-v0-68m",
+        "hard": {"accuracy": 0.6767}, "latency_p50_ms": 81.0,
+    }
+    merged, err = merge_refusing(primary, update)
+    assert merged is not None, f"merge must pass, got: {err}"
+    s1 = next(s for s in merged["suites"] if s["name"] == "s1")
+    assert s1["bekko"]["hard"]["accuracy"] == 0.6767
+    assert s1["bekko"]["lane"] == "bekko"  # machine field preserved pre-rename
+    assert s1["bekko"]["model"] == "hotchpotch/bekko-system-one-v0-68m"
+
+    # a later bekko-bearing update replaces the lane + records lane_sources
+    later = doc("m3", "sha-bk2", {"s1": {"modelless_acc": PRE_ACC}})
+    later["suites"][0]["bekko"] = {
+        "lane": "bekko", "model": "hotchpotch/bekko-system-one-v0-17m",
+        "hard": {"accuracy": 0.5371}, "latency_p50_ms": 17.0,
+    }
+    merged2, err2 = merge_refusing(merged, later)
+    assert merged2 is not None, f"second merge must pass, got: {err2}"
+    s1b = next(s for s in merged2["suites"] if s["name"] == "s1")
+    assert s1b["bekko"]["hard"]["accuracy"] == 0.5371
+    row = next(h for h in merged2["meta"]["hosts"] if h["host"] == "m3")
+    assert row["lane_sources"]["bekko"]["git_sha"] == "sha-bk2"
+
+    # the display rename reaches the bekko lane
+    d = {"suites": [{"bekko": {"lane": "bekko"}}]}
+    pb.rename_lanes(d)
+    assert d["suites"][0]["bekko"]["lane"] == "bekko (reference)"
+
+
 def case_agentjev_lane_rides_an_update():
     # reflex .issues/025 amendment 4: the AgentJev comparison lane rides
     # the same carry law — an update declares it, the merged state carries
@@ -2066,6 +2106,7 @@ CASES = [
     case_clm_lane_and_leak_block_ride_an_update,
     case_host_display_rename_at_load_boundary,
     case_gliner_lane_rides_an_update,
+    case_bekko_lane_rides_an_update,
     case_agentjev_lane_rides_an_update,
     case_openthai_lane_rides_an_update,
     case_hybrid_lane_rides_an_update,
