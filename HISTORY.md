@@ -4,6 +4,28 @@ One hash-pinned line per removed issue (the fleet noise-reduction convention:
 an issue file is removed once its work is verifiably landed; this file is the
 durable record). Full narrative of each: `git log --follow -- .issues/<file>`.
 
+- **2026-10-01 — the cc metric rendered every lane "— not run" (user live
+  report, `47f786d`).** The chance-corrected acc metric's `get` is
+  `(lane, suite)` — `chanceOf(s)` reads the suite's curated baseline from
+  `data.areas.suites` — but the hero's `barHtml` called `M.get(l)` without
+  the suite, so cc scored null on EVERY cell and every lane collapsed to
+  the not-run cell, on every suite, while the acc view, the tables, the
+  home summary (`laneStats` — already passed the suite) and the area radar
+  (precomputed) were full of scores. That asymmetry was the tell: a
+  metric-specific blank board is a transform bug, not missing data and not
+  browser state — the rig/lane-filter theories of the earlier report
+  (fixed in `6abaeb3`, still a real guard) could not reproduce it because
+  they were the wrong layer. Fix: every metric call site passes
+  `(lane, suite)` (`barHtml`, `cell` — the latter latent, only ever called
+  with acc/p50); the empty cell is honest about WHY ("no chance baseline"
+  for cc on the six harness families — a lane that ran but cannot score
+  there — reserving "not run" for a lane that never measured the suite);
+  the cc note explains the axis and the skip. `bench_page_smoke` 9b pins
+  it data-derived (9 chance bars / 6 no-baseline / 2 not-run today),
+  proven two-sided — on the pre-fix file it fails with the exact user
+  symptom. Live-verified post-deploy: 114 real bars on
+  `reflex.gist.rs/bench/?m=cc`, zero not-run on a chance suite.
+
 - **2026-10-01 — #areas shows every selected lane + the qualifier-free lane
   names (owner calls: "should show any selected result" + "rename … to reduce
   noise").** Two landings in one publish. (1) The Areas & index radar now
