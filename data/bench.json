@@ -54,8 +54,8 @@
     "corpus_cap_mode": "registry defaults",
     "lane_sources": {
      "modelless": {
-      "git_sha": "25fd257",
-      "date_utc": "2026-10-01T00:33:33Z"
+      "git_sha": "19cb043",
+      "date_utc": "2026-10-01T08:34:03Z"
      },
      "laya:english": {
       "git_sha": "fe7c123",
@@ -248,16 +248,16 @@
     "brier_soft": 0.16762865443923508,
     "score_mae": 0.5717842324853881,
     "within_1": 0.81625,
-    "latency_p50_ms": 0.517,
-    "latency_p99_ms": 1.734,
+    "latency_p50_ms": 0.782,
+    "latency_p99_ms": 1.69,
     "latency_tail_support": 5,
     "latency_extremes": {
-     "first_ms": 0.24,
-     "max_ms": 1.924,
-     "argmax_case": 112
+     "first_ms": 0.22,
+     "max_ms": 1.701,
+     "argmax_case": 150
     },
     "determinism_ok": true,
-    "seconds": 6.570574541,
+    "seconds": 6.8922451670000004,
     "n_cases": 400,
     "n_questions": 2000,
     "score_threshold": 0.57852864,
@@ -546,11 +546,8 @@
     "cases_digest": "fnv1a64-6e37760ee2a5b6c9",
     "latency_quotable": true,
     "source_run": {
-     "git_sha": "25fd257",
-     "date_utc": "2026-10-01T00:33:33Z"
-    },
-    "latency_provenance": {
-     "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
+     "git_sha": "19cb043",
+     "date_utc": "2026-10-01T08:34:03Z"
     }
    },
    "laya": {
