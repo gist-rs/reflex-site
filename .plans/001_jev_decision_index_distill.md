@@ -1,12 +1,10 @@
 # Jev Decision Index distill — bench-page improvement plan (plan-only)
-
 **Status:** PLANNED — no implementation (owner call 2026-10-01: plan md only; no new model
-candidates larger than laya). Sources read live: the HF Space
-(`multimodalart/jev-decision-index`, edition 0.2.1) + its open runner repo
-(`apolinario/decision-index`, cloned to `.raw/` and removed after distill — re-clone on
-implementation if needed). Complementary sources: Space `README.md`, `methodology.html`
-render code, `decision_index/scoring/{index,index02,metrics}.py`, `data/chance-baselines.json`,
-`data/index-panel.json`, `docs/format.md`.
+candidates larger than laya). REVISED after a reviewer round: the original draft re-planned
+substrate that already ships (the chance-corrected `cc` metric landed 2026-09-30 in
+`f0185af`, fixed `47f786d`, documented `cf23805`; the reflex Issue-058 board restore landed
+`d750175`, so the sequencing blocker is gone). T1 is re-scoped to the genuinely-open deltas
+on top of that machinery.
 
 ## Why this matters
 
@@ -30,115 +28,130 @@ NOT copy their board (no new entrants, see Constraint).
    axis is decision quality per millisecond and per byte, and every lane must stay
    sub-second-class on the M3.
 
-## What they do (the mechanics worth stealing)
+## Substrate audit — what ALREADY ships (do not rebuild; extend)
 
-1. **Chance-corrected headline.** `skill = clip((s − r)/(1 − r))` per benchmark (`metrics.py::skill`),
-   where `r` is a frozen per-benchmark random baseline. Headline `balanced_skill` = mean of
-   area skills; raw accuracy kept visible on model pages; a breadth variant
-   (geometric mean `Π(0.1+0.9·K)^(w)`) is computed but hidden. Since 0.2 the headline is
-   skill — "0 = random guessing, 100 = perfect" — because raw accuracy across benchmarks with
-   different chance rates (1/77 vs 1/2) is not comparable.
-2. **Measured, pinned chance baselines.** `chance-baselines.json`: per benchmark
-   `{value, label, kind, method}` — "Exact expectation" or Monte Carlo with
-   `monte_carlo_standard_error` asserted ≤ 0.001 at scoring time (`index.py:106`). Some
-   benchmarks compute chance inline as a macro average over subgroups. Baselines are
-   sha256-pinned in the methodology bundle — "a re-run that changes any of them announces
-   itself".
-3. **Refusal-as-wrong at the metric level + mined causes.** Unanswered = 0 and counts in the
-   denominator (`conservative_f1` adds `missing` to the denominator). An
-   `answer_gaps.py` pass mines each run's refusal messages into one line per cause; the page
-   shows an answered-rate bar + per-cause shares ("why the rest went unanswered"). No
-   truncation was applied to make a request fit.
-4. **Pending, never zero.** An entrant missing a benchmark is shown as *pending*, not scored
-   0; `coverage`/`pending` fields ride every aggregation level (benchmark → area → index).
-   Unrun interactive environments get an explicit "provisional lower bound" status. The
-   complete-run gate (board requires all 40) is their third-party-entrant rule — ours is
-   disclosure, but pending-not-zero in composites applies to us directly.
-5. **Area weighting (0.2.1).** `w_c ∝ √n_c` for non-fixed areas, Arts fixed at 0.1;
-   gold★ benchmarks weighted 1.2 vs 1.0 inside an area (`index02.py::area_weights/bench_weights`).
-6. **Baseline-relative loss rules for specialized benchmarks.** ForecastBench enters as
-   `clip((baseline − Brier)/(baseline − best)) · coverage` — 0 at baseline or worse.
-7. **Per-engine latency-method disclosure.** A table: "how each engine's request time was
-   recorded" — in-process GPU vs hosted HTTP median/p95 — with a comparability note. Two
-   clocks are never pooled silently.
-8. **Entrant classification.** kind (inference technique / full fine-tune / LoRA / head) +
-   architecture + served params (+trained MB) with precedence rules — "whether a number came
-   from new weights or from a decoding technique wrapped around a stock checkpoint is a
-   different claim".
-9. **Auditability per benchmark row.** Subset rule, source revisions, licences, adaptation
-   class, comparability note, excluded-questions table (per-reason counts + "deliberately
-   kept"), edition notes (limits lifted + rows re-answered, lifts NOT applied, run-to-run
-   variation, contamination, board changes with why), a worked example of the whole index
-   computation, corpus/panel/baseline sha256 pins, and a reproduce section naming every
-   script.
-10. **Static-data discipline.** `data/index.json` is the only mutable surface; HTML never
-    changes for a data update; editions switch by file copy; old bundles archived
-    (`index-v0.1.json`). Social card rendered from live data via headless Chrome.
+Verified in the worktree at `main` (`8d33e3f`), post-review:
 
-We already match #10 (publish_bench.py → data/bench.json, HTML renders it) — that is why
-these upgrades slot in cleanly.
+- **Chance-corrected metric + areas rollup** (`f0185af`, 2026-09-30): `compute_areas()` in
+  `scripts/publish_bench.py` emits `data/bench.json` → `areas` v2 — per-suite
+  `cc = (acc − chance)/(1 − chance)` (unclipped; bounded by construction since
+  `acc ∈ [0,1]`, `chance ∈ (0,1)`, so a clip is unnecessary for accuracy-based cc — note
+  Jev clips only because non-accuracy metrics can enter), per-area means, per-lane
+  `index` (mean of area cc means), per-lane `coverage {suites, of}` + `complete`,
+  host-tagged lane keys (`clm@4090-win`), and a `scale` disclosure string. The page
+  renders it: `chanceOf()` in `assets/bench-charts.js`, radar cards, `FAIL[cc]` smoke arms.
+- **The chance BASIS is the harness's own option construction** — `AREA_CHANCE` in
+  `publish_bench.py` (lines ~471-500): "dataset facts read off the harness's own option
+  construction (ag_news 4, massive 20 presented/question, banking77 77, sst5 5, emotion 6,
+  xnli 3, prompt 2, typed 20-head-type mean 0.3175, code (1/8+1/2)/2)". This is the right
+  basis (random guessing against the PRESENTED task) and SUPERSEDES this plan's original
+  uniform-`1/n_labels` table — do not add a second, different-baseline table.
+- **Pending-not-zero** already holds in `compute_areas`: a lane missing a suite lacks that
+  suite's entry; partial lanes take the mean over what they measured ("disclosed, never
+  padded with zeros"); `coverage`/`complete` ride every lane block; the honest-empty-cell
+  law + cc all-not-run root cause are recorded in `cf23805`.
+- **Per-cell timing provenance** exists: `stamp_cell()` carries the run's `box_state` and
+  latency verdict ON the cell (Issue-057/003), so timing disclosures can be aggregated from
+  cells rather than hand-typed.
+- **Sequencing**: the reflex Issue-058 board restore landed `d750175` (full-pool basis +
+  dated disclosure) and the corpus-reset ack follow-ups continued through `8d33e3f`.
+  `publish_bench.py` is no longer hot — but re-check `git status` for sibling edits before
+  landing anything.
+
+## What they do (the mechanics worth stealing — remaining deltas marked ★)
+
+1. **Chance-corrected headline.** `skill = clip((s − r)/(1 − r))` per benchmark
+   (`metrics.py::skill`), frozen per-benchmark random baselines, `balanced_skill` headline,
+   raw accuracy kept visible, breadth variant computed-but-hidden. → We ship the cc
+   equivalent in the areas block. ★ Remaining: surface cc/skill in the per-suite TABLE
+   cells (tables still show raw acc only) and a headline chip per lane (the lane `index`
+   exists in data; the page does not headline it).
+2. **Measured, pinned chance baselines.** `{value, method, monte_carlo_standard_error ≤
+   0.001}` per benchmark, sha-pinned. → We ship `AREA_CHANCE` as curated dataset facts with
+   the basis disclosed in `scale`. ★ Remaining: pin the AREA_CHANCE table's digest the way
+   bench.json pins corpus digests, so a basis edit announces itself.
+3. **Refusal-as-wrong + mined causes.** `conservative_f1` counts missing in the denominator;
+   `answer_gaps.py` mines refusal messages into per-cause shares. ★ Ours entirely open: we
+   publish abstain RATES with no WHY.
+4. **Pending, never zero.** → We ship this in `compute_areas`. ★ Remaining: one regression
+   arm proving a hypothetical future composite cannot zero-fill (extend the self-test; the
+   existing arms cover the areas block).
+5. **Area weighting (√n_c, gold★ 1.2).** Noted only — revisit if our suite count grows well
+   past 15. Non-goal for now.
+6. **Baseline-relative loss rules** (ForecastBench `clip((baseline − Brier)/(baseline −
+   best)) · coverage`). Non-goal: we run no forecasting suite.
+7. **Per-engine latency-method disclosure table.** ★ Open: a structured per-lane `timing`
+   block + a page table ("how each lane's request time was recorded"), aggregated from the
+   existing cell stamps — not hand-typed prose.
+8. **Entrant classification** (kind/architecture/params with precedence rules). ★ Open: a
+   `kind` field per lane (modelless-in-process / trained-head / encoder / http-oracle /
+   python-subprocess / compiled-program) + kind chips.
+9. **Auditability per benchmark row** (subset rules, revisions, licences, excluded-questions
+   table, edition notes, worked example, sha pins, board changes with why). ★ Open: edition
+   label + `suite_digest` in bench.json, archived bundles, append-only changelog —
+   coordinate with the corpus_digest work that just landed (`d750175`/`8d33e3f`).
+10. **Static-data discipline.** We already match it (publish_bench.py → data/bench.json;
+    HTML renders, never re-derives — the compute_pairings precedent).
 
 ## Tasks
 
-Sequencing: `scripts/publish_bench.py` is HOT — a sibling session is landing the Issue-058
-corpus-reset drop semantics there. T1 tasks all touch it; land them AFTER the sibling's
-corpus-reset work merges. Each task keeps the existing gates green (publish self-test
-66/66+, chart smoke, pairing gate, bench-page Playwright smoke) and adds its own test arms.
+Each task keeps the existing gates green (publish self-test 66/66+, chart smoke, pairing
+gate, bench-page Playwright smoke) and adds its own test arms. Worktree check before
+landing: `git status --porcelain scripts/publish_bench.py` must be clean of sibling edits.
 
-### T1 — computation-only, reflex-site, cheap (land first, post-058)
+### T1 — computation-only, reflex-site (publish_bench.py free since d750175)
 
-- [ ] 1. **Chance table + skill layer.** Committed pinned table (`data/chance.json` or a
-      pinned const block in publish_bench) with per-suite `{chance, method}`:
-      dataset suites = uniform `1/n_labels` (banking77 1/77, massive 1/14, ag_news 1/4,
-      emotion 1/6, sst5 1/5, xnli 1/2) with the majority-class alternative recorded as the
-      method choice; decision families = the harness's already-measured gold-0 rate.
-      publish_bench emits per-cell `skill` + per-lane composite `skill_mean` (mean over
-      suites the lane ran). Page: skill column beside accuracy; optional "skill" radar mode;
-      a headline chip per lane (skill-based). Never replace accuracy — display both (their
-      raw-on-model-page rule).
-- [ ] 2. **Pending-not-zero law.** Composites (skill_mean, areas radar) skip suites a lane
-      did not run and carry a `pending` count; no zero-fill, ever. Publish self-test arm:
-      a lane with 1/9 suites gets skill_mean over 1 suite + pending 8, never a 0-suite mean.
-- [ ] 3. **Per-lane timing-method disclosure.** Structured `timing` block per lane in
-      bench.json (`{clock: in-process|metal|subprocess-http|subprocess-python,
-      posture, box}`) + a methodology table on the bench page ("how each lane's request
-      time was recorded") + a comparability note. Data is classification, not measurement —
-      consistent with the never-type-a-number law.
-- [ ] 4. **Lane kind classification.** `kind` per lane (modelless-in-process / trained-head
-      / encoder / http-oracle / python-subprocess / compiled-program) in bench.json + kind
-      chips on the page filter bar. Mirrors their entrant-classification rule.
+- [ ] 1. **Extend the shipped cc layer (do NOT build a second one).** (a) Per-suite cc
+      beside accuracy in the suite tables (data may already carry per-suite `cc` in the
+      areas block — render it; add nothing if present). (b) A headline chip per lane from
+      the existing per-lane `index` (e.g. "cc index 0.61 · 6/9 suites"). (c) Optional skill
+      radar mode = the existing cc spokes (likely already the case — verify, don't
+      duplicate). No new chance table; `AREA_CHANCE` is the only basis.
+- [ ] 2. **Pin the chance basis.** Emit the AREA_CHANCE digest into the areas block (the
+      corpus_digest precedent) so a basis edit announces itself; self-test arm: editing a
+      chance value changes the published digest.
+- [ ] 3. **Zero-fill regression arm.** One self-test arm extending the existing
+      pending-not-zero coverage: a future composite helper (if any is added) must skip
+      missing suites and carry pending — assert against the current `compute_areas` emitter
+      so the law is pinned where it lives.
+- [ ] 4. **Per-lane timing-method disclosure.** Structured `timing` per lane in bench.json
+      derived from the cell stamps (clock class: in-process / metal / subprocess-http /
+      subprocess-python; posture; box) + a methodology table on the page + a comparability
+      note. Two clocks never pool silently.
+- [ ] 5. **Lane kind classification.** `kind` per lane in bench.json + kind chips on the
+      filter bar (their entrant-classification rule: technique vs weights is a different
+      claim).
 
 ### T2 — medium, some cross-repo (file a riir-reflex issue when started)
 
-- [ ] 5. **Abstention-reason mining.** riir-reflex harness first: record the abstain CAUSE
+- [ ] 6. **Abstention-reason mining.** riir-reflex harness first: record the abstain CAUSE
       per case (score-gate vs corpus-distance-gate vs grammar-invalid). Then publish_bench
-      aggregates per suite; page shows answered-rate bar + per-cause shares. This is the
-      answer-gaps mechanic applied to our abstention-first-class story — currently we
-      publish abstain RATES with no why.
-- [ ] 6. **Edition label + archived bundles + board-change changelog.** bench.json gains
-      `edition` + `suite_digest` (the corpus BLAKE3 we already pin); each publish archives
-      `data/bench-<stamp>.json`; an append-only `changes` list `{date, change, why}`.
-      COORDINATE with Issue-058 corpus-reset semantics (sibling) — the reset drop should
-      write a changelog row. Old links stay comparable; a re-pin announces itself.
-- [ ] 7. **Per-lane detail view** (`bench/?lane=<id>`): full lane profile from existing
-      bench.json (suites, accuracy, skill, abstain, latency, provenance, gate verdicts).
-      No new data required.
-- [ ] 8. **Determinism/run-variation disclosure formalized.** det ✓/✗ + repeat count as a
+      aggregates per suite; page shows answered-rate bar + per-cause shares (the
+      answer-gaps mechanic applied to our abstention-first-class story).
+- [ ] 7. **Edition label + archived bundles + board-change changelog.** bench.json gains
+      `edition`; each publish archives `data/bench-<stamp>.json`; an append-only `changes`
+      list `{date, change, why}`. The corpus-reset drops just landed should back-fill the
+      first changelog rows.
+- [ ] 8. **Per-lane detail view** (`bench/?lane=<id>`): full lane profile from existing
+      bench.json (suites, acc, cc, abstain, latency, provenance, gate verdicts). No new
+      data required.
+- [ ] 9. **Determinism/run-variation disclosure formalized.** det ✓/✗ + repeat count as a
       structured field per cell (already printed in tables; make it data).
 
 ### T3 — distinctive (our angle; no new models)
 
-- [ ] 9. **Efficiency frontier.** Skill score vs p50 latency scatter (+ per-MB from
+- [ ] 10. **Efficiency frontier.** cc index vs p50 latency scatter (+ per-MB from
       sizes.json), Pareto-frontier marked. No leaderboard in the Jev index publishes
-      latency-normalized quality — this is where our modelless story wins, using only
-      existing lanes. Their two-clocks honesty note applies: cross-posture comparisons
-      carry the timing disclosure from task 3.
-- [ ] 10. **og.png social card** for the bench page rendered from bench.json via headless
+      latency-normalized quality — this is where the modelless story wins, using only
+      existing lanes. Cross-posture comparisons carry the timing disclosure from task 4.
+- [ ] 11. **og.png social card** for the bench page rendered from bench.json via headless
       Chrome (Playwright already in the smoke lane). Optional polish.
 
 ### Read-only follow-ups (no candidates added)
 
 - [x] Distill the index mechanics into this plan.
+- [x] Substrate audit — cc/areas/pending/timing-stamp machinery located and cited (this
+      revision).
 - [ ] Check whether laya finished their frozen suite (`?model=laya` on the Space) and if so
       cite its public Decision Index score in the laya lane docs — external context for our
       laya columns. Citation only; no new lanes, no runs.
@@ -148,18 +161,23 @@ corpus-reset work merges. Each task keeps the existing gates green (publish self
 ## Non-goals
 
 - Any new model candidate > laya (421M trained params) — owner constraint above.
-- Their complete-run gate as a hard rule (single-operator board; our disclosure + pending
-  law covers it).
+- A second chance-baseline table with a different basis (uniform 1/n_labels) — the shipped
+  AREA_CHANCE (harness's own option construction) is the only basis; this plan's original
+  uniform-table proposal is WITHDRAWN.
+- Their complete-run gate as a hard rule (single-operator board; our disclosure + the
+  shipped pending-not-zero law covers it).
 - News tracker / trending scores — not our site's shape.
 - √n area weights and gold★ 1.2 weighting — noted; revisit only if our suite count grows
   well past 15.
 - ForecastBench-style loss rules — we run no forecasting suite.
+- A cc clip — unnecessary for accuracy-based cc (bounded by construction); revisit only if
+  a non-accuracy metric ever enters the rollup.
 
 ## Verification (when implemented, per task)
 
-- `python3 scripts/test_publish_bench.py` — new arms: skill math (incl. clip bounds),
-  pending-not-zero, chance-table coverage vs suites present, kind/timing presence.
+- `python3 scripts/test_publish_bench.py` — new arms: chance-digest pin (task 2),
+  zero-fill regression (task 3), timing/kind presence (tasks 4-5); existing 66+ stay green.
 - `node scripts/chart_render_smoke.cjs` + `scripts/bench_page_smoke.cjs` — extended for the
-  new column/chips/detail view.
+  new chip/column/chips/detail view.
 - Pairing gate + mirror parity unchanged and green.
 - Deploy via `npx wrangler deploy`; live-verify the page.
