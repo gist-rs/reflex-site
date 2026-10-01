@@ -4,6 +4,34 @@ One hash-pinned line per removed issue (the fleet noise-reduction convention:
 an issue file is removed once its work is verifiably landed; this file is the
 durable record). Full narrative of each: `git log --follow -- .issues/<file>`.
 
+- **2026-10-01 — the Rethink (encoder arm) lane joined the /#sizes chart
+  (owner ask: "Rethink size not report in chart").** The disk-footprint
+  report compared 9 lanes and the encoder arm was not among them; a new
+  `rethink_encoder` candidate reports the encoder SERVING posture, measured
+  end to end: engine = the `serve` binary built with `--features
+  serve-encoder-metal` (7,940,160 B, freshly built + lstat'd on this box —
+  the build stamp carries arena-laya, serve-encoder, serve-encoder-metal) +
+  the staged dataset suites (the six t20k corpora + riir-train's typed
+  full-pool dir, 7,151,877 B); model = the laya-english + laya-typed
+  checkpoints (LIVE HF tree API — english via a new `hf_subtree_diff` kind:
+  whole tree minus the two sibling subtrees, the same arithmetic the
+  reflex_laya_typed note already quoted as "848 MB") + the four sealed NLEH
+  encoder heads (9,060,980 B, recorded — sst5 t6_s0 / xnli_en / ag_news v1 +
+  typed v2, .blake3 sidecars excluded). Two generic source kinds landed for
+  it: `hf_subtree_diff` and `sum` (composes LIVE + RECORDED children so one
+  bar can carry both); the pre-existing model dispatch refactored into
+  `resolve_model()` (one dispatch, sum reuses it recursively). Total
+  1,739,352,761 B — between the python reference (1.49 GB) and OpenThai
+  (2.22 GB); the note discloses the posture honestly: measured on the GPU
+  bench host (M3 Metal), the encoder class is record-only (refused at the
+  CPU-only deploy shape, instinct issue 014 C1) — nothing ships until a GPU
+  serving deploy exists. Gates: publish self-test 13/13 (three new arms —
+  the rethink resolve, the diff kind + its empty-tree refusal, the
+  missing-recorded-key-inside-a-sum refusal), sizes --check (10 candidates,
+  ascending), size-chart render smoke (10 stacks), home-page browser smoke
+  (10 candidates rendered, placement + provenance + TL;DR laws green).
+  data/sizes.json regenerated in place (release v0.2.3 unchanged).
+
 - **2026-10-01 — the cc metric rendered every lane "— not run" (user live
   report, `47f786d`).** The chance-corrected acc metric's `get` is
   `(lane, suite)` — `chanceOf(s)` reads the suite's curated baseline from

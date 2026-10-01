@@ -98,6 +98,20 @@ CANDIDATES = [
         "note": "the trained sibling lane: the specialists serve six text suites; game spots answer through its Reflex half",
     },
     {
+        "key": "rethink_encoder",
+        "name": "Rethink · encoder arm",
+        "framework": "one serve binary (GPU host) + the laya-riir encoder resident from boot + the Reflex half's dataset seats",
+        "engine": ("recorded_sum", "rethink_serve_binary", "instinct_datasets_t20k", "rethink_datasets_typed_full"),
+        "engine_what": "the serve binary (the encoder lane's GPU-host build) + the staged dataset suites the serving posture ships (the six t20k corpora + the typed full-pool corpus the typed seat boots from)",
+        "model": ("sum",
+                  ("hf_subtree_diff", "convaiinnovations/laya", ["multilingual/", "typed-decisions/"]),
+                  ("hf_subtree", "convaiinnovations/laya", "typed-decisions/"),
+                  ("recorded", "rethink_encoder_heads")),
+        "model_what": "the laya-english + laya-typed checkpoints (the encodes the seated cells run on) + the four sealed NLEH encoder heads (sst5 · xnli_en · ag_news · typed v2)",
+        "targets": ["GPU host (Metal/CUDA)", "record-only today"],
+        "note": "the encoder serving posture, measured on the GPU bench host (M3 Metal; the CUDA twin is the same size class) — the encoder class is record-only: refused at the CPU-only deploy shape, so nothing here ships until a GPU serving deploy exists",
+    },
+    {
         "key": "laya_python",
         "name": "laya · python reference",
         "framework": "CPython + torch (MPS build) + transformers + the pinned reference checkout",
@@ -244,6 +258,55 @@ def local_bytes(rel: str) -> int:
     return p.stat().st_size
 
 
+# ── model-source resolution ──────────────────────────────────────────────
+
+def resolve_model(spec: tuple, recorded: dict) -> tuple[int, dict]:
+    """One model spec tuple → (bytes, provenance). `sum` composes child
+    specs (any kinds, recursively) so one row can carry a LIVE HF tree AND
+    a RECORDED artifact side by side — the Rethink lane's checkpoints plus
+    its sealed heads."""
+    mk = spec[0]
+    if mk == "hf_subtree":
+        _, repo, prefix = spec
+        return hf_tree_bytes(repo, prefix=prefix), {
+            "source": "huggingface.co tree API (exact bytes)",
+            "detail": f"{repo} · {prefix or '(repo root)'} subtree sum"}
+    if mk == "hf_subtree_diff":
+        _, repo, excludes = spec
+        total = hf_tree_bytes(repo) - sum(hf_tree_bytes(repo, prefix=p) for p in excludes)
+        if total <= 0:
+            die(f"{repo} whole-minus-{excludes} summed to {total} — refusing to publish an empty tree")
+        return total, {
+            "source": "huggingface.co tree API (exact bytes)",
+            "detail": f"{repo} · whole tree minus {' + '.join(excludes)} (the root-level english checkpoint)"}
+    if mk == "hf_total":
+        repos = spec[1:]
+        return sum(hf_tree_bytes(r) for r in repos), {
+            "source": "huggingface.co tree API (exact bytes)",
+            "detail": " + ".join(repos)}
+    if mk == "recorded":
+        m = recorded.get(spec[1])
+        if m is None:
+            die(f"recorded measurement {spec[1]!r} (model) missing from sizes.measurements.json")
+        return m["bytes"], {
+            "source": "recorded measurement",
+            "detail": f"{m['what']} \u2014 measured {m['date_utc']} on {m['host']}: {m['how']}"}
+    if mk == "recorded_sum":
+        missing_keys = [k for k in spec[1:] if k not in recorded]
+        if missing_keys:
+            die(f"recorded measurements missing for model: {missing_keys}")
+        parts = [recorded[k] for k in spec[1:]]
+        return sum(p["bytes"] for p in parts), {
+            "source": "recorded measurement (sum)",
+            "detail": " + ".join(f"{p['bytes']:,} B ({p['what']}, {p['date_utc']} on {p['host']})" for p in parts)}
+    if mk == "sum":
+        parts = [resolve_model(child, recorded) for child in spec[1:]]
+        return sum(b for b, _ in parts), {
+            "source": "sum of measured sources",
+            "detail": " + ".join(f"{b:,} B ({p['source']}: {p['detail']})" for b, p in parts)}
+    die(f"unknown model source kind {mk!r}")
+
+
 # ── merge ────────────────────────────────────────────────────────────────
 
 def build(release: dict, recorded: dict) -> dict:
@@ -281,34 +344,7 @@ def build(release: dict, recorded: dict) -> dict:
 
         model_bytes, model_prov = 0, None
         if spec["model"] is not None:
-            mk = spec["model"][0]
-            if mk == "hf_subtree":
-                _, repo, prefix = spec["model"]
-                model_bytes = hf_tree_bytes(repo, prefix=prefix)
-                model_prov = {"source": "huggingface.co tree API (exact bytes)",
-                              "detail": f"{repo} · {prefix or '(repo root)'} subtree sum"}
-            elif mk == "hf_total":
-                repos = spec["model"][1:]
-                model_bytes = sum(hf_tree_bytes(r) for r in repos)
-                model_prov = {"source": "huggingface.co tree API (exact bytes)",
-                              "detail": " + ".join(repos)}
-            elif mk == "recorded":
-                m = recorded.get(spec["model"][1])
-                if m is None:
-                    die(f"recorded measurement {spec['model'][1]!r} (model of {spec['key']}) missing from sizes.measurements.json")
-                model_bytes, model_prov = m["bytes"], {
-                    "source": "recorded measurement",
-                    "detail": f"{m['what']} \u2014 measured {m['date_utc']} on {m['host']}: {m['how']}"}
-            elif mk == "recorded_sum":
-                missing_keys = [k for k in spec["model"][1:] if k not in recorded]
-                if missing_keys:
-                    die(f"recorded measurements missing for {spec['key']} model: {missing_keys}")
-                parts = [recorded[k] for k in spec["model"][1:]]
-                model_bytes = sum(p["bytes"] for p in parts)
-                model_prov = {"source": "recorded measurement (sum)",
-                              "detail": " + ".join(f"{p['bytes']:,} B ({p['what']}, {p['date_utc']} on {p['host']})" for p in parts)}
-            else:
-                die(f"unknown model source kind {mk!r}")
+            model_bytes, model_prov = resolve_model(spec["model"], recorded)
 
         note = spec.get("note")
         if spec["key"] == "reflex_native":

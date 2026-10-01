@@ -62,6 +62,9 @@ FAKE_RECORDED = {k: {"key": k, "bytes": v, "what": f"{k} fake", "host": "fake-ho
                      "instinct_serve_binary": 1_800_000,
                      "instinct_datasets_t20k": 20_000_000,
                      "instinct_winner_vessels": 20_000_000,
+                     "rethink_serve_binary": 8_000_000,
+                     "rethink_encoder_heads": 9_000_000,
+                     "rethink_datasets_typed_full": 7_000_000,
                      "openthai_venv": 700_000_000,
                  }.items()}
 
@@ -117,7 +120,7 @@ def local_bytes_patcher():
 @case("every candidate renders with the full field set")
 def _():
     d = patched_build()
-    assert len(d["candidates"]) == 9, len(d["candidates"])
+    assert len(d["candidates"]) == 10, len(d["candidates"])
     for c in d["candidates"]:
         for f in ("key", "name", "framework", "engine_bytes", "engine_what",
                   "model_what", "targets", "engine_provenance"):
@@ -171,6 +174,52 @@ def _():
     assert h["model_provenance"]["source"] == "recorded measurement", h["model_provenance"]
     assert h["engine_provenance"]["source"] == "recorded measurement (sum)", h["engine_provenance"]
     assert h["model_what"], h["key"]
+
+
+@case("rethink resolves: recorded_sum engine + summed LIVE/RECORDED model")
+def _():
+    d = patched_build()
+    by = {c["key"]: c for c in d["candidates"]}
+    r = by["rethink_encoder"]
+    assert r["engine_bytes"] == 8_000_000 + 20_000_000 + 7_000_000, r["engine_bytes"]
+    # english = whole tree minus the two sibling checkpoints (hub chrome
+    # excluded); fake root files: 800M + 3M. typed-decisions/: 813,501,000.
+    english = 800_000_000 + 3_000_000
+    typed = 810_000_000 + 3_500_000 + 1_000
+    assert r["model_bytes"] == english + typed + 9_000_000, r["model_bytes"]
+    assert r["model_provenance"]["source"] == "sum of measured sources", r["model_provenance"]
+    for needle in ("whole tree minus", "typed-decisions/ subtree sum", "rethink_encoder_heads fake"):
+        assert needle in r["model_provenance"]["detail"], r["model_provenance"]
+    assert r["engine_provenance"]["source"] == "recorded measurement (sum)", r["engine_provenance"]
+
+
+@case("hf_subtree_diff resolves and refuses an empty result")
+def _():
+    fake_hf = lambda repo, prefix=None, filename=None: fake_hf_sum(FAKE_HF, repo, prefix, filename)
+    orig = ps.hf_tree_bytes
+    ps.hf_tree_bytes = fake_hf
+    try:
+        n, prov = ps.resolve_model(
+            ("hf_subtree_diff", "convaiinnovations/laya", ["multilingual/", "typed-decisions/"]), {})
+        assert n == 800_000_000 + 3_000_000, n
+        assert "whole tree minus" in prov["detail"], prov
+        try:
+            ps.resolve_model(("hf_subtree_diff", "convaiinnovations/laya", ["", ""]), {})
+            raise AssertionError("hf_subtree_diff published an empty tree")
+        except SystemExit:
+            pass
+    finally:
+        ps.hf_tree_bytes = orig
+
+
+@case("a recorded key missing inside a sum refuses loudly")
+def _():
+    broken = {k: v for k, v in FAKE_RECORDED.items() if k != "rethink_encoder_heads"}
+    try:
+        patched_build(recorded=broken)
+        raise AssertionError("built with a recorded key missing inside a sum")
+    except SystemExit:
+        pass
 
 
 @case("a missing recorded key refuses loudly (engine AND model sides)")

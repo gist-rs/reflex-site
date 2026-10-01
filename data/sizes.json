@@ -1,6 +1,6 @@
 {
  "meta": {
-  "date_utc": "2026-09-28T01:04:35Z",
+  "date_utc": "2026-10-01T15:28:48Z",
   "release": {
    "tag": "v0.2.3",
    "url": "https://github.com/gist-rs/reflex/releases/tag/v0.2.3",
@@ -125,6 +125,28 @@
    "note": "measurement-only lane \u2014 the reference is never shipped; footprint measured on the bench host that runs it"
   },
   {
+   "key": "rethink_encoder",
+   "name": "Rethink \u00b7 encoder arm",
+   "framework": "one serve binary (GPU host) + the laya-riir encoder resident from boot + the Reflex half's dataset seats",
+   "engine_bytes": 35900561,
+   "engine_what": "the serve binary (the encoder lane's GPU-host build) + the staged dataset suites the serving posture ships (the six t20k corpora + the typed full-pool corpus the typed seat boots from)",
+   "engine_provenance": {
+    "source": "recorded measurement (sum)",
+    "detail": "7,940,160 B (the riir-instinct `serve` release binary built with --features serve-encoder-metal (aarch64-apple-darwin) \u2014 the Rethink encoder lane's GPU-host serving edge (the encoder lane + the laya-riir Metal backend compiled in; the CUDA twin is the same size class), 2026-10-01 on m3-max-metal) + 20,808,524 B (the six t20k dataset suites the serving posture stages (ag_news 6,324,897 \u00b7 emotion 2,719,177 \u00b7 sst5 1,799,678 \u00b7 massive_intent_en 2,516,925 \u00b7 banking77 2,157,368 \u00b7 xnli_en 5,290,479) \u2014 the Reflex half's corpora and question seats, 2026-09-27 on m3-max-metal) + 7,151,877 B (the typed full-pool corpus the typed Rethink seat boots from (riir-train Issue 581 / Bench 614's dir \u2014 NOT reflex's 800-row t20k envelope; deploy.yaml stages it as datasets/typed_decisions), 2026-10-01 on m3-max-metal)"
+   },
+   "model_bytes": 1703452200,
+   "model_what": "the laya-english + laya-typed checkpoints (the encodes the seated cells run on) + the four sealed NLEH encoder heads (sst5 \u00b7 xnli_en \u00b7 ag_news \u00b7 typed v2)",
+   "model_provenance": {
+    "source": "sum of measured sources",
+    "detail": "848,195,504 B (huggingface.co tree API (exact bytes): convaiinnovations/laya \u00b7 whole tree minus multilingual/ + typed-decisions/ (the root-level english checkpoint)) + 846,195,716 B (huggingface.co tree API (exact bytes): convaiinnovations/laya \u00b7 typed-decisions/ subtree sum) + 9,060,980 B (recorded measurement: the four sealed NLEH encoder heads the seated Rethink cells serve: sst5 t6_s0.bin 3,197,988 \u00b7 xnli_en_encoder_v1.bin 2,131,996 \u00b7 ag_news_encoder_v1.bin 2,664,992 \u00b7 typed_encoder_v2.bin 1,066,004 (HOSTED-ONLY: BLAKE3-sealed artifacts) \u2014 measured 2026-10-01 on m3-max-metal: sum of lstat sizes over ../riir-train/.raw/t599/{t6_s0.bin,xnli_en_encoder_v1.bin,ag_news_encoder_v1.bin} + ../riir-train/.raw/t608/typed_encoder_v2.bin (the .blake3 sidecars excluded))"
+   },
+   "targets": [
+    "GPU host (Metal/CUDA)",
+    "record-only today"
+   ],
+   "note": "the encoder serving posture, measured on the GPU bench host (M3 Metal; the CUDA twin is the same size class) \u2014 the encoder class is record-only: refused at the CPU-only deploy shape, so nothing here ships until a GPU serving deploy exists"
+  },
+  {
    "key": "openthai",
    "name": "OpenThai-SystemOne",
    "framework": "their FastAPI service in a torch venv (the Thai/English decision comparison lane)",
@@ -134,7 +156,7 @@
     "source": "recorded measurement",
     "detail": "the openthai-systemone service venv (python 3.12: torch + transformers + numpy + pydantic + fastapi/uvicorn + their openthai_systemone package installed from source @ 5d04bcca) \u2014 measured 2026-09-28 on m3-max-metal: uv venv --python 3.12 + `uv pip install torch transformers numpy pydantic fastapi uvicorn` + `uv pip install -e` their openthai-systemone @ iapp-technology/openthai-systemone 5d04bcca (the Bench-074 pin); sum of file sizes (676,763,544) + dir entries (850,144) over the venv, matching the lstat convention of the sibling venv rows. The Bench-074 venv itself was removed with .raw after the record \u2014 re-created once to re-measure the same dep set."
    },
-   "model_bytes": 1540231816,
+   "model_bytes": 1540237483,
    "model_what": "their model tree (Qwen3.5-0.8B text tower + the 256-slot decision head, safetensors + tokenizer)",
    "model_provenance": {
     "source": "huggingface.co tree API (exact bytes)",
