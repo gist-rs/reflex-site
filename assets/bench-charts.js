@@ -867,7 +867,7 @@
         `<b>${esc(lane.label)}</b>` +
         `<span class="rd-lg-idx">${num(scoreOf(lane)) ? pct(scoreOf(lane)) : "—"}</span>` +
         `<span class="bc-mut">${lane.data.coverage ? `${lane.data.coverage.suites}/${lane.data.coverage.of}` : ""}` +
-        (partial ? ` · partial — results pending (${esc(partialNote)})` : "") +
+        (partial ? ` · partial+pending (${esc(partialNote)})` : "") +
         `</span></div>`;
     }).join("");
   }
