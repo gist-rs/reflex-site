@@ -145,7 +145,7 @@ console.log(`[cc] ${cc.bands} bands / ${cc.labels} lanes, note names the chance 
 // The area radar (the /bench/ decision-index cards): renders data.areas —
 // two cards (4 area spokes + 9 benchmark spokes), a polygon per complete
 // lane, measured-dots-only for the partial encoder lane, and legend rows
-// naming coverage (the 1/9 partial disclosure).
+// naming coverage (the 2/9 partial disclosure).
 const areaEl = fakeEl("areas");
 window.BenchCharts.areas(d, areaEl);
 const aHtml = captured["areas"].innerHTML;
@@ -162,8 +162,8 @@ const legends = (aHtml.match(/class="rd-lg"/g) || []).length;
 const laneCount = Object.keys((d.areas || {}).lanes || {}).length;
 if (polys < 3) { console.error(`FAIL[radar]: expected >=3 lane polygons (modelless/hybrid/laya complete), got ${polys}`); process.exit(1); }
 if (legends !== laneCount * 2) { console.error(`FAIL[radar]: expected ${laneCount * 2} legend rows (${laneCount} lanes x 2 cards), got ${legends}`); process.exit(1); }
-if (!aHtml.includes("1/9") || !aHtml.includes("Rethink")) {
-  console.error("FAIL[radar]: the partial-lane disclosure (Rethink 1/9) is missing");
+if (!aHtml.includes("2/9") || !aHtml.includes("Rethink")) {
+  console.error("FAIL[radar]: the partial-lane disclosure (Rethink 2/9) is missing");
   process.exit(1);
 }
 // A 1-point lane (the Rethink encoder arm) must draw DOTS but no connecting
@@ -177,7 +177,15 @@ const suiteNamesS = Object.keys((d.areas || {}).suites || {});
 let expectedLines = 0;
 for (const ld of Object.values((d.areas || {}).lanes || {})) {
   if (areaDefsS.filter((a) => numOk((ld.areas || {})[a.id])).length === 2) expectedLines++;
-  if (suiteNamesS.filter((n) => numOk((ld.per_suite || {})[n]) && numOk(ld.per_suite[n].cc)).length === 2) expectedLines++;
+  // The suites-card counter must mirror the renderer's read exactly: a
+  // spoke is measured when per_suite[n] exists AND its .cc is a number
+  // (the entry is an OBJECT {acc, cc} — the pre-2026-10-01 form
+  // `numOk(per_suite[n]) && numOk(per_suite[n].cc)` was dead code: numOk on
+  // the object is always false, so the all-benchmarks card was never
+  // counted and the guard under-reported by exactly the lanes that drew
+  // a two-spoke line there — exposed when the Rethink lane grew to two
+  // suites (issue 017) and drew its first legitimate suites-card segment.
+  if (suiteNamesS.filter((n) => { const ps = (ld.per_suite || {})[n]; return !!ps && numOk(ps.cc); }).length === 2) expectedLines++;
 }
 if ((aHtml.match(/rd-polyline/g) || []).length !== expectedLines) {
   console.error(`FAIL[radar]: expected ${expectedLines} polyline segment(s) (lanes with exactly two measured spokes), got ${(aHtml.match(/rd-polyline/g) || []).length} — a 1-point lane drew a line`);

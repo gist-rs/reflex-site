@@ -43,7 +43,7 @@
     // measured-but-refused read: serve ✗). Product name "Rethink" per
     // the naming law (riir-ai Proposal 051), qualifier-free per the
     // owner call 2026-10-01; both legacy spellings still match so an
-    // un-re-published bench.json renders. Its results are still 1/9
+    // un-re-published bench.json renders. Its results are still 2/9
     // suites (partial — disclosed on the radar legends).
     { key: "instinct-encoder", label: "Rethink", color: "#b895d0", match: (l) => l.lane === "Rethink" || l.lane === "Rethink (encoder)" || l.lane === "Instinct (encoder)" },
     // The OpenThai comparison lane (reflex Plan 003): red slot, distinct
@@ -809,7 +809,7 @@
   // right. Lanes honor the lane filter; the rollups are primary-host rows,
   // except a lane the primary host never ran — it rolls up from its
   // serving host under a host-tagged key and renders the host beside its
-  // name. A partial lane (the Rethink encoder arm, 1/9) draws only its
+  // name. A partial lane (the Rethink encoder arm, 2/9) draws only its
   // measured spokes — missing suites are gaps, never zeros dressed as
   // data.
   const AREA_LANE_KEYS = {

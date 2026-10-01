@@ -384,7 +384,7 @@ const server = http.createServer((req, res) => {
 
   // 9d) the area radar (#bench-areas): two cards render from data.areas —
   //     polygons only for complete lanes, dots for measured spokes, the
-  //     partial lane (Rethink encoder, 1/9) disclosed in BOTH legends, and
+  //     partial lane (Rethink encoder, 2/9) disclosed in BOTH legends, and
   //     the lane filter governs it like every other section (hiding a lane
   //     removes its rows from both cards).
   {
@@ -396,8 +396,8 @@ const server = http.createServer((req, res) => {
     const dots = await page.$$eval("#bench-areas .rd-dot", (xs) => xs.length);
     if (dots < 40) fail(`expected >=40 radar dots, got ${dots}`);
     const legendTxt = await page.$eval("#bench-areas", (x) => x.textContent);
-    if (!legendTxt.includes("Rethink") || !legendTxt.includes("1/9"))
-      fail("the radar legends must disclose the partial Rethink lane (1/9)");
+    if (!legendTxt.includes("Rethink") || !legendTxt.includes("2/9"))
+      fail("the radar legends must disclose the partial Rethink lane (2/9)");
     const encRows = await page.$$eval("#bench-areas .rd-lg", (xs) => xs.filter((x) => x.textContent.includes("Rethink")).length);
     if (encRows !== 2) fail(`expected a Rethink legend row on both cards, got ${encRows}`);
     else console.log(`ok: area radar renders (${polys} polygons, ${dots} dots, partial lane disclosed on both cards)`);
