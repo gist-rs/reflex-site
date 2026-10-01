@@ -556,8 +556,14 @@
     // metric names what is missing — cc on a suite with no curated chance
     // baseline, acc50 on a cell without the coverage field — so a skipped
     // transform can never masquerade as missing data again.
+    // A third state: `s.disclosures[lane.key]` — a lane that will not run
+    // the suite for a MEASURED reason (screened dead, law-excluded, no head
+    // earned) carries the reason from data/bench.json instead of reading
+    // "not run" (2026-10-02 Rethink board completion; the reasons are
+    // hand-cited to issue records in publish_bench.py).
     const noneBar = (lane, s, ran) => {
-      const why = !ran ? "not run"
+      const why = !ran && s.disclosures && s.disclosures[lane.key] ? s.disclosures[lane.key]
+        : !ran ? "not run"
         : m === "cc" && !num(chanceOf(s)) ? "no chance baseline"
         : `no ${M.label} value`;
       return `<div class="bc-hbar bc-none">${esc(lane.label)} — ${esc(why)}</div>`;

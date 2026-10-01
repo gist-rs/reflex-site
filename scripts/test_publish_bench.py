@@ -2084,7 +2084,77 @@ def case_encoder_lane_display_rebrands_to_rethink():
     assert a["lanes"]["hybrid"]["display"] == "Instinct"
 
 
+def case_disclosures_stamp_cellless_lanes():
+    # 2026-10-02 Rethink board completion: a suite with NO cell for a lane
+    # but a measured reason why it never will gets the reason stamped as
+    # s.disclosures[lane_key] — the renderer's noneBar prints it instead of
+    # a bare "not run". A disclosure on a lane that CARRIES a cell is
+    # dropped with a loud note (the cell supersedes); a name matching no
+    # suite in the doc is skipped with a loud note (never a refusal — a
+    # prose typo must not block the board publish; the missing disclosure
+    # is caught in review instead).
+    names = {s["name"] for s in area_doc()["suites"]}
+    saved = dict(pb.DISCLOSURES)
+    # Scope the table to suites the fixture carries, so the stamp arms are
+    # exercised; the skip arm below exercises the rest.
+    scoped = {n: v for n, v in pb.DISCLOSURES.items() if n in names}
+    pb.DISCLOSURES.clear()
+    pb.DISCLOSURES.update(scoped)
+    try:
+        d = area_doc()
+        assert pb.apply_disclosures(d) == 0
+        for n, notes in scoped.items():
+            s = next(x for x in d["suites"] if x["name"] == n)
+            for lk, note in notes.items():
+                has_cell = (lk == "instinct-encoder" and s.get("encoder")) or (
+                    lk == "instinct" and s.get("hybrid"))
+                if has_cell:
+                    assert lk not in s.get("disclosures", {})
+                else:
+                    assert s["disclosures"][lk] == note
+        # Skip arm: a name matching no suite prints a loud note, exits 0.
+        import io, contextlib
+        pb.DISCLOSURES["zz_no_such_suite"] = {"instinct-encoder": "x"}
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            assert pb.apply_disclosures(area_doc()) == 0
+        assert "zz_no_such_suite" in buf.getvalue()
+        assert "disclosure skipped" in buf.getvalue()
+    finally:
+        pb.DISCLOSURES.clear()
+        pb.DISCLOSURES.update(saved)
+
+
+def case_disclosures_cell_supersedes():
+    # A disclosure naming a suite+lane that carries a REAL cell is dropped
+    # with a loud note — the measured cell wins over the reason.
+    d0 = area_doc()
+    names = {s["name"] for s in d0["suites"]}
+    enc_suites = [s for s in d0["suites"] if s.get("encoder")]
+    if not enc_suites:
+        return
+    name = enc_suites[0]["name"]
+    saved = dict(pb.DISCLOSURES)
+    scoped = {n: v for n, v in pb.DISCLOSURES.items() if n in names}
+    pb.DISCLOSURES.clear()
+    pb.DISCLOSURES.update(scoped)
+    pb.DISCLOSURES[name] = {"instinct-encoder": "stale reason"}
+    try:
+        import io, contextlib
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            assert pb.apply_disclosures(area_doc()) == 0
+        assert "carries a cell" in buf.getvalue()
+        s = next(x for x in area_doc()["suites"] if x["name"] == name)
+        assert "disclosures" not in s or "instinct-encoder" not in s["disclosures"]
+    finally:
+        pb.DISCLOSURES.clear()
+        pb.DISCLOSURES.update(saved)
+
+
 CASES = [
+    case_disclosures_stamp_cellless_lanes,
+    case_disclosures_cell_supersedes,
     case_lane_carry_keeps_incumbent_timing,
     case_republish_never_carries_an_untouched_lane,
     case_modelless_lane_facts_refresh_on_update,

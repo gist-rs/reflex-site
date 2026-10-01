@@ -263,6 +263,47 @@ LANE_DISPLAY = {
     "openthai": "openthai (reference)",
 }
 
+# The hand-maintained DISCLOSURE table (2026-10-02, the Rethink board
+# completion): per-suite per-lane reasons a lane will NOT run a suite,
+# rendered by bench-charts.js's noneBar instead of a bare "not run".
+# Keys are SUITE names and RENDERER lane keys ("instinct" = the hybrid
+# lane, "instinct-encoder" = Rethink). Every note cites its issue record
+# — the publisher is the note's only home, so a republish can never
+# drift from the page. Unknown suite names REFUSE (a typo must never
+# publish nothing); a note naming a suite+lane that HAS a cell is
+# dropped with a loud note (the cell supersedes the disclosure).
+DISCLOSURES = {
+    "emotion": {
+        "instinct-encoder": (
+            "screened — no head earned: 6 gold-only fits (the 5-seed T7 "
+            "sweep + 1 fresh seed) all refused on holdout; the encoder "
+            "reference reads 0.5950 vs the incumbent 0.8850 (instinct "
+            "issue 016 T7/T8, riir-train t599/t7 + t8 record)"
+        ),
+    },
+    "code_fixtures": {
+        "instinct-encoder": (
+            "dead by law — the encoder reference reads 0.3575, 26.7 pt "
+            "under the bar, and the class's measured head-lift ceiling "
+            "(+14.7 pt) cannot close it (riir-train issue 600 T5)"
+        ),
+    },
+}
+for _fam in ("harness_visibility", "harness_permissions", "harness_tool_fit",
+             "harness_routing", "harness_sensitivity", "harness_cache_reuse"):
+    DISCLOSURES[_fam] = {
+        "instinct": (
+            "dropped from the covered set — the n=12–16 template-shared "
+            "eval makes any win unfalsifiable memorization (instinct "
+            "issue 008 T8)"
+        ),
+        "instinct-encoder": (
+            "law-excluded — the n=12–16 template-shared eval makes any "
+            "win unfalsifiable memorization; re-opens only with a larger "
+            "template-disjoint eval (instinct issue 008 T8)"
+        ),
+    }
+
 # Both spellings of the python lane: the machine field in a fresh harness
 # doc, and the display name in a previously-published bench.json.
 PYTHON_LANE_SPELLINGS = ("laya-python", LANE_DISPLAY["laya-python"])
@@ -1253,6 +1294,44 @@ def carry_applies(src_lane, target_cell, update_quotable, suite_name=""):
     return True
 
 
+def apply_disclosures(d):
+    """Stamp the hand-maintained DISCLOSURES table into the merged doc:
+    per-suite {lane_key: note} for lanes that will not run the suite for a
+    MEASURED reason. bench-charts.js's noneBar renders the note instead of
+    "not run". A name matching no suite in THIS doc is skipped with a loud
+    note — the table is hand-maintained against the LIVE board, and a
+    prose typo refusing the whole publish would block the board for a
+    spelling (the missing disclosure is visible in the page smoke / review
+    instead). A disclosure naming a suite+lane that carries a real cell is
+    dropped with a loud note (the cell supersedes it). Idempotent by
+    construction (a re-stamp of the same note is a no-op)."""
+    known = {s["name"]: s for s in d.get("suites", [])}
+    for name, notes in DISCLOSURES.items():
+        if name not in known:
+            print(
+                f"note: disclosure skipped — suite {name!r} is not in this "
+                "doc (stale table row or synthetic fixture)"
+            )
+            continue
+        s = known[name]
+        carried = {}
+        for lane_key, note in notes.items():
+            # A real cell on the same lane supersedes the disclosure.
+            has_cell = (
+                (lane_key == "instinct-encoder" and s.get("encoder"))
+                or (lane_key == "instinct" and s.get("hybrid"))
+            )
+            if has_cell:
+                print(f"note: disclosure dropped — {name}/{lane_key} carries a cell")
+                continue
+            carried[lane_key] = note
+        if carried:
+            s["disclosures"] = {**s.get("disclosures", {}), **carried}
+        else:
+            s.pop("disclosures", None)
+    return 0
+
+
 def apply_lane_carry(d, incumbent_snapshot, extras):
     """The LANE-CARRY law (LANE_CARRY, Issue 032, owner call 2026-09-26):
     an updated lane of a carried class keeps its fresh ACCURACY columns but
@@ -1812,6 +1891,9 @@ def main() -> int:
     rename_lanes(d)
     n_paired = compute_pairings(d)
     compute_areas(d)
+    rc = apply_disclosures(d)
+    if rc != 0:
+        return rc
     for s in d.get("suites", []):
         for host_lanes in (s.get("extra_host_lanes") or {}).values():
             lanes = (

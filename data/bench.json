@@ -94,8 +94,8 @@
       "date_utc": "2026-09-28T16:27:36Z"
      },
      "encoder": {
-      "git_sha": "c2c5dc3",
-      "date_utc": "2026-10-01T14:59:02Z"
+      "git_sha": "e0440e3",
+      "date_utc": "2026-10-01T19:20:00Z"
      },
      "bekko": {
       "git_sha": "5587bda",
@@ -4921,6 +4921,9 @@
      "git_sha": "5587bda",
      "date_utc": "2026-10-01T17:00:05Z"
     }
+   },
+   "disclosures": {
+    "instinct-encoder": "screened \u2014 no head earned: 6 gold-only fits (the 5-seed T7 sweep + 1 fresh seed) all refused on holdout; the encoder reference reads 0.5950 vs the incumbent 0.8850 (instinct issue 016 T7/T8, riir-train t599/t7 + t8 record)"
    }
   },
   {
@@ -7486,6 +7489,29 @@
      "git_sha": "5587bda",
      "date_utc": "2026-10-01T17:00:05Z"
     }
+   },
+   "encoder": {
+    "lane": "Rethink",
+    "model": "ENC-prompt_encoder_v1 (laya-english encoder + NLEH v1 head)",
+    "hard": {
+     "n": 116,
+     "accuracy": 0.8017241379310345
+    },
+    "consult_rate": 1.0,
+    "latency_scope": "arm-only",
+    "latency_rows": "questions",
+    "serves": "\u2717 (encoder class refused at serve \u2014 the incumbent arm serves; instinct issue 014 C1, seating per issue 017)",
+    "gate": "acc 0.8017 (93/116 question rows) \u00b7 paired vs the incumbent A1: mean -0.0517 \u00b7 LB95 -0.1343 \u00b7 per-row p50 13.873 ms (metal device, laya-english). Serve REFUSED (014 class-wide latency class); record-only cell, seated per the owner call 2026-10-01 (instinct issue 017).",
+    "device": "metal",
+    "head_kind": "v1",
+    "ckpt": "english",
+    "shape_desc": "2 classes \u00b7 feat 3072",
+    "record_only": true,
+    "latency_quotable": true,
+    "source_run": {
+     "git_sha": "e0440e3",
+     "date_utc": "2026-10-01T18:51:14Z"
+    }
    }
   },
   {
@@ -10045,6 +10071,29 @@
      "git_sha": "5587bda",
      "date_utc": "2026-10-01T17:00:05Z"
     }
+   },
+   "encoder": {
+    "lane": "Rethink",
+    "model": "ENC-massive_encoder_v1_probe (laya-english encoder + NLEH v1 head)",
+    "hard": {
+     "n": 300,
+     "accuracy": 0.6566666666666666
+    },
+    "consult_rate": 1.0,
+    "latency_scope": "arm-only",
+    "latency_rows": "questions",
+    "serves": "\u2717 (encoder class refused at serve \u2014 the incumbent arm serves; instinct issue 014 C1, seating per issue 017)",
+    "gate": "acc 0.6567 (197/300 question rows) \u00b7 paired vs the incumbent A1: mean -0.1600 \u00b7 LB95 -0.2194 \u00b7 per-row p50 31.332 ms (metal device, laya-english). Serve REFUSED (014 class-wide latency class); record-only cell, seated per the owner call 2026-10-01 (instinct issue 017).",
+    "device": "metal",
+    "head_kind": "v1",
+    "ckpt": "english",
+    "shape_desc": "20 classes \u00b7 feat 21504",
+    "record_only": true,
+    "latency_quotable": false,
+    "source_run": {
+     "git_sha": "e0440e3",
+     "date_utc": "2026-10-01T17:58:51Z"
+    }
    }
   },
   {
@@ -11284,6 +11333,29 @@
      "git_sha": "5587bda",
      "date_utc": "2026-10-01T17:00:05Z"
     }
+   },
+   "encoder": {
+    "lane": "Rethink",
+    "model": "ENC-banking77_encoder_v1 (laya-english encoder + NLEH v1 head)",
+    "hard": {
+     "n": 500,
+     "accuracy": 0.442
+    },
+    "consult_rate": 1.0,
+    "latency_scope": "arm-only",
+    "latency_rows": "questions",
+    "serves": "\u2717 (encoder class refused at serve \u2014 the incumbent arm serves; instinct issue 014 C1, seating per issue 017)",
+    "gate": "acc 0.4420 (221/500 question rows) \u00b7 paired vs the incumbent A1: mean -0.3860 \u00b7 LB95 -0.4363 \u00b7 per-row p50 42.983 ms (metal device, laya-english). Serve REFUSED (014 class-wide latency class); record-only cell, seated per the owner call 2026-10-01 (instinct issue 017).",
+    "device": "metal",
+    "head_kind": "v1",
+    "ckpt": "english",
+    "shape_desc": "77 classes \u00b7 feat 79872",
+    "record_only": true,
+    "latency_quotable": true,
+    "source_run": {
+     "git_sha": "e0440e3",
+     "date_utc": "2026-10-01T18:50:28Z"
+    }
    }
   },
   {
@@ -11978,6 +12050,9 @@
      "git_sha": "bb86069",
      "date_utc": "2026-09-29T00:02:21Z"
     }
+   },
+   "disclosures": {
+    "instinct-encoder": "dead by law \u2014 the encoder reference reads 0.3575, 26.7 pt under the bar, and the class's measured head-lift ceiling (+14.7 pt) cannot close it (riir-train issue 600 T5)"
    }
   },
   {
@@ -12105,6 +12180,26 @@
       }
      }
     }
+   },
+   "encoder": {
+    "lane": "Rethink",
+    "model": "ENC-ref (laya-multilingual encoder, reference logits \u2014 no head earned)",
+    "hard": {
+     "n": 400,
+     "accuracy": 0.4075
+    },
+    "consult_rate": 1.0,
+    "latency_scope": "arm-only",
+    "latency_rows": "questions",
+    "serves": "\u2717 (record-only; no head earned and the suite is unsold in every instinct lane)",
+    "gate": "acc 0.4075 (163/400 rows) \u2014 the laya-multilingual REFERENCE read (untrained logits, gold-only eval, class-relative gate REFUSED the head: holdout 0.4213 < ref holdout 0.4550). Below the openthai comparison lane's 0.475 \u2014 the multilingual encoder is not yet competitive here. Train-side protocol (case wire mirrors reflex build_thai_wisesight verbatim; 4000-row train pool, 800 holdout, fresh NLEH fit); encode wall 6.3 s / 400 rows (M3 metal, loaded box).",
+    "device": "metal",
+    "record_only": true,
+    "latency_quotable": false,
+    "source_run": {
+     "git_sha": "e0440e3",
+     "date_utc": "2026-10-01T19:20:00Z"
+    }
    }
   },
   {
@@ -12231,6 +12326,26 @@
        "date_utc": "2026-09-28T14:02:42Z"
       }
      }
+    }
+   },
+   "encoder": {
+    "lane": "Rethink",
+    "model": "ENC-ref (laya-multilingual encoder, reference logits \u2014 no head earned)",
+    "hard": {
+     "n": 204,
+     "accuracy": 0.7843137254901961
+    },
+    "consult_rate": 1.0,
+    "latency_scope": "arm-only",
+    "latency_rows": "questions",
+    "serves": "\u2717 (record-only; no head earned and the suite is unsold in every instinct lane)",
+    "gate": "acc 0.7843 (160/204 rows) \u2014 the laya-multilingual REFERENCE read (untrained logits, gold-only eval, class-relative gate REFUSED the head: holdout 0.6800 < ref holdout 0.7200). Below the openthai comparison lane's 0.838. Train-side protocol (case wire mirrors reflex build_thai_sib200 verbatim; 701-row train pool, 200 holdout, fresh NLEH fit); encode wall 3.6 s / 204 rows (M3 metal, loaded box).",
+    "device": "metal",
+    "record_only": true,
+    "latency_quotable": false,
+    "source_run": {
+     "git_sha": "e0440e3",
+     "date_utc": "2026-10-01T19:20:00Z"
     }
    }
   },
@@ -12675,6 +12790,10 @@
       }
      }
     }
+   },
+   "disclosures": {
+    "instinct": "dropped from the covered set \u2014 the n=12\u201316 template-shared eval makes any win unfalsifiable memorization (instinct issue 008 T8)",
+    "instinct-encoder": "law-excluded \u2014 the n=12\u201316 template-shared eval makes any win unfalsifiable memorization; re-opens only with a larger template-disjoint eval (instinct issue 008 T8)"
    }
   },
   {
@@ -13094,6 +13213,10 @@
       }
      }
     }
+   },
+   "disclosures": {
+    "instinct": "dropped from the covered set \u2014 the n=12\u201316 template-shared eval makes any win unfalsifiable memorization (instinct issue 008 T8)",
+    "instinct-encoder": "law-excluded \u2014 the n=12\u201316 template-shared eval makes any win unfalsifiable memorization; re-opens only with a larger template-disjoint eval (instinct issue 008 T8)"
    }
   },
   {
@@ -13489,6 +13612,10 @@
       }
      }
     }
+   },
+   "disclosures": {
+    "instinct": "dropped from the covered set \u2014 the n=12\u201316 template-shared eval makes any win unfalsifiable memorization (instinct issue 008 T8)",
+    "instinct-encoder": "law-excluded \u2014 the n=12\u201316 template-shared eval makes any win unfalsifiable memorization; re-opens only with a larger template-disjoint eval (instinct issue 008 T8)"
    }
   },
   {
@@ -13908,6 +14035,10 @@
       }
      }
     }
+   },
+   "disclosures": {
+    "instinct": "dropped from the covered set \u2014 the n=12\u201316 template-shared eval makes any win unfalsifiable memorization (instinct issue 008 T8)",
+    "instinct-encoder": "law-excluded \u2014 the n=12\u201316 template-shared eval makes any win unfalsifiable memorization; re-opens only with a larger template-disjoint eval (instinct issue 008 T8)"
    }
   },
   {
@@ -14327,6 +14458,10 @@
       }
      }
     }
+   },
+   "disclosures": {
+    "instinct": "dropped from the covered set \u2014 the n=12\u201316 template-shared eval makes any win unfalsifiable memorization (instinct issue 008 T8)",
+    "instinct-encoder": "law-excluded \u2014 the n=12\u201316 template-shared eval makes any win unfalsifiable memorization; re-opens only with a larger template-disjoint eval (instinct issue 008 T8)"
    }
   },
   {
@@ -14848,6 +14983,10 @@
       }
      }
     }
+   },
+   "disclosures": {
+    "instinct": "dropped from the covered set \u2014 the n=12\u201316 template-shared eval makes any win unfalsifiable memorization (instinct issue 008 T8)",
+    "instinct-encoder": "law-excluded \u2014 the n=12\u201316 template-shared eval makes any win unfalsifiable memorization; re-opens only with a larger template-disjoint eval (instinct issue 008 T8)"
    }
   }
  ],
@@ -15044,6 +15183,14 @@
       "acc": 0.9475,
       "cc": 0.93
      },
+     "massive_intent_en": {
+      "acc": 0.656667,
+      "cc": 0.638596
+     },
+     "banking77": {
+      "acc": 0.442,
+      "cc": 0.434658
+     },
      "sst5": {
       "acc": 0.526667,
       "cc": 0.408333
@@ -15052,20 +15199,24 @@
       "acc": 0.86,
       "cc": 0.79
      },
+     "prompt_injections": {
+      "acc": 0.801724,
+      "cc": 0.603448
+     },
      "typed_decisions": {
       "acc": 0.755,
       "cc": 0.641026
      }
     },
     "areas": {
-     "language": 0.93,
+     "language": 0.667751,
      "sentiment": 0.408333,
-     "reasoning": 0.79,
+     "reasoning": 0.696724,
      "decisions": 0.641026
     },
-    "index": 0.69234,
+    "index": 0.603459,
     "coverage": {
-     "suites": 4,
+     "suites": 7,
      "of": 9
     },
     "complete": false
