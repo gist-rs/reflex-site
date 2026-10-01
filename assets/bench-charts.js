@@ -233,6 +233,11 @@
     // guessed.
     cc: {
       label: "chance-corrected acc",
+      // The suite argument is load-bearing: chanceOf(s) reads the suite's
+      // curated baseline, and a call site that drops it (the hero's barHtml
+      // called M.get(l) alone) scores EVERY cell null — the whole board read
+      // "— not run" on this metric only, beside tables full of scores
+      // (2026-10-01 user report). Every call site passes (lane, suite).
       get: (l, s) => {
         const a = accOf(l), ch = chanceOf(s);
         return num(a) && num(ch) ? (a - ch) / (1 - ch) : null;
@@ -528,7 +533,9 @@
     // picked bar.
     const allSplit = !rig.hosts && !!primaryHost;
     const barHtml = (s, lane, l, host, isPicked) => {
-      const v = M.get(l);
+      // (l, s) — the suite feeds chanceOf for cc; dropping it is the
+      // all-not-run defect this call site carried (see METRICS.cc).
+      const v = M.get(l, s);
       const fr = frac(m, v);
       if (fr === null) return null;
       const brk = M.log && latBroken && v > BREAK_AT
@@ -536,6 +543,17 @@
       return `<div class="bc-hbar"${isPicked ? ' data-picked="1"' : ""} tabindex="0" data-tip="${esc(`<span class="bc-mut">${esc(s.name)}</span><br>` + tipHtml(l, host ? "@" + host : ""))}" aria-label="${esc(`${s.name} ${lane.label} ${l.model}${host ? " on " + host : ""}: ${f(v)}`)}">` +
         `<i style="width:${(fr * 100).toFixed(2)}%;background:${lane.color}"></i>${brk}` +
         `${host && allSplit ? `<span class="bc-hhost">@${esc(host)}</span>` : ""}</div>`;
+    };
+    // The honest empty cell: "not run" is reserved for a lane that never
+    // measured the suite. A lane that RAN but cannot score on the active
+    // metric names what is missing — cc on a suite with no curated chance
+    // baseline, acc50 on a cell without the coverage field — so a skipped
+    // transform can never masquerade as missing data again.
+    const noneBar = (lane, s, ran) => {
+      const why = !ran ? "not run"
+        : m === "cc" && !num(chanceOf(s)) ? "no chance baseline"
+        : `no ${M.label} value`;
+      return `<div class="bc-hbar bc-none">${esc(lane.label)} — ${esc(why)}</div>`;
     };
     const rows = sorted.map(([s]) => {
       const bars = shown.map((lane) => {
@@ -551,13 +569,13 @@
             if (bar) parts.push(bar);
           }
           if (parts.length) return parts.join("");
-          return `<div class="bc-hbar bc-none">${esc(lane.label)} — not run</div>`;
+          return noneBar(lane, s, !!pick(s, lane));
         }
         const picked = pick(s, lane);
         const l = picked ? picked[0] : null;
         const host = picked ? picked[1] || primaryHost : null;
-        if (!l) return `<div class="bc-hbar bc-none">${esc(lane.label)} — not run</div>`;
-        return barHtml(s, lane, l, host, true) || `<div class="bc-hbar bc-none">${esc(lane.label)} — not run</div>`;
+        if (!l) return noneBar(lane, s, false);
+        return barHtml(s, lane, l, host, true) || noneBar(lane, s, true);
       }).join("");
       return `<a class="bc-hlabel" href="#suite-${esc(s.name)}">${esc(s.name)}</a><div class="bc-htrack">${grid(m)}${bars}</div>`;
     }).join("");
@@ -577,6 +595,8 @@
       (M.log ? (latBroken
         ? ` Latency is log-scale up to ${lat(BREAK_AT)} (each gridline = 10×); a bar past the break sign runs on a compressed log scale (${lat(BREAK_AT)} … ${lat(latMax)}) — read its value from the tooltip. Shorter is faster.`
         : " Latency is log-scale (each gridline = 10×) — shorter is faster.")
+        : m === "cc"
+        ? " Chance-corrected: 0% = random guessing on that suite's options, so suites with different option counts share one axis. Suites without a curated chance baseline are marked \"no chance baseline\" — skipped, never guessed."
         : " Chance level differs per suite — compare lanes within a row, not rows with each other.") + sortNote(heroSort, sLane);
     return `<div class="bc-hgrid"><div></div>${axis(m)}${rows}<div></div>${axis(m)}</div><p class="bc-note">${esc(note)}</p>`;
   }
@@ -629,8 +649,9 @@
   }
 
   // ── per-suite bar table: one row per table row, accuracy | p50 ──────────
-  function cell(m, l, extra) {
-    const v = METRICS[m].get(l), fr = frac(m, v);
+  function cell(m, s, l, extra) {
+    // (l, s) — same law as barHtml: the suite feeds chanceOf for cc.
+    const v = METRICS[m].get(l, s), fr = frac(m, v);
     if (fr === null) return `<div class="bc-cell bc-none">—</div>`;
     // the break sign rides the fill region's own coordinate space (the same
     // (100% - 64px) span the value label reserves), never the value column
@@ -651,7 +672,7 @@
         // missing @m3-max-metal).
         const hh = host || primaryHost;
         return `<div class="bc-slabel" title="${esc(`${shortLane(l)} · ${l.model}${hh ? " @" + hh : ""}`)}"><i class="bc-sw" style="background:${laneOf(l).color}"></i>${esc(shortLane(l))} · ${esc(l.model)}${hh ? ` <span class="bc-mut">@${esc(hh)}</span>` : ""}</div>` +
-        cell("acc", l, hh ? "@" + hh : "") + cell("p50", l, hh ? "@" + hh : "");
+        cell("acc", s, l, hh ? "@" + hh : "") + cell("p50", s, l, hh ? "@" + hh : "");
       }).join("") +
       `</div>`;
   }

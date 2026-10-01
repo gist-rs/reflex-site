@@ -243,6 +243,61 @@ const server = http.createServer((req, res) => {
     else console.log(`ok: suite cells carry the ${expectedBreaks} past-500ms break sign(s) (data-derived)`);
   }
 
+  // 9b) the cc metric (2026-10-01, the user's live report): chance-corrected
+  //     accuracy needs BOTH the lane cell and the suite's chance baseline —
+  //     barHtml called M.get(l) without the suite, so cc rendered EVERY lane
+  //     on EVERY suite "— not run" while the acc view and the tables were
+  //     full of scores. Expectations are data-derived: a suite with a
+  //     curated chance (data.areas.suites) that the modelless lane ran must
+  //     render a real bar; a ran suite WITHOUT a chance must say
+  //     "no chance baseline" (never "not run" — a skipped transform is not
+  //     missing data); a suite the lane never measured stays "not run".
+  {
+    await page.click('#bench-hero button[data-metric="cc"]');
+    await page.waitForTimeout(100);
+    const areas = (benchData.areas && benchData.areas.suites) || {};
+    const kmRan = (s) => !!(s.modelless || Object.values(s.extra_host_lanes || {}).some((h) => h.modelless));
+    const rowsState = await page.$$eval("#bench-hero .bc-hgrid", (gs) => {
+      const out = [];
+      for (const g of gs) {
+        const kids = [...g.children];
+        for (let i = 0; i + 1 < kids.length; i++) {
+          if (!kids[i].classList.contains("bc-hlabel") || !kids[i + 1].classList.contains("bc-htrack")) continue;
+          const bars = [...kids[i + 1].querySelectorAll(".bc-hbar")];
+          const km = bars.find((b) => (b.getAttribute("aria-label") || "").includes("Reflex · modelless"))
+            || bars.find((b) => b.textContent.trim().startsWith("Reflex · modelless"));
+          out.push({
+            name: kids[i].textContent.trim(),
+            real: !!km && !km.classList.contains("bc-none"),
+            txt: km ? km.textContent.trim() : "(no modelless cell)",
+          });
+        }
+      }
+      return out;
+    });
+    let nChance = 0, nNoBase = 0, nNotRun = 0, bad = 0;
+    for (const r of rowsState) {
+      const s = benchData.suites.find((x) => x.name === r.name);
+      if (!s) continue;
+      const ran = kmRan(s), chance = !!areas[r.name];
+      if (ran && chance) {
+        nChance++;
+        if (!r.real) { fail(`cc: ${r.name} ran + has a chance baseline but renders "${r.txt}"`); bad++; }
+      } else if (ran && !chance) {
+        nNoBase++;
+        if (r.real || !/no chance baseline/.test(r.txt)) { fail(`cc: ${r.name} ran but chance-less — expected "no chance baseline", got "${r.txt}"`); bad++; }
+      } else {
+        nNotRun++;
+        if (!/not run/.test(r.txt)) { fail(`cc: ${r.name} never measured by modelless — expected "not run", got "${r.txt}"`); bad++; }
+      }
+    }
+    if (nChance < 1) { fail("cc: no chance-baseline suite rendered a bar — the metric is dead again"); bad++; }
+    if (!bad) console.log(`ok: cc metric renders (${nChance} chance bars, ${nNoBase} "no chance baseline", ${nNotRun} not-run rows — data-derived)`);
+    // back to accuracy so the sections below run on the default metric
+    await page.click('#bench-hero button[data-metric="acc"]');
+    await page.waitForTimeout(100);
+  }
+
   // 8b) the all-rigs hero renders ONE BAR PER HOST, labeled @host. The old
   //     single best-accuracy bar mixed hosts inside one chart with the host
   //     named only on hover — a 4090 bar read as the M3's (the reported
