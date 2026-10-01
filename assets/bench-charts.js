@@ -607,6 +607,25 @@
         document.getElementById("bench-hero-body").innerHTML = heroBody();
       }
     });
+    // The all-blank guard (2026-10-01, the user's live report): a persisted
+    // RIG SCOPE from an older visit must never render the whole board as
+    // "— not run" while the data carries scored cells — the rig filter is
+    // the only persisted state that can exclude every host's cells (the
+    // lane filter hides rows entirely; it cannot produce not-run rows).
+    // Count real bars; on zero with a non-default rig, reset the rig to
+    // all rigs, re-render once, and say so — the reader loses a stale
+    // scope, never the data. A deliberate all-lanes-hidden view (filter)
+    // stays the reader's choice and is never touched.
+    const dataHasCells = (d.suites || []).some((s) => num(accOf(s.modelless)));
+    if (dataHasCells && rig.id !== "all" && !el.querySelector(".bc-hbar:not(.bc-none)")) {
+      try { localStorage.removeItem(RIG_KEY); } catch (err) { /* non-fatal */ }
+      rig.id = "all"; rig.hosts = null;
+      document.getElementById("bench-hero-body").innerHTML = heroBody();
+      const note = document.createElement("p");
+      note.className = "bc-note";
+      note.textContent = "⚠ Your saved rig scope was hiding every result on this page — it has been reset to all rigs. The data was always here.";
+      el.querySelector(".bc-bar").after(note);
+    }
   }
 
   // ── per-suite bar table: one row per table row, accuracy | p50 ──────────
