@@ -1,6 +1,6 @@
 {
  "meta": {
-  "date_utc": "2026-10-01T15:41:01Z",
+  "date_utc": "2026-10-01T23:05:14Z",
   "release": {
    "tag": "v0.2.3",
    "url": "https://github.com/gist-rs/reflex/releases/tag/v0.2.3",
@@ -79,6 +79,28 @@
    "note": "the trained sibling lane: the specialists serve six text suites; game spots answer through its Reflex half"
   },
   {
+   "key": "rethink_encoder",
+   "name": "Rethink \u00b7 encoder arm",
+   "framework": "one serve binary (GPU host) + the laya-riir encoder resident from boot + the Reflex half's dataset seats",
+   "engine_bytes": 28748684,
+   "engine_what": "the serve binary (the encoder lane's GPU-host build) + the six t20k dataset suites (the seats the ENC lanes boot from)",
+   "engine_provenance": {
+    "source": "recorded measurement (sum)",
+    "detail": "7,940,160 B (the riir-instinct `serve` release binary built with --features serve-encoder-metal (aarch64-apple-darwin) \u2014 the Rethink encoder lane's GPU-host serving edge (the encoder lane + the laya-riir Metal backend compiled in; the CUDA twin is the same size class), 2026-10-01 on m3-max-metal) + 20,808,524 B (the six t20k dataset suites the serving posture stages (ag_news 6,324,897 \u00b7 emotion 2,719,177 \u00b7 sst5 1,799,678 \u00b7 massive_intent_en 2,516,925 \u00b7 banking77 2,157,368 \u00b7 xnli_en 5,290,479) \u2014 the Reflex half's corpora and question seats, 2026-09-27 on m3-max-metal)"
+   },
+   "model_bytes": 455724111,
+   "model_what": "the laya-english checkpoint as the derived Q8_0 artifact (the adopted encoding \u2014 LAYA_WEIGHTS_VARIANT=q8; 53.1% of the F16 file) + the three sealed NLEH heads (sst5 \u00b7 xnli_en \u00b7 ag_news v1)",
+   "model_provenance": {
+    "source": "sum of measured sources",
+    "detail": "447,729,135 B (recorded measurement: the laya-english checkpoint as the derived Q8_0 artifact (the ADOPTED serving encoding \u2014 LAYA_WEIGHTS_VARIANT=q8, riir-infer plan 616 Phases 1\u20132; 53.1% of the 842,609,210-byte F16 file) \u2014 the weights the Rethink encoder serving lane loads resident from boot \u2014 measured 2026-10-02 on m3-max-metal: lstat over ~/.cache/riir-reflex/laya/english/derived/model.q8.safetensors (stat -f %z \u2192 447729135); the model.q8.safetensors.blake3 sidecar sits beside it \u2014 digest NOT re-verified at record time (no blake3 CLI on the box)) + 7,994,976 B (recorded measurement: the three sealed NLEH encoder heads the serving lane serves (english-checkpoint paired): sst5 t6_s0.bin 3,197,988 \u00b7 xnli_en_encoder_v1.bin 2,131,996 \u00b7 ag_news_encoder_v1.bin 2,664,992. The typed v2 head (typed_encoder_v2.bin, 1,066,004 \u2014 same dir) is NOT in this posture: it is trained over the TYPED checkpoint (encoder_serve hardcodes Checkpoint::English; 'a head trained on the typed cache is meaningless over the english encoder') and rides the arena's record-only measurement lane \u2014 measured 2026-10-01 on m3-max-metal: sum of lstat sizes over ../riir-train/.raw/t599/{t6_s0.bin,xnli_en_encoder_v1.bin,ag_news_encoder_v1.bin} (the .blake3 sidecars excluded))"
+   },
+   "targets": [
+    "GPU host (Metal/CUDA)",
+    "record-only today"
+   ],
+   "note": "the adopted q8 serving posture (riir-infer plan 616 Phases 1\u20132): 348.8 MiB device-resident q8 weights vs 1,654.9 MiB at the widened-F32 posture (4.74\u00d7) and 1,492 MiB whole-process RSS vs 4,825 MiB at the F16 host-widen posture \u2014 measured 2026-10-02 on m3-max-metal (AC). the lane is record-only today (GPU-host targets: the encoder class is refused at the CPU-only deploy shape, so nothing ships until a GPU serving deploy exists) \u2014 the serving lane loads the english checkpoint only; the typed cell is record-only (its v2 head is paired to the typed checkpoint through the arena's measurement lane, so that checkpoint + the typed full-pool corpus are recorded separately, not part of this posture) and serves only after a head retrained over english encodes or a typed serve lane; pre-adoption reference: the F16 english checkpoint tree was 848,195,504 B on HF \u2014 the row's model bytes before the q8 adoption"
+  },
+  {
    "key": "reflex_laya_typed",
    "name": "Reflex + laya \u00b7 typed",
    "framework": "the same reflex binary + the laya-riir lane (runtime download)",
@@ -101,28 +123,6 @@
     "container"
    ],
    "note": "the english base is the same size class (848 MB); multilingual 678 MB; all three checkpoints \u2248 2.37 GB"
-  },
-  {
-   "key": "rethink_encoder",
-   "name": "Rethink \u00b7 encoder arm",
-   "framework": "one serve binary (GPU host) + the laya-riir encoder resident from boot + the Reflex half's dataset seats",
-   "engine_bytes": 28748684,
-   "engine_what": "the serve binary (the encoder lane's GPU-host build) + the six t20k dataset suites (the seats the ENC lanes boot from)",
-   "engine_provenance": {
-    "source": "recorded measurement (sum)",
-    "detail": "7,940,160 B (the riir-instinct `serve` release binary built with --features serve-encoder-metal (aarch64-apple-darwin) \u2014 the Rethink encoder lane's GPU-host serving edge (the encoder lane + the laya-riir Metal backend compiled in; the CUDA twin is the same size class), 2026-10-01 on m3-max-metal) + 20,808,524 B (the six t20k dataset suites the serving posture stages (ag_news 6,324,897 \u00b7 emotion 2,719,177 \u00b7 sst5 1,799,678 \u00b7 massive_intent_en 2,516,925 \u00b7 banking77 2,157,368 \u00b7 xnli_en 5,290,479) \u2014 the Reflex half's corpora and question seats, 2026-09-27 on m3-max-metal)"
-   },
-   "model_bytes": 856190480,
-   "model_what": "the laya-english checkpoint (the ONE encode the serving lane loads \u2014 Checkpoint::English hardcoded at lane boot) + the three sealed NLEH heads it serves (sst5 \u00b7 xnli_en \u00b7 ag_news v1)",
-   "model_provenance": {
-    "source": "sum of measured sources",
-    "detail": "848,195,504 B (huggingface.co tree API (exact bytes): convaiinnovations/laya \u00b7 whole tree minus multilingual/ + typed-decisions/ (the root-level english checkpoint)) + 7,994,976 B (recorded measurement: the three sealed NLEH encoder heads the serving lane serves (english-checkpoint paired): sst5 t6_s0.bin 3,197,988 \u00b7 xnli_en_encoder_v1.bin 2,131,996 \u00b7 ag_news_encoder_v1.bin 2,664,992. The typed v2 head (typed_encoder_v2.bin, 1,066,004 \u2014 same dir) is NOT in this posture: it is trained over the TYPED checkpoint (encoder_serve hardcodes Checkpoint::English; 'a head trained on the typed cache is meaningless over the english encoder') and rides the arena's record-only measurement lane \u2014 measured 2026-10-01 on m3-max-metal: sum of lstat sizes over ../riir-train/.raw/t599/{t6_s0.bin,xnli_en_encoder_v1.bin,ag_news_encoder_v1.bin} (the .blake3 sidecars excluded))"
-   },
-   "targets": [
-    "GPU host (Metal/CUDA)",
-    "record-only today"
-   ],
-   "note": "the encoder serving posture, measured on the GPU bench host (M3 Metal; the CUDA twin is the same size class) \u2014 the serving lane loads the english checkpoint only; the typed cell is record-only (its v2 head is paired to the typed checkpoint through the arena's measurement lane, so that checkpoint + the typed full-pool corpus are recorded separately, not part of this posture) and serves only after a head retrained over english encodes or a typed serve lane; the encoder class is refused at the CPU-only deploy shape, so nothing ships until a GPU serving deploy exists"
   },
   {
    "key": "laya_python",

@@ -63,6 +63,7 @@ FAKE_RECORDED = {k: {"key": k, "bytes": v, "what": f"{k} fake", "host": "fake-ho
                      "instinct_datasets_t20k": 20_000_000,
                      "instinct_winner_vessels": 20_000_000,
                      "rethink_serve_binary": 8_000_000,
+                     "laya_english_q8_artifact": 450_000_000,
                      "rethink_encoder_heads": 9_000_000,
                      "rethink_datasets_typed_full": 7_000_000,
                      "openthai_venv": 700_000_000,
@@ -176,19 +177,17 @@ def _():
     assert h["model_what"], h["key"]
 
 
-@case("rethink resolves: recorded_sum engine + summed LIVE/RECORDED model")
+@case("rethink resolves: recorded_sum engine + summed RECORDED model (q8 artifact + heads)")
 def _():
     d = patched_build()
     by = {c["key"]: c for c in d["candidates"]}
     r = by["rethink_encoder"]
     assert r["engine_bytes"] == 8_000_000 + 20_000_000, r["engine_bytes"]
-    # english = whole tree minus the two sibling checkpoints (hub chrome
-    # excluded); fake root files: 800M + 3M. The typed checkpoint is NOT
-    # in the serving posture (encoder_serve hardcodes Checkpoint::English).
-    english = 800_000_000 + 3_000_000
-    assert r["model_bytes"] == english + 9_000_000, r["model_bytes"]
+    # the adopted q8 posture: the model half is the recorded derived Q8_0
+    # artifact + the recorded sealed heads — no live HF tree in the row.
+    assert r["model_bytes"] == 450_000_000 + 9_000_000, r["model_bytes"]
     assert r["model_provenance"]["source"] == "sum of measured sources", r["model_provenance"]
-    for needle in ("whole tree minus", "rethink_encoder_heads fake"):
+    for needle in ("laya_english_q8_artifact fake", "rethink_encoder_heads fake"):
         assert needle in r["model_provenance"]["detail"], r["model_provenance"]
     assert r["engine_provenance"]["source"] == "recorded measurement (sum)", r["engine_provenance"]
 
@@ -214,12 +213,13 @@ def _():
 
 @case("a recorded key missing inside a sum refuses loudly")
 def _():
-    broken = {k: v for k, v in FAKE_RECORDED.items() if k != "rethink_encoder_heads"}
-    try:
-        patched_build(recorded=broken)
-        raise AssertionError("built with a recorded key missing inside a sum")
-    except SystemExit:
-        pass
+    for dropped in ("rethink_encoder_heads", "laya_english_q8_artifact"):
+        broken = {k: v for k, v in FAKE_RECORDED.items() if k != dropped}
+        try:
+            patched_build(recorded=broken)
+            raise AssertionError(f"built with a recorded key missing inside a sum ({dropped})")
+        except SystemExit:
+            pass
 
 
 @case("a missing recorded key refuses loudly (engine AND model sides)")
