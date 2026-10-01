@@ -270,10 +270,12 @@
       <p>Where the gap was the scorer rather than the domain, it closes. Per-label count tables (naive-Bayes log-odds
         over the train rows, plus a sentence-pair view for premise/hypothesis tasks) are cal-selected per suite, and
         the test split is read once. At its 051-era posture this took several suites to or past the laya lanes at the
-        same sub-millisecond latency; the current board reads a narrower reflex-vs-laya split (the pool those
-        numbers were selected on and the pool a later re-run rebuilt them from differed — tracked as riir-reflex
-        issue 058), and the hybrid lane composes the reflex engine with per-suite specialists where those win. The
-        test split never enters a corpus. A separate
+        same sub-millisecond latency. <strong>2026-10-01 correction:</strong> the modelless cells published
+        2026-09-28..30 were measured on a silently truncated 4,000-row-per-suite corpus pull while every posture
+        they serve was selected on the full pools — the board read up to 42 points low on five suites through no
+        engine change. Both hosts were re-run on the rebuilt full pools (every cell now carries a corpus digest;
+        reflex issue 058 owns the record), and the pre-076 numbers are restored — banking77 serves 0.8420, a real
+        engine gain since its 051-era reading. The test split never enters a corpus. A separate
         <em>transductive</em> line under each table shows what happens if the engine may also read the test
         <em>text</em> (self-labelled, gold never read): it adds nothing, because the train rows already carry the
         vocabulary.</p>

@@ -41,8 +41,12 @@ echo "== 1/5 publish_bench self-test"
 # PUBLISH_BENCH_CORPUS_RESET joins the env-clean (Issue 057): the ack is
 # publish-scoped, and inside the self-test its fixtures publish no such
 # suite, so the stale-ack refusal fires and step 1 dies.
+# PUBLISH_BENCH_ALLOW_UNQUOTABLE joins for the same reason (2026-10-01,
+# the Issue-058 republish: the ack leaked into the self-test's stale-ack
+# case and made it pass-by-refusal — the exact leak class 099's env-clean
+# closed for CORPUS_RESET, one env over).
 env -u PUBLISH_BENCH_LANES -u PUBLISH_ALLOW_SAMPLE_MISMATCH \
-    -u PUBLISH_BENCH_CORPUS_RESET \
+    -u PUBLISH_BENCH_CORPUS_RESET -u PUBLISH_BENCH_ALLOW_UNQUOTABLE \
     python3 "$SITE_ROOT/scripts/test_publish_bench.py"
 
 echo "== 2/5 chart render smoke (pre-publish state)"
