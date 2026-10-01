@@ -138,16 +138,6 @@ function median(xs) {
   return v.length ? v[Math.floor(v.length / 2)] : null;
 }
 
-function pickLayaBest(s) {
-  let best = null;
-  for (const l of Object.values(s.laya || {})) {
-    if (l.lane !== "laya (rust)" && l.lane !== "laya (python)") continue;
-    if (l.model === "multilingual" || !l.hard) continue;
-    if (!best || (l.hard.accuracy ?? -1) > (best.hard.accuracy ?? -1)) best = l;
-  }
-  return best;
-}
-
 async function homeFigure() {
   const tldrBody = document.getElementById("tldr-body");
   const chart = document.getElementById("bench-summary");
@@ -164,15 +154,25 @@ async function homeFigure() {
   BenchCharts.setLogDomain(d);
   if (chart) BenchCharts.summary(d, chart);
   if (tldrBody) {
-    const ratios = [], kmP50s = [], kmCells = [];
+    // Issue-058 follow-up (2026-10-01): the SAME denominator as the arena
+    // TL;DR (arena_tldr.js pick()) — modelless + laya.english + py/english,
+    // all fields present. The old pickLayaBest() count included
+    // code_fixtures (rust lane only, no py twin) and read "9 suites"
+    // beside the arena's 8/8 — two pages, two denominators, one median
+    // (191x) contradicting the other (218x). code_fixtures is the
+    // population-excluded 16-case fixture suite; the headline speed claim
+    // runs on the 8 dataset suites, exactly like the arena's verdict row.
+    const tldrRows = [];
     for (const s of d.suites || []) {
-      const km = s.modelless, l = pickLayaBest(s);
-      if (km?.latency_p50_ms > 0 && l?.latency_p50_ms > 0) {
-        ratios.push(l.latency_p50_ms / km.latency_p50_ms);
-        kmP50s.push(km.latency_p50_ms);
-        kmCells.push(km);
+      const km = s.modelless, l = s.laya?.english, py = s.laya?.["py/english"];
+      if (!km || !l || !py) continue;
+      if (km?.latency_p50_ms > 0 && l?.latency_p50_ms > 0 && py?.latency_p50_ms > 0) {
+        tldrRows.push({ km, l });
       }
     }
+    const ratios = tldrRows.map(({ km, l }) => l.latency_p50_ms / km.latency_p50_ms);
+    const kmP50s = tldrRows.map(({ km }) => km.latency_p50_ms);
+    const kmCells = tldrRows.map(({ km }) => km);
     const speedup = median(ratios), geo = median(kmP50s) && Math.exp(kmP50s.reduce((a, v) => a + Math.log(v), 0) / kmP50s.length);
     if (speedup && geo) {
       tldrBody.innerHTML =
