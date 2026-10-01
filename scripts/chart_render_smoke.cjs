@@ -162,8 +162,13 @@ const legends = (aHtml.match(/class="rd-lg"/g) || []).length;
 const laneCount = Object.keys((d.areas || {}).lanes || {}).length;
 if (polys < 3) { console.error(`FAIL[radar]: expected >=3 lane polygons (modelless/hybrid/laya complete), got ${polys}`); process.exit(1); }
 if (legends !== laneCount * 2) { console.error(`FAIL[radar]: expected ${laneCount * 2} legend rows (${laneCount} lanes x 2 cards), got ${legends}`); process.exit(1); }
-if (!aHtml.includes("2/9") || !aHtml.includes("Rethink")) {
-  console.error("FAIL[radar]: the partial-lane disclosure (Rethink 2/9) is missing");
+// The partial-lane disclosure is DATA-DERIVED (the coverage the publish
+// computes — never a hand-typed literal: the "1/9" of the sst5 era went
+// stale the day the lane grew to two suites, issue 017).
+const encCov = ((d.areas || {}).lanes || {}).encoder;
+const covTxt = encCov && encCov.coverage ? `${encCov.coverage.suites}/${encCov.coverage.of}` : null;
+if (!covTxt || !aHtml.includes(covTxt) || !aHtml.includes("Rethink")) {
+  console.error(`FAIL[radar]: the partial-lane disclosure (Rethink ${covTxt || "absent"}) is missing`);
   process.exit(1);
 }
 // A 1-point lane (the Rethink encoder arm) must draw DOTS but no connecting

@@ -48,10 +48,7 @@ const accOf = (l) => {
   return h != null ? h : (l && l.accuracy);
 };
 const isModelless = (l) => l.lane === "KatGPT" || l.model === "modelless";
-// The hybrid lane's data spelling: "Instinct" since the qualifier-free
-// product rename (owner call 2026-10-01); "Instinct (hybrid)" matches so
-// an un-re-published bench.json still renders.
-const isHybrid = (l) => l.lane === "Instinct" || l.lane === "Instinct (hybrid)";
+// (isHybrid/isEncoder/isFamily live with cellsOf — the family law block.)
 
 // The 95% Wilson score interval (the arena_tldr.js screen, same constants).
 function wilson(p, n, z = 1.96) {
@@ -67,23 +64,31 @@ const inWilson = (p, n, x) => {
 };
 
 // Every lane cell of a suite, tagged with its host (null = primary run).
-// NOTE: the instinct ENCODER lane (riir-instinct issue 014 C1, serve: ✗)
-// is deliberately NOT enumerated — a serve-refused arm is not the serving
-// lane and must not move the "Instinct vs best lane" board (its cell is
-// visible in the tables/charts with its own serves/gate disclosure).
+// The family law (owner call 2026-10-01, instinct issue 017 T5 — reversing
+// the sst5-era display exclusion): the ENCODER lane (Rethink, serve: ✗,
+// record-only) COUNTS as the family's measured arm beside the hybrid lane
+// — a measured cell the board hides reads as no progress. The contributing
+// arm is marked on its line (the Rethink fill color + a record-only tag)
+// so a reader never mistakes a serve-refused arm for the serving posture.
 function cellsOf(s) {
   const out = [];
   const push = (l, host) => { if (l && accOf(l) != null) out.push([l, host]); };
   if (s.modelless) push(s.modelless, null);
   for (const k of Object.keys(s.laya || {})) push(s.laya[k], null);
-  for (const k of ["clm", "gliner", "agentjev", "openthai", "paw", "paw_local", "hybrid"]) push(s[k], null);
+  for (const k of ["clm", "gliner", "agentjev", "openthai", "paw", "paw_local", "hybrid", "encoder"]) push(s[k], null);
   for (const [host, hl] of Object.entries(s.extra_host_lanes || {})) {
     if (hl.modelless) push(hl.modelless, host);
     for (const k of Object.keys(hl.laya || {})) push(hl.laya[k], host);
-    for (const k of ["clm", "gliner", "agentjev", "openthai", "paw", "paw_local", "hybrid"]) push(hl[k], host);
+    for (const k of ["clm", "gliner", "agentjev", "openthai", "paw", "paw_local", "hybrid", "encoder"]) push(hl[k], host);
   }
   return out;
 }
+
+// The family's two product lanes: Instinct (hybrid, serving) and Rethink
+// (encoder, record-only) — the same matchers the lane palette carries.
+const isHybrid = (l) => l.lane === "Instinct" || l.lane === "Instinct (hybrid)";
+const isEncoder = (l) => l.lane === "Rethink" || l.lane === "Rethink (encoder)" || l.lane === "Instinct (encoder)";
+const isFamily = (l) => isHybrid(l) || isEncoder(l);
 
 function row(state, text) {
   const li = document.createElement("li");
@@ -104,7 +109,7 @@ function segBar(parent, up, eq, down, none) {
   d.className = "iv-seg";
   d.innerHTML = seg("up", up, `${up} won`) + seg("eq", eq, `${eq} tied`) +
     seg("down", down, `${down} remain`) +
-    (none > 0 ? seg("none", none, `${none} of the published suites have no Instinct arm yet`) : "");
+    (none > 0 ? seg("none", none, `${none} of the published suites have no family arm yet`) : "");
   parent.appendChild(d);
 }
 
@@ -127,14 +132,20 @@ function suiteLine(L, r, cmp, opts = {}) {
     title = ` within noise at this arm's n=${r.instN} (the Bench-068 Wilson screen)`;
   }
   const cmpColor = L.color(cmp.lane);
+  // The contributing family arm's color: Instinct magenta (serving) or
+  // Rethink violet (record-only) — the line reads in the contributing
+  // lane's color, and a record-only arm is TAGGED so it is never mistaken
+  // for the serving posture (the honesty half of the 017 display law).
+  const armColor = r.viaEncoder ? L.color("Rethink") : L.instinct;
+  const roTag = r.viaEncoder ? `<span class="iv-host" title="record-only — the encoder class is refused at serve (issue 014); the serving arm is the hybrid lane's">· record-only</span>` : "";
   li.innerHTML =
     `<span class="iv-suite" title="${ivEsc(r.name)}">${ivEsc(r.name)}</span>` +
     `<span class="iv-bar">` +
-      `<i class="iv-fill" style="width:${instW}%;background:${L.instinct}"></i>` +
+      `<i class="iv-fill" style="width:${instW}%;background:${armColor}"></i>` +
       (cmpW != null && hi > lo + 1e-9 ? `<i class="iv-gap" style="left:${lo.toFixed(2)}%;width:${(hi - lo).toFixed(2)}%;background:${cmpColor}"></i>` : "") +
       (cmpW != null ? `<b class="iv-tick" style="left:${cmpW}%;background:${cmpColor}"></b>` : "") +
     `</span>` +
-    `<span class="iv-nums"><b style="color:${L.instinct}">${pct(r.inst)}</b> vs ` +
+    `<span class="iv-nums"><b style="color:${armColor}">${pct(r.inst)}</b> ${roTag} vs ` +
       (cmpW != null
         ? `<span style="color:${cmpColor}">${pct(cmp.acc)} ${ivEsc(cmp.lane)}</span>` +
           (cmp.host ? ` <span class="iv-host">@${ivEsc(cmp.host)}</span>` : "")
@@ -157,22 +168,27 @@ function render(bench) {
   const suites = bench.suites || [];
   const withKm = suites.filter((s) => accOf(s.modelless) != null);
 
-  // Per suite with an arm: the best hybrid cell (any host), the Reflex row,
-  // and the best OTHER published lane (best non-multilingual checkpoint,
-  // any host — accuracy is box-independent).
+  // Per suite with an arm: the FAMILY's best measured cell — the hybrid
+  // lane (Instinct, serving) or the encoder lane (Rethink, record-only;
+  // owner call 2026-10-01, issue 017 T5: a measured cell the board hides
+  // reads as no progress). The Reflex row, and the best OTHER published
+  // lane (best non-multilingual checkpoint, any host) — the family lanes
+  // are never their own comparator.
   const armed = [];
   for (const s of withKm) {
     const cells = cellsOf(s);
-    const hyb = cells.filter(([l]) => isHybrid(l));
-    if (!hyb.length) continue;
-    const hybCell = hyb.reduce((a, b) => (accOf(b[0]) > accOf(a[0]) ? b : a));
-    const inst = accOf(hybCell[0]);
+    const fam = cells.filter(([l]) => isFamily(l));
+    if (!fam.length) continue;
+    const famCell = fam.reduce((a, b) => (accOf(b[0]) > accOf(a[0]) ? b : a));
+    const viaEncoder = isEncoder(famCell[0]);
+    const inst = accOf(famCell[0]);
     const kmCell = cells.find(([l]) => isModelless(l));
     const km = kmCell ? accOf(kmCell[0]) : null;
-    const others = cells.filter(([l]) => !isHybrid(l) && l.model !== "multilingual");
+    const others = cells.filter(([l]) => !isFamily(l) && l.model !== "multilingual");
     const best = others.reduce((a, b) => (accOf(b[0]) > accOf(a[0]) ? b : a));
     armed.push({
-      name: s.name, inst, km, kmN: nOf(kmCell && kmCell[0]), instN: nOf(hybCell[0]),
+      name: s.name, inst, km, kmN: nOf(kmCell && kmCell[0]), instN: nOf(famCell[0]),
+      viaEncoder,
       bestLane: String(best[0].lane).replace(/ \(reference\)$/, "") === "KatGPT" ? "Reflex" : String(best[0].lane).replace(/ \(reference\)$/, ""),
       bestModel: best[0].model, bestAcc: accOf(best[0]), bestHost: best[1],
       edge: inst - accOf(best[0]),
@@ -185,7 +201,7 @@ function render(bench) {
   const lead = document.createElement("p");
   lead.className = "cases";
   lead.style.cssText = "margin:0 0 6px";
-  lead.innerHTML = `Measured on <b>${armed.length}</b> suites with an Instinct arm` +
+  lead.innerHTML = `Measured on <b>${armed.length}</b> suites with a family arm (Instinct hybrid \u00b7 Rethink encoder, the best measured cell) ` +
     (newest ? ` · latest run ${newest.git_sha} (${(newest.date_utc || "?").slice(0, 10)}) · ${newest.host}` : "") +
     ` · single frozen test read per registered arm.`;
   const ul = document.createElement("ul");
@@ -213,11 +229,11 @@ function render(bench) {
     const vsReflexState = notAhead.length === 0 ? true
       : ahead.length * 2 > armed.length ? "warn" : false;
     const li = row(vsReflexState,
-      `<div class="iv-head"><b>Instinct vs Reflex, accuracy</b> — ahead on <b>${ahead.length}/${armed.length}</b> suites with an arm` +
+      `<div class="iv-head"><b>Instinct \u00b7 Rethink vs Reflex, accuracy</b> — ahead on <b>${ahead.length}/${armed.length}</b> suites with an arm` +
       (gapsReal.length + gapsNoise.length ? ` · behind on ${gapsReal.length + gapsNoise.length}` +
         (gapsNoise.length ? ` (${gapsNoise.length} ≈ within noise)` : "") : "") +
       (tied.length ? ` · tied on ${tied.length}` : "") +
-      (noArm > 0 ? ` · no Instinct arm yet on ${noArm} of ${suites.length} published suites.` : "."));
+      (noArm > 0 ? ` · no family arm yet on ${noArm} of ${suites.length} published suites.` : "."));
     const main = li.querySelector(".iv-main");
     segBar(main, ahead.length, tied.length, gapsReal.length + gapsNoise.length, noArm);
     const lines = [
@@ -253,7 +269,7 @@ function render(bench) {
     const vsBestState = strictlyAll ? true
       : best.length * 2 > armed.length ? "warn" : false;
     const li = row(vsBestState,
-      `<div class="iv-head"><b>Instinct vs best lane, accuracy</b> — strictly best on <b>${best.length}/${armed.length}</b> suites with an arm` +
+      `<div class="iv-head"><b>Instinct \u00b7 Rethink vs best lane, accuracy</b> — strictly best on <b>${best.length}/${armed.length}</b> suites with an arm` +
       (trailing.length ? ` · trails the best on ${trailing.length}` : "") +
       (tied.length ? ` · tied on ${tied.length} (a tie sells nothing)` : "") + ".");
     const main = li.querySelector(".iv-main");
@@ -275,7 +291,7 @@ function render(bench) {
     const legend = document.createElement("p");
     legend.className = "iv-legend";
     legend.innerHTML =
-      `per suite: <i class="iv-sw" style="background:${L.instinct}"></i>bar = Instinct · <i class="iv-tickdemo"></i>tick = the compared lane (its lane color) · dim span = the gap · ≈ = within noise · grey hatch = no Instinct arm yet`;
+      `per suite: <i class="iv-sw" style="background:${L.instinct}"></i>bar = the contributing family arm (Instinct magenta, Rethink violet = record-only) · <i class="iv-tickdemo"></i>tick = the compared lane (its lane color) · dim span = the gap · ≈ = within noise · grey hatch = no family arm yet`;
     box.append(legend, ul);
   } else {
     box.append(ul);

@@ -223,7 +223,7 @@
         Reflex — the modelless lane's fused gate decides when to consult it; the cell is the registered arm's single frozen test read
         over the same seat and protocol as every other lane (per suite, only where a hybrid arm won pre-registration).
         <strong>Rethink</strong> — the same family's encoder arm (record-only: the encoder class is refused at serve, so it is
-        measured on two suites so far and its row discloses the partial coverage).
+        measured on a subset of suites so far and its row discloses the partial coverage).
         <strong>openthai</strong> — the external OpenThai-SystemOne decision specialist (Apache-2.0, not affiliated, Qwen3.5-0.8B backbone):
         their FastAPI service answers the same decision questions, measured gold-label on our splits — a comparison lane, and the board's Thai-capability row.
         <strong>paw</strong> — the external ProgramAsWeights compile-a-classifier lane (MIT SDK, not affiliated): one neural program compiled
@@ -335,7 +335,7 @@
       <li><strong>Instinct / Rethink</strong> are Reflex's trained sibling lanes (riir-instinct, private repo):
         <strong>Instinct</strong> composes distilled per-domain specialists on top of the free engine — consulted only where
         Reflex's calibrated gate declines; <strong>Rethink</strong> is the same family's encoder arm (record-only so far —
-        refused at serve, a two-suite partial). Full description: <a href="#faq"><em>What are the lanes?</em></a> and
+        refused at serve, a partial-coverage lane). Full description: <a href="#faq"><em>What are the lanes?</em></a> and
         the Instinct section above.</li>
       <li><strong>Every row names its machine</strong> with an <code>@host</code> tag (chip + device):
         <code>@m3-max-metal</code> is this page's baseline machine serving the <em>laya</em> lane from

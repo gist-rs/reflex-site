@@ -94,8 +94,8 @@
       "date_utc": "2026-09-28T16:27:36Z"
      },
      "encoder": {
-      "git_sha": "cdc92d1",
-      "date_utc": "2026-10-01T10:57:17Z"
+      "git_sha": "0f81b54",
+      "date_utc": "2026-10-01T11:20:42Z"
      }
     },
     "head_posture": "OFF (head_scale 0 \u2014 the published baseline posture)"
@@ -3534,6 +3534,28 @@
     "source_run": {
      "git_sha": "00bddd1",
      "date_utc": "2026-09-28T16:27:36Z"
+    }
+   },
+   "encoder": {
+    "lane": "Rethink",
+    "model": "ENC-ag_news_encoder_v1 (laya-english encoder + NLEH v1 head)",
+    "hard": {
+     "n": 400,
+     "accuracy": 0.9475
+    },
+    "consult_rate": 1.0,
+    "latency_scope": "arm-only",
+    "latency_rows": "questions",
+    "latency_p50_ms": 16.983,
+    "latency_p99_ms": 27.313,
+    "serves": "\u2717 (encoder class refused at serve \u2014 the incumbent arm serves; instinct issue 014 C1, seating per issue 017)",
+    "gate": "acc 0.9475 (379/400 rows) \u00b7 paired vs the incumbent A1: mean +0.0600 \u00b7 LB95 +0.0320 \u00b7 per-row p50 16.983 ms (metal device). Serve REFUSED (014 class-wide latency class); record-only cell, seated per the owner call 2026-10-01 (instinct issue 017). The head reads one question under its own reference (riir-train 600 T1).",
+    "device": "metal",
+    "record_only": true,
+    "latency_quotable": true,
+    "source_run": {
+     "git_sha": "0f81b54",
+     "date_utc": "2026-10-01T11:20:42Z"
     }
    }
   },
@@ -8517,7 +8539,7 @@
    },
    "encoder": {
     "lane": "Rethink",
-    "model": "ENC-xnliv1 (laya-english encoder + NLEH v1 head)",
+    "model": "ENC-xnli_en_encoder_v1 (laya-english encoder + NLEH v1 head)",
     "hard": {
      "n": 300,
      "accuracy": 0.86
@@ -8525,17 +8547,16 @@
     "consult_rate": 1.0,
     "latency_scope": "arm-only",
     "latency_rows": "questions",
-    "latency_p50_ms": 231.709,
-    "latency_p99_ms": 428.943,
-    "serves": "\u2717 (encoder class refused at serve \u2014 A0 serves; instinct issue 014 C1, seating per issue 017)",
-    "gate": "+33.7 pt over the incumbent A0 0.5233 (paired vs A1 mean +0.4500 \u00b7 LB95 +0.3832) \u2014 4.0 pt UNDER the openthai bar (0.9000). Reference-identified: the head ties the laya-english forward 300/300 picks (riir-train 599 T5a) \u2014 the cell is the encoder lane's own frozen read, not the trainer's lift. Serve REFUSED (014 class-wide latency class); seated record-only by the owner call 2026-10-01 (issue 017).",
+    "latency_p50_ms": 16.513,
+    "latency_p99_ms": 18.634,
+    "serves": "\u2717 (encoder class refused at serve \u2014 the incumbent arm serves; instinct issue 014 C1, seating per issue 017)",
+    "gate": "acc 0.8600 (258/300 rows) \u00b7 paired vs the incumbent A1: mean +0.4500 \u00b7 LB95 +0.3832 \u00b7 per-row p50 16.513 ms (metal device). Serve REFUSED (014 class-wide latency class); record-only cell, seated per the owner call 2026-10-01 (instinct issue 017). Reference-identified: the head ties the laya-english forward 300/300 picks (riir-train 599 T5a) \u2014 the cell is the encoder lane's own frozen read, not the trainer's lift.",
     "device": "metal",
     "record_only": true,
-    "reference_identified": true,
     "latency_quotable": true,
     "source_run": {
-     "git_sha": "cdc92d1",
-     "date_utc": "2026-10-01T10:57:17Z"
+     "git_sha": "0f81b54",
+     "date_utc": "2026-10-01T11:20:17Z"
     }
    }
   },
@@ -14640,6 +14661,10 @@
     "display": "Rethink",
     "color_key": "instinct-encoder",
     "per_suite": {
+     "ag_news": {
+      "acc": 0.9475,
+      "cc": 0.93
+     },
      "sst5": {
       "acc": 0.526667,
       "cc": 0.408333
@@ -14650,12 +14675,13 @@
      }
     },
     "areas": {
+     "language": 0.93,
      "sentiment": 0.408333,
      "reasoning": 0.79
     },
-    "index": 0.599167,
+    "index": 0.709444,
     "coverage": {
-     "suites": 2,
+     "suites": 3,
      "of": 9
     },
     "complete": false

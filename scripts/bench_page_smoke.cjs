@@ -384,9 +384,10 @@ const server = http.createServer((req, res) => {
 
   // 9d) the area radar (#bench-areas): two cards render from data.areas —
   //     polygons only for complete lanes, dots for measured spokes, the
-  //     partial lane (Rethink encoder, 2/9) disclosed in BOTH legends, and
-  //     the lane filter governs it like every other section (hiding a lane
-  //     removes its rows from both cards).
+  //     partial lane (Rethink encoder, coverage DATA-DERIVED from the
+  //     publish's areas block — never a hand-typed literal, issue 017)
+  //     disclosed in BOTH legends, and the lane filter governs it like
+  //     every other section (hiding a lane removes its rows from both cards).
   {
     await page.waitForFunction(() => document.querySelectorAll("#bench-areas .area-card svg").length === 2, { timeout: 10000 });
     const cards = await page.$$eval("#bench-areas .area-card", (xs) => xs.length);
@@ -395,9 +396,12 @@ const server = http.createServer((req, res) => {
     if (polys < 6) fail(`expected >=6 radar polygons (modelless/hybrid/laya x 2 cards), got ${polys}`);
     const dots = await page.$$eval("#bench-areas .rd-dot", (xs) => xs.length);
     if (dots < 40) fail(`expected >=40 radar dots, got ${dots}`);
+    const benchData = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "data", "bench.json"), "utf8"));
+    const encCov = ((benchData.areas || {}).lanes || {}).encoder;
+    const covTxt = encCov && encCov.coverage ? `${encCov.coverage.suites}/${encCov.coverage.of}` : null;
     const legendTxt = await page.$eval("#bench-areas", (x) => x.textContent);
-    if (!legendTxt.includes("Rethink") || !legendTxt.includes("2/9"))
-      fail("the radar legends must disclose the partial Rethink lane (2/9)");
+    if (!legendTxt.includes("Rethink") || !covTxt || !legendTxt.includes(covTxt))
+      fail(`the radar legends must disclose the partial Rethink lane (${covTxt || "absent"})`);
     const encRows = await page.$$eval("#bench-areas .rd-lg", (xs) => xs.filter((x) => x.textContent.includes("Rethink")).length);
     if (encRows !== 2) fail(`expected a Rethink legend row on both cards, got ${encRows}`);
     else console.log(`ok: area radar renders (${polys} polygons, ${dots} dots, partial lane disclosed on both cards)`);
@@ -501,31 +505,36 @@ const server = http.createServer((req, res) => {
     await page.waitForFunction(() => document.querySelectorAll("#instinct-verdict li").length >= 2, { timeout: 10000 });
     const accOf = (l) => { if (!l) return null; const h = (l.hard || {}).accuracy; return h != null ? h : l.accuracy; };
     const bench = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "data", "bench.json"), "utf8"));
-    // The hybrid lane's data spelling: "Instinct" since the qualifier-free
-    // product rename (owner call 2026-10-01); "Instinct (hybrid)" matches
-    // so an un-re-published bench.json still reads (the same matcher
-    // instinct.js carries).
-    const isInstinct = (l) => l.lane === "Instinct" || l.lane === "Instinct (hybrid)";
+    // The FAMILY lanes' data spelling (owner call 2026-10-01, instinct
+    // issue 017 T5): the hybrid lane "Instinct" (+ legacy "Instinct
+    // (hybrid)") and the encoder lane "Rethink" (+ legacy spellings) — the
+    // vs-Reflex/vs-best rows count the family's best measured cell, with
+    // the encoder contribution TAGGED record-only on its line. The smoke
+    // mirrors the page's matcher exactly.
+    const isHybrid = (l) => l.lane === "Instinct" || l.lane === "Instinct (hybrid)";
+    const isEncoder = (l) => l.lane === "Rethink" || l.lane === "Rethink (encoder)" || l.lane === "Instinct (encoder)";
+    const isFamily = (l) => isHybrid(l) || isEncoder(l);
     const cells = (s) => {
-      const out = [s.modelless, ...Object.values(s.laya || {}), s.clm, s.gliner, s.agentjev, s.openthai, s.paw, s.paw_local, s.hybrid]
+      const out = [s.modelless, ...Object.values(s.laya || {}), s.clm, s.gliner, s.agentjev, s.openthai, s.paw, s.paw_local, s.hybrid, s.encoder]
         .filter(Boolean);
       for (const hl of Object.values(s.extra_host_lanes || {}))
-        out.push(hl.modelless, ...Object.values(hl.laya || {}), hl.clm, hl.gliner, hl.agentjev, hl.openthai, hl.paw, hl.paw_local, hl.hybrid);
+        out.push(hl.modelless, ...Object.values(hl.laya || {}), hl.clm, hl.gliner, hl.agentjev, hl.openthai, hl.paw, hl.paw_local, hl.hybrid, hl.encoder);
       return out.filter(Boolean);
     };
-    const armed = bench.suites.filter((s) => accOf(s.modelless) != null && cells(s).some(isInstinct));
+    const armed = bench.suites.filter((s) => accOf(s.modelless) != null && cells(s).some(isFamily));
+    const famOf = (s) => Math.max(...cells(s).filter(isFamily).map(accOf));
     const strictlyAll = armed.length > 0 && armed.every((s) => {
-      const hyb = Math.max(...cells(s).filter(isInstinct).map(accOf));
-      const bestOther = Math.max(...cells(s).filter((l) => !isInstinct(l) && l.model !== "multilingual").map(accOf));
-      return hyb - bestOther > 1e-9;
+      const fam = famOf(s);
+      const bestOther = Math.max(...cells(s).filter((l) => !isFamily(l) && l.model !== "multilingual").map(accOf));
+      return fam - bestOther > 1e-9;
     });
     const chip = await page.$eval("#instinct-verdict .chip", (x) => x.className);
     if (chip !== (strictlyAll ? "chip ok" : "chip poc")) fail(`instinct chip "${chip}" but the data says ${strictlyAll ? "chip ok" : "chip poc"}`);
     else console.log(`ok: instinct chip ${chip} matches the data (${armed.length} armed suites)`);
     const verdict = await page.textContent("#instinct-verdict");
-    if (!/Instinct vs Reflex, accuracy/.test(verdict)) fail("the vs-Reflex row (moved law) is missing");
-    if (!/Instinct vs best lane, accuracy/.test(verdict)) fail("the vs-best-lane row (the raised bar) is missing");
-    if (!/no Instinct arm yet/.test(verdict)) fail("the no-arm disclosure is missing");
+    if (!/Instinct · Rethink vs Reflex, accuracy/.test(verdict)) fail("the vs-Reflex row (moved law) is missing");
+    if (!/Instinct · Rethink vs best lane, accuracy/.test(verdict)) fail("the vs-best-lane row (the raised bar) is missing");
+    if (!/no family arm yet/.test(verdict)) fail("the no-arm disclosure is missing");
     // Both row marks follow the MAJORITY law (owner call, the Reflex-vs-laya
     // rule one lane over): green everywhere, YELLOW on a strict majority,
     // red on a minority — re-derived here from the same bench.json.
@@ -535,22 +544,22 @@ const server = http.createServer((req, res) => {
     }, label);
     const markOf = (wins, n) => (wins === n ? "ok" : wins * 2 > n ? "warn" : "gap");
     const vsReflexWins = armed.filter((s) => {
-      const hyb = Math.max(...cells(s).filter(isInstinct).map(accOf));
+      const fam = famOf(s);
       const km = Math.max(...cells(s).filter((l) => l.lane === "KatGPT" || l.model === "modelless").map(accOf));
-      return hyb > km;
+      return fam > km;
     }).length;
     const expectReflex = markOf(vsReflexWins, armed.length);
-    if ((await rowMark("Instinct vs Reflex")) !== expectReflex)
-      fail(`vs-Reflex mark ${await rowMark("Instinct vs Reflex")} but majority rule says ${expectReflex} (${vsReflexWins}/${armed.length})`);
+    if ((await rowMark("Instinct · Rethink vs Reflex")) !== expectReflex)
+      fail(`vs-Reflex mark ${await rowMark("Instinct · Rethink vs Reflex")} but majority rule says ${expectReflex} (${vsReflexWins}/${armed.length} ahead)`);
     else console.log(`ok: vs-Reflex mark ${expectReflex} (${vsReflexWins}/${armed.length} ahead)`);
     const vsBestWins = armed.filter((s) => {
-      const hyb = Math.max(...cells(s).filter(isInstinct).map(accOf));
-      const bestOther = Math.max(...cells(s).filter((l) => !isInstinct(l) && l.model !== "multilingual").map(accOf));
-      return hyb - bestOther > 1e-9;
+      const fam = famOf(s);
+      const bestOther = Math.max(...cells(s).filter((l) => !isFamily(l) && l.model !== "multilingual").map(accOf));
+      return fam - bestOther > 1e-9;
     }).length;
     const expectBest = markOf(vsBestWins, armed.length);
-    if ((await rowMark("Instinct vs best lane")) !== expectBest)
-      fail(`vs-best mark ${await rowMark("Instinct vs best lane")} but majority rule says ${expectBest} (${vsBestWins}/${armed.length})`);
+    if ((await rowMark("Instinct · Rethink vs best lane")) !== expectBest)
+      fail(`vs-best mark ${await rowMark("Instinct · Rethink vs best lane")} but majority rule says ${expectBest} (${vsBestWins}/${armed.length} strictly best)`);
     else console.log(`ok: vs-best mark ${expectBest} (${vsBestWins}/${armed.length} strictly best)`);
     if (!process.exitCode) console.log("ok: instinct verdict rows render (vs Reflex + vs best lane + no-arm)");
   }
