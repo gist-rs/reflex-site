@@ -94,8 +94,8 @@
       "date_utc": "2026-09-28T16:27:36Z"
      },
      "encoder": {
-      "git_sha": "0f81b54",
-      "date_utc": "2026-10-01T11:20:42Z"
+      "git_sha": "c2c5dc3",
+      "date_utc": "2026-10-01T14:59:02Z"
      }
     },
     "head_posture": "OFF (head_scale 0 \u2014 the published baseline posture)"
@@ -2301,6 +2301,31 @@
     "source_run": {
      "git_sha": "9dc33da",
      "date_utc": "2026-09-29T02:12:55Z"
+    }
+   },
+   "encoder": {
+    "lane": "Rethink",
+    "model": "ENC-typed_encoder_v2 (laya-typed encoder + NLEH v2 per-option head)",
+    "hard": {
+     "n": 2000,
+     "accuracy": 0.755
+    },
+    "consult_rate": 1.0,
+    "latency_scope": "arm-only",
+    "latency_rows": "questions",
+    "latency_p50_ms": 364.486,
+    "latency_p99_ms": 782.684,
+    "serves": "\u2717 (encoder class refused at serve \u2014 the incumbent arm serves; instinct issue 014 C1, seating per issue 017)",
+    "gate": "acc 0.7550 (1510/2000 question rows) \u00b7 paired vs the incumbent A1: mean +0.1250 \u00b7 LB95 +0.1032 \u00b7 per-row p50 364.486 ms (metal device, laya-typed). Serve REFUSED (014 class-wide latency class); record-only cell, seated per the owner call 2026-10-01 (instinct issue 017). Train-side (riir-train t608 / Bench 040): NLEH v2 per-option head over the typed-checkpoint TRAIN cache (4000 gold-only rows, widths 2/4/5), holdout 0.7975 vs the reference 0.7762 (EARN); artifact blake3 c2e9f346\u2026; trainer-side frozen read 0.7550 (1510/2000) \u2014 this arena read is the third-posture cell-identity witness.",
+    "device": "metal",
+    "head_kind": "v2 per-option",
+    "ckpt": "typed",
+    "shape_desc": "d 1024 \u00b7 hidden 128 \u00b7 widths 2/4/5",
+    "record_only": true,
+    "latency_quotable": false,
+    "source_run": {
+     "git_sha": "c2c5dc3",
+     "date_utc": "2026-10-01T14:59:02Z"
     }
    }
   },
@@ -14672,16 +14697,21 @@
      "xnli_en": {
       "acc": 0.86,
       "cc": 0.79
+     },
+     "typed_decisions": {
+      "acc": 0.755,
+      "cc": 0.641026
      }
     },
     "areas": {
      "language": 0.93,
      "sentiment": 0.408333,
-     "reasoning": 0.79
+     "reasoning": 0.79,
+     "decisions": 0.641026
     },
-    "index": 0.709444,
+    "index": 0.69234,
     "coverage": {
-     "suites": 3,
+     "suites": 4,
      "of": 9
     },
     "complete": false
