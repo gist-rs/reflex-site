@@ -30,13 +30,17 @@ NOT copy their board (no new entrants, see Constraint).
 
 ## Substrate audit — what ALREADY ships (do not rebuild; extend)
 
-Verified in the worktree at `main` (`8d33e3f`), post-review:
+Verified in the worktree on `main` (checked at `8d33e3f`; `2b699f0`, a typed-timing
+refresh, landed after with no T1 impact — re-verify at implementation time), post-review:
 
 - **Chance-corrected metric + areas rollup** (`f0185af`, 2026-09-30): `compute_areas()` in
   `scripts/publish_bench.py` emits `data/bench.json` → `areas` v2 — per-suite
-  `cc = (acc − chance)/(1 − chance)` (unclipped; bounded by construction since
-  `acc ∈ [0,1]`, `chance ∈ (0,1)`, so a clip is unnecessary for accuracy-based cc — note
-  Jev clips only because non-accuracy metrics can enter), per-area means, per-lane
+  `cc = (acc − chance)/(1 − chance)` published UNCLIPPED, and it CAN go negative below
+  chance — two live cells prove it: `clm@4090-win/banking77` cc −0.003026 (acc 0.01 <
+  chance 1/77) and `agentjev@4090-win/prompt_injections` cc −0.034483 (acc 0.4828 <
+  chance 0.5) — and both feed their lane `index`. Whether to clip below-chance to 0 is a
+  REAL scoring decision (task 1d), not a non-issue. The upper side is bounded (cc ≤ 1).
+  Per-area means, per-lane
   `index` (mean of area cc means), per-lane `coverage {suites, of}` + `complete`,
   host-tagged lane keys (`clm@4090-win`), and a `scale` disclosure string. The page
   renders it: `chanceOf()` in `assets/bench-charts.js`, radar cards, `FAIL[cc]` smoke arms.
@@ -60,8 +64,11 @@ Verified in the worktree at `main` (`8d33e3f`), post-review:
 
 ## What they do (the mechanics worth stealing — remaining deltas marked ★)
 
-1. **Chance-corrected headline.** `skill = clip((s − r)/(1 − r))` per benchmark
-   (`metrics.py::skill`), frozen per-benchmark random baselines, `balanced_skill` headline,
+1. **Chance-corrected headline.** `skill = clip((s − r)/(1 − r))` per benchmark —
+   `metrics.py::skill` is `min(1.0, max(0.0, (x − b)/(1 − b)))`, clipped on BOTH sides;
+   the `max(0, …)` lower clip is exactly the below-chance case (verified during
+   distillation; re-clone `apolinario/decision-index` to re-check), frozen per-benchmark
+   random baselines, `balanced_skill` headline,
    raw accuracy kept visible, breadth variant computed-but-hidden. → We ship the cc
    equivalent in the areas block. ★ Remaining: surface cc/skill in the per-suite TABLE
    cells (tables still show raw acc only) and a headline chip per lane (the lane `index`
@@ -107,6 +114,15 @@ landing: `git status --porcelain scripts/publish_bench.py` must be clean of sibl
       the existing per-lane `index` (e.g. "cc index 0.61 · 6/9 suites"). (c) Optional skill
       radar mode = the existing cc spokes (likely already the case — verify, don't
       duplicate). No new chance table; `AREA_CHANCE` is the only basis.
+      (d) **Below-chance posture — decide and pin.** cc is published UNCLIPPED and two
+      live cells sit below 0 (`clm@4090-win/banking77` −0.003026,
+      `agentjev@4090-win/prompt_injections` −0.034483), feeding their lane `index`.
+      Option A: clip cc at 0 (Jev's `max(0, …)`) — changes published numbers, needs a
+      dated disclosure + re-publish. Option B (RECOMMENDED): keep negatives — a
+      below-chance lane should read below-chance, the values are already live and honest —
+      and extend the `scale` disclosure ("values below 0 = below chance; they pull area
+      means down by design") + a self-test arm asserting negatives survive the rollup.
+      Owner decides at implementation.
 - [ ] 2. **Pin the chance basis.** Emit the AREA_CHANCE digest into the areas block (the
       corpus_digest precedent) so a basis edit announces itself; self-test arm: editing a
       chance value changes the published digest.
@@ -170,8 +186,6 @@ landing: `git status --porcelain scripts/publish_bench.py` must be clean of sibl
 - √n area weights and gold★ 1.2 weighting — noted; revisit only if our suite count grows
   well past 15.
 - ForecastBench-style loss rules — we run no forecasting suite.
-- A cc clip — unnecessary for accuracy-based cc (bounded by construction); revisit only if
-  a non-accuracy metric ever enters the rollup.
 
 ## Verification (when implemented, per task)
 
