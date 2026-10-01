@@ -1301,6 +1301,18 @@ def apply_lane_carry(d, incumbent_snapshot, extras):
                 inc0 = _host_lane_slot(snap0, ud, "modelless") if snap0 else None
                 up_dg = (upd0 or {}).get("corpus_digest")
                 inc_dg = (inc0 or {}).get("corpus_digest")
+                # A carried incumbent's digest stamps its ACCURACY merge, not
+                # its timing: _carry_into re-attached an older run's latency
+                # cells onto the merged cell, so an equal digest does NOT
+                # mean the timing measured this corpus (measured 2026-10-01:
+                # the m3 primary carried 0.517 ms — old-pool timing — beside
+                # Bench 100's new-pool digest, and the equal-digest arm made
+                # the cell permanently unrefreshable). The carry note is the
+                # proof the timing measured an older corpus; only a cell
+                # whose timing is its OWN can make the ack stale.
+                inc_carried = bool(
+                    ((inc0 or {}).get("latency_provenance") or {}).get("note")
+                )
                 if up_dg is None:
                     print(
                         f"⛔ refusing: PUBLISH_BENCH_CORPUS_RESET names "
@@ -1311,7 +1323,7 @@ def apply_lane_carry(d, incumbent_snapshot, extras):
                         file=sys.stderr,
                     )
                     sys.exit(1)
-                if inc_dg is not None and up_dg == inc_dg:
+                if inc_dg is not None and up_dg == inc_dg and not inc_carried:
                     print(
                         f"⛔ refusing: PUBLISH_BENCH_CORPUS_RESET names "
                         f"{s['name']}, but its update corpus_digest at {ud} "
@@ -1321,6 +1333,15 @@ def apply_lane_carry(d, incumbent_snapshot, extras):
                         file=sys.stderr,
                     )
                     sys.exit(1)
+                if inc_dg is not None and up_dg == inc_dg and inc_carried:
+                    print(
+                        f"note: PUBLISH_BENCH_CORPUS_RESET — {s['name']} at "
+                        f"{ud}: the incumbent's equal corpus_digest stamps "
+                        "its accuracy merge, not its timing (LANE-CARRY "
+                        "note present — the timing measured an older "
+                        "corpus by construction); the ack refreshes it",
+                        file=sys.stderr,
+                    )
                 print(
                     f"note: PUBLISH_BENCH_CORPUS_RESET — {s['name']} exempt "
                     f"at {ud} from LANE_CARRY latency (the incumbent timing "

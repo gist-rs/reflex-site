@@ -1652,6 +1652,49 @@ def case_corpus_reset_stale_ack_refuses():
     assert merged is None and "s2" in err and "no such suite" in err, err
 
 
+def case_corpus_reset_ack_fires_on_carried_timing_incumbent():
+    """Issue 057 follow-through (2026-10-01, the m3 primary refresh): an
+    incumbent whose TIMING is a LANE_CARRY artifact carries an equal
+    corpus_digest that stamps its ACCURACY merge, not its timing — the
+    _carry_into note is the proof the timing measured an older corpus by
+    construction. The equal-digest arm must not make that cell
+    unrefreshable: the ack fires (with the disclosure note), the fresh
+    timing publishes, and the pre-existing own-timing equal-digest refusal
+    one case up stays the law for cells whose timing is their own."""
+    carry_note = {
+        "note": "latency cells carried from the host's incumbent run; "
+                "accuracy is this lane's own (LANE-CARRY, Issue 032)",
+    }
+    primary = doc("m3", "sha-base", {"s1": {"modelless_acc": 0.5}})
+    primary["meta"]["hosts"] = [{"host": "m3-max-metal"}]
+    # the served 2026-10-01 shape: Bench 100's digest + the carried 0.517
+    primary["suites"][0]["modelless"]["latency_p50_ms"] = 0.517
+    primary["suites"][0]["modelless"]["corpus_digest"] = "pool-b"
+    primary["suites"][0]["modelless"]["latency_provenance"] = carry_note
+    pb.rename_hosts(primary)
+    upd = doc("m3", "sha-lift", {"s1": {"modelless_acc": 0.5}})
+    upd["suites"][0]["modelless"]["latency_p50_ms"] = 0.795
+    upd["suites"][0]["modelless"]["corpus_digest"] = "pool-b"  # EQUAL
+    pb.rename_hosts(upd)
+    restore = _with_env(PUBLISH_BENCH_CORPUS_RESET="s1")
+    try:
+        merged, err = merge_refusing(primary, upd)
+    finally:
+        restore()
+    assert merged is not None, err
+    cell = merged["suites"][0]["modelless"]
+    assert cell["latency_p50_ms"] == 0.795, "the ack refreshes carried timing"
+    assert cell["corpus_digest"] == "pool-b"
+    assert "accuracy merge" in err and "LANE-CARRY" in err, err
+    # the refreshed cell's timing is its OWN: a second ack on it is stale
+    restore = _with_env(PUBLISH_BENCH_CORPUS_RESET="s1")
+    try:
+        merged2, err2 = merge_refusing(merged, upd)
+    finally:
+        restore()
+    assert merged2 is None and "already equals" in err2, err2
+
+
 def case_corpus_reset_ack_extra_host_shape():
     """Issue 057 follow-through (2026-09-30, the first live extra-host ack):
     the update cell for a NON-primary host lives in
@@ -2053,6 +2096,7 @@ CASES = [
     case_wall_judges_a_corpus_changed_slot,
     case_corpus_reset_ack_exempts_and_fires,
     case_corpus_reset_stale_ack_refuses,
+    case_corpus_reset_ack_fires_on_carried_timing_incumbent,
     case_corpus_reset_ack_extra_host_shape,
     case_source_run_stamp_is_per_suite,
     case_source_run_stamp_survives_remerge_and_digest_wins,
