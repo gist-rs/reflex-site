@@ -182,6 +182,18 @@ replaced when a fresh QUOTABLE update lands, and carried (verdict included)
 whenever the update is not itself quotable. Each host row also records its
 runs' dates in `lane_sources` — a per-class summary, not per-suite truth.
 
+**Derived-block-only refresh (plan 001, 2026-10-02):**
+`publish_bench.py --rederive ../reflex-site/data/bench.json` rebuilds ONLY the
+derived blocks of the published file (pairings, the areas block — cc rollups,
+per-lane timing + kind, the edition stamp) without the raw harness docs, and
+REFUSES to write unless every suite's measurement cells stay byte-identical.
+This is the sanctioned way to land a publisher-side derived-block change; the
+ordinary publish (which needs results.json inputs) is for fresh measurements.
+The table's EDITION (meta.edition) is pinned to the scoring basis by
+EDITION_BASIS: an AREA_CHANCE / area-membership / lane-set edit refuses every
+publish until the edition bumps and a `data/changes.json` row explains it; on a
+bump the outgoing edition freezes to `data/archive/bench-<edition>.json`.
+
 One wrapper mechanises the whole flow (self-test -> publish -> docs-mirror
 parity -> the bench-page smoke when playwright is installed):
 

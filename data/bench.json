@@ -172,7 +172,8 @@
     "head_posture": "OFF (head_scale 0 \u2014 the published baseline posture)"
    }
   ],
-  "head_posture": "OFF (head_scale 0 \u2014 the published baseline posture)"
+  "head_posture": "OFF (head_scale 0 \u2014 the published baseline posture)",
+  "edition": "2026-10"
  },
  "suites": [
   {
@@ -15255,8 +15256,10 @@
   }
  ],
  "areas": {
-  "version": 2,
-  "scale": "chance-corrected accuracy: cc = (acc - chance) / (1 - chance); 0 = random guessing, 1 = every question right; per-suite chance = the mean per-question random-pick probability of the harness's own option construction (a dataset fact, not a measurement)",
+  "version": 3,
+  "edition": "2026-10",
+  "chance_digest": "9b08e3970c7a38a566ddeba3f37ad8d7",
+  "scale": "chance-corrected accuracy: cc = (acc - chance) / (1 - chance); 0 = random guessing, 1 = every question right; per-suite chance = the mean per-question random-pick probability of the harness's own option construction (a dataset fact, not a measurement); values below 0 are BELOW CHANCE and stay negative on purpose \u2014 a lane scoring under random guessing must read that way, and negatives pull area means and the index down by design",
   "suites": {
    "ag_news": {
     "area": "language",
@@ -15334,6 +15337,7 @@
    "modelless": {
     "display": "Reflex",
     "color_key": "katgpt",
+    "kind": "modelless-in-process",
     "per_suite": {
      "ag_news": {
       "acc": 0.8825,
@@ -15388,6 +15392,7 @@
    "hybrid": {
     "display": "Instinct",
     "color_key": "instinct",
+    "kind": "trained-head",
     "per_suite": {
      "ag_news": {
       "acc": 0.8975,
@@ -15442,6 +15447,7 @@
    "encoder": {
     "display": "Rethink",
     "color_key": "instinct-encoder",
+    "kind": "encoder",
     "per_suite": {
      "ag_news": {
       "acc": 0.9475,
@@ -15488,6 +15494,7 @@
    "laya": {
     "display": "laya (rust)",
     "color_key": "rust",
+    "kind": "encoder",
     "per_suite": {
      "ag_news": {
       "acc": 0.95,
@@ -15551,6 +15558,7 @@
    "python": {
     "display": "laya (python)",
     "color_key": "python",
+    "kind": "encoder",
     "per_suite": {
      "ag_news": {
       "acc": 0.95,
@@ -15609,6 +15617,7 @@
    "bekko": {
     "display": "bekko",
     "color_key": "bekko",
+    "kind": "python-subprocess",
     "per_suite": {
      "ag_news": {
       "acc": 0.9,
@@ -15654,6 +15663,7 @@
    "openthai": {
     "display": "openthai",
     "color_key": "openthai",
+    "kind": "http-oracle",
     "per_suite": {
      "ag_news": {
       "acc": 0.89,
@@ -15708,6 +15718,7 @@
    "paw": {
     "display": "paw (hosted)",
     "color_key": "paw",
+    "kind": "compiled-program",
     "per_suite": {
      "ag_news": {
       "acc": 0.79,
@@ -15762,6 +15773,7 @@
    "clm@4090-win": {
     "display": "clm",
     "color_key": "clm",
+    "kind": "http-oracle",
     "per_suite": {
      "ag_news": {
       "acc": 0.4025,
@@ -15813,6 +15825,7 @@
    "gliner@4090-win": {
     "display": "gliner",
     "color_key": "gliner",
+    "kind": "python-subprocess",
     "per_suite": {
      "ag_news": {
       "acc": 0.7025,
@@ -15864,6 +15877,7 @@
    "agentjev@4090-win": {
     "display": "agentjev",
     "color_key": "agentjev",
+    "kind": "http-oracle",
     "per_suite": {
      "ag_news": {
       "acc": 0.8,
@@ -15915,6 +15929,7 @@
    "paw_local@4090-win": {
     "display": "paw (local)",
     "color_key": "paw",
+    "kind": "compiled-program",
     "per_suite": {
      "ag_news": {
       "acc": 0.8,
@@ -15944,6 +15959,128 @@
     },
     "complete": false,
     "host": "4090-win"
+   }
+  },
+  "timing": {
+   "modelless": {
+    "clock": "in-process",
+    "method": "Rust in-process per-decision read (the engine's own decision-time measurement; zero network, zero IPC)",
+    "suites": 9,
+    "p50_geomean_ms": 0.1626,
+    "n_used": 9,
+    "n_unquotable": 0,
+    "n_unjudged": 0,
+    "note": "population = the suites behind the lane's index; p50 geometric mean over latency_quotable cells only (unfit timing is shown in the tables, never plotted)"
+   },
+   "hybrid": {
+    "clock": "in-process",
+    "method": "Rust in-process over the same seat (specialist compose + modelless base, one process)",
+    "suites": 9,
+    "p50_geomean_ms": null,
+    "n_used": 0,
+    "n_unquotable": 0,
+    "n_unjudged": 9,
+    "note": "population = the suites behind the lane's index; p50 geometric mean over latency_quotable cells only (unfit timing is shown in the tables, never plotted)"
+   },
+   "encoder": {
+    "clock": "in-process",
+    "method": "Rust in-process GPU encode+head forward (Metal on the m3 hosts; the cell's `device` field names it)",
+    "suites": 7,
+    "p50_geomean_ms": 16.7464,
+    "n_used": 2,
+    "n_unquotable": 2,
+    "n_unjudged": 3,
+    "note": "population = the suites behind the lane's index; p50 geometric mean over latency_quotable cells only (unfit timing is shown in the tables, never plotted)"
+   },
+   "laya": {
+    "clock": "in-process",
+    "method": "Rust in-process forward (device per host row: laya_device \u2014 metal/cuda/cpu)",
+    "suites": 9,
+    "p50_geomean_ms": 31.3825,
+    "n_used": 9,
+    "n_unquotable": 0,
+    "n_unjudged": 0,
+    "note": "population = the suites behind the lane's index; p50 geometric mean over latency_quotable cells only (unfit timing is shown in the tables, never plotted)"
+   },
+   "python": {
+    "clock": "subprocess-jsonl",
+    "method": "JSONL subprocess round-trip to the reference torch runtime \u2014 IPC included, by the lane's own protocol",
+    "suites": 8,
+    "p50_geomean_ms": 47.7794,
+    "n_used": 8,
+    "n_unquotable": 0,
+    "n_unjudged": 0,
+    "note": "population = the suites behind the lane's index; p50 geometric mean over latency_quotable cells only (unfit timing is shown in the tables, never plotted)"
+   },
+   "bekko": {
+    "clock": "subprocess-jsonl",
+    "method": "JSONL subprocess round-trip to their BekkoSentenceTransformer runtime",
+    "suites": 7,
+    "p50_geomean_ms": null,
+    "n_used": 0,
+    "n_unquotable": 7,
+    "n_unjudged": 0,
+    "note": "population = the suites behind the lane's index; p50 geometric mean over latency_quotable cells only (unfit timing is shown in the tables, never plotted)"
+   },
+   "openthai": {
+    "clock": "http",
+    "method": "HTTP round-trip to their OpenThai-SystemOne teacher over a loopback FastAPI subprocess",
+    "suites": 9,
+    "p50_geomean_ms": 274.7061,
+    "n_used": 9,
+    "n_unquotable": 0,
+    "n_unjudged": 0,
+    "note": "population = the suites behind the lane's index; p50 geometric mean over latency_quotable cells only (unfit timing is shown in the tables, never plotted)"
+   },
+   "paw": {
+    "clock": "http",
+    "method": "HTTP round-trip to their hosted REST compile+answer service (accuracy cells only today \u2014 the published posture strips latency)",
+    "suites": 9,
+    "p50_geomean_ms": null,
+    "n_used": 0,
+    "n_unquotable": 5,
+    "n_unjudged": 4,
+    "note": "population = the suites behind the lane's index; p50 geometric mean over latency_quotable cells only (unfit timing is shown in the tables, never plotted)"
+   },
+   "clm@4090-win": {
+    "clock": "http",
+    "method": "HTTP round-trip to their served reference (vLLM pooling on the 4090 window)",
+    "suites": 8,
+    "p50_geomean_ms": null,
+    "n_used": 0,
+    "n_unquotable": 0,
+    "n_unjudged": 8,
+    "note": "population = the suites behind the lane's index; p50 geometric mean over latency_quotable cells only (unfit timing is shown in the tables, never plotted)"
+   },
+   "gliner@4090-win": {
+    "clock": "subprocess-python",
+    "method": "Python subprocess round-trip (their gliner2 package answers per batch; interpreter load excluded)",
+    "suites": 8,
+    "p50_geomean_ms": null,
+    "n_used": 0,
+    "n_unquotable": 0,
+    "n_unjudged": 8,
+    "note": "population = the suites behind the lane's index; p50 geometric mean over latency_quotable cells only (unfit timing is shown in the tables, never plotted)"
+   },
+   "agentjev@4090-win": {
+    "clock": "http",
+    "method": "HTTP round-trip to their jev_service (step-600 tensors; bf16 wobble disclosed in the bench record)",
+    "suites": 8,
+    "p50_geomean_ms": null,
+    "n_used": 0,
+    "n_unquotable": 0,
+    "n_unjudged": 8,
+    "note": "population = the suites behind the lane's index; p50 geometric mean over latency_quotable cells only (unfit timing is shown in the tables, never plotted)"
+   },
+   "paw_local@4090-win": {
+    "clock": "local-runtime",
+    "method": "Local llama.cpp runtime behind a Python subprocess (their programasweights paw.function; warm cache)",
+    "suites": 4,
+    "p50_geomean_ms": null,
+    "n_used": 0,
+    "n_unquotable": 0,
+    "n_unjudged": 4,
+    "note": "population = the suites behind the lane's index; p50 geometric mean over latency_quotable cells only (unfit timing is shown in the tables, never plotted)"
    }
   },
   "scope": "primary-host rows; a lane the primary host never ran rolls up from its serving host under a host-tagged lane key (clm@4090-win)"

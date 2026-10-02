@@ -154,7 +154,11 @@ if (!aHtml.includes("<svg") || !aHtml.includes("rd-poly")) {
   process.exit(1);
 }
 const polys = (aHtml.match(/class="rd-poly"/g) || []).length;
-const dots = (aHtml.match(/class="rd-dot"/g) || []).length;
+// below-chance dots carry a SECOND class (rd-dot rd-dot-below), so the
+// dot counter must accept both spellings — the exact-match regex went
+// stale the day the hollow rings landed (2026-10-02) and under-counted by
+// exactly the negative cells.
+const dots = (aHtml.match(/class="rd-dot[ "]/g) || []).length;
 const legends = (aHtml.match(/class="rd-lg"/g) || []).length;
 // Legend rows are data-derived (two cards × every lane the areas block
 // carries — 4 product lanes in the v1 block, every filterable lane in v2):
@@ -197,5 +201,151 @@ if ((aHtml.match(/rd-polyline/g) || []).length !== expectedLines) {
   process.exit(1);
 }
 console.log(`[radar] ${polys} polygons, ${dots} dots, 2 cards, ${legends} legend rows, partial lane disclosed`);
+
+// ── plan 001 (2026-10-02): below-chance cc is VISIBLE, the two formula
+// copies agree, and the frontier renders. The published data carries
+// negative cc cells (clm@4090-win/banking77, agentjev@4090-win/
+// prompt_injections at the time of writing) — the counts below are
+// DATA-DERIVED, never hand-typed.
+const belowDots = (aHtml.match(/rd-dot-below/g) || []).length;
+let expectedBelowDots = 0;
+for (const ld of Object.values((d.areas || {}).lanes || {}))
+  for (const e of Object.values(ld.per_suite || {}))
+    if (numOk(e.cc) && e.cc < 0) expectedBelowDots++;
+if (belowDots !== expectedBelowDots || expectedBelowDots < 1) {
+  console.error(`FAIL[cc-below]: expected ${expectedBelowDots} hollow below-chance rings (the published per_suite negatives), got ${belowDots}`);
+  process.exit(1);
+}
+console.log(`[cc-below] ${belowDots} hollow below-chance ring(s) on the radar (data-derived)`);
+
+// cc parity: the JS ccOf must agree with EVERY published per_suite cc —
+// Python (publish_bench.compute_areas) holds the other copy of the
+// formula, and two unpinned copies are a drift waiting to happen.
+const areaSuiteOf = (name) => (d.suites || []).find((x) => x.name === name);
+function areaCellOf(key, name) {
+  const s = areaSuiteOf(name);
+  const entry = ((d.areas || {}).lanes || {})[key] && d.areas.lanes[key].per_suite[name];
+  if (!s || !entry) return null;
+  const cls = key.split("@")[0];
+  const container = key.includes("@") ? ((s.extra_host_lanes || {})[key.split("@")[1]] || {}) : s;
+  if (entry.ck) return (container.laya || {})[entry.ck] || null;
+  const c = container[cls];
+  return c && typeof c === "object" ? c : null;
+}
+let parityN = 0;
+for (const [key, ld] of Object.entries((d.areas || {}).lanes || {}))
+  for (const [name, e] of Object.entries(ld.per_suite || {})) {
+    const cell = areaCellOf(key, name);
+    if (!cell) { console.error(`FAIL[cc-parity]: no cell resolves for ${key}/${name}`); process.exit(1); }
+    const cc = window.BenchCharts.ccOf(cell, areaSuiteOf(name));
+    if (cc === null || Math.abs(cc - e.cc) > 1e-6) {
+      console.error(`FAIL[cc-parity]: ${key}/${name} js ${cc} != published ${e.cc}`);
+      process.exit(1);
+    }
+    parityN++;
+  }
+if (parityN < 10) { console.error(`FAIL[cc-parity]: only ${parityN} entries checked`); process.exit(1); }
+console.log(`[cc-parity] ${parityN} published entries agree with the JS ccOf`);
+
+// The hero at the cc metric: every below-chance bar carries the 0-line
+// tick, a "below chance" aria callout, and a SIGNED value.
+global.location = { search: "" };
+global.document.getElementById = (id) => fakeEl(id);
+window.BenchCharts.hero(d);
+captured[".bc-bar"].handlers.click({
+  target: { closest: (s) => (s === "button[data-metric]" ? { dataset: { metric: "cc" } } : null) },
+});
+const heroCc = captured["bench-hero-body"].innerHTML;
+const heroZeros = (heroCc.match(/class="bc-zero"/g) || []).length;
+// one callout per below bar lives in the aria-label (the data-tip carries
+// a second "below chance" string, so the raw substring count is 2× the
+// bar count — count the aria form only)
+let heroBelowAris = 0;
+for (const m of heroCc.matchAll(/aria-label="([^"]*below chance)"/g)) {
+  heroBelowAris++;
+  if (!/-\d/.test(m[1])) {
+    console.error(`FAIL[cc-hero]: below-chance bar without a signed value: ${m[1]}`);
+    process.exit(1);
+  }
+}
+if (!heroZeros || heroZeros !== heroBelowAris) {
+  console.error(`FAIL[cc-hero]: ${heroZeros} zero-line tick(s) vs ${heroBelowAris} below-chance aria callout(s) — they must match`);
+  process.exit(1);
+}
+console.log(`[cc-hero] ${heroZeros} below-chance bar(s) marked, values signed`);
+
+// Old-data graceful render (fields absent — an un-rederived bench.json must
+// render the page, not throw): strip timing/kind, render areas + frontier +
+// the profile view in its three states.
+const dOld = JSON.parse(JSON.stringify(d));
+delete dOld.areas.timing;
+for (const ld of Object.values(dOld.areas.lanes)) delete ld.kind;
+fakeEl("areas-old");
+window.BenchCharts.areas(dOld, captured["areas-old"]);
+if (!captured["areas-old"].innerHTML.includes("rd-lg")) {
+  console.error("FAIL[old-data]: areas render lost its legend without timing/kind");
+  process.exit(1);
+}
+fakeEl("frontier-old");
+window.BenchCharts.frontier(dOld, captured["frontier-old"]);
+if (!captured["frontier-old"].innerHTML.includes("--rederive")) {
+  console.error("FAIL[old-data]: frontier must name the refresh remedy on areas v2 data");
+  process.exit(1);
+}
+fakeEl("profile");
+window.BenchCharts.profile(d, captured["profile"]);
+if (captured["profile"].innerHTML !== "") {
+  console.error("FAIL[profile]: without ?lane= the profile must render nothing");
+  process.exit(1);
+}
+global.location.search = "?lane=modelless";
+window.BenchCharts.profile(d, captured["profile"]);
+if (!captured["profile"].innerHTML.includes("lane-profile")) {
+  console.error("FAIL[profile]: ?lane=modelless rendered no profile");
+  process.exit(1);
+}
+global.location.search = "?lane=nonsense";
+window.BenchCharts.profile(d, captured["profile"]);
+if (!captured["profile"].innerHTML.includes("no lane")) {
+  console.error("FAIL[profile]: an unknown lane key must render the honest note");
+  process.exit(1);
+}
+global.location.search = "";
+console.log("[old-data] areas/frontier/profile render graceful on stripped + URL-driven inputs");
+
+// The efficiency frontier on the REAL data: dot count = lanes with both an
+// index and a quotable geomean; partial lanes hollow; the not-plotted note
+// names the rest; at least one ring (some lane is on the frontier).
+fakeEl("frontier");
+window.BenchCharts.frontier(d, captured["frontier"]);
+const fHtml = captured["frontier"].innerHTML;
+let expectedPts = 0, expectedPartial = 0, expectedMiss = 0;
+for (const [key, ld] of Object.entries((d.areas || {}).lanes || {})) {
+  const t = ((d.areas || {}).timing || {})[key] || {};
+  const plotted = typeof ld.index === "number" && isFinite(ld.index)
+    && typeof t.p50_geomean_ms === "number" && t.p50_geomean_ms > 0;
+  if (!plotted) { expectedMiss++; continue; }
+  expectedPts++;
+  if (ld.complete === false) expectedPartial++;
+}
+const fDots = (fHtml.match(/class="rd-dot[ "]/g) || []).length;
+const fPartial = (fHtml.match(/ft-partial/g) || []).length;
+if (fDots !== expectedPts || expectedPts < 2) {
+  console.error(`FAIL[frontier]: ${fDots} dot(s) vs ${expectedPts} plottable lanes`);
+  process.exit(1);
+}
+if (fPartial !== expectedPartial) {
+  console.error(`FAIL[frontier]: ${fPartial} hollow dot(s) vs ${expectedPartial} partial plotted lanes`);
+  process.exit(1);
+}
+if (expectedMiss && !fHtml.includes("Not plotted")) {
+  console.error("FAIL[frontier]: the not-plotted lanes are not disclosed");
+  process.exit(1);
+}
+if (!(fHtml.match(/class="ft-ring"/g) || []).length) {
+  console.error("FAIL[frontier]: no Pareto ring rendered");
+  process.exit(1);
+}
+console.log(`[frontier] ${fDots} dots, ${fPartial} partial, ${expectedMiss} not plotted, ring present`);
 
 console.log(`chart render smoke PASS (p50: ${p50.bands} bands / ${p50.labels} lanes, broken at 500 ms; acc: ${acc.bands} bands / ${acc.labels} lanes; cc: ${cc.bands} bands; radar: ${polys} polys / ${dots} dots)`);

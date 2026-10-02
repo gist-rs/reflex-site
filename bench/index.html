@@ -136,6 +136,25 @@
   .rd-lg .bc-sw { flex: none; align-self: center; margin-right: 0; }
   .rd-lg-idx { margin-left: auto; font-weight: 700; font-variant-numeric: tabular-nums; }
   .rd-lg .bc-mut { font-size: 12px; text-align: right; }
+  /* plan 001 (2026-10-02): below-chance marks, chip meta, frontier, profile */
+  .bc-hbar { position: relative; }
+  .bc-zero { position: absolute; left: 0; top: 10%; bottom: 10%; width: 3px; border-radius: 1px; opacity: .95; }
+  .bc-cell { position: relative; }
+  .bc-cell .bc-zero { width: 2px; }
+  td.ccneg { color: #ff9d7a; font-variant-numeric: tabular-nums; }
+  .lf-meta { opacity: .62; font-size: 11px; margin-left: 6px; font-weight: 400; }
+  .ft-svg { width: 100%; max-width: 620px; height: auto; display: block; }
+  .ft-grid { stroke: var(--line); stroke-width: 1; }
+  .ft-tick { fill: var(--muted); font-size: 10px; }
+  .ft-chance { stroke: #b3542e; stroke-width: 1.4; stroke-dasharray: 5 4; }
+  .ft-chance-t { fill: #b3542e; }
+  .ft-axis { fill: var(--muted); font-size: 10.5px; }
+  .ft-ring { fill: none; stroke-width: 2; }
+  .ft-partial { cursor: default; }
+  .lane-profile { background: var(--panel); border: 1px solid var(--line); border-left-width: 4px; border-radius: 10px; padding: 12px 16px; margin: 10px 0; }
+  .lane-profile h3 { margin: 0 0 6px; font-size: 16px; }
+  #bench-changes ul { margin: 8px 0; padding-left: 18px; display: grid; gap: 8px; }
+  #bench-changes li strong { font-variant-numeric: tabular-nums; }
   </style>
 </head>
 <body>
@@ -169,7 +188,25 @@
     <p class="sub">Chance-corrected so suites with different option counts share a radius — 0 = random guessing on that
       suite's options, 1 = every question right. Two views: one spoke per <b>area</b> (the decision index), one per
       <b>benchmark</b>. The product lanes: Reflex · modelless, Instinct, Rethink, laya (rust).</p>
+    <div id="lane-profile"></div>
     <div id="bench-areas" aria-live="polite"></div>
+
+    <h2 id="frontier"><a class="hlink" href="#frontier">Efficiency frontier</a></h2>
+    <p class="sub">Decision quality per millisecond — the cc index against the p50 latency geometric mean, one dot per
+      lane. The view no leaderboard in this space publishes; it is where a modelless engine's story is visible. Timing
+      methods differ per lane — the table below says which clock each number comes from.</p>
+    <div id="bench-frontier" aria-live="polite"></div>
+
+    <h2 id="timing"><a class="hlink" href="#timing">Timing methodology</a></h2>
+    <p class="sub">How each lane's request time was recorded — two clocks never pool silently. The p50 geometric mean is
+      taken over exactly the suites behind the lane's index, and only over cells the run's own box check judged
+      quotable (unfit timing stays visible in the suite tables, marked †, but is never plotted).</p>
+    <div id="bench-timing"></div>
+
+    <h2 id="changes"><a class="hlink" href="#changes">Board changes</a></h2>
+    <details class="more"><summary>What changed on this board, and why (append-only)</summary>
+    <div id="bench-changes"><p class="cases">loading data/changes.json …</p></div>
+    </details>
 
     <h2 id="per-suite"><a class="hlink" href="#per-suite">Per suite</a></h2>
     <p class="sub">Charts first; open a suite's table for every metric, the G1 calibration verdict and the gate fit.</p>
@@ -351,7 +388,12 @@
         with no mark was either fit, unjudged (a host with no box probes; hover for which), or published before
         the check was recorded.</li>
       <li><strong>Chance level differs per suite</strong> (a 3-way and a 77-way task are not comparable) — compare lanes within
-        a suite, never one suite's bar with another's.</li>
+        a suite, never one suite's bar with another's. The <strong>cc</strong> column and the area radar are
+        chance-corrected (<code>cc = (acc − chance)/(1 − chance)</code>): 0 = random guessing on that suite's options.
+        <strong>A negative cc is real and stays negative</strong> — the ▾ / hollow-dot mark says the lane scored
+        <em>below</em> random guessing on that suite, and it pulls the lane's area means and index down by design
+        (the published scale string in <code>data/bench.json</code> says the same). Each edition of the table pins its
+        chance basis by digest; the label rides <code>meta.edition</code>.</li>
       <li><strong>One checkpoint per laya lane</strong> — the hero chart shows the best non-multilingual checkpoint for that
         suite, picked once by accuracy so every metric toggle shows the same run. Every checkpoint (multilingual included) is
         in the per-suite tables.</li>
@@ -451,7 +493,7 @@ const fmt = (v, d = 3) => (v === null || v === undefined) ? "—" : (typeof v ==
 const ms = (v) => (typeof v !== "number" || !isFinite(v)) ? "—"
   : window.BenchCharts && BenchCharts.lat ? BenchCharts.lat(v) : +v.toPrecision(3) + " ms";
 
-function laneRow(l, bestAcc, hostTag) {
+function laneRow(l, bestAcc, hostTag, s) {
   const h = l.hard || {};
   const tds = [];
   // Accuracy across cell shapes: full cells carry it under `hard`; the
@@ -460,10 +502,19 @@ function laneRow(l, bestAcc, hostTag) {
   // blanks differently between chart and table.
   const acc = window.BenchCharts && BenchCharts.accOf ? BenchCharts.accOf(l) : (h.accuracy != null ? h.accuracy : l.accuracy);
   const accCell = acc === bestAcc ? "best" : "";
+  // The cc column (plan 001 task 1a): ONE formula home (BenchCharts.ccOf
+  // over the published chance basis), so the table can never disagree with
+  // the charts beside it. Negative = BELOW CHANCE — signed, never clipped
+  // (the published scale string says the same).
+  const cc = window.BenchCharts && BenchCharts.ccOf ? BenchCharts.ccOf(l, s) : null;
+  const ccCell = cc != null && cc < 0
+    ? `<td class="ccneg" title="below chance — negative chance-corrected accuracy, shown signed">${fmt(cc)} ▾</td>`
+    : `<td title="${cc == null ? "no chance baseline for this suite" : "chance-corrected accuracy"}">${cc == null ? "—" : fmt(cc)}</td>`;
   // "KatGPT" is the lane's DATA id (publish_bench.py); the product name is Reflex.
   const laneName = l.lane === "KatGPT" ? "Reflex" : String(l.lane).replace(/ \(reference\)$/, "");
   tds.push(`<td>${fmt(laneName)} · ${fmt(l.model)}${hostTag ? ` <span class="host">@${hostTag}</span>` : ""}</td>`);
   tds.push(`<td class="${accCell}">${fmt(acc)}</td>`);
+  tds.push(ccCell);
   tds.push(`<td>${fmt(h.macro_f1)}</td>`);
   tds.push(`<td>${fmt(h.ece, 3)}</td>`);
   tds.push(`<td>${fmt(h.brier, 3)}</td>`);
@@ -650,9 +701,58 @@ function suiteSection(s) {
     (emptyNotRun
       ? `<p class="cases">not run — no visible lane has a cell on this suite for the current rig and filter (switch rigs above or re-enable a lane)</p>`
       : `<details class="more"><summary>Table · calibration · gate fit${g1Word && mlVisible ? ` <span class="chip ${v === "pass" ? "pass" : v === "fail" ? "fail" : ""}">G1 (modelless) ${g1Word}</span>` : ""}</summary><div class="scroll"><table class="bench">
-    <thead><tr><th>lane · model</th><th>acc</th><th>macro F1</th><th>ECE(maxp)</th><th>Brier</th><th>acc@50cov</th><th>rECE cal (raw)</th><th>abst / sel-acc</th><th>p50</th><th>p99</th><th>det</th></tr></thead>
-    <tbody>${shown.map((l) => laneRow(l, bestAcc, PRIMARY_HOST)).join("")}${shownExtra.map(([l, host]) => laneRow(l, bestAcc, host)).join("")}</tbody>
+    <thead><tr><th>lane · model</th><th>acc</th><th>cc</th><th>macro F1</th><th>ECE(maxp)</th><th>Brier</th><th>acc@50cov</th><th>rECE cal (raw)</th><th>abst / sel-acc</th><th>p50</th><th>p99</th><th>det</th></tr></thead>
+    <tbody>${shown.map((l) => laneRow(l, bestAcc, PRIMARY_HOST, s)).join("")}${shownExtra.map(([l, host]) => laneRow(l, bestAcc, host, s)).join("")}</tbody>
   </table></div>${leakLine}${g1}${mlVisible && m ? gateFit(m) + nbLines(m) : ""}</details>`);
+}
+
+// The timing-methodology table (plan 001 task 4): one row per areas lane —
+// the CURATED clock class + method (what publish_bench.py's LANE_TIMING
+// table says) beside the MEASURED aggregate (the quotable verdict counts +
+// the p50 geometric mean over exactly the index suites). Data-derived row
+// count; an old bench.json (no areas.timing) renders the refresh note.
+function renderTiming(d) {
+  const el = document.getElementById("bench-timing");
+  if (!el) return;
+  const A = d && d.areas;
+  if (!A || !A.timing || !A.lanes) {
+    el.innerHTML = `<p class="cases">timing methodology needs bench.json areas v3 — refresh with publish_bench.py --rederive data/bench.json</p>`;
+    return;
+  }
+  const rows = Object.keys(A.timing).map((key) => {
+    const t = A.timing[key];
+    const ld = A.lanes[key] || {};
+    const lane = (ld.display || key) + (ld.host ? ` <span class="host">@${esc(ld.host)}</span>` : "");
+    const geo = (typeof t.p50_geomean_ms === "number" && isFinite(t.p50_geomean_ms))
+      ? (window.BenchCharts ? BenchCharts.lat(t.p50_geomean_ms) : t.p50_geomean_ms + " ms")
+      : "— not plotted";
+    const counts = `${t.n_used || 0} quotable · ${t.n_unquotable || 0} unfit · ${t.n_unjudged || 0} unjudged`;
+    return `<tr><td>${lane}</td><td>${esc(ld.kind || "—")}</td><td>${esc(t.clock)}</td><td>${esc(t.method)}</td>` +
+      `<td>${counts}</td><td>${geo}</td><td>${t.suites}</td></tr>`;
+  }).join("");
+  el.innerHTML = `<div class="scroll"><table class="bench">
+    <thead><tr><th>lane</th><th>kind</th><th>clock</th><th>how the time was recorded</th><th>cells</th><th>p50 geo (index suites)</th><th>suites</th></tr></thead>
+    <tbody>${rows}</tbody></table></div>` +
+    `<p class="cases">comparability: an in-process read and an HTTP round-trip are both "latency" here, and they are NOT comparable — compare a lane's p50 against its own past, and read cross-lane ratios only within one clock class. The frontier above plots lanes with at least one quotable cell; “— not plotted” names a lane whose published cells carry no quotable timing today.</p>`;
+}
+
+// The board-changes list (plan 001 task 7): a curated append-only feed
+// (data/changes.json, {date, change, why} rows citing their records).
+// Absent file or a fetch failure hides nothing else — the section renders
+// the honest note and the page carries on.
+function renderChanges() {
+  const el = document.getElementById("bench-changes");
+  if (!el) return;
+  fetch("/data/changes.json", { cache: "no-store" })
+    .then((r) => { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+    .then((rows) => {
+      if (!Array.isArray(rows) || !rows.length) throw new Error("empty");
+      el.innerHTML = "<ul>" + rows.map((c) =>
+        `<li><strong>${esc(c.date)}</strong> — ${esc(c.change)}<br><span class="cases">${esc(c.why)}</span></li>`).join("") + "</ul>";
+    })
+    .catch((e) => {
+      el.innerHTML = `<p class="cases">board changes unavailable (${esc(String(e))}) — the file ships with the publish; this section renders whatever data/changes.json carries.</p>`;
+    });
 }
 
 function render(d) {
@@ -675,6 +775,15 @@ function render(d) {
   // lane filter re-renders it through the same render(d) walk as everything
   // else.
   if (window.BenchCharts && BenchCharts.areas) BenchCharts.areas(d, document.getElementById("bench-areas"));
+  // The lane profile view (/bench/?lane=<id>, plan 001 task 8): read-only,
+  // never touches the saved lane filter. Renders empty without the param.
+  if (window.BenchCharts && BenchCharts.profile) BenchCharts.profile(d, document.getElementById("lane-profile"));
+  // The efficiency frontier (plan 001 task 10) + the timing methodology
+  // table (task 4) — both render from data.areas (v3); an older bench.json
+  // renders the graceful re-derive note instead.
+  if (window.BenchCharts && BenchCharts.frontier) BenchCharts.frontier(d, document.getElementById("bench-frontier"));
+  renderTiming(d);
+  renderChanges();
   // The rig radio (after hero(): BenchRig.init runs inside hero() and the
   // radio's onchange re-renders the WHOLE page — charts, tables, provenance).
   const rf = document.getElementById("rig-filter");

@@ -94,7 +94,7 @@
   // the data no longer carries is dropped at init (a retired lane must not
   // stay hidden forever).
   const FILTER_KEY = "bench-lane-filter";
-  const filter = { hidden: new Set(), keys: [], ready: false };
+  const filter = { hidden: new Set(), keys: [], ready: false, areas: null };
   function loadHidden() {
     try {
       const raw = JSON.parse(localStorage.getItem(FILTER_KEY) || "[]");
@@ -105,6 +105,12 @@
   // Derive the ordered key/label list from the DATA (every lane the page
   // would render, primary + extra-host, in first-seen order).
   function init(d) {
+    // The areas block rides the filter state (plan 001 tasks 1b+5): the
+    // chips carry each lane's kind + cc index + coverage from the PUBLISHED
+    // rollups — a chip is the one place every reader looks first, so the
+    // headline number lives there too. Absent (an old bench.json) = the
+    // plain label chip, exactly as before.
+    filter.areas = (d && d.areas) || null;
     const seen = [];
     const add = (l) => {
       const k = laneOf(l).key;
@@ -125,10 +131,27 @@
     const byKey = Object.fromEntries(filter.keys.map((x) => [x.key, x]));
     const order = LANES.map((x) => x.key).concat(filter.keys.map((x) => x.key)
       .filter((k) => !LANES.some((x) => x.key === k)));
+    // chip meta (plan 001 tasks 1b+5): the published areas block keyed back
+    // through areaPaletteKey — the PRIMARY-host lane preferred, a
+    // serving-host lane otherwise (one chip gates every posture of the
+    // lane; the radar legend names the host).
+    const A = filter.areas;
+    const metaFor = (chipKey) => {
+      if (!A || !A.lanes) return null;
+      const cands = Object.entries(A.lanes).filter(([k]) => areaPaletteKey(k) === chipKey);
+      if (!cands.length) return null;
+      const [, ld] = cands.find(([k]) => !k.includes("@")) || cands[0];
+      return ld;
+    };
     const chips = order.filter((k) => byKey[k]).map((k) => {
       const x = byKey[k];
       const color = (LANES.find((l) => l.key === k) || OTHER).color;
-      return `<label class="lf-chip"><input type="checkbox" data-key="${esc(k)}"${visibleKey(k) ? " checked" : ""}><i class="bc-sw" style="background:${color}"></i>${esc(x.label)}</label>`;
+      const ld = metaFor(k);
+      const meta = ld ? [ld.kind,
+        num(ld.index) ? "idx " + pct(ld.index) : null,
+        ld.coverage ? ld.coverage.suites + "/" + ld.coverage.of : null,
+      ].filter(Boolean).join(" · ") : "";
+      return `<label class="lf-chip"><input type="checkbox" data-key="${esc(k)}"${visibleKey(k) ? " checked" : ""}><i class="bc-sw" style="background:${color}"></i>${esc(x.label)}${meta ? `<span class="lf-meta">${esc(meta)}</span>` : ""}</label>`;
     }).join("");
     return `<div class="lf-bar" role="group" aria-label="filter lanes">${chips}</div>`;
   }
@@ -236,6 +259,14 @@
     // axis. The chances ride data.areas.suites (publish_bench.py — dataset
     // facts, not measurements); a suite with no entry is skipped, never
     // guessed.
+    //
+    // ccOf (defined beside accOf below) is the ONE place the JS computes
+    // the formula — Python holds the other copy in compute_areas, and the
+    // chart smoke's parity arm pins the two together. Values BELOW 0 are
+    // real and stay signed: a lane under random guessing must read that
+    // way (the published scale string says the same). Only the BAR LENGTH
+    // clamps at 0 — the value, the tooltip and the below-chance marker
+    // carry the sign.
     cc: {
       label: "chance-corrected acc",
       // The suite argument is load-bearing: chanceOf(s) reads the suite's
@@ -243,10 +274,7 @@
       // called M.get(l) alone) scores EVERY cell null — the whole board read
       // "— not run" on this metric only, beside tables full of scores
       // (2026-10-01 user report). Every call site passes (lane, suite).
-      get: (l, s) => {
-        const a = accOf(l), ch = chanceOf(s);
-        return num(a) && num(ch) ? (a - ch) / (1 - ch) : null;
-      },
+      get: (l, s) => ccOf(l, s),
       log: false,
     },
     p50: { label: "p50 latency", get: (l) => l.latency_p50_ms, log: true },
@@ -263,6 +291,15 @@
   function accOf(l) {
     const h = (l.hard || {}).accuracy;
     return h != null ? h : l.accuracy;
+  }
+
+  // The ONE JS home of the cc formula (METRICS.cc is its consumer; the
+  // table's cc column and the profile view call it directly). Python holds
+  // the other copy (publish_bench.py compute_areas) — the chart smoke's
+  // parity arm asserts the two agree on every published entry.
+  function ccOf(l, s) {
+    const a = accOf(l), ch = chanceOf(s);
+    return num(a) && num(ch) ? (a - ch) / (1 - ch) : null;
   }
 
   // One log domain for EVERY latency bar on the page, so a bar in one suite is
@@ -443,7 +480,7 @@
     return tip;
   }
 
-  const tipHtml = (l, extra) => {
+  const tipHtml = (l, extra, s) => {
     const h = l.hard || {};
     const lane = laneOf(l);
     const acc = accOf(l);
@@ -454,10 +491,15 @@
     const fb = l.serves === "tier-fallback"
       ? `<br><span class="bc-mut">↩ ${esc(l.served_by || "fallback tier")} answered${l.fallback_note ? ` — ${esc(l.fallback_note)}` : ""}</span>`
       : "";
+    // The cc line rides every tooltip whose caller has the suite: SIGNED,
+    // with the below-chance callout when negative (plan 001 verdict D1 —
+    // the frac() clamp must never be the only place the sign lives).
+    const cc = s ? ccOf(l, s) : null;
     return `<span class="bc-sw" style="background:${lane.color}"></span><b>${esc(shortLane(l))} · ${esc(l.model)}</b>${extra ? ` <span class="bc-mut">${esc(extra)}</span>` : ""}<br>` +
       `accuracy ${num(acc) ? pct(acc) : "—"} · acc@50cov ${num(h.acc_at_50_coverage) ? pct(h.acc_at_50_coverage) : "—"}<br>` +
       `p50 ${num(l.latency_p50_ms) ? lat(l.latency_p50_ms) : "—"} · p99 ${num(l.latency_p99_ms) ? lat(l.latency_p99_ms) : "—"}` +
-      (num(h.n) ? ` · n=${h.n}` : "") + fb;
+      (num(h.n) ? ` · n=${h.n}` : "") +
+      (cc != null ? `<br>cc ${pct(cc)}${cc < 0 ? " — below chance" : ""}` : "") + fb;
   };
 
   const legend = () => `<div class="bc-legend" aria-label="lanes">${LANES.filter((x) => visibleKey(x.key)).map((x) =>
@@ -560,8 +602,13 @@
       const fbMark = l.serves === "tier-fallback"
         ? `<b class="bc-fb" title="${esc(l.served_by || "fallback tier")} answered">↩</b> `
         : "";
-      return `<div class="bc-hbar"${isPicked ? ' data-picked="1"' : ""} tabindex="0" data-tip="${esc(`<span class="bc-mut">${esc(s.name)}</span><br>` + tipHtml(l, host ? "@" + host : ""))}" aria-label="${esc(`${s.name} ${lane.label} ${l.model}${host ? " on " + host : ""}: ${f(v)}`)}">` +
-        `<i style="width:${(fr * 100).toFixed(2)}%;background:${lane.color}"></i>${brk}` +
+      // Below-chance marker (plan 001 D1): a negative cc clamps to a
+      // zero-length bar, which read exactly like a lane AT chance — the
+      // tick at the 0 line + the signed tooltip/aria carry the sign.
+      const below = m === "cc" && num(v) && v < 0;
+      const zero = below ? `<i class="bc-zero" style="background:${lane.color}"></i>` : "";
+      return `<div class="bc-hbar"${isPicked ? ' data-picked="1"' : ""} tabindex="0" data-tip="${esc(`<span class="bc-mut">${esc(s.name)}</span><br>` + tipHtml(l, host ? "@" + host : "", s))}" aria-label="${esc(`${s.name} ${lane.label} ${l.model}${host ? " on " + host : ""}: ${f(v)}${below ? " — below chance" : ""}`)}">` +
+        `<i style="width:${(fr * 100).toFixed(2)}%;background:${lane.color}"></i>${brk}${zero}` +
         `${fbMark}${host && allSplit ? `<span class="bc-hhost">@${esc(host)}</span>` : ""}</div>`;
     };
     // The honest empty cell: "not run" is reserved for a lane that never
@@ -686,7 +733,11 @@
     // The tier-fallback mark — the value IS what the product serves; the
     // badge + tooltip say which tier answered (owner 2026-10-02).
     const fb = l.serves === "tier-fallback" ? `<b class="bc-fb" title="${esc(l.served_by || "fallback tier")} answered">↩</b>` : "";
-    return `<div class="bc-cell" tabindex="0" data-tip="${esc(tipHtml(l, extra))}"><i style="width:calc((100% - 64px) * ${fr.toFixed(4)});background:${laneOf(l).color}"></i>${brk}<span>${esc(fmtOf(m)(v))}${fb}</span></div>`;
+    // below-chance: signed value (automatic — pct carries the minus) + the
+    // 0-line tick, never a bare zero-length bar
+    const below = m === "cc" && num(v) && v < 0;
+    const zero = below ? `<i class="bc-zero" style="background:${laneOf(l).color}"></i>` : "";
+    return `<div class="bc-cell${below ? " bc-below" : ""}" tabindex="0" data-tip="${esc(tipHtml(l, extra, s))}"><i style="width:calc((100% - 64px) * ${fr.toFixed(4)});background:${laneOf(l).color}"></i>${brk}${zero}<span>${esc(fmtOf(m)(v))}${fb}</span></div>`;
   }
 
   function suite(s) {
@@ -902,7 +953,12 @@
         out += `<line class="rd-polyline" x1="${f2(p1[0])}" y1="${f2(p1[1])}" x2="${f2(p2[0])}" y2="${f2(p2[1])}" style="stroke:${lane.color}"/>`;
       }
       for (const [i, p] of measured) {
-        out += `<circle class="rd-dot" cx="${f2(p[0])}" cy="${f2(p[1])}" r="3.2" style="fill:${lane.color}"` +
+        // below-chance dot: HOLLOW ring at the centre (the clamp would sit
+        // it exactly on a 0 spoke — the hollow fill is what says negative;
+        // the tooltip carries the signed value)
+        const v = valuesOf(lane)[i];
+        const below = num(v) && v < 0;
+        out += `<circle class="rd-dot${below ? " rd-dot-below" : ""}" cx="${f2(p[0])}" cy="${f2(p[1])}" r="3.2" style="fill:${below ? "none" : lane.color};stroke:${below ? lane.color : "none"};stroke-width:${below ? 1.6 : 0}"` +
           ` data-tip="${esc(tipOf(lane, i))}" tabindex="0" aria-label="${esc(ariaOf(lane, i))}"/>`;
       }
     }
@@ -916,7 +972,7 @@
         `<i class="bc-sw" style="background:${lane.color}"></i>` +
         `<b>${esc(lane.label)}</b>` +
         `<span class="rd-lg-idx">${num(scoreOf(lane)) ? pct(scoreOf(lane)) : "—"}</span>` +
-        `<span class="bc-mut">${lane.data.coverage ? `${lane.data.coverage.suites}/${lane.data.coverage.of}` : ""}` +
+        `<span class="bc-mut">${lane.data.kind ? esc(lane.data.kind) + " · " : ""}${lane.data.coverage ? `${lane.data.coverage.suites}/${lane.data.coverage.of}` : ""}` +
         (partial ? ` · partial+pending (${esc(partialNote)})` : "") +
         `</span></div>`;
     }).join("");
@@ -987,6 +1043,136 @@
       `</div>`;
   }
 
-  window.BenchCharts = { hero, suite, setLogDomain, summary, areas, suiteSortControl, setSuiteSort, setPrimaryHost, lat, accOf };
+  // ── the efficiency frontier (plan 001 task 10) ─────────────────────
+  // cc decision index (y) vs p50 latency (x, log) — the one view no
+  // leaderboard in the Jev index publishes: quality per millisecond. Both
+  // axes are PUBLISHED numbers (areas.lanes[k].index + areas.timing[k]
+  // .p50_geomean_ms — the publisher owns the aggregates, the page never
+  // re-derives them); the only client-side geometry is the Pareto marks:
+  // a dot is on the frontier when no lane of the SAME coverage group (the
+  // same suite count behind the index) sits up-and-left of it — a partial
+  // lane "beating" a complete one is a comparison across different
+  // populations and must not dominate (the 2026-10-02 verdict call).
+  function frontier(d, el) {
+    if (!el) return;
+    const A = d && d.areas;
+    if (!A || !A.lanes || !A.timing) {
+      el.innerHTML = `<p class="bc-note">the efficiency frontier needs bench.json areas v3 (timing + kind) — refresh with publish_bench.py --rederive data/bench.json</p>`;
+      return;
+    }
+    tooltip();
+    const pts = [], missing = [];
+    for (const [key, ld] of Object.entries(A.lanes)) {
+      const t = A.timing[key] || {};
+      if (num(ld.index) && num(t.p50_geomean_ms) && t.p50_geomean_ms > 0)
+        pts.push({ key, ld, t, x: t.p50_geomean_ms, y: ld.index });
+      else missing.push({ ld, why: !num(ld.index) ? "no index" : "no quotable latency" });
+    }
+    if (!pts.length) {
+      el.innerHTML = `<p class="bc-note">no lane has both an index and quotable latency yet.</p>`;
+      return;
+    }
+    const cov = (p) => (p.ld.coverage ? p.ld.coverage.suites : 0);
+    const dominated = (p) => pts.some((q) => q !== p && cov(q) === cov(p) &&
+      q.x <= p.x && q.y >= p.y && (q.x < p.x || q.y > p.y));
+    const W = 470, H = 310, L = 52, R = 16, T = 16, B = 40;
+    const xs = pts.map((p) => p.x);
+    const xmin = Math.log10(Math.min(...xs)) - 0.15;
+    const xmax = Math.log10(Math.max(...xs)) + 0.15;
+    const ymin = Math.min(0, ...pts.map((p) => p.y));
+    const px = (v) => L + ((Math.log10(v) - xmin) / (xmax - xmin)) * (W - L - R);
+    const py = (v) => T + (1 - (v - ymin) / (1 - ymin)) * (H - T - B);
+    let out = `<svg class="ft-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="efficiency frontier: cc decision index versus p50 latency">`;
+    for (let e = Math.ceil(xmin); e <= Math.floor(xmax); e++) {
+      const x = px(Math.pow(10, e));
+      out += `<line class="ft-grid" x1="${x.toFixed(1)}" y1="${T}" x2="${x.toFixed(1)}" y2="${H - B}"/>` +
+        `<text class="ft-tick" x="${x.toFixed(1)}" y="${H - B + 14}" text-anchor="middle">${esc(lat(Math.pow(10, e)))}</text>`;
+    }
+    for (const t of [0, 0.25, 0.5, 0.75, 1]) {
+      if (t < ymin - 1e-9) continue;
+      out += `<line class="ft-grid" x1="${L}" y1="${py(t).toFixed(1)}" x2="${W - R}" y2="${py(t).toFixed(1)}"/>` +
+        `<text class="ft-tick" x="${L - 6}" y="${(py(t) + 3).toFixed(1)}" text-anchor="end">${Math.round(t * 100)}%</text>`;
+    }
+    out += `<line class="ft-chance" x1="${L}" y1="${py(0).toFixed(1)}" x2="${W - R}" y2="${py(0).toFixed(1)}"/>` +
+      `<text class="ft-tick ft-chance-t" x="${W - R}" y="${(py(0) - 5).toFixed(1)}" text-anchor="end">chance</text>` +
+      `<text class="ft-axis" x="${((L + W - R) / 2).toFixed(0)}" y="${H - 3}" text-anchor="middle">p50 latency · geometric mean over the lane's index suites · log</text>`;
+    for (const p of pts) {
+      const meta = LANES.find((x) => x.key === areaPaletteKey(p.key)) || OTHER;
+      const on = !dominated(p);
+      const partial = p.ld.complete === false;
+      const cx = px(p.x), cy = py(p.y);
+      const host = p.ld.host ? " · @" + p.ld.host : "";
+      const tip = `<b>${esc((p.ld.display || meta.label) + host)}</b><br>` +
+        `cc index <b>${pct(p.y)}</b> · p50 geo <b>${lat(p.x)}</b> (${p.t.n_used} quotable of ${p.t.suites})<br>` +
+        `<span class="bc-mut">${esc(p.ld.kind || "")} · ${esc(p.t.clock || "")}</span>` +
+        (partial ? `<br><span class="bc-mut">partial coverage — ${p.ld.coverage.suites}/${p.ld.coverage.of}</span>` : "") +
+        (on ? `<br><span class="bc-mut">on the Pareto frontier (within its coverage group)</span>` : "");
+      if (on) out += `<circle class="ft-ring" cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="8.5" style="stroke:${meta.color}"/>`;
+      out += `<circle class="rd-dot${partial ? " ft-partial" : ""}" cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="4.6" style="fill:${meta.color};fill-opacity:${partial ? 0.25 : 1};stroke:${meta.color}"` +
+        ` data-tip="${esc(tip)}" tabindex="0" aria-label="${esc(`${p.ld.display || meta.label} index ${pct(p.y)} p50 ${lat(p.x)}${on ? " on the frontier" : ""}${partial ? " partial" : ""}`)}"/>`;
+    }
+    out += `</svg>`;
+    const missNote = missing.length
+      ? ` Not plotted: ${missing.map((m) => esc(`${m.ld.display || m.key} — ${m.why}`)).join("; ")}.`
+      : "";
+    el.innerHTML = `<div class="ft-wrap">${out}</div>` +
+      `<p class="bc-note">${esc("One dot per lane: the cc decision index (y) against the p50 latency geometric mean over exactly the suites behind that index (x, log). Ringed dots sit on the Pareto frontier within their coverage group — lanes only compete against lanes that measured the same number of suites; hollow dots are partial lanes. Timing methods differ per lane — the table below says which clock each number comes from.")}${missNote}</p>`;
+  }
+
+  // ── the per-lane profile view (plan 001 task 8; /bench/?lane=<id>) ──
+  // Read-only over the published blocks: the lane's headline (index,
+  // coverage, kind, timing method) + its per-suite rows with the cc
+  // column. It never touches the saved lane filter — a URL-scoped view
+  // must not clobber the reader's persisted state.
+  function profile(d, el) {
+    if (!el) return;
+    let want = null;
+    try { want = new URLSearchParams(location.search).get("lane"); } catch (e) { /* no location (smoke stubs) */ }
+    if (!want) { el.innerHTML = ""; return; }
+    const A = d && d.areas;
+    const key = A && A.lanes ? (A.lanes[want] ? want
+      : (Object.keys(A.lanes).find((k) => areaPaletteKey(k) === want && !k.includes("@"))
+        || Object.keys(A.lanes).find((k) => areaPaletteKey(k) === want))) : null;
+    if (!key) {
+      el.innerHTML = `<p class="bc-note">no lane “${esc(want)}” in this bench.json (lanes: ${esc(Object.keys((A && A.lanes) || {}).join(", ") || "none")}).</p>`;
+      return;
+    }
+    const ld = A.lanes[key];
+    const t = (A.timing || {})[key] || {};
+    const meta = LANES.find((x) => x.key === areaPaletteKey(key)) || OTHER;
+    const host = ld.host ? " · @" + esc(ld.host) : "";
+    const suiteByName = new Map((d.suites || []).map((s) => [s.name, s]));
+    const rows = Object.keys(A.suites).map((name) => {
+      const e = ld.per_suite[name];
+      const s = suiteByName.get(name);
+      let cellc = null;
+      if (s && e) {
+        const cls = key.split("@")[0];
+        const container = key.includes("@")
+          ? ((s.extra_host_lanes || {})[key.split("@")[1]] || {}) : s;
+        cellc = e.ck ? (container.laya || {})[e.ck] : container[cls];
+      }
+      const ccTxt = e ? pct(e.cc) + (e.cc < 0 ? " — below chance" : "") : "not run";
+      const p50 = cellc && num(cellc.latency_p50_ms) ? lat(cellc.latency_p50_ms) : "—";
+      const q = cellc ? cellc.latency_quotable : undefined;
+      const qTxt = q === true ? "quotable" : q === false ? "unfit box" : q === null ? "unjudged" : "—";
+      const det = cellc && cellc.determinism_ok === true ? "✓" : cellc && cellc.determinism_ok === false ? "✗" : "—";
+      const sha = cellc && cellc.source_run && cellc.source_run.git_sha ? String(cellc.source_run.git_sha) : "—";
+      return `<tr><td>${esc(name)}</td><td>${e ? pct(e.acc) : "—"}</td>` +
+        `<td${e && e.cc < 0 ? ' class="ft-neg"' : ""}>${ccTxt}</td>` +
+        `<td>${p50}</td><td>${qTxt}</td><td>${det}</td><td><span class="bc-mut">${esc(sha)}</span></td></tr>`;
+    }).join("");
+    const geoTxt = num(t.p50_geomean_ms)
+      ? lat(t.p50_geomean_ms)
+      : `not plotted (${t.n_unjudged || 0} unjudged / ${t.n_unquotable || 0} unfit of ${t.suites || 0} cells)`;
+    el.innerHTML = `<div class="lane-profile" style="border-left:4px solid ${meta.color};padding-left:12px">` +
+      `<h3>${esc(ld.display || meta.label)}${host} <span class="bc-mut">· ${esc(ld.kind || "")}</span></h3>` +
+      `<p class="bc-note">cc index <b>${num(ld.index) ? pct(ld.index) : "—"}</b> · coverage ${ld.coverage.suites}/${ld.coverage.of}${ld.complete ? " (complete)" : " (partial — pending suites stay pending, never zero)"} · clock ${esc(t.clock || "?")} — ${esc(t.method || "")} · p50 geo ${geoTxt}</p>` +
+      `<div class="scroll"><table class="bench"><thead><tr><th>suite</th><th>acc</th><th>cc</th><th>p50</th><th>timing</th><th>det</th><th>source run</th></tr></thead><tbody>${rows}</tbody></table></div>` +
+      `<p class="bc-note"><a href="/bench/">← full board</a> — this view is read-only and does not touch your saved lane filter.</p>` +
+      `</div>`;
+  }
+
+  window.BenchCharts = { hero, suite, setLogDomain, summary, areas, frontier, profile, suiteSortControl, setSuiteSort, setPrimaryHost, lat, accOf, ccOf };
   window.BenchRig.scoped = scopedPairs;
 })();

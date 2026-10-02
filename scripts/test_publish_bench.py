@@ -11,6 +11,7 @@ import importlib.util
 import copy
 import io
 import json
+import math
 import os
 import sys
 import tempfile
@@ -1940,7 +1941,7 @@ def cc_of(name, a):
 
 def case_area_rollups_math_and_coverage():
     a = pb.compute_areas(area_doc())
-    assert a["version"] == 2
+    assert a["version"] == 3
     # every area suite present → coverage floor 9
     assert len(a["suites"]) == 9 and [x["id"] for x in a["areas"]] == \
         ["language", "sentiment", "reasoning", "decisions"]
@@ -2061,6 +2062,221 @@ def case_area_rollup_is_idempotent():
     first = pb.compute_areas(d)
     second = pb.compute_areas(d)
     assert first == second
+
+
+# ── plan 001 (2026-10-02): the Jev-distill arms — below-chance survival,
+# the chance/edition digest pins, the curated-table completeness, the
+# timing block population, and the --rederive byte guard.
+
+def case_area_negative_cc_survives_rollup():
+    """Plan 001 task 1d, Option B: a cell BELOW chance publishes a NEGATIVE
+    cc, and the negative genuinely pulls the area mean and the lane index
+    down — never clipped, never padded to 0."""
+    d = area_doc()
+    # emotion chance 1/6; an engine at 0.10 accuracy is far below chance
+    d["suites"][4]["modelless"] = area_cell("modelless", 0.10)
+    a = pb.compute_areas(d)
+    ml = a["lanes"]["modelless"]
+    neg = cc_of("emotion", 0.10)
+    assert neg < 0
+    assert ml["per_suite"]["emotion"]["cc"] == neg
+    # the sentiment area mean includes the negative — a clipped rollup
+    # would read higher
+    sst5_cc = cc_of("sst5", 0.2016667)
+    assert ml["areas"]["sentiment"] == round((sst5_cc + neg) / 2, 6)
+    assert ml["areas"]["sentiment"] < sst5_cc
+    assert ml["index"] < sum(
+        cc_of(n, acc_n) for n, acc_n in (
+            ("ag_news", 0.8625), ("massive_intent_en", 0.4066667),
+            ("banking77", 0.402), ("sst5", 0.2016667),
+            ("xnli_en", 0.5033333), ("prompt_injections", 0.7672414),
+            ("typed_decisions", 0.5725), ("code_fixtures", 0.375),
+        )) / 8
+    # the published scale names the below-chance law
+    assert "BELOW CHANCE" in a["scale"] and "negative" in a["scale"]
+
+
+def case_area_zero_fill_regression():
+    """Plan 001 task 3: the pending-not-zero law pinned at the emitter — a
+    lane missing a suite has NO entry for it (never a fabricated 0), the
+    area means skip the gap, coverage counts only measured suites, and
+    `complete` stays False so a partial index can never masquerade as a
+    full one."""
+    d = area_doc()
+    for s in d["suites"]:
+        if s["name"] in ("emotion", "xnli_en"):
+            s.pop("modelless")
+    a = pb.compute_areas(d)
+    ml = a["lanes"]["modelless"]
+    assert "emotion" not in ml["per_suite"] and "xnli_en" not in ml["per_suite"]
+    assert ml["coverage"] == {"suites": 7, "of": 9} and ml["complete"] is False
+    # a suite gap never pads the area mean: reasoning survives on its one
+    # measured suite (xnli_en removed, prompt_injections kept), sentiment
+    # on sst5 alone
+    assert ml["areas"]["reasoning"] == cc_of("prompt_injections", 0.7672414)
+    assert "sentiment" in ml["areas"]  # sst5 only — emotion missing, no pad
+    assert ml["index"] == round(sum(ml["areas"].values()) / len(ml["areas"]), 6)
+
+
+def case_chance_digest_and_edition_pin():
+    """Plan 001 tasks 2 + 7: the chance basis is pinned twice — a published
+    digest (areas.chance_digest, informational) and the edition pin
+    (EDITION_BASIS, enforced by main()/edition_guard). Editing any basis
+    input changes both digests; the self-test reds when the pin does not
+    match the computed digest, which is exactly the 'bump EDITION + add a
+    changes.json row' forcing function."""
+    a = pb.compute_areas(area_doc())
+    assert a["chance_digest"] == pb.chance_digest()
+    assert a["edition"] == pb.EDITION
+    # the pin matches the CURRENT computed digest (a stale pin reds here
+    # before any publish can)
+    assert pb.edition_guard() is True
+    assert pb.edition_basis_digest() == pb.EDITION_BASIS["basis_digest"]
+    # editing a chance value moves BOTH digests...
+    saved = dict(pb.AREA_CHANCE)
+    try:
+        pb.AREA_CHANCE["sst5"] = 1 / 4
+        mutated_chance = pb.chance_digest()
+        mutated_basis = pb.edition_basis_digest()
+        assert mutated_chance != a["chance_digest"]
+        assert mutated_basis != pb.EDITION_BASIS["basis_digest"]
+        # ...and the guard REFUSES with the remedy (never a silent publish)
+        assert pb.edition_guard() is False
+    finally:
+        pb.AREA_CHANCE.clear()
+        pb.AREA_CHANCE.update(saved)
+    assert pb.edition_guard() is True
+
+
+def case_lane_tables_complete():
+    """Plan 001 tasks 4+5: the curated LANE_KIND / LANE_TIMING tables cover
+    EVERY AREA_LANES class, both directions — a missing row reds (the next
+    lane would silently ship with no disclosure) and a stale row reds (a
+    retired lane must not keep one)."""
+    classes = {k for k, _d, _c in pb.AREA_LANES}
+    assert set(pb.LANE_KIND) == classes, (
+        f"LANE_KIND drift: missing {classes - set(pb.LANE_KIND)}, "
+        f"stale {set(pb.LANE_KIND) - classes}")
+    assert set(pb.LANE_TIMING) == classes, (
+        f"LANE_TIMING drift: missing {classes - set(pb.LANE_TIMING)}, "
+        f"stale {set(pb.LANE_TIMING) - classes}")
+    for k, row in pb.LANE_TIMING.items():
+        assert row.get("clock") and row.get("method"), f"LANE_TIMING[{k}] incomplete"
+    # every emitted lane block carries its kind, and every lane with an
+    # areas block has a timing entry over the SAME population
+    a = pb.compute_areas(area_doc())
+    for key, ld in a["lanes"].items():
+        assert ld["kind"] == pb.LANE_KIND[key.split("@")[0]]
+        t = a["timing"][key]
+        assert t["suites"] == len(ld["per_suite"])
+        assert t["n_used"] + t["n_unquotable"] + t["n_unjudged"] == t["suites"]
+
+
+def case_area_timing_population_and_quotable():
+    """Plan 001 task 4 (the verdict's three changes): the p50 geometric
+    mean covers EXACTLY the suites behind the lane's index (never other
+    cells), uses latency_quotable-True cells only, and a lane with no
+    quotable cell carries null — disclosed, never plotted at 0."""
+    d = area_doc()
+    # laya: two rolled-up cells (ag_news/english, typed_decisions/typed).
+    # Give them latencies: english quotable 8.0, typed quotable 32.0 →
+    # geomean 16.0 over the INDEX population (2 suites), regardless of any
+    # other latency the doc carries.
+    d["suites"][0]["laya"]["english"]["latency_p50_ms"] = 8.0
+    d["suites"][0]["laya"]["english"]["latency_quotable"] = True
+    d["suites"][0]["laya"]["typed"]["latency_p50_ms"] = 999.0   # not the pick
+    d["suites"][0]["laya"]["typed"]["latency_quotable"] = True
+    d["suites"][7]["laya"]["typed"]["latency_p50_ms"] = 32.0
+    d["suites"][7]["laya"]["typed"]["latency_quotable"] = True
+    # a THIRD suite the lane measured but the areas rollup never covers
+    # (a Thai probe with no chance baseline) must stay OUT of the population
+    d["suites"].append({
+        "name": "thai_probe", "n_questions": 10, "n_cases": 5,
+        "laya": {"english": dict(area_cell("laya (rust)", 0.5, model="english"),
+                                 latency_p50_ms=100000.0, latency_quotable=True)},
+    })
+    # the modelless lane: quotable everywhere → geomean over 9
+    for i, s in enumerate(d["suites"][:9]):
+        s["modelless"]["latency_p50_ms"] = 1.0 * (i + 1)
+        s["modelless"]["latency_quotable"] = True
+    # one UNFIT cell: shown in tables, excluded from the geomean
+    d["suites"][0]["hybrid"]["latency_p50_ms"] = 5.0
+    d["suites"][0]["hybrid"]["latency_quotable"] = False
+    for s in d["suites"][1:9]:
+        s["hybrid"]["latency_p50_ms"] = 2.0
+        s["hybrid"]["latency_quotable"] = True
+    a = pb.compute_areas(d)
+    lt = a["timing"]["laya"]
+    assert lt["suites"] == 2 and lt["n_used"] == 2
+    assert lt["p50_geomean_ms"] == round(math.sqrt(8.0 * 32.0), 4)
+    ml = a["timing"]["modelless"]
+    assert ml["suites"] == 9 and ml["n_used"] == 9
+    assert ml["p50_geomean_ms"] == round(math.exp(
+        sum(math.log(i) for i in range(1, 10)) / 9), 4)
+    hy = a["timing"]["hybrid"]
+    assert hy["n_unquotable"] == 1 and hy["n_used"] == 8
+    assert hy["p50_geomean_ms"] == 2.0
+    # acc-only cells (no latency fields at all) count as unjudged, and a
+    # lane with NO quotable cell carries null — the not-plotted case
+    d2 = area_doc()
+    for s in d2["suites"]:
+        s["paw"] = {"lane": "paw (hosted)", "accuracy": 0.5,
+                    "latency_quotable": False}
+    a2 = pb.compute_areas(d2)
+    pt = a2["timing"]["paw"]
+    assert pt["p50_geomean_ms"] is None and pt["n_unquotable"] == 9
+
+
+def case_rederive_preserves_cells():
+    """Plan 001 (the --rederive mode): rebuilding the derived blocks over a
+    PUBLISHED bench.json must leave every suite's measurement cells
+    byte-identical, refresh areas (v3 fields appear), stamp the edition —
+    and main() refuses a RAW doc (no meta.hosts) and a mutated-cell
+    rederive (the rename guard)."""
+    published = pb.merge(
+        doc("m3", "sha-m3", {"sst5": {"modelless_acc": 0.42, "laya_p50": 4.0},
+                              "ag_news": {"modelless_acc": 0.86}}),
+        [doc("4090-windows", "sha-w",
+             {"sst5": {"modelless_acc": 0.42, "laya_p50": 8127.0}})],
+    )
+    pb.finalize(published)
+    before = json.dumps(published["suites"], sort_keys=True)
+    n = pb.finalize(published)
+    assert n is not None
+    assert json.dumps(published["suites"], sort_keys=True) == before, \
+        "finalize is idempotent over a published doc (rename_lanes is a no-op on current spellings)"
+    assert published["meta"]["edition"] == pb.EDITION
+    a = published["areas"]
+    assert a["version"] == 3 and "timing" in a and "chance_digest" in a
+    assert a["lanes"]["modelless"]["kind"] == pb.LANE_KIND["modelless"]
+
+    # raw docs refuse
+    import tempfile
+    with tempfile.TemporaryDirectory() as td:
+        raw = Path(td) / "raw.json"
+        raw.write_text(json.dumps(doc("m3", "s", {"sst5": {"modelless_acc": 0.4}})),
+                       encoding="utf-8")
+        assert pb.rederive(raw) == 2
+        # a published file rederives green and keeps its cells byte-identical
+        pub = Path(td) / "bench.json"
+        pub.write_text(json.dumps(published), encoding="utf-8")
+        assert pb.rederive(pub) == 0
+        after = json.loads(pub.read_text(encoding="utf-8"))
+        strip = lambda dd: [{k: v for k, v in s.items()
+                             if k not in ("pairing", "disclosures")}
+                            for s in dd["suites"]]
+        assert json.dumps(strip(after), sort_keys=True) == \
+            json.dumps(strip(published), sort_keys=True)
+        # a legacy lane spelling inside a cell WOULD mutate under the
+        # display rename (LANE_DISPLAY maps it) — rederive must refuse,
+        # never silently rewrite a measurement cell
+        legacy = json.loads(pub.read_text(encoding="utf-8"))
+        for s in legacy["suites"]:
+            if s.get("modelless"):
+                s["modelless"]["lane"] = "Instinct (hybrid)"   # maps to "Instinct"
+        leg = Path(td) / "legacy.json"
+        leg.write_text(json.dumps(legacy), encoding="utf-8")
+        assert pb.rederive(leg) == 1
 
 
 def case_encoder_lane_display_rebrands_to_rethink():
@@ -2325,6 +2541,12 @@ CASES = [
     case_area_absent_lane_and_absent_suite_shrink_honestly,
     case_area_rollup_is_idempotent,
     case_encoder_lane_display_rebrands_to_rethink,
+    case_area_negative_cc_survives_rollup,
+    case_area_zero_fill_regression,
+    case_chance_digest_and_edition_pin,
+    case_lane_tables_complete,
+    case_area_timing_population_and_quotable,
+    case_rederive_preserves_cells,
 ]
 
 def main() -> int:

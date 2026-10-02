@@ -564,6 +564,95 @@ const server = http.createServer((req, res) => {
     if (!process.exitCode) console.log("ok: instinct verdict rows render (vs Reflex + vs best lane + no-arm)");
   }
 
+  // ── plan 001 (2026-10-02): the Jev-distill UI. All counts DATA-DERIVED
+  // from bench.json (the population law the older arms follow).
+  const bench2 = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "data", "bench.json"), "utf8"));
+  const areasV3 = bench2.areas || {};
+  if (areasV3.timing && areasV3.lanes) {
+    // 1) the cc column: every suite table carries it, and the below-chance
+    //    cells render marked — count = every published per_suite negative.
+    const ccHeads = await page.$$eval("#tables table.bench thead th", (ths) =>
+      ths.filter((t) => t.textContent.trim() === "cc").length);
+    const suiteTables = await page.$$eval("#tables table.bench", (ts) => ts.length);
+    if (ccHeads !== suiteTables || suiteTables < 1) fail(`cc column missing (${ccHeads}/${suiteTables} tables)`);
+    else console.log(`ok: cc column on all ${suiteTables} suite tables`);
+    const chanceOf = (sName) => (areasV3.suites[sName] || {}).chance;
+    const accOfCell = (l) => { if (!l) return null; const h = (l.hard || {}).accuracy; return h != null ? h : l.accuracy; };
+    let expectedNeg = 0;
+    for (const ld of Object.values(areasV3.lanes))
+      for (const [name, e] of Object.entries(ld.per_suite || {}))
+        if (typeof e.cc === "number" && e.cc < 0) expectedNeg++;
+    // the table renders EVERY lane cell (not the hero's pick), so the
+    // negative count is over all (suite, lane-slot) pairs, computed with
+    // the published chance basis — the same ccOf law
+    let negCells = 0;
+    for (const s of bench2.suites) {
+      const ch = chanceOf(s.name);
+      if (typeof ch !== "number") continue;
+      const slots = [s.modelless, ...Object.values(s.laya || {}), s.clm, s.gliner, s.agentjev, s.openthai, s.paw, s.paw_local, s.hybrid, s.encoder];
+      for (const hl of Object.values(s.extra_host_lanes || {}))
+        slots.push(hl.modelless, ...Object.values(hl.laya || {}), hl.clm, hl.gliner, hl.agentjev, hl.openthai, hl.paw, hl.paw_local, hl.hybrid, hl.encoder);
+      for (const l of slots) {
+        const a = accOfCell(l);
+        if (typeof a === "number" && (a - ch) / (1 - ch) < 0) negCells++;
+      }
+    }
+    const ccNeg = await page.$$eval("#tables td.ccneg", (tds) => tds.length);
+    if (ccNeg !== negCells) fail(`cc below-chance marks ${ccNeg} != data ${negCells}`);
+    else console.log(`ok: ${ccNeg} below-chance cc cell(s) marked (data-derived)`);
+
+    // 2) the timing methodology table: one row per areas lane.
+    await page.waitForFunction(() => document.querySelectorAll("#bench-timing tbody tr").length > 0, null, { timeout: 10000 });
+    const timingRows = await page.$$eval("#bench-timing tbody tr", (rs) => rs.length);
+    if (timingRows !== Object.keys(areasV3.timing).length) fail(`timing rows ${timingRows} != data ${Object.keys(areasV3.timing).length}`);
+    else console.log(`ok: timing methodology table (${timingRows} lanes)`);
+
+    // 3) the efficiency frontier: svg + at least one Pareto ring + the
+    //    not-plotted disclosure.
+    const frontier = await page.$eval("#bench-frontier", (el) => ({
+      svg: !!el.querySelector("svg"),
+      dots: el.querySelectorAll("circle.rd-dot").length,
+      rings: el.querySelectorAll("circle.ft-ring").length,
+      note: el.textContent,
+    }));
+    let expectedPlotted = 0, expectedMiss = 0;
+    for (const [key, ld] of Object.entries(areasV3.lanes)) {
+      const t = areasV3.timing[key] || {};
+      const ok = typeof ld.index === "number" && isFinite(ld.index)
+        && typeof t.p50_geomean_ms === "number" && t.p50_geomean_ms > 0;
+      ok ? expectedPlotted++ : expectedMiss++;
+    }
+    if (!frontier.svg || frontier.dots !== expectedPlotted || !frontier.rings) fail(`frontier render: ${JSON.stringify({ dots: frontier.dots, rings: frontier.rings, expectedPlotted })}`);
+    else if (expectedMiss && !frontier.note.includes("Not plotted")) fail("frontier: not-plotted lanes undisclosed");
+    else console.log(`ok: efficiency frontier (${frontier.dots} dots, ${frontier.rings} rings, ${expectedMiss} not plotted)`);
+
+    // 4) the board-changes feed.
+    await page.waitForFunction(() => document.querySelectorAll("#bench-changes li").length > 0, null, { timeout: 10000 });
+    const changeRows = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "data", "changes.json"), "utf8"));
+    const renderedChanges = await page.$$eval("#bench-changes li", (ls) => ls.length);
+    if (renderedChanges !== changeRows.length) fail(`board changes ${renderedChanges} != data ${changeRows.length}`);
+    else console.log(`ok: board changes feed (${renderedChanges} rows)`);
+
+    // 5) the ?lane= profile view (read-only; the saved filter untouched).
+    await page.goto("http://127.0.0.1:8791/bench/?lane=clm@4090-win", { waitUntil: "networkidle" });
+    await page.waitForFunction(() => document.querySelector("#lane-profile .lane-profile"), null, { timeout: 10000 });
+    const prof = await page.$eval("#lane-profile", (el) => ({
+      head: el.querySelector("h3") && el.textContent,
+      rows: el.querySelectorAll("tbody tr").length,
+      neg: el.querySelectorAll("td.ft-neg").length,
+    }));
+    const clmLane = areasV3.lanes["clm@4090-win"];
+    if (!prof.head || !/clm/i.test(prof.head) || prof.rows !== Object.keys(areasV3.suites).length) fail(`profile render: rows ${prof.rows}`);
+    else if (!prof.head.includes("@4090-win")) fail("profile: host tag missing");
+    else if (prof.neg !== Object.values(clmLane.per_suite).filter((e) => e.cc < 0).length) fail(`profile: below-chance marks ${prof.neg}`);
+    else console.log(`ok: ?lane= profile view (clm@4090-win, ${prof.rows} suite rows, ${prof.neg} below-chance)`);
+    // back to the main page posture for the screenshot
+    await page.goto("http://127.0.0.1:8791/bench/", { waitUntil: "networkidle" });
+    await page.waitForFunction(() => document.querySelectorAll("#tables table.bench").length >= 10, { timeout: 15000 });
+  } else {
+    fail("bench.json carries no areas v3 (timing/kind) — re-derive before deploying");
+  }
+
   // restore the default posture for the screenshot
   await page.click('#bench-hero button[data-metric="acc"]');
   await page.click('#bench-hero button[data-sort="data"]');

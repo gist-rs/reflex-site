@@ -4,6 +4,41 @@ One hash-pinned line per removed issue (the fleet noise-reduction convention:
 an issue file is removed once its work is verifiably landed; this file is the
 durable record). Full narrative of each: `git log --follow -- .issues/<file>`.
 
+- **2026-10-02 — plan 001 (Jev Decision Index distill) LANDED: the bench board
+  gains the honesty mechanics the leaderboard uses — decided by the Claude verdict
+  round after the owner lifted the plan-only gate.** T1 + T2.7/8/9 + T3.10 in one
+  pass, all gates green (publish self-test 76/76, chart render smoke with the new
+  arms, playwright page smoke with six new data-derived arms, pairing gate, mirror
+  parity): **(1)** the suite tables gain a **cc column** (one JS formula home,
+  `BenchCharts.ccOf` over the published chance basis, pinned to the published
+  `per_suite` values by a 95-entry parity arm) and the filter chips carry each
+  lane's kind + cc index + coverage; **(2)** below-chance cc is now VISIBLE — the
+  verdict caught that `frac()`'s [0,1] clamp made a −3.4% lane draw exactly like a
+  lane at chance, so negative cells get signed values, a `bc-zero` tick on bars,
+  hollow rings on radar dots, and the published `scale` string names the law
+  (Option B — keep negatives — decided over clipping); **(3)** `areas.timing` per
+  lane: the curated clock/method table (in-process vs http vs subprocess — two
+  clocks never pool silently) + the measured p50 geometric mean over EXACTLY the
+  index's suites, quotable-verdict cells only, null disclosed as "not plotted";
+  the page renders the Timing methodology table + the **Efficiency frontier** (cc
+  index vs p50, log x, Pareto rings scoped to equal-coverage groups, partial lanes
+  hollow — 5 lanes plotted, 7 honestly not); **(4)** lane `kind` classification
+  (modelless-in-process / trained-head / encoder / http-oracle / python-subprocess /
+  compiled-program) with a both-ways completeness test; **(5)** the audit layer:
+  `meta.edition` 2026-10 forced by the EDITION_BASIS digest pin (an AREA_CHANCE /
+  area-membership / lane-set edit refuses every publish until the edition bumps +
+  a changes.json row lands), the outgoing edition freezes to
+  `data/archive/bench-<edition>.json` on a bump, and the curated `data/changes.json`
+  feed renders under Board changes; **(6)** `publish_bench.py --rederive` rebuilds
+  only the derived blocks of a published bench.json (the sanctioned refresh — the
+  verdict killed the "re-run the publisher" premise) and refuses unless every
+  measurement cell stays byte-identical. Per-lane profile view at `?lane=<id>`
+  (read-only, never touches the saved filter). Deferred by the verdict: task 6
+  abstention-cause mining needs the harness to record the abstain CAUSE first —
+  filed as riir-reflex `.issues/060`; task 11 og.png stays optional. The work rode
+  a gitignored `.wt-jev` worktree (branch `jev-decision-index`) against the
+  concurrent bench-chart session on main.
+
 - **2026-10-01 (later) — the Rethink size row CORRECTED: 1.74 GB → 885 MB
   (owner's size audit: "did Rethink really need that huge encoder?").** The
   first row folded the typed checkpoint + the typed full-pool corpus + the

@@ -1,10 +1,13 @@
 # Jev Decision Index distill — bench-page improvement plan (plan-only)
-**Status:** PLANNED — no implementation (owner call 2026-10-01: plan md only; no new model
-candidates larger than laya). REVISED after a reviewer round: the original draft re-planned
-substrate that already ships (the chance-corrected `cc` metric landed 2026-09-30 in
-`f0185af`, fixed `47f786d`, documented `cf23805`; the reflex Issue-058 board restore landed
-`d750175`, so the sequencing blocker is gone). T1 is re-scoped to the genuinely-open deltas
-on top of that machinery.
+**Status:** LANDED 2026-10-02 (T1 + T2.7/8/9 + T3.10; the plan-only gate was LIFTED by the
+owner the same day — "no more owner gate, ask claude for decision" — and the open decision
+points were decided by the Claude verdict round, recorded in §Decisions below. Deferred:
+task 6 (needs the riir-reflex harness abstain-cause stamps first — filed as reflex
+`.issues/060`) and task 11 (og.png, optional polish). REVISED after a reviewer round: the
+original draft re-planned substrate that already ships (the chance-corrected `cc` metric
+landed 2026-09-30 in `f0185af`, fixed `47f786d`, documented `cf23805`; the reflex Issue-058
+board restore landed `d750175`, so the sequencing blocker is gone). T1 was re-scoped to the
+genuinely-open deltas on top of that machinery.
 
 ## Why this matters
 
@@ -19,9 +22,42 @@ our bench measure the same class of things; their scoring design is a free audit
 bench-page honesty gaps. We copy the mechanics that make their number trustworthy — we do
 NOT copy their board (no new entrants, see Constraint).
 
+## Decisions (Claude verdict round, 2026-10-02 — verdict REVISE, folded in full)
+
+- **D1 (task 1d) = Option B** — cc stays UNCLIPPED. The verdict's addition: the page already
+  HID negatives visually (`frac()` clamps bars to [0,1]; the radar clamps dots to the
+  centre) — so B is complete only with signed-value surfaces: the table's cc column, the
+  hero/cell tooltips, a hollow ring on below-chance radar dots, a 0-line tick (`bc-zero`)
+  on below-chance bars, and smoke arms asserting marker == signed text. Landed exactly so.
+- **D3 = client-side `ccOf`** (one JS formula home over the PUBLISHED chance basis) — plus
+  a parity arm: chart_render_smoke asserts ccOf agrees with every published `per_suite` cc
+  (95 entries at landing) within 1e-6, pinning the Python/JS copy pair together.
+- **D4 = data-side timing**: `areas.timing[key]` carries the curated clock/method
+  (LANE_TIMING) + the MEASURED aggregate — p50 geomean over EXACTLY the index's suites,
+  quotable-verdict cells only, `n_used/n_unquotable/n_unjudged`, null when none (listed
+  "not plotted", never drawn at 0). Pareto marks stay client-side visual geometry, scoped
+  to equal-coverage groups (a partial lane never dominates a complete one).
+- **D6 = archive on edition bump only** (git history covers per-publish versions) — and
+  the bump is FORCED: `EDITION_BASIS` pins the digest of chance table + area membership +
+  lane set; `edition_guard()` refuses every publish/rederive on drift with the remedy
+  printed (bump EDITION, re-pin, add a changes.json row). Back-filled changelog rows cite
+  SHAs.
+- **D7 replaced** — "re-run the publisher" was the wrong remedy (it needs raw results
+  docs; a fresh run can pick up newer cells): `publish_bench.py --rederive
+  data/bench.json` rebuilds only the derived blocks and refuses unless every measurement
+  cell stays byte-identical. Landed with its own test arm.
+- **Scope trims:** per-MB axis dropped (sizes.json keys don't map 1:1 to bench lanes; a
+  hand mapping would be a guessed join); task 9's `determinism_ok` half marked done (it
+  already ships as a structured cell field), repeat-count half deferred to the harness.
+- **Curated-table completeness** test-enforced both ways (`case_lane_tables_complete`):
+  LANE_KIND/LANE_TIMING must cover every AREA_LANES class — a missing row reds, a stale
+  row reds.
+
 ## Owner constraints (binding for every task below)
 
-1. **Plan-only until the owner greenlights implementation.** No code edits, no data edits.
+1. ~~**Plan-only until the owner greenlights implementation.**~~ **LIFTED 2026-10-02**
+   (owner: "no more owner gate, ask claude for decision if has") — implementation decided
+   by the Claude verdict round above; the T1–T3 scoping stands.
 2. **No new model candidates with trained size > laya (421M).** Future comparison lanes must
    be modelless (0 trained params) or ≤ 421M trained params. Existing lanes (clm 8B etc.)
    are grandfathered — no new ones above the bar. This keeps the perf/sec story: our unique
@@ -106,62 +142,56 @@ Each task keeps the existing gates green (publish self-test 66/66+, chart smoke,
 gate, bench-page Playwright smoke) and adds its own test arms. Worktree check before
 landing: `git status --porcelain scripts/publish_bench.py` must be clean of sibling edits.
 
-### T1 — computation-only, reflex-site (publish_bench.py free since d750175)
+### T1 — computation-only, reflex-site (publish_bench.py free since d750175) — LANDED 2026-10-02
 
-- [ ] 1. **Extend the shipped cc layer (do NOT build a second one).** (a) Per-suite cc
+- [x] 1. **Extend the shipped cc layer (do NOT build a second one).** (a) Per-suite cc
       beside accuracy in the suite tables (data may already carry per-suite `cc` in the
       areas block — render it; add nothing if present). (b) A headline chip per lane from
       the existing per-lane `index` (e.g. "cc index 0.61 · 6/9 suites"). (c) Optional skill
       radar mode = the existing cc spokes (likely already the case — verify, don't
       duplicate). No new chance table; `AREA_CHANCE` is the only basis.
-      (d) **Below-chance posture — decide and pin.** cc is published UNCLIPPED and two
-      live cells sit below 0 (`clm@4090-win/banking77` −0.003026,
-      `agentjev@4090-win/prompt_injections` −0.034483), feeding their lane `index`.
-      Option A: clip cc at 0 (Jev's `max(0, …)`) — changes published numbers, needs a
-      dated disclosure + re-publish. Option B (RECOMMENDED): keep negatives — a
-      below-chance lane should read below-chance, the values are already live and honest —
-      and extend the `scale` disclosure ("values below 0 = below chance; they pull area
-      means down by design") + a self-test arm asserting negatives survive the rollup.
-      Owner decides at implementation.
-- [ ] 2. **Pin the chance basis.** Emit the AREA_CHANCE digest into the areas block (the
-      corpus_digest precedent) so a basis edit announces itself; self-test arm: editing a
-      chance value changes the published digest.
-- [ ] 3. **Zero-fill regression arm.** One self-test arm extending the existing
-      pending-not-zero coverage: a future composite helper (if any is added) must skip
-      missing suites and carry pending — assert against the current `compute_areas` emitter
-      so the law is pinned where it lives.
-- [ ] 4. **Per-lane timing-method disclosure.** Structured `timing` per lane in bench.json
-      derived from the cell stamps (clock class: in-process / metal / subprocess-http /
-      subprocess-python; posture; box) + a methodology table on the page + a comparability
-      note. Two clocks never pool silently.
-- [ ] 5. **Lane kind classification.** `kind` per lane in bench.json + kind chips on the
-      filter bar (their entrant-classification rule: technique vs weights is a different
-      claim).
+      (d) **Below-chance posture — decide and pin.** DECIDED: Option B (keep negatives) +
+      the verdict's visibility additions (signed cc in tables/tooltips, `bc-zero` ticks,
+      hollow radar rings, smoke arms).
+- [x] 2. **Pin the chance basis.** `areas.chance_digest` published + the EDITION_BASIS pin
+      enforced by `edition_guard()` (test arm + production refusal).
+- [x] 3. **Zero-fill regression arm.** `case_area_zero_fill_regression` (missing suites
+      never fabricate entries; area means skip gaps; coverage counts measured only).
+- [x] 4. **Per-lane timing-method disclosure.** `areas.timing` (curated LANE_TIMING +
+      measured geomean/counts over the index population, quotable-only) + the page's
+      Timing methodology table + the comparability note.
+- [x] 5. **Lane kind classification.** `kind` per areas lane block (curated LANE_KIND,
+      completeness test-enforced both ways) + chip/legend/timing-table rendering.
 
 ### T2 — medium, some cross-repo (file a riir-reflex issue when started)
 
-- [ ] 6. **Abstention-reason mining.** riir-reflex harness first: record the abstain CAUSE
-      per case (score-gate vs corpus-distance-gate vs grammar-invalid). Then publish_bench
-      aggregates per suite; page shows answered-rate bar + per-cause shares (the
-      answer-gaps mechanic applied to our abstention-first-class story).
-- [ ] 7. **Edition label + archived bundles + board-change changelog.** bench.json gains
-      `edition`; each publish archives `data/bench-<stamp>.json`; an append-only `changes`
-      list `{date, change, why}`. The corpus-reset drops just landed should back-fill the
-      first changelog rows.
-- [ ] 8. **Per-lane detail view** (`bench/?lane=<id>`): full lane profile from existing
-      bench.json (suites, acc, cc, abstain, latency, provenance, gate verdicts). No new
-      data required.
-- [ ] 9. **Determinism/run-variation disclosure formalized.** det ✓/✗ + repeat count as a
-      structured field per cell (already printed in tables; make it data).
+- [-] 6. **Abstention-reason mining.** DEFERRED to riir-reflex — the harness must record
+      the abstain CAUSE per case first (score-gate vs corpus-distance-gate vs
+      grammar-invalid); publishing a cause share the harness never recorded would be a
+      made-up number. Filed as riir-reflex `.issues/060` (the unblock); publish_bench
+      aggregation + page shares land when the harness field exists.
+- [x] 7. **Edition label + archived bundles + board-change changelog.** `meta.edition` =
+      the EDITION constant, forced by the EDITION_BASIS digest pin; `data/archive/
+      bench-<edition>.json` freezes the OUTGOING edition on a bump (edition-bump-only —
+      git history covers per-publish versions, the 2026-10-02 verdict call); curated
+      append-only `data/changes.json` (back-filled rows cite SHAs) rendered under Board
+      changes.
+- [x] 8. **Per-lane detail view** (`bench/?lane=<id>`): the read-only lane profile
+      (headline index/coverage/kind/timing + per-suite acc/cc/p50/quotable/det/source_run
+      table); never touches the saved lane filter.
+- [x] 9. **Determinism disclosure.** `determinism_ok` already ships as a structured cell
+      field (the tables' det column reads it) — verified + surfaced in the profile view.
+      [-] The repeat COUNT needs a harness-side field results.json does not carry — a
+      riir-reflex ask, never synthesized here.
 
 ### T3 — distinctive (our angle; no new models)
 
-- [ ] 10. **Efficiency frontier.** cc index vs p50 latency scatter (+ per-MB from
-      sizes.json), Pareto-frontier marked. No leaderboard in the Jev index publishes
-      latency-normalized quality — this is where the modelless story wins, using only
-      existing lanes. Cross-posture comparisons carry the timing disclosure from task 4.
-- [ ] 11. **og.png social card** for the bench page rendered from bench.json via headless
-      Chrome (Playwright already in the smoke lane). Optional polish.
+- [x] 10. **Efficiency frontier.** cc index vs p50-latency-geomean scatter (log x),
+      Pareto rings scoped to equal-coverage groups, partial lanes hollow, not-plotted
+      lanes disclosed. Per-MB axis DROPPED (sizes.json keys don't map 1:1 to bench lanes —
+      a hand mapping would be a guessed join). Cross-posture comparisons carry the timing
+      disclosure from task 4.
+- [-] 11. **og.png social card** — optional polish, not landed this pass.
 
 ### Read-only follow-ups (no candidates added)
 
