@@ -447,4 +447,36 @@ console.log(`[frontier] ${fDots} dots, ${fPartial} partial, ${fTPartial} timing-
   console.log("[basis] missing-suite + shared-basis + basis-only disclosures fire on the synthetic partial lane");
 })();
 
+// The product ladder (Reflex → Instinct → Rethink) + dot labels: the path
+// joins the plotted family lanes in tier order (a missing rung = fewer
+// vertices, disclosed by the not-plotted note), and every dot carries a
+// visible lane label — the Rethink-is-missing misread died with the
+// unlabeled dot.
+(function ladderAndLabels() {
+  const die = (m) => { console.error(`FAIL[ladder]: ${m}`); process.exit(1); };
+  const famPlotted = ["modelless", "hybrid", "encoder"]
+    .filter((k) => { const t = ((d.areas || {}).timing || {})[k] || {}; const ld = ((d.areas || {}).lanes || {})[k];
+      return ld && typeof ld.index === "number" && typeof t.p50_geomean_ms === "number" && t.p50_geomean_ms > 0; });
+  const segs = (fHtml.match(/class="ft-ladder"/g) || []).length;
+  if (famPlotted.length >= 2 && segs !== 1) die(`expected exactly one ladder path over ${famPlotted.length} plotted rungs, got ${segs}`);
+  if (famPlotted.length < 2 && segs !== 0) die("a ladder rendered with fewer than two plotted rungs");
+  const vertexCount = (fHtml.match(/class="ft-ladder"[^>]*points="([^"]*)"/) || [,""])[1].trim().split(/\s+/).filter(Boolean).length;
+  if (famPlotted.length >= 2 && vertexCount !== famPlotted.length) die(`ladder has ${vertexCount} vertices vs ${famPlotted.length} plotted rungs`);
+  const labels = (fHtml.match(/class="ft-label"/g) || []).length;
+  if (labels !== fDots) die(`${labels} dot label(s) vs ${fDots} dots — every dot must be named`);
+  if (!fHtml.includes(">Rethink</text>")) die("the Rethink dot is unlabeled — the misread this fixes");
+  // the middle rung: a synthetic hybrid with quotable latency joins the
+  // path — 3 vertices, and Instinct must appear as a dot + label
+  const dSyn2 = JSON.parse(JSON.stringify(d));
+  dSyn2.areas.timing.hybrid = Object.assign({}, dSyn2.areas.timing.hybrid,
+    { suites: 9, n_used: 9, p50_geomean_ms: 0.0016 });
+  fakeEl("frontier-ladder");
+  window.BenchCharts.frontier(dSyn2, captured["frontier-ladder"]);
+  const l2 = captured["frontier-ladder"].innerHTML;
+  const v2 = (l2.match(/class="ft-ladder"[^>]*points="([^"]*)"/) || [,""])[1].trim().split(/\s+/).filter(Boolean).length;
+  if (v2 !== 3) die(`synthetic middle rung: ladder has ${v2} vertices, expected 3`);
+  if (!l2.includes(">Instinct</text>")) die("the Instinct rung did not label");
+  console.log(`[ladder] ${famPlotted.length} plotted rungs (${famPlotted.join(" → ")}), ${labels} labeled dots; middle rung verified on synthetic`);
+})();
+
 console.log(`chart render smoke PASS (p50: ${p50.bands} bands / ${p50.labels} lanes, broken at 500 ms; acc: ${acc.bands} bands / ${acc.labels} lanes; cc: ${cc.bands} bands; radar: ${polys} polys / ${dots} dots)`);

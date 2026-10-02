@@ -1193,6 +1193,16 @@
     out += `<line class="ft-chance" x1="${L}" y1="${py(0).toFixed(1)}" x2="${W - R}" y2="${py(0).toFixed(1)}"/>` +
       `<text class="ft-tick ft-chance-t" x="${W - R}" y="${(py(0) - 5).toFixed(1)}" text-anchor="end">chance</text>` +
       `<text class="ft-axis" x="${((L + W - R) / 2).toFixed(0)}" y="${H - 3}" text-anchor="middle">p50 latency · geometric mean over the lane's index suites · log</text>`;
+    // The product ladder (2026-10-02 user ask): the Reflex → Instinct →
+    // Rethink tier path joins the plotted family lanes in LADDER order —
+    // a story line, not a fit: it shows what each rung buys (quality per
+    // latency). A rung without quotable latency is a gap the not-plotted
+    // note already names; the path gains the vertex when the rung lands.
+    const FAMILY = ["modelless", "hybrid", "encoder"];
+    const ladder = FAMILY.map((k) => pts.find((p) => p.key === k)).filter(Boolean);
+    if (ladder.length >= 2) {
+      out += `<polyline class="ft-ladder" points="${ladder.map((p) => `${px(p.x).toFixed(1)},${py(p.y).toFixed(1)}`).join(" ")}"/>`;
+    }
     for (const p of pts) {
       const meta = LANES.find((x) => x.key === areaPaletteKey(p.key)) || OTHER;
       const on = timingFull(p) && !dominated(p) && rivalled(p);
@@ -1234,6 +1244,11 @@
         (solo ? `<br><span class="bc-mut">alone in its coverage group — no frontier claim</span>` : "") +
         (on ? `<br><span class="bc-mut">on the Pareto frontier (within its coverage group)</span>` : "");
       if (on) out += `<circle class="ft-ring" cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="8.5" style="stroke:${meta.color}"/>`;
+      // dots are unnamed otherwise — the Rethink-is-not-plotted misread —
+      // so every dot carries its lane label; near the right edge the
+      // label flips to the dot's left instead of overflowing the viewBox
+      const lright = cx > W - 96;
+      out += `<text class="ft-label" x="${(lright ? cx - 9 : cx + 9).toFixed(1)}" y="${(cy + 3).toFixed(1)}" text-anchor="${lright ? "end" : "start"}" style="fill:${meta.color}">${esc(p.ld.display || meta.label)}</text>`;
       out += `<circle class="rd-dot${partial ? " ft-partial" : ""}${tpartial ? " ft-tpartial" : ""}" cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="4.6" style="fill:${meta.color};fill-opacity:${partial ? 0.25 : 1};stroke:${meta.color};stroke-width:${tpartial ? 1.6 : 1};stroke-dasharray:${tpartial ? "2.5 2" : "none"}"` +
         ` data-tip="${esc(tip)}" tabindex="0" aria-label="${esc(`${p.ld.display || meta.label} index ${pct(p.y)} p50 ${lat(p.x)} timing ${p.t.n_used}/${p.t.suites}${on ? " on the frontier" : ""}${partial ? " partial" : ""}`)}"/>`;
     }
@@ -1242,7 +1257,7 @@
       ? ` Not plotted: ${missing.map((m) => esc(`${m.ld.display || m.key} — ${m.why}`)).join("; ")}.`
       : "";
     el.innerHTML = `<div class="ft-wrap">${out}</div>` +
-      `<p class="bc-note">${esc("One dot per lane: the cc decision index (y) against the p50 latency geometric mean over the lane's QUOTABLE index suites (x, log). Ringed dots sit on the Pareto frontier within their coverage group — lanes only compete against lanes that measured the SAME suites, and only on full timing, and a lane alone in its group is never ringed; dashed dots are timing-partial (the geomean covers a subset of the index suites); hollow dots are partial lanes. Up-and-left is better — quality per millisecond; memory and disk footprint are separate axes (#sizes), never plotted here. cc = (acc − chance)/(1 − chance) per suite; a lane's index is the mean of its area means over its OWN measured suites, so tooltips recompute lanes on the shared suites whenever their bases differ. Timing methods differ per lane — the table below says which clock each number comes from.")}${missNote}</p>`;
+      `<p class="bc-note">${esc("One dot per lane: the cc decision index (y) against the p50 latency geometric mean over the lane's QUOTABLE index suites (x, log). Ringed dots sit on the Pareto frontier within their coverage group — lanes only compete against lanes that measured the SAME suites, and only on full timing, and a lane alone in its group is never ringed; dashed dots are timing-partial (the geomean covers a subset of the index suites); hollow dots are partial lanes. The line joins the product ladder Reflex → Instinct → Rethink in tier order — what each rung buys (quality per latency); a rung without quotable latency is named in the not-plotted note. Up-and-left is better — quality per millisecond; memory and disk footprint are separate axes (#sizes), never plotted here. cc = (acc − chance)/(1 − chance) per suite; a lane's index is the mean of its area means over its OWN measured suites, so tooltips recompute lanes on the shared suites whenever their bases differ. Timing methods differ per lane — the table below says which clock each number comes from.")}${missNote}</p>`;
   }
 
   // ── the per-lane profile view (plan 001 task 8; /bench/?lane=<id>) ──
