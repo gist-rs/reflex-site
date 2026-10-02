@@ -994,22 +994,32 @@
     return out + "</svg>";
   }
 
-  function radarLegend(laneRows, scoreOf, partialNote) {
+  // Compact legend spellings of the published lane kinds — the full form
+  // stays in the lane profile and tooltips; a long kind (or mark) wrapped
+  // the legend row onto a second line.
+  const KIND_SHORT = {
+    "modelless-in-process": "modelless",
+    "trained-head": "trained",
+    "encoder": "encoder",
+    "python-subprocess": "py-sub",
+    "http-oracle": "http",
+    "compiled-program": "compiled",
+  };
+
+  function radarLegend(laneRows, scoreOf) {
     return laneRows.map((lane) => {
       // fallback lanes lead with the FILL count (▲ marks a fallback
-      // spoke — the served tier answers); other partial lanes keep the
-      // pending disclosure. The coverage numbers beside them stay the
-      // lane's OWN measured count.
+      // spoke — the served tier answers). A partial lane discloses only
+      // through its coverage count (8/9) — the old partial+pending note
+      // wrapped every partial row onto a second line.
       const fbn = (lane.data.fallback_suites || []).length;
-      const partial = lane.data.complete === false;
-      const mark = fbn
-        ? ` · ${fbn} fallback ▲`
-        : (partial ? ` · partial+pending (${esc(partialNote)})` : "");
+      const mark = fbn ? ` · ${fbn} fallback ▲` : "";
+      const kind = lane.data.kind ? (KIND_SHORT[lane.data.kind] || lane.data.kind) + " · " : "";
       return `<div class="rd-lg">` +
         `<i class="bc-sw" style="background:${lane.color}"></i>` +
         `<b>${esc(lane.label)}</b>` +
         `<span class="rd-lg-idx">${num(scoreOf(lane)) ? pct(scoreOf(lane)) : "—"}</span>` +
-        `<span class="bc-mut">${lane.data.kind ? esc(lane.data.kind) + " · " : ""}${lane.data.coverage ? `${lane.data.coverage.suites}/${lane.data.coverage.of}` : ""}` +
+        `<span class="bc-mut">${esc(kind)}${lane.data.coverage ? `${lane.data.coverage.suites}/${lane.data.coverage.of}` : ""}` +
         mark +
         `</span></div>`;
     }).join("");
@@ -1074,7 +1084,6 @@
       const vs = suiteNames.map((name) => (lane.data.per_suite[name] || {}).cc).filter(num);
       return vs.length ? vs.reduce((a, v) => a + v, 0) / vs.length : null;
     };
-    const partialNote = "see the Instinct section";
     // fallback spokes draw on the per-benchmark card (the areas card rolls
     // them into its means and discloses the count in the tooltip)
     const suiteFb = (lane, i) => {
@@ -1085,11 +1094,11 @@
       `<div class="area-cards">` +
       `<div class="area-card"><h3>All areas <span class="bc-mut">· decision index</span></h3>` +
       radarSvg(areaDefs.map((a) => a.label), laneRows, areaVals, areaTip, areaAria) +
-      `<div class="rd-legend">${radarLegend(laneRows, (l) => l.data.index, partialNote)}</div>` +
+      `<div class="rd-legend">${radarLegend(laneRows, (l) => l.data.index)}</div>` +
       `<p class="bc-note">${esc("One spoke per area — the lane's mean chance-corrected score over the area's benchmarks; the index is the mean of the spokes. " + A.scale + ". Primary-host rows; a lane the primary host never ran renders from its serving host (host named on the lane). A lane's fallback spokes (triangles on the benchmarks card) roll into its area means.")}</p></div>` +
       `<div class="area-card"><h3>All benchmarks <span class="bc-mut">· ${esc(String(suiteNames.length))} spokes</span></h3>` +
       radarSvg(suiteNames, laneRows, suiteVals, suiteTip, suiteAria, suiteFb) +
-      `<div class="rd-legend">${radarLegend(laneRows, laneMean, partialNote)}</div>` +
+      `<div class="rd-legend">${radarLegend(laneRows, laneMean)}</div>` +
       `<p class="bc-note">${esc(`One spoke per benchmark (${suiteNames.length}), chance-corrected — hover a point for the raw accuracy. A lane's own spokes are dots; a triangle (▲) marks a fallback spoke — the served tier's answer where the lane's own arm has no seated cell (see the Instinct section); a suite nothing measurable serves stays a gap, never zero. Coverage counts the lane's own measured suites. Primary-host rows; serving-host lanes carry their host.`)}</p></div>` +
       `</div>`;
   }
