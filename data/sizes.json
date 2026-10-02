@@ -1,6 +1,6 @@
 {
  "meta": {
-  "date_utc": "2026-10-02T02:24:42Z",
+  "date_utc": "2026-10-02T12:21:58Z",
   "release": {
    "tag": "v0.2.3",
    "url": "https://github.com/gist-rs/reflex/releases/tag/v0.2.3",
@@ -130,29 +130,6 @@
    "note": "the english base is the same size class (848 MB); multilingual 678 MB; all three checkpoints \u2248 2.37 GB"
   },
   {
-   "key": "bekko",
-   "name": "Bekko-SystemOne-v0 (68M)",
-   "framework": "their BekkoSentenceTransformer runtime in a torch venv",
-   "engine_kind": "python",
-   "engine_bytes": 661500299,
-   "engine_what": "the bekko lane venv (python 3.12: torch + transformers + sentence-transformers \u2014 the card's runtime pins)",
-   "engine_provenance": {
-    "source": "recorded measurement",
-    "detail": "the bekko lane venv (python 3.12: torch 2.10.0 + transformers 5.17.0 + sentence-transformers 6.1.0 + safetensors + tqdm + huggingface-hub \u2014 the Bench-103 repro pins) \u2014 measured 2026-10-02 on m3-max-metal: uv venv --python 3.12 .raw/bekko-env + `uv pip install torch==2.10.0 transformers==5.17.0 sentence-transformers==6.1.0 safetensors tqdm 'huggingface-hub>=1,<2'` (the Bench-103 repro block); sum of file sizes (660,436,171 over 25,866 files) + dir entries (1,064,128), the lstat convention of the sibling venv rows."
-   },
-   "model_bytes": 476225680,
-   "model_what": "their 68M model tree (safetensors + tokenizer, the card's pinned release revision)",
-   "model_provenance": {
-    "source": "huggingface.co tree API (exact bytes)",
-    "detail": "hotchpotch/bekko-system-one-v0-68m"
-   },
-   "targets": [
-    "python env",
-    "CPU (FP32 reference posture)"
-   ],
-   "note": "the bench board's bekko comparison lane (Bench 103) \u2014 \u26a0 the model card assigns no license yet, so the lane is measurement-only; subprocess oracle on loopback, measured by our harness"
-  },
-  {
    "key": "laya_python",
    "name": "laya \u00b7 python reference",
    "framework": "CPython + torch (MPS build) + transformers + the pinned reference checkout",
@@ -197,6 +174,29 @@
     "GPU (MPS/CUDA)"
    ],
    "note": "the bench board's Thai-capability lane (Apache-2.0) \u2014 served on loopback, measured by our harness"
+  },
+  {
+   "key": "bekko",
+   "name": "Bekko-SystemOne-v0 (400M)",
+   "framework": "their BekkoSentenceTransformer runtime in a torch venv",
+   "engine_kind": "python",
+   "engine_bytes": 661500299,
+   "engine_what": "the bekko lane venv (python 3.12: torch + transformers + sentence-transformers \u2014 the card's runtime pins)",
+   "engine_provenance": {
+    "source": "recorded measurement",
+    "detail": "the bekko lane venv (python 3.12: torch 2.10.0 + transformers 5.17.0 + sentence-transformers 6.1.0 + safetensors + tqdm + huggingface-hub \u2014 the Bench-103 repro pins) \u2014 measured 2026-10-02 on m3-max-metal: uv venv --python 3.12 .raw/bekko-env + `uv pip install torch==2.10.0 transformers==5.17.0 sentence-transformers==6.1.0 safetensors tqdm 'huggingface-hub>=1,<2'` (the Bench-103 repro block); sum of file sizes (660,436,171 over 25,866 files) + dir entries (1,064,128), the lstat convention of the sibling venv rows."
+   },
+   "model_bytes": 3012643664,
+   "model_what": "their 400M model tree (fp32 safetensors + tokenizer + the browser ONNX export, the card's pinned release revision 4aeb85b) \u2014 the tree a consumer downloads incl. onnx_browser/",
+   "model_provenance": {
+    "source": "huggingface.co tree API (exact bytes)",
+    "detail": "hotchpotch/bekko-system-one-v0-400m"
+   },
+   "targets": [
+    "python env",
+    "CPU (FP32 reference posture)"
+   ],
+   "note": "the bench board's bekko comparison lane \u2014 the seat moved 68M\u2192400M (reflex Bench 107, Plan 617 A6: the 400M beats the 68M on all 9 suites); MIT (verified 2026-10-02); subprocess oracle on loopback, measured by our harness"
   },
   {
    "key": "gliner",

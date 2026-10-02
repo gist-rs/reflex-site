@@ -49,7 +49,7 @@ FAKE_HF = {
     "Qwen/Qwen3-0.6B": {"siblings": [{"rfilename": "model.safetensors", "size": 1_500_000_000}]},
     "Qwen/Qwen3-8B": {"siblings": [{"rfilename": "model.safetensors", "size": 16_000_000_000}]},
     "iapp/OpenThai-SystemOne": {"siblings": [{"rfilename": "model.safetensors", "size": 1_500_000_000}]},
-    "hotchpotch/bekko-system-one-v0-68m": {"siblings": [
+    "hotchpotch/bekko-system-one-v0-400m": {"siblings": [
         {"rfilename": ".gitattributes", "size": 100},
         {"rfilename": "model.safetensors", "size": 260_000_000},
         {"rfilename": "tokenizer.json", "size": 700_000},
