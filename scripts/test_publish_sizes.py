@@ -49,6 +49,11 @@ FAKE_HF = {
     "Qwen/Qwen3-0.6B": {"siblings": [{"rfilename": "model.safetensors", "size": 1_500_000_000}]},
     "Qwen/Qwen3-8B": {"siblings": [{"rfilename": "model.safetensors", "size": 16_000_000_000}]},
     "iapp/OpenThai-SystemOne": {"siblings": [{"rfilename": "model.safetensors", "size": 1_500_000_000}]},
+    "hotchpotch/bekko-system-one-v0-68m": {"siblings": [
+        {"rfilename": ".gitattributes", "size": 100},
+        {"rfilename": "model.safetensors", "size": 260_000_000},
+        {"rfilename": "tokenizer.json", "size": 700_000},
+    ]},
     "Contrastive-LM/CLM-v0.1-8B": {"siblings": [{"rfilename": "CLM_v0.1-8B.pt", "size": 75_000_000}]},
 }
 
@@ -67,6 +72,7 @@ FAKE_RECORDED = {k: {"key": k, "bytes": v, "what": f"{k} fake", "host": "fake-ho
                      "rethink_encoder_heads": 9_000_000,
                      "rethink_datasets_typed_full": 7_000_000,
                      "openthai_venv": 700_000_000,
+                     "bekko_venv": 660_000_000,
                  }.items()}
 
 FAILURES = []
@@ -121,7 +127,7 @@ def local_bytes_patcher():
 @case("every candidate renders with the full field set")
 def _():
     d = patched_build()
-    assert len(d["candidates"]) == 10, len(d["candidates"])
+    assert len(d["candidates"]) == 11, len(d["candidates"])
     for c in d["candidates"]:
         for f in ("key", "name", "framework", "engine_bytes", "engine_what",
                   "model_what", "targets", "engine_provenance"):
@@ -175,6 +181,18 @@ def _():
     assert h["model_provenance"]["source"] == "recorded measurement", h["model_provenance"]
     assert h["engine_provenance"]["source"] == "recorded measurement (sum)", h["engine_provenance"]
     assert h["model_what"], h["key"]
+
+
+@case("bekko resolves: recorded venv engine + hf_total model tree")
+def _():
+    d = patched_build()
+    by = {c["key"]: c for c in d["candidates"]}
+    b = by["bekko"]
+    assert b["engine_bytes"] == 660_000_000, b["engine_bytes"]
+    # .gitattributes excluded as hub chrome: safetensors + tokenizer only
+    assert b["model_bytes"] == 260_000_000 + 700_000, b["model_bytes"]
+    assert b["engine_provenance"]["source"] == "recorded measurement", b["engine_provenance"]
+    assert b["model_provenance"]["source"] == "huggingface.co tree API (exact bytes)", b["model_provenance"]
 
 
 @case("rethink resolves: recorded_sum engine + summed RECORDED model (q8 artifact + heads)")

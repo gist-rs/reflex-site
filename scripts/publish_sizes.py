@@ -155,6 +155,17 @@ CANDIDATES = [
         "note": "the bench board's Thai-capability lane (Apache-2.0) — served on loopback, measured by our harness",
     },
     {
+        "key": "bekko",
+        "name": "Bekko-SystemOne-v0 (68M)",
+        "framework": "their BekkoSentenceTransformer runtime in a torch venv",
+        "engine": ("recorded", "bekko_venv"),
+        "engine_what": "the bekko lane venv (python 3.12: torch + transformers + sentence-transformers — the card's runtime pins)",
+        "model": ("hf_total", "hotchpotch/bekko-system-one-v0-68m"),
+        "model_what": "their 68M model tree (safetensors + tokenizer, the card's pinned release revision)",
+        "targets": ["python env", "CPU (FP32 reference posture)"],
+        "note": "the bench board's bekko comparison lane (Bench 103) — \u26a0 the model card assigns no license yet, so the lane is measurement-only; subprocess oracle on loopback, measured by our harness",
+    },
+    {
         "key": "clm",
         "name": "CLM v0.1-8B",
         "framework": "vLLM docker image + their clm-serve head",

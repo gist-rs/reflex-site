@@ -4,6 +4,31 @@ One hash-pinned line per removed issue (the fleet noise-reduction convention:
 an issue file is removed once its work is verifiably landed; this file is the
 durable record). Full narrative of each: `git log --follow -- .issues/<file>`.
 
+- **2026-10-02 (later) — the bekko lane's two gaps closed: the /#sizes row + the
+  two missing dataset-board suites (owner ask "beko has no size report and missing
+  code_fixtures bench").** **(1) The sizes row** — `Bekko-SystemOne-v0 (68M)` joins
+  the /#sizes chart: engine = the lane venv 661,500,299 B (recorded on m3-max-metal,
+  the Bench-103 repro pins, lstat convention) + model = the HF tree
+  `hotchpotch/bekko-system-one-v0-68m` 476,225,680 B (LIVE tree API) ≈ **1.14 GB
+  total** — between laya-typed and the python reference. ⚠ The 68M tree weighs ~476 MB
+  on HF, more than the ~244 MB safetensors estimate in the bench record — the repo
+  carries more than the one weights file; the row measures what a consumer downloads
+  (the gliner/agentjev/openthai `hf_total` law). The card still assigns no license —
+  the row's note keeps the measurement-only posture. **(2) The bench cells** —
+  `typed_decisions` bekko 0.4840 (n 2000; reflex 0.5725 reproduced in-run under the
+  published OC-armed posture, scale 4.0) and `code_fixtures` bekko 0.40625 vs reflex
+  0.375 (n 32 — a ONE-QUESTION margin, tie-class, disclosed as such in the bench
+  record). The typed refusal in the original run was POOL-SCOPED (the canonical
+  `.raw/datasets` pull runs clean; `datasets_t20k`'s typed is the stale one) — the
+  repro block in the record now names the pool + the oc-select flag. Determinism
+  byte-identical ×2 (the 103 law). The bench.json publish landed via the plan-001
+  session's `26fddb9` rederive (cells byte-identical, the sibling-session measurement
+  credit in its message); the lane now seats **9/9 English dataset suites**. Full
+  record: `../riir-reflex/.benchmarks/103_bekko_v0_17m_gate/RECORD.md` §Addendum
+  (reflex `001f46b`). Verified: test_publish_sizes (12 cases + the new bekko arm),
+  sizes --check (11 candidates ascending), size_chart_smoke, test_publish_bench 76/76,
+  bench_page_smoke, home_page_smoke, check_lane_pairing.
+
 - **2026-10-02 — plan 001 (Jev Decision Index distill) LANDED: the bench board
   gains the honesty mechanics the leaderboard uses — decided by the Claude verdict
   round after the owner lifted the plan-only gate.** T1 + T2.7/8/9 + T3.10 in one
