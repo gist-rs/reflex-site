@@ -1,4 +1,4 @@
-# Jev Decision Index distill — bench-page improvement plan (plan-only)
+# Jev Decision Index distill — bench-page improvement plan
 **Status:** LANDED 2026-10-02 (T1 + T2.7/8/9 + T3.10; the plan-only gate was LIFTED by the
 owner the same day — "no more owner gate, ask claude for decision" — and the open decision
 points were decided by the Claude verdict round, recorded in §Decisions below. Deferred:
@@ -34,14 +34,23 @@ NOT copy their board (no new entrants, see Constraint).
   (95 entries at landing) within 1e-6, pinning the Python/JS copy pair together.
 - **D4 = data-side timing**: `areas.timing[key]` carries the curated clock/method
   (LANE_TIMING) + the MEASURED aggregate — p50 geomean over EXACTLY the index's suites,
-  quotable-verdict cells only, `n_used/n_unquotable/n_unjudged`, null when none (listed
-  "not plotted", never drawn at 0). Pareto marks stay client-side visual geometry, scoped
-  to equal-coverage groups (a partial lane never dominates a complete one).
+  quotable-verdict cells only, `n_used/n_unquotable/n_unjudged`, null when none. At this
+  data SEVEN lanes are null (hybrid, bekko, paw, paw-local, and the four 4090-win lanes)
+  — listed "not plotted", never drawn at 0. Pareto marks stay client-side visual
+  geometry, scoped to equal-coverage groups keyed on the SUITE SET (not the count), and
+  a lane whose geomean covers a SUBSET of its index suites (timing-partial, e.g.
+  Rethink's 2-of-7) draws a dashed dot, discloses `timing n/suites` in its aria, and is
+  EXCLUDED from the frontier both ways (the round-2 verdict's measured defect: the
+  subset geomean drew ringed under a lane-wide axis label).
 - **D6 = archive on edition bump only** (git history covers per-publish versions) — and
-  the bump is FORCED: `EDITION_BASIS` pins the digest of chance table + area membership +
-  lane set; `edition_guard()` refuses every publish/rederive on drift with the remedy
-  printed (bump EDITION, re-pin, add a changes.json row). Back-filled changelog rows cite
-  SHAs.
+  the bump is FORCED by the append-only EDITIONS ledger (the round-2 verdict's form,
+  which replaced a single-row pin a digest re-pin could have satisfied without a bump):
+  edition_guard() passes only when EDITION names the ledger's LAST row AND the computed
+  basis digest equals that row's digest; every ledger edition must have a changes.json
+  row (test enforced). `archive_on_edition` runs on BOTH write paths — the ordinary
+  publish AND --rederive (the reviewer measured the gap: a scoring-basis edit is a
+  derived-only change, and --rederive is the path made for exactly that). Back-filled
+  changelog rows cite SHAs.
 - **D7 replaced** — "re-run the publisher" was the wrong remedy (it needs raw results
   docs; a fresh run can pick up newer cells): `publish_bench.py --rederive
   data/bench.json` rebuilds only the derived blocks and refuses unless every measurement
@@ -153,7 +162,7 @@ landing: `git status --porcelain scripts/publish_bench.py` must be clean of sibl
       (d) **Below-chance posture — decide and pin.** DECIDED: Option B (keep negatives) +
       the verdict's visibility additions (signed cc in tables/tooltips, `bc-zero` ticks,
       hollow radar rings, smoke arms).
-- [x] 2. **Pin the chance basis.** `areas.chance_digest` published + the EDITION_BASIS pin
+- [x] 2. **Pin the chance basis.** `areas.chance_digest` published + the EDITIONS ledger
       enforced by `edition_guard()` (test arm + production refusal).
 - [x] 3. **Zero-fill regression arm.** `case_area_zero_fill_regression` (missing suites
       never fabricate entries; area means skip gaps; coverage counts measured only).
@@ -171,7 +180,8 @@ landing: `git status --porcelain scripts/publish_bench.py` must be clean of sibl
       made-up number. Filed as riir-reflex `.issues/060` (the unblock); publish_bench
       aggregation + page shares land when the harness field exists.
 - [x] 7. **Edition label + archived bundles + board-change changelog.** `meta.edition` =
-      the EDITION constant, forced by the EDITION_BASIS digest pin; `data/archive/
+      the EDITION constant, forced by the append-only EDITIONS ledger digest pin (guard on
+      both write paths); `data/archive/
       bench-<edition>.json` freezes the OUTGOING edition on a bump (edition-bump-only —
       git history covers per-publish versions, the 2026-10-02 verdict call); curated
       append-only `data/changes.json` (back-filled rows cite SHAs) rendered under Board
@@ -203,6 +213,11 @@ landing: `git status --porcelain scripts/publish_bench.py` must be clean of sibl
       laya columns. Citation only; no new lanes, no runs.
 - [-] Community contribution path (accept external lane PRs): NOT planned — our lanes
       require our harness; owner-gated if ever.
+- [-] The Instinct (hybrid) lane's latency verdicts: 9/9 cells are UNJUDGED (the lane's
+      timing predates the per-cell Issue-021 stamp and never re-ran on a stamped
+      posture), so it plots on neither the frontier nor the timing table's geomean
+      column — a riir-reflex ask (stamp the hybrid lane's timing), never synthesized
+      here. Filed alongside reflex `.issues/060`'s scope when the harness lane lands.
 
 ## Non-goals
 

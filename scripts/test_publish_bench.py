@@ -2119,29 +2119,47 @@ def case_area_zero_fill_regression():
 
 
 def case_chance_digest_and_edition_pin():
-    """Plan 001 tasks 2 + 7: the chance basis is pinned twice — a published
-    digest (areas.chance_digest, informational) and the edition pin
-    (EDITION_BASIS, enforced by main()/edition_guard). Editing any basis
-    input changes both digests; the self-test reds when the pin does not
-    match the computed digest, which is exactly the 'bump EDITION + add a
-    changes.json row' forcing function."""
+    """Plan 001 tasks 2 + 7 (the round-2 verdict's ledger form): the chance
+    basis is pinned twice — a published digest (areas.chance_digest) and
+    the EDITIONS ledger, which FORCES the bump: the guard passes only when
+    EDITION names the ledger's LAST row AND the computed digest equals that
+    row's digest. Re-pinning a digest without a new edition label cannot
+    pass (that is the defect the ledger replaced); neither can a basis edit
+    without a bump."""
     a = pb.compute_areas(area_doc())
     assert a["chance_digest"] == pb.chance_digest()
     assert a["edition"] == pb.EDITION
-    # the pin matches the CURRENT computed digest (a stale pin reds here
-    # before any publish can)
+    # the 2026-10 digest is FROZEN HERE as a literal — a silent basis edit
+    # changes the computed digest and reds this line before any publish
+    assert pb.edition_basis_digest() == "0133fc49a0baec3b3293f51324b5416b"
+    # ledger shape: EDITION is the last key; digests pairwise distinct
+    assert list(pb.EDITIONS)[-1] == pb.EDITION
+    assert len(set(pb.EDITIONS.values())) == len(pb.EDITIONS)
+    # every ledger edition has a changes.json row (the bump explanation)
+    changes_path = SCRIPT.parent.parent / "data" / "changes.json"
+    changes_text = changes_path.read_text(encoding="utf-8")
+    for ed in pb.EDITIONS:
+        assert ed in changes_text, f"EDITIONS[{ed}] has no data/changes.json row"
+    # the guard passes at HEAD...
     assert pb.edition_guard() is True
-    assert pb.edition_basis_digest() == pb.EDITION_BASIS["basis_digest"]
-    # editing a chance value moves BOTH digests...
+    # ...and a basis edit flips it to refusal with both digests moved
     saved = dict(pb.AREA_CHANCE)
     try:
         pb.AREA_CHANCE["sst5"] = 1 / 4
         mutated_chance = pb.chance_digest()
         mutated_basis = pb.edition_basis_digest()
         assert mutated_chance != a["chance_digest"]
-        assert mutated_basis != pb.EDITION_BASIS["basis_digest"]
-        # ...and the guard REFUSES with the remedy (never a silent publish)
+        assert mutated_basis != pb.EDITIONS[pb.EDITION]
         assert pb.edition_guard() is False
+        # a ledger row appended WITHOUT pointing EDITION at it also refuses
+        pb.AREA_CHANCE.clear()
+        pb.AREA_CHANCE.update(saved)
+        pb.EDITIONS["2026-11"] = mutated_basis
+        try:
+            assert pb.edition_guard() is False
+        finally:
+            del pb.EDITIONS["2026-11"]
+        assert pb.edition_guard() is True
     finally:
         pb.AREA_CHANCE.clear()
         pb.AREA_CHANCE.update(saved)
@@ -2277,6 +2295,35 @@ def case_rederive_preserves_cells():
         leg = Path(td) / "legacy.json"
         leg.write_text(json.dumps(legacy), encoding="utf-8")
         assert pb.rederive(leg) == 1
+
+
+def case_rederive_archives_on_edition_bump():
+    """The round-2 verdict's measured gap: --rederive is the path a
+    scoring-basis (derived-only) change takes, so an edition bump through
+    it MUST freeze the outgoing table too — archive_on_edition runs on the
+    rederive write exactly like the ordinary publish."""
+    published = pb.merge(
+        doc("m3", "sha-m3", {"sst5": {"modelless_acc": 0.42, "laya_p50": 4.0}}),
+        [],
+    )
+    pb.finalize(published)
+    saved_edition = pb.EDITION
+    try:
+        pb.EDITION = "2026-11"   # the code bumped; the file still says 2026-10
+        with tempfile.TemporaryDirectory() as td:
+            pub = Path(td) / "bench.json"
+            pub.write_text(json.dumps(published), encoding="utf-8")
+            assert pb.rederive(pub) == 0
+            after = json.loads(pub.read_text(encoding="utf-8"))
+            assert after["meta"]["edition"] == "2026-11"
+            arch = Path(td) / "archive" / "bench-2026-10.json"
+            assert arch.is_file(), "the outgoing edition must freeze on a rederive bump"
+            frozen = json.loads(arch.read_text(encoding="utf-8"))
+            assert frozen["meta"]["edition"] == "2026-10"
+            # a second rederive archives nothing (the archive exists)
+            assert pb.rederive(pub) == 0
+    finally:
+        pb.EDITION = saved_edition
 
 
 def case_encoder_lane_display_rebrands_to_rethink():
@@ -2547,6 +2594,7 @@ CASES = [
     case_lane_tables_complete,
     case_area_timing_population_and_quotable,
     case_rederive_preserves_cells,
+    case_rederive_archives_on_edition_bump,
 ]
 
 def main() -> int:

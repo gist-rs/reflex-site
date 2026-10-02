@@ -25,10 +25,12 @@ durable record). Full narrative of each: `git log --follow -- .issues/<file>`.
   hollow — 5 lanes plotted, 7 honestly not); **(4)** lane `kind` classification
   (modelless-in-process / trained-head / encoder / http-oracle / python-subprocess /
   compiled-program) with a both-ways completeness test; **(5)** the audit layer:
-  `meta.edition` 2026-10 forced by the EDITION_BASIS digest pin (an AREA_CHANCE /
-  area-membership / lane-set edit refuses every publish until the edition bumps +
-  a changes.json row lands), the outgoing edition freezes to
-  `data/archive/bench-<edition>.json` on a bump, and the curated `data/changes.json`
+  **(5)** the audit layer:
+  `meta.edition` 2026-10 forced by the append-only EDITIONS ledger digest pin (an
+  AREA_CHANCE / area-membership / lane-set edit refuses every publish AND every
+  --rederive until the edition bumps + a changes.json row lands — the round-2 verdict
+  replaced a single-row pin a digest re-pin could have satisfied; the archive runs on
+  both write paths), and the curated `data/changes.json`
   feed renders under Board changes; **(6)** `publish_bench.py --rederive` rebuilds
   only the derived blocks of a published bench.json (the sanctioned refresh — the
   verdict killed the "re-run the publisher" premise) and refuses unless every

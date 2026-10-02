@@ -700,15 +700,16 @@ LANE_TIMING = {
 # ── Edition (plan 001 task 7; their edition label + auditability) ─────
 # The published table's EDITION is a curated label — bumped when the
 # SCORING BASIS changes (the chance table, the area membership, the lane
-# set, the population protocol), not when measurements refresh. What
-# forces the bump is the pin below: EDITION_BASIS carries the digest of
-# everything the edition claims to describe, and both the self-test and
-# main() refuse when the computed digest drifts from the pin — an
-# AREA_CHANCE edit without an edition bump + a changes.json row cannot
-# publish. On a real bump: update EDITION, re-pin EDITION_BASIS from the
-# printed digest, freeze the outgoing table into
-# data/archive/bench-<old-edition>.json (the publisher does this
-# automatically on the next publish), and add a data/changes.json row.
+# set, the population protocol), not when measurements refresh. What forces
+# the bump is the LEDGER below: EDITIONS is append-only, one row per
+# published edition carrying the basis digest it was pinned to, and
+# edition_guard() refuses unless (a) EDITION names the LEDGER'S LAST key
+# and (b) the computed digest equals that row — so re-pinning the digest
+# without a new edition label cannot pass, and a basis edit without a bump
+# cannot pass. On a real bump: append the new row (the digest is printed by
+# the guard's refusal), point EDITION at it, freeze the outgoing table
+# (the publisher archives it automatically, on BOTH the publish and the
+# --rederive paths), and add a data/changes.json row.
 EDITION = "2026-10"
 
 
@@ -733,6 +734,11 @@ def edition_basis_digest():
     ).hexdigest()
 
 
+EDITIONS = {
+    "2026-10": "0133fc49a0baec3b3293f51324b5416b",
+}
+
+
 def chance_digest():
     """The published digest over the AREA_CHANCE basis only (plan 001
     task 2): rides data/bench.json's areas block, so a basis edit announces
@@ -743,17 +749,6 @@ def chance_digest():
         separators=(",", ":"),
     )
     return hashlib.blake2b(payload.encode("utf-8"), digest_size=16).hexdigest()
-
-
-# The pin itself (computed at this landing; see edition_guard for the
-# enforcement). Format: {edition, basis_digest} — the self-test asserts
-# the CURRENT edition's computed digest equals the pin, so an edit to
-# AREA_CHANCE / AREA_DEFS / AREA_LANES without a bump reds before any
-# publish.
-EDITION_BASIS = {
-    "edition": EDITION,
-    "basis_digest": "0133fc49a0baec3b3293f51324b5416b",
-}
 
 
 def _cell_acc(cell):
@@ -2178,27 +2173,33 @@ def guard_unquotable_latency(primary, extras, incumbent):
 
 
 def edition_guard():
-    """The EDITION_BASIS pin, enforced where it matters: main() refuses to
-    write when the computed basis digest drifts from the pin (the self-test
-    asserts the same arithmetic — case_edition_basis_pin). The remedy is
-    printed, never guessed: bump EDITION, re-pin the digest, add a
-    data/changes.json row."""
-    if EDITION_BASIS.get("edition") != EDITION:
+    """The EDITIONS ledger pin, enforced where it matters: main() refuses
+    to write (either path) unless EDITION names the ledger's LAST row AND
+    the computed basis digest equals that row's digest (the self-test
+    asserts the same arithmetic — case_chance_digest_and_edition_pin). The
+    remedy is printed, never guessed: append a new ledger row, point
+    EDITION at it, add a data/changes.json row."""
+    last = list(EDITIONS)[-1]
+    if EDITION != last:
         print(
-            f"⛔ refusing: EDITION_BASIS names {EDITION_BASIS.get('edition')!r} "
-            f"but EDITION is {EDITION!r} — re-pin EDITION_BASIS",
+            f"⛔ refusing: EDITION is {EDITION!r} but the EDITIONS ledger's "
+            f"last row is {last!r} — a new edition must APPEND a ledger row "
+            "and point EDITION at it (the ledger is append-only; an old "
+            "edition cannot become current again)",
             file=sys.stderr,
         )
         return False
     computed = edition_basis_digest()
-    if computed != EDITION_BASIS.get("basis_digest"):
+    if computed != EDITIONS[EDITION]:
         print(
             "⛔ refusing: the scoring basis changed (chance table / area "
             "membership / lane set) without an edition bump — computed "
-            f"basis digest {computed}, pin "
-            f"{EDITION_BASIS.get('basis_digest')!r}. Bump EDITION, re-pin "
-            f"EDITION_BASIS['basis_digest'] = '{computed}', and add a "
-            "data/changes.json row explaining the change",
+            f"basis digest {computed}, but the ledger pins "
+            f"{EDITIONS[EDITION]!r} for edition {EDITION!r}. APPEND a new "
+            f"ledger row (EDITIONS['<new-edition>'] = '{computed}'), point "
+            "EDITION at it, and add a data/changes.json row explaining the "
+            "change — re-pinning the existing row's digest is exactly what "
+            "the ledger exists to refuse",
             file=sys.stderr,
         )
         return False
@@ -2207,10 +2208,13 @@ def edition_guard():
 
 def archive_on_edition(out: Path) -> None:
     """Freeze the OUTGOING edition's final table when the edition changes
-    (plan 001 task 7): data/archive/bench-<old-edition>.json, once. A
-    within-edition republish archives nothing — git history already keeps
-    every per-publish version, and a per-publish archive grows without
-    bound for no extra audit value (the 2026-10-02 verdict call)."""
+    (plan 001 task 7): data/archive/bench-<old-edition>.json, once. Runs on
+    BOTH write paths — the ordinary publish AND --rederive (the reviewer's
+    measured gap: a scoring-basis edit is a derived-only change, and
+    --rederive is the path made for exactly that, so an edition bump
+    through it must archive too). A within-edition republish archives
+    nothing — git history already keeps every per-publish version, and a
+    per-publish archive grows without bound for no extra audit value."""
     if not out.exists():
         return
     try:
@@ -2330,6 +2334,10 @@ def rederive(path: Path) -> int:
             file=sys.stderr,
         )
         return 1
+    # The archive law runs here too (the reviewer's measured gap): an
+    # edition bump through --rederive must freeze the outgoing table before
+    # the in-place overwrite, exactly like the ordinary publish.
+    archive_on_edition(path)
     with open(path, "w", encoding="utf-8", newline="\n") as f:
         f.write(json.dumps(d, indent=1) + "\n")
     n_suites = len(d.get("suites", []))

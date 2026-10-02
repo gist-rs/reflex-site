@@ -189,10 +189,13 @@ per-lane timing + kind, the edition stamp) without the raw harness docs, and
 REFUSES to write unless every suite's measurement cells stay byte-identical.
 This is the sanctioned way to land a publisher-side derived-block change; the
 ordinary publish (which needs results.json inputs) is for fresh measurements.
-The table's EDITION (meta.edition) is pinned to the scoring basis by
-EDITION_BASIS: an AREA_CHANCE / area-membership / lane-set edit refuses every
-publish until the edition bumps and a `data/changes.json` row explains it; on a
-bump the outgoing edition freezes to `data/archive/bench-<edition>.json`.
+The table's EDITION (meta.edition) is forced by the append-only EDITIONS
+ledger: the guard passes only when EDITION names the ledger's LAST row and
+the computed basis digest (chance table + area membership + lane set)
+equals that row's digest — a basis edit refuses every publish AND every
+--rederive until a new ledger row is appended, EDITION moves to it, and a
+`data/changes.json` row explains the change. On a bump the outgoing edition
+freezes to `data/archive/bench-<edition>.json` (on both write paths).
 
 One wrapper mechanises the whole flow (self-test -> publish -> docs-mirror
 parity -> the bench-page smoke when playwright is installed):

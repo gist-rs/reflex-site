@@ -319,7 +319,7 @@ console.log("[old-data] areas/frontier/profile render graceful on stripped + URL
 fakeEl("frontier");
 window.BenchCharts.frontier(d, captured["frontier"]);
 const fHtml = captured["frontier"].innerHTML;
-let expectedPts = 0, expectedPartial = 0, expectedMiss = 0;
+let expectedPts = 0, expectedPartial = 0, expectedMiss = 0, expectedTPartial = 0, expectedRings = 0;
 for (const [key, ld] of Object.entries((d.areas || {}).lanes || {})) {
   const t = ((d.areas || {}).timing || {})[key] || {};
   const plotted = typeof ld.index === "number" && isFinite(ld.index)
@@ -327,9 +327,12 @@ for (const [key, ld] of Object.entries((d.areas || {}).lanes || {})) {
   if (!plotted) { expectedMiss++; continue; }
   expectedPts++;
   if (ld.complete === false) expectedPartial++;
+  if (t.n_used < t.suites) expectedTPartial++;
+  else expectedRings++;   // ring-worthy candidates are full-timing lanes (dominance may still drop some; >=1 must survive)
 }
 const fDots = (fHtml.match(/class="rd-dot[ "]/g) || []).length;
 const fPartial = (fHtml.match(/ft-partial/g) || []).length;
+const fTPartial = (fHtml.match(/ft-tpartial/g) || []).length;
 if (fDots !== expectedPts || expectedPts < 2) {
   console.error(`FAIL[frontier]: ${fDots} dot(s) vs ${expectedPts} plottable lanes`);
   process.exit(1);
@@ -338,14 +341,27 @@ if (fPartial !== expectedPartial) {
   console.error(`FAIL[frontier]: ${fPartial} hollow dot(s) vs ${expectedPartial} partial plotted lanes`);
   process.exit(1);
 }
+if (fTPartial !== expectedTPartial) {
+  console.error(`FAIL[frontier]: ${fTPartial} timing-partial dot(s) vs ${expectedTPartial} in the data`);
+  process.exit(1);
+}
+// a timing-partial dot must NEVER carry a frontier ring: rings ≤ full-timing
+// lanes, and every ring belongs to a full-timing lane (the encoder's 2-of-7
+// geomean drew ringed once — the round-2 verdict's measured defect)
+const rings = (fHtml.match(/class="ft-ring"/g) || []).length;
+if (!rings || rings > expectedRings) {
+  console.error(`FAIL[frontier]: ${rings} ring(s) vs ${expectedRings} full-timing candidate lanes`);
+  process.exit(1);
+}
+const ariaTimed = (fHtml.match(/aria-label="[^"]*timing \d+\/\d+[^"]*"/g) || []).length;
+if (ariaTimed !== fDots) {
+  console.error("FAIL[frontier]: every dot's aria must disclose its timing subset size");
+  process.exit(1);
+}
 if (expectedMiss && !fHtml.includes("Not plotted")) {
   console.error("FAIL[frontier]: the not-plotted lanes are not disclosed");
   process.exit(1);
 }
-if (!(fHtml.match(/class="ft-ring"/g) || []).length) {
-  console.error("FAIL[frontier]: no Pareto ring rendered");
-  process.exit(1);
-}
-console.log(`[frontier] ${fDots} dots, ${fPartial} partial, ${expectedMiss} not plotted, ring present`);
+console.log(`[frontier] ${fDots} dots, ${fPartial} partial, ${fTPartial} timing-partial, ${rings} rings, ${expectedMiss} not plotted`);
 
 console.log(`chart render smoke PASS (p50: ${p50.bands} bands / ${p50.labels} lanes, broken at 500 ms; acc: ${acc.bands} bands / ${acc.labels} lanes; cc: ${cc.bands} bands; radar: ${polys} polys / ${dots} dots)`);

@@ -24,14 +24,19 @@ const server = http.createServer((req, res) => {
 });
 
 (async () => {
-  await new Promise((r) => server.listen(8791, r));
+  // Ephemeral loopback port — a hard-coded port collides with any local
+  // service (measured 2026-10-02: an instinct `serve` on 8791 made the
+  // smoke talk to the WRONG server and time out on its own fixture).
+  await new Promise((r) => server.listen(0, "127.0.0.1", r));
+  const PORT = server.address().port;
+  const BASE = `http://127.0.0.1:${PORT}`;
   const browser = await chromium.launch();
   const page = await browser.newPage({ viewport: { width: 1280, height: 1000 } });
   const errs = [];
   page.on("pageerror", (e) => errs.push(e.message));
   const fail = (m) => { console.error("FAIL:", m); process.exitCode = 1; };
 
-  await page.goto("http://127.0.0.1:8791/bench/", { waitUntil: "networkidle" });
+  await page.goto(`${BASE}/bench/`, { waitUntil: "networkidle" });
   await page.waitForFunction(() => document.querySelectorAll("#tables table.bench").length >= 10, { timeout: 15000 });
 
   // 1) no page errors
@@ -634,7 +639,7 @@ const server = http.createServer((req, res) => {
     else console.log(`ok: board changes feed (${renderedChanges} rows)`);
 
     // 5) the ?lane= profile view (read-only; the saved filter untouched).
-    await page.goto("http://127.0.0.1:8791/bench/?lane=clm@4090-win", { waitUntil: "networkidle" });
+    await page.goto(`${BASE}/bench/?lane=clm@4090-win`, { waitUntil: "networkidle" });
     await page.waitForFunction(() => document.querySelector("#lane-profile .lane-profile"), null, { timeout: 10000 });
     const prof = await page.$eval("#lane-profile", (el) => ({
       head: el.querySelector("h3") && el.textContent,
@@ -647,7 +652,7 @@ const server = http.createServer((req, res) => {
     else if (prof.neg !== Object.values(clmLane.per_suite).filter((e) => e.cc < 0).length) fail(`profile: below-chance marks ${prof.neg}`);
     else console.log(`ok: ?lane= profile view (clm@4090-win, ${prof.rows} suite rows, ${prof.neg} below-chance)`);
     // back to the main page posture for the screenshot
-    await page.goto("http://127.0.0.1:8791/bench/", { waitUntil: "networkidle" });
+    await page.goto(`${BASE}/bench/`, { waitUntil: "networkidle" });
     await page.waitForFunction(() => document.querySelectorAll("#tables table.bench").length >= 10, { timeout: 15000 });
   } else {
     fail("bench.json carries no areas v3 (timing/kind) — re-derive before deploying");
