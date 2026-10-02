@@ -413,4 +413,38 @@ if (expectedMiss && !fHtml.includes("Not plotted")) {
 }
 console.log(`[frontier] ${fDots} dots, ${fPartial} partial, ${fTPartial} timing-partial, ${rings} rings, ${soloLanes} solo, ${expectedMiss} not plotted`);
 
+// Basis-disclosure machinery (the 2026-10-02 laya(python) regression): a
+// lane whose index covers a SUBSET of the suite universe must name the
+// missing suites, and any differing-basis peer must carry the shared-basis
+// recomputation — with a basis-only marker when the shared-basis indices
+// are EQUAL while the published ones differ (a coverage gap reading as a
+// quality win). Current data is complete (0 disclosures expected), so the
+// fire-path is pinned on a SYNTHETIC clone: delete code_fixtures from the
+// python lane — the exact state the live site shipped in — and require
+// all three disclosures to render with the right numbers.
+(function basisDisclosure() {
+  const dSyn = JSON.parse(JSON.stringify(d));
+  const A = dSyn.areas;
+  delete A.lanes.python.per_suite.code_fixtures;
+  A.lanes.python.coverage = { suites: 8, of: 9 };
+  A.lanes.python.complete = false;
+  // the regression's inconsistent state, faithfully: a published index
+  // computed over MORE suites than the lane carries (0.5642 over 8 cells
+  // — the value that drew the user's wtf on the live site)
+  A.lanes.python.index = 0.564171;
+  fakeEl("frontier-syn");
+  window.BenchCharts.frontier(dSyn, captured["frontier-syn"]);
+  const syn = captured["frontier-syn"].innerHTML;
+  const die = (m) => { console.error(`FAIL[basis]: ${m}`); process.exit(1); };
+  if (!syn.includes("missing: code_fixtures")) die("the missing-suite disclosure did not render");
+  if (!(syn.match(/on shared suites:/g) || []).length) die("the shared-basis line did not render");
+  // python 56.4% vs rust 56.4% on the shared 8 — equal shared basis,
+  // published 0.5642 vs 0.5030 differ → the gap must be marked basis-only
+  if (!syn.includes("basis-only gap")) die("an equal shared basis with differing published indices must be marked basis-only");
+  if (!syn.includes("56.4% vs laya (rust) 56.4%")) die(`shared-basis numbers wrong`);
+  // and the published index must be disclosed with its basis, never alone
+  if (!syn.includes("partial coverage — 8/9")) die("partial coverage line lost");
+  console.log("[basis] missing-suite + shared-basis + basis-only disclosures fire on the synthetic partial lane");
+})();
+
 console.log(`chart render smoke PASS (p50: ${p50.bands} bands / ${p50.labels} lanes, broken at 500 ms; acc: ${acc.bands} bands / ${acc.labels} lanes; cc: ${cc.bands} bands; radar: ${polys} polys / ${dots} dots)`);

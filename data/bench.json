@@ -48,7 +48,7 @@
     "git_sha": "8028a10",
     "profile": "release",
     "laya_feature": true,
-    "laya_device": "metal (LAYA_DEVICE or the build's macOS default)",
+    "laya_device": "n/a (compiled without laya-riir)",
     "laya_python_lane": "on \u2014 the ORIGINAL torch reference as a JSONL subprocess oracle: same cases, the reference's own rounded-4 probabilities, latency = subprocess round-trip (IPC included)",
     "laya_max_questions": 0,
     "corpus_cap_mode": "registry defaults",
@@ -66,8 +66,8 @@
       "date_utc": "2026-09-27T08:00:55Z"
      },
      "laya:py/english": {
-      "git_sha": "5ada17a",
-      "date_utc": "2026-09-27T08:00:55Z"
+      "git_sha": "450a81c",
+      "date_utc": "2026-10-02T09:03:17Z"
      },
      "laya:py/multilingual": {
       "git_sha": "5ada17a",
@@ -11788,6 +11788,69 @@
      "pair_head_ab": null,
      "cases_digest": "fnv1a64-93583fda4fc64946",
      "latency_quotable": true
+    },
+    "py/english": {
+     "lane": "laya (python)",
+     "model": "english",
+     "hard": {
+      "n": 32,
+      "accuracy": 0.40625,
+      "macro_f1": 0.15849282296650719,
+      "ece": 0.26474687499999994,
+      "brier": 0.723710810625,
+      "nll": 1.5985284301479366,
+      "aurc": 0.35501885135770367,
+      "mean_confidence": 0.578540625,
+      "acc_at_50_coverage": 0.5625,
+      "acc_at_80_coverage": 0.52
+     },
+     "readout_ece": 0.1708375,
+     "raw_abstain": null,
+     "calibrated_abstain": null,
+     "abstain_causes": null,
+     "readout_ece_raw": null,
+     "readout_ece_calibrated": null,
+     "floor_ece": null,
+     "g1_pass": null,
+     "g1_verdict": null,
+     "by_question_type": null,
+     "soft_acc": null,
+     "brier_soft": null,
+     "score_mae": null,
+     "within_1": null,
+     "latency_p50_ms": 75.0,
+     "latency_p99_ms": 166.0,
+     "latency_tail_support": 1,
+     "latency_extremes": {
+      "first_ms": 32.0,
+      "max_ms": 166.0,
+      "argmax_case": 9
+     },
+     "determinism_ok": true,
+     "determinism_n": 10,
+     "seconds": 7.906893875,
+     "n_cases": 16,
+     "n_questions": 32,
+     "score_threshold": null,
+     "distance_threshold": null,
+     "threshold_recommendation": null,
+     "corpus_cap": null,
+     "head_selection": null,
+     "nb_selection": null,
+     "oc_selection": null,
+     "ridge_selection": null,
+     "genome_selection": null,
+     "transductive": null,
+     "confusion": null,
+     "pair_head_ab": null,
+     "jdi_chance": 0.375,
+     "jdi_skill": 0.05,
+     "cases_digest": "fnv1a64-93583fda4fc64946",
+     "latency_quotable": true,
+     "source_run": {
+      "git_sha": "450a81c",
+      "date_utc": "2026-10-02T09:03:17Z"
+     }
     }
    },
    "extra_host_lanes": {
@@ -12105,6 +12168,17 @@
     }
    },
    "pairing": {
+    "rust_vs_py": {
+     "rust": {
+      "kind": "digest",
+      "id": "fnv1a64-93583fda4fc64946"
+     },
+     "py": {
+      "kind": "digest",
+      "id": "fnv1a64-93583fda4fc64946"
+     },
+     "status": "same"
+    },
     "km_vs_laya": {
      "modelless": {
       "kind": "digest",
@@ -15841,20 +15915,25 @@
       "acc": 0.7445,
       "cc": 0.625641,
       "ck": "typed"
+     },
+     "code_fixtures": {
+      "acc": 0.40625,
+      "cc": 0.136364,
+      "ck": "english"
      }
     },
     "areas": {
      "language": 0.674974,
      "sentiment": 0.362791,
      "reasoning": 0.593276,
-     "decisions": 0.625641
+     "decisions": 0.381003
     },
-    "index": 0.564171,
+    "index": 0.503011,
     "coverage": {
-     "suites": 8,
+     "suites": 9,
      "of": 9
     },
-    "complete": false
+    "complete": true
    },
    "bekko": {
     "display": "bekko",
@@ -16256,9 +16335,9 @@
    "python": {
     "clock": "subprocess-jsonl",
     "method": "JSONL subprocess round-trip to the reference torch runtime \u2014 IPC included, by the lane's own protocol",
-    "suites": 8,
-    "p50_geomean_ms": 47.7794,
-    "n_used": 8,
+    "suites": 9,
+    "p50_geomean_ms": 50.2341,
+    "n_used": 9,
     "n_unquotable": 0,
     "n_unjudged": 0,
     "note": "population = the suites behind the lane's index; p50 geometric mean over latency_quotable cells only (unfit timing is shown in the tables, never plotted)"

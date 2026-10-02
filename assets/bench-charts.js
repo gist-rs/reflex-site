@@ -1151,6 +1151,27 @@
     // the same suite set → the non-domination above is vacuous
     const rivalled = (p) => pts.some((q) =>
       q !== p && timingFull(q) && covKey(q) === covKey(p));
+    // Basis machinery (round 3 follow-up — the laya(python) user report):
+    // a lane's index is the mean of its area means over ITS measured
+    // suites, so two lanes with different suite sets are not comparable on
+    // the published index alone. The disclosure recomputes BOTH lanes on
+    // the shared suites: suite→area membership rides the PUBLISHED
+    // areas.suites (dataset facts, never guessed), cells are the published
+    // per_suite cc (fallback spokes included — exactly the publisher's
+    // rollup rule). Absent map (old data) = the disclosures skip.
+    const suiteMeta = A.suites || {};
+    const universe = Object.keys(suiteMeta);
+    const areaNames = [...new Set(universe.map((s) => suiteMeta[s] && suiteMeta[s].area).filter(Boolean))];
+    const idxOver = (ld, subset) => {
+      const cells = ld.per_suite || {};
+      const means = areaNames.map((ar) => {
+        const v = subset
+          .filter((s) => suiteMeta[s] && suiteMeta[s].area === ar && cells[s] && num(cells[s].cc))
+          .map((s) => cells[s].cc);
+        return v.length ? v.reduce((a, b) => a + b, 0) / v.length : null;
+      }).filter((v) => v !== null);
+      return means.length ? means.reduce((a, b) => a + b, 0) / means.length : null;
+    };
     const W = 470, H = 310, L = 52, R = 16, T = 16, B = 40;
     const xs = pts.map((p) => p.x);
     const xmin = Math.log10(Math.min(...xs)) - 0.15;
@@ -1181,13 +1202,35 @@
       const tpartial = !timingFull(p);
       // solo coverage group: full timing, no plotted same-set rival
       const solo = timingFull(p) && !rivalled(p);
+      // basis disclosures: name the unmeasured suites, and when another
+      // plotted lane's basis differs, recompute both indices on the shared
+      // suites so a coverage gap can never read as a quality win
+      const pKeys = Object.keys(p.ld.per_suite || {});
+      const missing = universe.filter((s) => !pKeys.includes(s));
+      let sharedLine = "";
+      if (universe.length && missing.length) {
+        const parts = [];
+        for (const q of pts) {
+          if (q === p || covKey(q) === covKey(p)) continue;
+          const qCells = q.ld.per_suite || {};
+          const shared = pKeys.filter((s) => qCells[s] && num(qCells[s].cc));
+          if (shared.length < 2) continue;
+          const a = idxOver(p.ld, shared), b = idxOver(q.ld, shared);
+          if (a === null || b === null) continue;
+          const basisOnly = Math.abs(a - b) < 1e-9 &&
+            num(p.ld.index) && num(q.ld.index) && Math.abs(p.ld.index - q.ld.index) >= 1e-9;
+          parts.push(`${pct(a)} vs ${esc(q.ld.display || q.key)} ${pct(b)}${basisOnly ? " — basis-only gap" : ""}`);
+        }
+        if (parts.length) sharedLine = `<br><span class="bc-mut">on shared suites: ${parts.join(" · ")}</span>`;
+      }
       const cx = px(p.x), cy = py(p.y);
       const host = p.ld.host ? " · @" + p.ld.host : "";
       const tip = `<b>${esc((p.ld.display || meta.label) + host)}</b><br>` +
         `cc index <b>${pct(p.y)}</b> · p50 geo <b>${lat(p.x)}</b> (${p.t.n_used} quotable of ${p.t.suites})<br>` +
         `<span class="bc-mut">${esc(p.ld.kind || "")} · ${esc(p.t.clock || "")}</span>` +
-        (partial ? `<br><span class="bc-mut">partial coverage — ${p.ld.coverage.suites}/${p.ld.coverage.of}</span>` : "") +
+        (partial ? `<br><span class="bc-mut">partial coverage — ${p.ld.coverage.suites}/${p.ld.coverage.of}${missing.length ? " (missing: " + esc(missing.join(", ")) + ")" : ""}</span>` : "") +
         (tpartial ? `<br><span class="bc-mut">timing partial — the geomean covers ${p.t.n_used} of ${p.t.suites} index suites; excluded from the frontier</span>` : "") +
+        sharedLine +
         (solo ? `<br><span class="bc-mut">alone in its coverage group — no frontier claim</span>` : "") +
         (on ? `<br><span class="bc-mut">on the Pareto frontier (within its coverage group)</span>` : "");
       if (on) out += `<circle class="ft-ring" cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="8.5" style="stroke:${meta.color}"/>`;
@@ -1199,7 +1242,7 @@
       ? ` Not plotted: ${missing.map((m) => esc(`${m.ld.display || m.key} — ${m.why}`)).join("; ")}.`
       : "";
     el.innerHTML = `<div class="ft-wrap">${out}</div>` +
-      `<p class="bc-note">${esc("One dot per lane: the cc decision index (y) against the p50 latency geometric mean over the lane's QUOTABLE index suites (x, log). Ringed dots sit on the Pareto frontier within their coverage group — lanes only compete against lanes that measured the SAME suites, and only on full timing, and a lane alone in its group is never ringed; dashed dots are timing-partial (the geomean covers a subset of the index suites); hollow dots are partial lanes. Timing methods differ per lane — the table below says which clock each number comes from.")}${missNote}</p>`;
+      `<p class="bc-note">${esc("One dot per lane: the cc decision index (y) against the p50 latency geometric mean over the lane's QUOTABLE index suites (x, log). Ringed dots sit on the Pareto frontier within their coverage group — lanes only compete against lanes that measured the SAME suites, and only on full timing, and a lane alone in its group is never ringed; dashed dots are timing-partial (the geomean covers a subset of the index suites); hollow dots are partial lanes. Up-and-left is better — quality per millisecond; memory and disk footprint are separate axes (#sizes), never plotted here. cc = (acc − chance)/(1 − chance) per suite; a lane's index is the mean of its area means over its OWN measured suites, so tooltips recompute lanes on the shared suites whenever their bases differ. Timing methods differ per lane — the table below says which clock each number comes from.")}${missNote}</p>`;
   }
 
   // ── the per-lane profile view (plan 001 task 8; /bench/?lane=<id>) ──
