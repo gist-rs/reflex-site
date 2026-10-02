@@ -4,6 +4,17 @@ One hash-pinned line per removed issue (the fleet noise-reduction convention:
 an issue file is removed once its work is verifiably landed; this file is the
 durable record). Full narrative of each: `git log --follow -- .issues/<file>`.
 
+- **2026-10-02 — the quarantined `/families/` section is LIVE (`38fbae4`, CF `0da6b32e`).** The six
+  harness decision-point families render on their own page from their own `data/families.json`, our
+  lanes only (Reflex modelless · Rethink hybrid · Rethink encoder `not run`), the honesty caveat
+  rendered VERBATIM (reflex issue 059 / Plan 009 REVISED-2). Numbers are read from the sibling records,
+  never typed: reflex `.benchmarks/105` (the wide-eval modelless read) + instinct `.benchmarks/0051`
+  (the seat-posture re-baseline). QUARANTINE asserted two ways: `test_publish_families.py` (publish_bench
+  never references families.json; bench.json carries no pointer) and `families_page_smoke.cjs` (the page
+  never fetches bench.json; six rows; caveat verbatim; naming-law spellings). The board's own family rows
+  (the n=12–16 era) predate the wide populations and refresh at the next full republish — the bench FAQ
+  says so.
+
 - **2026-10-02 (latest) — the radar reflects the SERVED product: fallback
   spokes drawn as triangles (owner call, resolves .issues/004's display
   half).** The owner read the "All benchmarks" radar with Rethink at 4 drawn
