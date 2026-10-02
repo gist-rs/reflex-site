@@ -98,8 +98,8 @@
       "date_utc": "2026-10-01T19:20:00Z"
      },
      "bekko": {
-      "git_sha": "5587bda",
-      "date_utc": "2026-10-01T17:00:05Z"
+      "git_sha": "a2545b9",
+      "date_utc": "2026-10-02T02:16:23Z"
      }
     },
     "head_posture": "OFF (head_scale 0 \u2014 the published baseline posture)"
@@ -2331,6 +2331,93 @@
     "source_run": {
      "git_sha": "c2c5dc3",
      "date_utc": "2026-10-01T14:59:02Z"
+    }
+   },
+   "bekko": {
+    "lane": "bekko (reference)",
+    "model": "hotchpotch/bekko-system-one-v0-68m",
+    "hard": {
+     "n": 2000,
+     "accuracy": 0.484,
+     "macro_f1": 0.49253257582157656,
+     "ece": 0.1475970033109188,
+     "brier": 0.6387897148035271,
+     "nll": 1.1055102709102629,
+     "aurc": 0.3687236883783793,
+     "mean_confidence": 0.6238250010013581,
+     "acc_at_50_coverage": 0.601,
+     "acc_at_80_coverage": 0.52625
+    },
+    "readout_ece": 0.1475970033109188,
+    "raw_abstain": null,
+    "calibrated_abstain": null,
+    "readout_ece_raw": null,
+    "readout_ece_calibrated": null,
+    "floor_ece": null,
+    "g1_pass": null,
+    "g1_verdict": null,
+    "by_question_type": {
+     "choice": {
+      "n": 600,
+      "accuracy": 0.49333333333333335,
+      "macro_f1": 0.46482080034780926,
+      "ece": 0.051167497485876096,
+      "brier": 0.6093663890260405,
+      "nll": 1.1098885941075518,
+      "aurc": 0.3523574607494815,
+      "mean_confidence": 0.5162969089051088,
+      "acc_at_50_coverage": 0.57,
+      "acc_at_80_coverage": 0.51875
+     },
+     "noul": {
+      "n": 600,
+      "accuracy": 0.5633333333333334,
+      "macro_f1": 0.5492654058331708,
+      "ece": 0.22053189992904665,
+      "brier": 0.5681041632566222,
+      "nll": 0.8035088274531662,
+      "aurc": 0.33541967353858226,
+      "mean_confidence": 0.78386523326238,
+      "acc_at_50_coverage": 0.69,
+      "acc_at_80_coverage": 0.5854166666666667
+     },
+     "score": {
+      "n": 800,
+      "accuracy": 0.4175,
+      "macro_f1": 0.39760948162371246,
+      "ece": 0.16809196155518294,
+      "brier": 0.7138713727968096,
+      "nll": 1.3287276111051187,
+      "aurc": 0.4557871250675926,
+      "mean_confidence": 0.5844408958777785,
+      "acc_at_50_coverage": 0.55,
+      "acc_at_80_coverage": 0.4671875
+     }
+    },
+    "soft_acc": 0.4144356871583959,
+    "brier_soft": 0.2467652173245133,
+    "score_mae": 0.6564437349970601,
+    "within_1": 0.75625,
+    "determinism_ok": true,
+    "n_cases": 400,
+    "n_questions": 2000,
+    "score_threshold": null,
+    "distance_threshold": null,
+    "threshold_recommendation": null,
+    "corpus_cap": null,
+    "head_selection": null,
+    "nb_selection": null,
+    "oc_selection": null,
+    "ridge_selection": null,
+    "genome_selection": null,
+    "transductive": null,
+    "confusion": null,
+    "pair_head_ab": null,
+    "cases_digest": "fnv1a64-6e37760ee2a5b6c9",
+    "latency_quotable": false,
+    "source_run": {
+     "git_sha": "a2545b9",
+     "date_utc": "2026-10-02T02:16:23Z"
     }
    }
   },
@@ -12095,6 +12182,57 @@
     "source_run": {
      "git_sha": "07119b4",
      "date_utc": "2026-09-30T00:59:53Z"
+    },
+    "cases_digest": "fnv1a64-93583fda4fc64946"
+   },
+   "bekko": {
+    "lane": "bekko (reference)",
+    "model": "hotchpotch/bekko-system-one-v0-68m",
+    "hard": {
+     "n": 32,
+     "accuracy": 0.40625,
+     "macro_f1": 0.28720238095238093,
+     "ece": 0.26802278496325016,
+     "brier": 0.7144089060952178,
+     "nll": 1.4909874290823035,
+     "aurc": 0.39331099276384796,
+     "mean_confidence": 0.6276665385812521,
+     "acc_at_50_coverage": 0.6875,
+     "acc_at_80_coverage": 0.48
+    },
+    "readout_ece": 0.26802278496325016,
+    "raw_abstain": null,
+    "calibrated_abstain": null,
+    "readout_ece_raw": null,
+    "readout_ece_calibrated": null,
+    "floor_ece": null,
+    "g1_pass": null,
+    "g1_verdict": null,
+    "by_question_type": null,
+    "soft_acc": null,
+    "brier_soft": null,
+    "score_mae": null,
+    "within_1": null,
+    "determinism_ok": true,
+    "n_cases": 16,
+    "n_questions": 32,
+    "score_threshold": null,
+    "distance_threshold": null,
+    "threshold_recommendation": null,
+    "corpus_cap": null,
+    "head_selection": null,
+    "nb_selection": null,
+    "oc_selection": null,
+    "ridge_selection": null,
+    "genome_selection": null,
+    "transductive": null,
+    "confusion": null,
+    "pair_head_ab": null,
+    "cases_digest": "fnv1a64-93583fda4fc64946",
+    "latency_quotable": false,
+    "source_run": {
+     "git_sha": "a2545b9",
+     "date_utc": "2026-10-02T02:16:23Z"
     }
    }
   },
@@ -15654,19 +15792,28 @@
      "prompt_injections": {
       "acc": 0.5,
       "cc": 0.0
+     },
+     "typed_decisions": {
+      "acc": 0.484,
+      "cc": 0.243956
+     },
+     "code_fixtures": {
+      "acc": 0.40625,
+      "cc": 0.136364
      }
     },
     "areas": {
      "language": 0.82029,
      "sentiment": 0.317625,
-     "reasoning": 0.2575
+     "reasoning": 0.2575,
+     "decisions": 0.19016
     },
-    "index": 0.465138,
+    "index": 0.396394,
     "coverage": {
-     "suites": 7,
+     "suites": 9,
      "of": 9
     },
-    "complete": false
+    "complete": true
    },
    "openthai": {
     "display": "openthai",
@@ -16023,10 +16170,10 @@
    "bekko": {
     "clock": "subprocess-jsonl",
     "method": "JSONL subprocess round-trip to their BekkoSentenceTransformer runtime",
-    "suites": 7,
+    "suites": 9,
     "p50_geomean_ms": null,
     "n_used": 0,
-    "n_unquotable": 7,
+    "n_unquotable": 9,
     "n_unjudged": 0,
     "note": "population = the suites behind the lane's index; p50 geometric mean over latency_quotable cells only (unfit timing is shown in the tables, never plotted)"
    },
