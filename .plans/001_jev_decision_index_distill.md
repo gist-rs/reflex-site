@@ -35,7 +35,8 @@ NOT copy their board (no new entrants, see Constraint).
 - **D4 = data-side timing**: `areas.timing[key]` carries the curated clock/method
   (LANE_TIMING) + the MEASURED aggregate — p50 geomean over EXACTLY the index's suites,
   quotable-verdict cells only, `n_used/n_unquotable/n_unjudged`, null when none. At this
-  data SEVEN lanes are null (hybrid, bekko, paw, paw-local, and the four 4090-win lanes)
+  data SEVEN lanes are null (hybrid, bekko, paw, and the four 4090-win lanes: clm,
+  gliner, agentjev, paw-local)
   — listed "not plotted", never drawn at 0. Pareto marks stay client-side visual
   geometry, scoped to equal-coverage groups keyed on the SUITE SET (not the count), and
   a lane whose geomean covers a SUBSET of its index suites (timing-partial, e.g.
