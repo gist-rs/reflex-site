@@ -176,6 +176,18 @@ CANDIDATES = [
         "note": "the bench board's bekko comparison lane — the seat moved 68M→400M (reflex Bench 107, Plan 617 A6: the 400M beats the 68M on all 9 suites); MIT (verified 2026-10-02); subprocess oracle on loopback, measured by our harness",
     },
     {
+        "key": "bekko68m",
+        "name": "Bekko-SystemOne-v0 (68M)",
+        "framework": "their BekkoSentenceTransformer runtime in a torch venv (same venv as the 400M row — the two sizes share one engine)",
+        "engine_kind": "python",
+        "engine": ("recorded", "bekko_venv"),
+        "engine_what": "the bekko lane venv (python 3.12: torch + transformers + sentence-transformers — the card's runtime pins)",
+        "model": ("hf_total", "hotchpotch/bekko-system-one-v0-68m"),
+        "model_what": "their 68M model tree (fp32 safetensors + tokenizer + the browser ONNX export, the card's pinned release revision 6eb1bae2) — the tree a consumer downloads incl. onnx_browser/",
+        "targets": ["python env", "CPU (FP32 reference posture)"],
+        "note": "the lane's PRIOR seat (reflex Bench 103/104 era), superseded by the 400M on the board (Bench 107) — kept because it stays reachable: reflex pins resolve BEKKO_MODEL=bekko-system-one-v0-68m to it by name; the 68M-teacher distill record (riir-train Issue 608) reproduces against it; MIT (verified 2026-10-02)",
+    },
+    {
         "key": "clm",
         "name": "CLM v0.1-8B",
         "framework": "vLLM docker image + their clm-serve head",

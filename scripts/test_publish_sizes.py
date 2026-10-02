@@ -54,6 +54,11 @@ FAKE_HF = {
         {"rfilename": "model.safetensors", "size": 260_000_000},
         {"rfilename": "tokenizer.json", "size": 700_000},
     ]},
+    "hotchpotch/bekko-system-one-v0-68m": {"siblings": [
+        {"rfilename": ".gitattributes", "size": 100},
+        {"rfilename": "model.safetensors", "size": 48_000_000},
+        {"rfilename": "tokenizer.json", "size": 700_000},
+    ]},
     "Contrastive-LM/CLM-v0.1-8B": {"siblings": [{"rfilename": "CLM_v0.1-8B.pt", "size": 75_000_000}]},
 }
 
@@ -127,7 +132,7 @@ def local_bytes_patcher():
 @case("every candidate renders with the full field set")
 def _():
     d = patched_build()
-    assert len(d["candidates"]) == 11, len(d["candidates"])
+    assert len(d["candidates"]) == 12, len(d["candidates"])
     for c in d["candidates"]:
         for f in ("key", "name", "framework", "engine_bytes", "engine_what",
                   "model_what", "targets", "engine_provenance"):
@@ -170,7 +175,7 @@ def _():
         "wasm_heads", "reflex_native", "reflex_laya_typed", "instinct_hybrid", "rethink_encoder",
     }
     assert {k for k, c in by.items() if c["engine_kind"] == "python"} == {
-        "laya_python", "gliner", "agentjev", "openthai", "bekko", "clm",
+        "laya_python", "gliner", "agentjev", "openthai", "bekko", "bekko68m", "clm",
     }
     assert all(c["engine_kind"] in ("rust", "python") for c in by.values())
 

@@ -1,6 +1,6 @@
 {
  "meta": {
-  "date_utc": "2026-10-02T12:21:58Z",
+  "date_utc": "2026-10-02T15:57:03Z",
   "release": {
    "tag": "v0.2.3",
    "url": "https://github.com/gist-rs/reflex/releases/tag/v0.2.3",
@@ -128,6 +128,29 @@
     "container"
    ],
    "note": "the english base is the same size class (848 MB); multilingual 678 MB; all three checkpoints \u2248 2.37 GB"
+  },
+  {
+   "key": "bekko68m",
+   "name": "Bekko-SystemOne-v0 (68M)",
+   "framework": "their BekkoSentenceTransformer runtime in a torch venv (same venv as the 400M row \u2014 the two sizes share one engine)",
+   "engine_kind": "python",
+   "engine_bytes": 661500299,
+   "engine_what": "the bekko lane venv (python 3.12: torch + transformers + sentence-transformers \u2014 the card's runtime pins)",
+   "engine_provenance": {
+    "source": "recorded measurement",
+    "detail": "the bekko lane venv (python 3.12: torch 2.10.0 + transformers 5.17.0 + sentence-transformers 6.1.0 + safetensors + tqdm + huggingface-hub \u2014 the Bench-103 repro pins) \u2014 measured 2026-10-02 on m3-max-metal: uv venv --python 3.12 .raw/bekko-env + `uv pip install torch==2.10.0 transformers==5.17.0 sentence-transformers==6.1.0 safetensors tqdm 'huggingface-hub>=1,<2'` (the Bench-103 repro block); sum of file sizes (660,436,171 over 25,866 files) + dir entries (1,064,128), the lstat convention of the sibling venv rows."
+   },
+   "model_bytes": 476225680,
+   "model_what": "their 68M model tree (fp32 safetensors + tokenizer + the browser ONNX export, the card's pinned release revision 6eb1bae2) \u2014 the tree a consumer downloads incl. onnx_browser/",
+   "model_provenance": {
+    "source": "huggingface.co tree API (exact bytes)",
+    "detail": "hotchpotch/bekko-system-one-v0-68m"
+   },
+   "targets": [
+    "python env",
+    "CPU (FP32 reference posture)"
+   ],
+   "note": "the lane's PRIOR seat (reflex Bench 103/104 era), superseded by the 400M on the board (Bench 107) \u2014 kept because it stays reachable: reflex pins resolve BEKKO_MODEL=bekko-system-one-v0-68m to it by name; the 68M-teacher distill record (riir-train Issue 608) reproduces against it; MIT (verified 2026-10-02)"
   },
   {
    "key": "laya_python",
