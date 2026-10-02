@@ -2152,7 +2152,109 @@ def case_disclosures_cell_supersedes():
         pb.DISCLOSURES.update(saved)
 
 
+def case_fallback_cells_close_product_lane_holes():
+    # The full-coverage serving law (owner 2026-10-02, instinct 057d31a):
+    # a product lane with no real cell gets a DERIVED served-answer cell —
+    # the served tier's measured numbers + serves: tier-fallback +
+    # served_by + derived. instinct falls back to the modelless tier;
+    # instinct-encoder (Rethink) falls back to the seated arm (the hybrid
+    # specialist where one seats, else modelless). A DISCLOSURES note for
+    # the suite+lane is consumed into the cell (fallback_note).
+    d = {
+        "meta": {"host": "m3", "git_sha": "sha-a", "date_utc": "x"},
+        "suites": [
+            {   # hybrid seats → encoder fallback = the hybrid arm
+                "name": "banking77",
+                "n_questions": 500, "n_cases": 250,
+                "modelless": fb_cell("modelless", 0.842),
+                "hybrid": fb_cell("Instinct", 0.854),
+            },
+            {   # no hybrid → both product lanes fall back to modelless
+                "name": "harness_visibility",
+                "n_questions": 16, "n_cases": 16,
+                "modelless": fb_cell("modelless", 0.5625),
+                "disclosures": {"instinct": "specialist scope",
+                                "instinct-encoder": "law-excluded"},
+            },
+            {   # a real instinct cell wins — no fallback on that lane
+                "name": "emotion",
+                "n_questions": 400, "n_cases": 400,
+                "modelless": fb_cell("modelless", 0.885),
+                "hybrid": fb_cell("Instinct", 0.885),
+            },
+        ],
+    }
+    assert pb.apply_fallback_cells(d) == 0
+    s = {x["name"]: x for x in d["suites"]}
+    # banking77: instinct has a real cell; encoder derives from the HYBRID
+    # tier (the seated arm).
+    enc = s["banking77"]["encoder"]
+    assert enc["serves"] == "tier-fallback" and enc["derived"] is True
+    assert enc["hard"]["accuracy"] == 0.854
+    assert "Instinct" in enc["served_by"]
+    assert enc["model"] == "Instinct" or "Instinct" in enc["served_by"]
+    # harness_visibility: BOTH product lanes derive from modelless; the
+    # disclosures are consumed into the cells.
+    for k in ("hybrid", "encoder"):
+        c = s["harness_visibility"][k]
+        assert c["serves"] == "tier-fallback" and c["derived"] is True
+        assert c["hard"]["accuracy"] == 0.5625
+        assert "Reflex" in c["served_by"]
+        assert c["fallback_note"]
+    assert "disclosures" not in s["harness_visibility"]
+    # emotion: the real instinct cell is untouched (not a fallback).
+    assert s["emotion"]["hybrid"].get("derived") is None
+    # …but its encoder lane falls back from the hybrid cell.
+    assert s["emotion"]["encoder"]["hard"]["accuracy"] == 0.885
+
+
+def case_fallback_cells_need_a_measurable_source():
+    # No modelless cell → nothing is derived (never a fabricated answer);
+    # the disclosure stays for the noneBar. Idempotent: a second run over
+    # an already-derived doc derives nothing new and changes nothing.
+    d = {
+        "meta": {"host": "m3", "git_sha": "sha-a", "date_utc": "x"},
+        "suites": [{
+            "name": "harness_tool_fit",
+            "n_questions": 12, "n_cases": 12,
+            "disclosures": {"instinct": "scope"},
+        }],
+    }
+    assert pb.apply_fallback_cells(d) == 0
+    s = d["suites"][0]
+    assert "hybrid" not in s and "encoder" not in s
+    assert s["disclosures"] == {"instinct": "scope"}
+    # Idempotence on a derived doc.
+    d2 = {
+        "meta": {"host": "m3", "git_sha": "sha-a", "date_utc": "x"},
+        "suites": [{
+            "name": "harness_routing",
+            "n_questions": 16, "n_cases": 16,
+            "modelless": fb_cell("modelless", 0.75),
+        }],
+    }
+    assert pb.apply_fallback_cells(d2) == 0
+    first = copy.deepcopy(d2["suites"][0]["hybrid"])
+    assert pb.apply_fallback_cells(d2) == 0
+    assert d2["suites"][0]["hybrid"] == first
+
+
+def fb_cell(lane, acc, model=None):
+    """A minimal measured-tier cell for the fallback fixtures."""
+    return {
+        "lane": lane,
+        "model": model or lane,
+        "hard": {"n": 100, "accuracy": acc},
+        "latency_scope": "seat+arm", "latency_rows": "questions",
+        "latency_p50_ms": 0.01, "latency_p99_ms": 0.02,
+        "latency_tail_support": 5,
+        "source_run": {"git_sha": "sha-b", "date_utc": "2026-10-02T00:00:00Z"},
+    }
+
+
 CASES = [
+    case_fallback_cells_close_product_lane_holes,
+    case_fallback_cells_need_a_measurable_source,
     case_disclosures_stamp_cellless_lanes,
     case_disclosures_cell_supersedes,
     case_lane_carry_keeps_incumbent_timing,

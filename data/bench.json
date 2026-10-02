@@ -82,8 +82,8 @@
       "date_utc": "2026-09-27T08:00:55Z"
      },
      "hybrid": {
-      "git_sha": "211c68d",
-      "date_utc": "2026-09-30T02:01:58Z"
+      "git_sha": "057d31a",
+      "date_utc": "2026-10-02T01:52:27Z"
      },
      "paw": {
       "git_sha": "9dc33da",
@@ -4922,8 +4922,29 @@
      "date_utc": "2026-10-01T17:00:05Z"
     }
    },
-   "disclosures": {
-    "instinct-encoder": "screened \u2014 no head earned: 6 gold-only fits (the 5-seed T7 sweep + 1 fresh seed) all refused on holdout; the encoder reference reads 0.5950 vs the incumbent 0.8850 (instinct issue 016 T7/T8, riir-train t599/t7 + t8 record)"
+   "encoder": {
+    "lane": "Rethink",
+    "model": "A0",
+    "hard": {
+     "n": 400,
+     "accuracy": 0.885,
+     "ece": 0.8622394363582135,
+     "mean_confidence": 0.022760563641786576,
+     "acc_at_50_coverage": 0.97
+    },
+    "latency_scope": "seat+arm",
+    "latency_rows": "questions",
+    "latency_p50_ms": 0.141,
+    "latency_p99_ms": 0.281,
+    "latency_tail_support": 5,
+    "serves": "tier-fallback",
+    "served_by": "Instinct (A0)",
+    "fallback_note": "screened \u2014 no head earned: 6 gold-only fits (the 5-seed T7 sweep + 1 fresh seed) all refused on holdout; the encoder reference reads 0.5950 vs the incumbent 0.8850 (instinct issue 016 T7/T8, riir-train t599/t7 + t8 record)",
+    "derived": true,
+    "source_run": {
+     "git_sha": "8bbff09",
+     "date_utc": "2026-09-28T10:13:40Z"
+    }
    }
   },
   {
@@ -12051,8 +12072,29 @@
      "date_utc": "2026-09-29T00:02:21Z"
     }
    },
-   "disclosures": {
-    "instinct-encoder": "dead by law \u2014 the encoder reference reads 0.3575, 26.7 pt under the bar, and the class's measured head-lift ceiling (+14.7 pt) cannot close it (riir-train issue 600 T5)"
+   "encoder": {
+    "lane": "Rethink",
+    "model": "A1",
+    "hard": {
+     "n": 32,
+     "accuracy": 0.5625,
+     "ece": 0.2524139366578311,
+     "mean_confidence": 0.6191526229958981,
+     "acc_at_50_coverage": 0.75
+    },
+    "latency_scope": "arm-only",
+    "latency_rows": "questions",
+    "latency_p50_ms": 0.002,
+    "latency_p99_ms": 0.0218,
+    "latency_tail_support": 1,
+    "serves": "tier-fallback",
+    "served_by": "Instinct (A1)",
+    "fallback_note": "dead by law \u2014 the encoder reference reads 0.3575, 26.7 pt under the bar, and the class's measured head-lift ceiling (+14.7 pt) cannot close it (riir-train issue 600 T5)",
+    "derived": true,
+    "source_run": {
+     "git_sha": "07119b4",
+     "date_utc": "2026-09-30T00:59:53Z"
+    }
    }
   },
   {
@@ -12791,9 +12833,46 @@
      }
     }
    },
-   "disclosures": {
-    "instinct": "dropped from the covered set \u2014 the n=12\u201316 template-shared eval makes any win unfalsifiable memorization (instinct issue 008 T8)",
-    "instinct-encoder": "law-excluded \u2014 the n=12\u201316 template-shared eval makes any win unfalsifiable memorization; re-opens only with a larger template-disjoint eval (instinct issue 008 T8)"
+   "hybrid": {
+    "lane": "Instinct",
+    "model": "A0 (artifact-less \u2014 the modelless tier serves)",
+    "hard": {
+     "n": 16,
+     "accuracy": 0.5625
+    },
+    "consult_rate": 0.0,
+    "latency_scope": "seat+arm",
+    "latency_rows": "questions",
+    "latency_p50_ms": 0.013,
+    "latency_p99_ms": 0.02,
+    "serves": "A0 \u2014 the served arm (full-coverage serving, instinct 057d31a)",
+    "gate": "the artifact-less A0 row serves (instinct commit 057d31a, owner full-coverage call 2026-10-02): the modelless tier IS the served arm \u2014 no defensible specialist exists on the n=16 template-shared eval (instinct issue 008 T8's specialist-lane scope); Bench 049 re-baselines the read at the current posture (arena == reflex run() byte-exact on all six).",
+    "record": "049_family_full_coverage",
+    "source_run": {
+     "git_sha": "057d31a",
+     "date_utc": "2026-10-02T01:52:27Z"
+    }
+   },
+   "encoder": {
+    "lane": "Rethink",
+    "model": "A0 (artifact-less \u2014 the modelless tier serves)",
+    "hard": {
+     "n": 16,
+     "accuracy": 0.5625
+    },
+    "latency_scope": "seat+arm",
+    "latency_rows": "questions",
+    "latency_p50_ms": 0.013,
+    "latency_p99_ms": 0.02,
+    "latency_tail_support": null,
+    "serves": "tier-fallback",
+    "served_by": "Instinct (A0 (artifact-less \u2014 the modelless tier serves))",
+    "fallback_note": "law-excluded \u2014 the n=12\u201316 template-shared eval makes any win unfalsifiable memorization; re-opens only with a larger template-disjoint eval (instinct issue 008 T8)",
+    "derived": true,
+    "source_run": {
+     "git_sha": "057d31a",
+     "date_utc": "2026-10-02T01:52:27Z"
+    }
    }
   },
   {
@@ -13214,9 +13293,46 @@
      }
     }
    },
-   "disclosures": {
-    "instinct": "dropped from the covered set \u2014 the n=12\u201316 template-shared eval makes any win unfalsifiable memorization (instinct issue 008 T8)",
-    "instinct-encoder": "law-excluded \u2014 the n=12\u201316 template-shared eval makes any win unfalsifiable memorization; re-opens only with a larger template-disjoint eval (instinct issue 008 T8)"
+   "hybrid": {
+    "lane": "Instinct",
+    "model": "A0 (artifact-less \u2014 the modelless tier serves)",
+    "hard": {
+     "n": 12,
+     "accuracy": 0.6666666666666666
+    },
+    "consult_rate": 0.0,
+    "latency_scope": "seat+arm",
+    "latency_rows": "questions",
+    "latency_p50_ms": 0.009,
+    "latency_p99_ms": 0.016,
+    "serves": "A0 \u2014 the served arm (full-coverage serving, instinct 057d31a)",
+    "gate": "the artifact-less A0 row serves (instinct commit 057d31a, owner full-coverage call 2026-10-02): the modelless tier IS the served arm \u2014 no defensible specialist exists on the n=12 template-shared eval (instinct issue 008 T8's specialist-lane scope); Bench 049 re-baselines the read at the current posture (arena == reflex run() byte-exact on all six).",
+    "record": "049_family_full_coverage",
+    "source_run": {
+     "git_sha": "057d31a",
+     "date_utc": "2026-10-02T01:52:27Z"
+    }
+   },
+   "encoder": {
+    "lane": "Rethink",
+    "model": "A0 (artifact-less \u2014 the modelless tier serves)",
+    "hard": {
+     "n": 12,
+     "accuracy": 0.6666666666666666
+    },
+    "latency_scope": "seat+arm",
+    "latency_rows": "questions",
+    "latency_p50_ms": 0.009,
+    "latency_p99_ms": 0.016,
+    "latency_tail_support": null,
+    "serves": "tier-fallback",
+    "served_by": "Instinct (A0 (artifact-less \u2014 the modelless tier serves))",
+    "fallback_note": "law-excluded \u2014 the n=12\u201316 template-shared eval makes any win unfalsifiable memorization; re-opens only with a larger template-disjoint eval (instinct issue 008 T8)",
+    "derived": true,
+    "source_run": {
+     "git_sha": "057d31a",
+     "date_utc": "2026-10-02T01:52:27Z"
+    }
    }
   },
   {
@@ -13613,9 +13729,46 @@
      }
     }
    },
-   "disclosures": {
-    "instinct": "dropped from the covered set \u2014 the n=12\u201316 template-shared eval makes any win unfalsifiable memorization (instinct issue 008 T8)",
-    "instinct-encoder": "law-excluded \u2014 the n=12\u201316 template-shared eval makes any win unfalsifiable memorization; re-opens only with a larger template-disjoint eval (instinct issue 008 T8)"
+   "hybrid": {
+    "lane": "Instinct",
+    "model": "A0 (artifact-less \u2014 the modelless tier serves)",
+    "hard": {
+     "n": 12,
+     "accuracy": 0.9166666666666666
+    },
+    "consult_rate": 0.0,
+    "latency_scope": "seat+arm",
+    "latency_rows": "questions",
+    "latency_p50_ms": 0.011,
+    "latency_p99_ms": 0.016,
+    "serves": "A0 \u2014 the served arm (full-coverage serving, instinct 057d31a)",
+    "gate": "the artifact-less A0 row serves (instinct commit 057d31a, owner full-coverage call 2026-10-02): the modelless tier IS the served arm \u2014 no defensible specialist exists on the n=12 template-shared eval (instinct issue 008 T8's specialist-lane scope); Bench 049 re-baselines the read at the current posture (arena == reflex run() byte-exact on all six).",
+    "record": "049_family_full_coverage",
+    "source_run": {
+     "git_sha": "057d31a",
+     "date_utc": "2026-10-02T01:52:27Z"
+    }
+   },
+   "encoder": {
+    "lane": "Rethink",
+    "model": "A0 (artifact-less \u2014 the modelless tier serves)",
+    "hard": {
+     "n": 12,
+     "accuracy": 0.9166666666666666
+    },
+    "latency_scope": "seat+arm",
+    "latency_rows": "questions",
+    "latency_p50_ms": 0.011,
+    "latency_p99_ms": 0.016,
+    "latency_tail_support": null,
+    "serves": "tier-fallback",
+    "served_by": "Instinct (A0 (artifact-less \u2014 the modelless tier serves))",
+    "fallback_note": "law-excluded \u2014 the n=12\u201316 template-shared eval makes any win unfalsifiable memorization; re-opens only with a larger template-disjoint eval (instinct issue 008 T8)",
+    "derived": true,
+    "source_run": {
+     "git_sha": "057d31a",
+     "date_utc": "2026-10-02T01:52:27Z"
+    }
    }
   },
   {
@@ -14036,9 +14189,46 @@
      }
     }
    },
-   "disclosures": {
-    "instinct": "dropped from the covered set \u2014 the n=12\u201316 template-shared eval makes any win unfalsifiable memorization (instinct issue 008 T8)",
-    "instinct-encoder": "law-excluded \u2014 the n=12\u201316 template-shared eval makes any win unfalsifiable memorization; re-opens only with a larger template-disjoint eval (instinct issue 008 T8)"
+   "hybrid": {
+    "lane": "Instinct",
+    "model": "A0 (artifact-less \u2014 the modelless tier serves)",
+    "hard": {
+     "n": 16,
+     "accuracy": 0.75
+    },
+    "consult_rate": 0.0,
+    "latency_scope": "seat+arm",
+    "latency_rows": "questions",
+    "latency_p50_ms": 0.012,
+    "latency_p99_ms": 0.015,
+    "serves": "A0 \u2014 the served arm (full-coverage serving, instinct 057d31a)",
+    "gate": "the artifact-less A0 row serves (instinct commit 057d31a, owner full-coverage call 2026-10-02): the modelless tier IS the served arm \u2014 no defensible specialist exists on the n=16 template-shared eval (instinct issue 008 T8's specialist-lane scope); Bench 049 re-baselines the read at the current posture (arena == reflex run() byte-exact on all six).",
+    "record": "049_family_full_coverage",
+    "source_run": {
+     "git_sha": "057d31a",
+     "date_utc": "2026-10-02T01:52:27Z"
+    }
+   },
+   "encoder": {
+    "lane": "Rethink",
+    "model": "A0 (artifact-less \u2014 the modelless tier serves)",
+    "hard": {
+     "n": 16,
+     "accuracy": 0.75
+    },
+    "latency_scope": "seat+arm",
+    "latency_rows": "questions",
+    "latency_p50_ms": 0.012,
+    "latency_p99_ms": 0.015,
+    "latency_tail_support": null,
+    "serves": "tier-fallback",
+    "served_by": "Instinct (A0 (artifact-less \u2014 the modelless tier serves))",
+    "fallback_note": "law-excluded \u2014 the n=12\u201316 template-shared eval makes any win unfalsifiable memorization; re-opens only with a larger template-disjoint eval (instinct issue 008 T8)",
+    "derived": true,
+    "source_run": {
+     "git_sha": "057d31a",
+     "date_utc": "2026-10-02T01:52:27Z"
+    }
    }
   },
   {
@@ -14459,9 +14649,46 @@
      }
     }
    },
-   "disclosures": {
-    "instinct": "dropped from the covered set \u2014 the n=12\u201316 template-shared eval makes any win unfalsifiable memorization (instinct issue 008 T8)",
-    "instinct-encoder": "law-excluded \u2014 the n=12\u201316 template-shared eval makes any win unfalsifiable memorization; re-opens only with a larger template-disjoint eval (instinct issue 008 T8)"
+   "hybrid": {
+    "lane": "Instinct",
+    "model": "A0 (artifact-less \u2014 the modelless tier serves)",
+    "hard": {
+     "n": 15,
+     "accuracy": 0.8
+    },
+    "consult_rate": 0.0,
+    "latency_scope": "seat+arm",
+    "latency_rows": "questions",
+    "latency_p50_ms": 0.012,
+    "latency_p99_ms": 0.016,
+    "serves": "A0 \u2014 the served arm (full-coverage serving, instinct 057d31a)",
+    "gate": "the artifact-less A0 row serves (instinct commit 057d31a, owner full-coverage call 2026-10-02): the modelless tier IS the served arm \u2014 no defensible specialist exists on the n=15 template-shared eval (instinct issue 008 T8's specialist-lane scope); Bench 049 re-baselines the read at the current posture (arena == reflex run() byte-exact on all six).",
+    "record": "049_family_full_coverage",
+    "source_run": {
+     "git_sha": "057d31a",
+     "date_utc": "2026-10-02T01:52:27Z"
+    }
+   },
+   "encoder": {
+    "lane": "Rethink",
+    "model": "A0 (artifact-less \u2014 the modelless tier serves)",
+    "hard": {
+     "n": 15,
+     "accuracy": 0.8
+    },
+    "latency_scope": "seat+arm",
+    "latency_rows": "questions",
+    "latency_p50_ms": 0.012,
+    "latency_p99_ms": 0.016,
+    "latency_tail_support": null,
+    "serves": "tier-fallback",
+    "served_by": "Instinct (A0 (artifact-less \u2014 the modelless tier serves))",
+    "fallback_note": "law-excluded \u2014 the n=12\u201316 template-shared eval makes any win unfalsifiable memorization; re-opens only with a larger template-disjoint eval (instinct issue 008 T8)",
+    "derived": true,
+    "source_run": {
+     "git_sha": "057d31a",
+     "date_utc": "2026-10-02T01:52:27Z"
+    }
    }
   },
   {
@@ -14984,9 +15211,46 @@
      }
     }
    },
-   "disclosures": {
-    "instinct": "dropped from the covered set \u2014 the n=12\u201316 template-shared eval makes any win unfalsifiable memorization (instinct issue 008 T8)",
-    "instinct-encoder": "law-excluded \u2014 the n=12\u201316 template-shared eval makes any win unfalsifiable memorization; re-opens only with a larger template-disjoint eval (instinct issue 008 T8)"
+   "hybrid": {
+    "lane": "Instinct",
+    "model": "A0 (artifact-less \u2014 the modelless tier serves)",
+    "hard": {
+     "n": 12,
+     "accuracy": 0.9166666666666666
+    },
+    "consult_rate": 0.0,
+    "latency_scope": "seat+arm",
+    "latency_rows": "questions",
+    "latency_p50_ms": 0.012,
+    "latency_p99_ms": 0.017,
+    "serves": "A0 \u2014 the served arm (full-coverage serving, instinct 057d31a)",
+    "gate": "the artifact-less A0 row serves (instinct commit 057d31a, owner full-coverage call 2026-10-02): the modelless tier IS the served arm \u2014 no defensible specialist exists on the n=12 template-shared eval (instinct issue 008 T8's specialist-lane scope); Bench 049 re-baselines the read at the current posture (arena == reflex run() byte-exact on all six).",
+    "record": "049_family_full_coverage",
+    "source_run": {
+     "git_sha": "057d31a",
+     "date_utc": "2026-10-02T01:52:27Z"
+    }
+   },
+   "encoder": {
+    "lane": "Rethink",
+    "model": "A0 (artifact-less \u2014 the modelless tier serves)",
+    "hard": {
+     "n": 12,
+     "accuracy": 0.9166666666666666
+    },
+    "latency_scope": "seat+arm",
+    "latency_rows": "questions",
+    "latency_p50_ms": 0.012,
+    "latency_p99_ms": 0.017,
+    "latency_tail_support": null,
+    "serves": "tier-fallback",
+    "served_by": "Instinct (A0 (artifact-less \u2014 the modelless tier serves))",
+    "fallback_note": "law-excluded \u2014 the n=12\u201316 template-shared eval makes any win unfalsifiable memorization; re-opens only with a larger template-disjoint eval (instinct issue 008 T8)",
+    "derived": true,
+    "source_run": {
+     "git_sha": "057d31a",
+     "date_utc": "2026-10-02T01:52:27Z"
+    }
    }
   }
  ],

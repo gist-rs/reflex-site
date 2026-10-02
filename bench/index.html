@@ -35,6 +35,9 @@
   /* the per-bar host tag (all-rigs hero): same overflow idiom as bc-none —
      9.5px text on a 6px line-box, so the row rhythm never grows */
   .bc-hhost { flex: none; font-size: 9.5px; line-height: 6px; color: var(--muted); white-space: nowrap; }
+  /* the tier-fallback mark (owner 2026-10-02): the value shown IS what the
+     product serves; ↩ says a fallback tier answered (its name on hover) */
+  .bc-fb { flex: none; font-size: 10px; line-height: 6px; color: var(--muted); cursor: help; }
   .lf-bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 10px 12px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; margin: 12px 0 4px; }
   .lf-chip { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--text); border: 1px solid var(--line); border-radius: 999px; padding: 4px 10px 4px 8px; cursor: pointer; user-select: none; }
   .lf-chip:has(input:checked) { border-color: color-mix(in srgb, var(--accent, #d95926) 55%, var(--line)); }

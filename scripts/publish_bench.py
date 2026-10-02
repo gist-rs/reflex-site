@@ -263,29 +263,34 @@ LANE_DISPLAY = {
     "openthai": "openthai (reference)",
 }
 
-# The hand-maintained DISCLOSURE table (2026-10-02, the Rethink board
-# completion): per-suite per-lane reasons a lane will NOT run a suite,
-# rendered by bench-charts.js's noneBar instead of a bare "not run".
-# Keys are SUITE names and RENDERER lane keys ("instinct" = the hybrid
-# lane, "instinct-encoder" = Rethink). Every note cites its issue record
-# — the publisher is the note's only home, so a republish can never
-# drift from the page. Unknown suite names REFUSE (a typo must never
-# publish nothing); a note naming a suite+lane that HAS a cell is
-# dropped with a loud note (the cell supersedes the disclosure).
+# The hand-maintained DISCLOSURE table (2026-10-02, the full-coverage
+# serving rewrite): per-suite per-lane notes that ride a product lane's
+# FALLBACK CELL — apply_fallback_cells consumes the note into the cell
+# (the served answer + why the lane shows a fallback tier there), so the
+# reader sees the RESULT first and the reason beside it (owner directive:
+# the chart reflects the served product; a fallback is noted, never a
+# hole). A note left on a suite+lane with NO fallback derivation possible
+# (no modelless cell either) renders via bench-charts.js's noneBar as
+# before. Keys are SUITE names and RENDERER lane keys ("instinct" = the
+# hybrid lane, "instinct-encoder" = Rethink). Unknown suite names REFUSE
+# (a typo must never publish nothing); a note naming a suite+lane that
+# HAS a real (non-fallback) cell is dropped with a loud note.
 DISCLOSURES = {
     "emotion": {
         "instinct-encoder": (
-            "screened — no head earned: 6 gold-only fits (the 5-seed T7 "
-            "sweep + 1 fresh seed) all refused on holdout; the encoder "
-            "reference reads 0.5950 vs the incumbent 0.8850 (instinct "
-            "issue 016 T7/T8, riir-train t599/t7 + t8 record)"
+            "encoder head screened — no head earned: 6 gold-only fits (the "
+            "5-seed T7 sweep + 1 fresh seed) all refused on holdout; the "
+            "encoder reference reads 0.5950 vs the incumbent 0.8850 "
+            "(instinct issue 016 T7/T8) — the served answer is the cell "
+            "shown"
         ),
     },
     "code_fixtures": {
         "instinct-encoder": (
-            "dead by law — the encoder reference reads 0.3575, 26.7 pt "
-            "under the bar, and the class's measured head-lift ceiling "
-            "(+14.7 pt) cannot close it (riir-train issue 600 T5)"
+            "encoder head dead by law — the encoder reference reads "
+            "0.3575, 26.7 pt under the bar, and the class's measured "
+            "head-lift ceiling (+14.7 pt) cannot close it (riir-train "
+            "issue 600 T5) — the served answer is the cell shown"
         ),
     },
 }
@@ -293,14 +298,17 @@ for _fam in ("harness_visibility", "harness_permissions", "harness_tool_fit",
              "harness_routing", "harness_sensitivity", "harness_cache_reuse"):
     DISCLOSURES[_fam] = {
         "instinct": (
-            "dropped from the covered set — the n=12–16 template-shared "
-            "eval makes any win unfalsifiable memorization (instinct "
-            "issue 008 T8)"
+            "the specialist lane is scoped out here — the n=12–16 "
+            "template-shared eval makes any trained win unfalsifiable "
+            "memorization (instinct issue 008 T8) — the served arm is the "
+            "artifact-less A0 row (instinct 057d31a, full-coverage "
+            "serving), re-baselined at Bench 049"
         ),
         "instinct-encoder": (
             "law-excluded — the n=12–16 template-shared eval makes any "
-            "win unfalsifiable memorization; re-opens only with a larger "
-            "template-disjoint eval (instinct issue 008 T8)"
+            "encoder win unfalsifiable memorization; re-opens only with a "
+            "larger template-disjoint eval (instinct issue 008 T8) — the "
+            "served answer is the cell shown"
         ),
     }
 
@@ -1294,6 +1302,107 @@ def carry_applies(src_lane, target_cell, update_quotable, suite_name=""):
     return True
 
 
+# The RENDERER lane keys of the two PRODUCT lanes and their published
+# cell fields. A product lane's missing cell is a FALLBACK, never a hole
+# (owner 2026-10-02): the serve binary answers every suite through its
+# tier stack (instinct 057d31a), so the board shows the tier that
+# answers — the number IS what a user of the product gets.
+PRODUCT_LANES = {
+    "instinct": {"key": "hybrid", "display": "Instinct"},
+    "instinct-encoder": {"key": "encoder", "display": "Rethink"},
+}
+
+
+def fallback_cell(source_cell, display, served_by, note):
+    """Derive one product lane's fallback cell from the tier that serves.
+
+    The measured FIELDS are the source tier's own (accuracy + latency —
+    the tier that answers determines both); the identity fields name the
+    FALLBACK: `serves` marks the cell tier-fallback, `served_by` names
+    the answering tier, `fallback_note` carries the measured reason the
+    lane's own arm is absent. The source cell's `source_run` stamp rides
+    along — the numbers' provenance is the tier's measurement, never the
+    derivation. `derived: true` lets every consumer tell the cell apart
+    from a measured read of this lane."""
+    cell = {
+        "lane": display,
+        "model": source_cell.get("model") or served_by,
+        "hard": source_cell.get("hard"),
+        "latency_scope": source_cell.get("latency_scope"),
+        "latency_rows": source_cell.get("latency_rows"),
+        "latency_p50_ms": source_cell.get("latency_p50_ms"),
+        "latency_p99_ms": source_cell.get("latency_p99_ms"),
+        "latency_tail_support": source_cell.get("latency_tail_support"),
+        "serves": "tier-fallback",
+        "served_by": served_by,
+        "fallback_note": note,
+        "derived": True,
+    }
+    if source_cell.get("source_run"):
+        cell["source_run"] = dict(source_cell["source_run"])
+    return cell
+
+
+def apply_fallback_cells(d):
+    """Close the product lanes' holes with the SERVED ANSWER (owner
+    directive 2026-10-02: 'the chart should reflect the served product;
+    if anything falls back you note it — but it shows the result the
+    user will get').
+
+    For each suite, per product lane without a real cell:
+      - instinct (Instinct): the served tier is the modelless lane (the
+        artifact-less A0 rows serve it — instinct 057d31a).
+      - instinct-encoder (Rethink): the served tier is the seated arm of
+        the full-coverage manifest — the hybrid specialist where one
+        seats, else the modelless tier (the serving law: best measured
+        arm, A0 included).
+
+    The tier's measured cell supplies every NUMBER; the cell is marked
+    `serves: tier-fallback` + `served_by` + `derived` so no consumer can
+    misread it as this lane's own measurement. A DISCLOSURES note for
+    the suite+lane is CONSUMED into the cell (fallback_note) instead of
+    rendering as a noneBar. Where even the modelless lane has no cell,
+    nothing is derived — the disclosure (if any) stays for the noneBar.
+    Idempotent: a fallback cell is skipped when a real cell exists (the
+    cell wins) and re-derived identically when the sources repeat."""
+    known = {s["name"]: s for s in d.get("suites", [])}
+    made = 0
+    for name, s in known.items():
+        disc = s.get("disclosures") or {}
+        hybrid = s.get("hybrid")
+        modelless = s.get("modelless")
+        for lane_key, spec in PRODUCT_LANES.items():
+            if s.get(spec["key"]):
+                continue  # a real cell — the lane's own measurement wins
+            if lane_key == "instinct":
+                source, served_by = modelless, "Reflex (the modelless tier)"
+            else:
+                source = hybrid or modelless
+                served_by = (
+                    f"Instinct ({hybrid.get('model', 'the seated arm')})"
+                    if hybrid
+                    else "Reflex (the modelless tier)"
+                )
+            if source is None or (source.get("hard") or {}).get("accuracy") is None:
+                continue  # nothing measurable serves — the disclosure stays
+            note = disc.get(lane_key) or (
+                "no seated arm for this lane on this suite — the served "
+                "answer is the tier shown (the full-coverage serving law, "
+                "instinct 057d31a)"
+            )
+            s[spec["key"]] = fallback_cell(source, spec["display"], served_by, note)
+            disc.pop(lane_key, None)
+            made += 1
+        if disc:
+            s["disclosures"] = disc
+        else:
+            s.pop("disclosures", None)
+    if made:
+        print(f"fallback cells: derived {made} served-answer cell(s) "
+              "for the product lanes")
+    return 0
+
+
 def apply_disclosures(d):
     """Stamp the hand-maintained DISCLOSURES table into the merged doc:
     per-suite {lane_key: note} for lanes that will not run the suite for a
@@ -1891,6 +2000,9 @@ def main() -> int:
     rename_lanes(d)
     n_paired = compute_pairings(d)
     compute_areas(d)
+    rc = apply_fallback_cells(d)
+    if rc != 0:
+        return rc
     rc = apply_disclosures(d)
     if rc != 0:
         return rc

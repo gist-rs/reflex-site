@@ -447,10 +447,17 @@
     const h = l.hard || {};
     const lane = laneOf(l);
     const acc = accOf(l);
+    // The tier-fallback disclosure (the full-coverage serving law, owner
+    // 2026-10-02): the cell shows the SERVED answer; the tip names the
+    // tier that answered and carries the measured reason this lane's own
+    // arm is absent.
+    const fb = l.serves === "tier-fallback"
+      ? `<br><span class="bc-mut">↩ ${esc(l.served_by || "fallback tier")} answered${l.fallback_note ? ` — ${esc(l.fallback_note)}` : ""}</span>`
+      : "";
     return `<span class="bc-sw" style="background:${lane.color}"></span><b>${esc(shortLane(l))} · ${esc(l.model)}</b>${extra ? ` <span class="bc-mut">${esc(extra)}</span>` : ""}<br>` +
       `accuracy ${num(acc) ? pct(acc) : "—"} · acc@50cov ${num(h.acc_at_50_coverage) ? pct(h.acc_at_50_coverage) : "—"}<br>` +
       `p50 ${num(l.latency_p50_ms) ? lat(l.latency_p50_ms) : "—"} · p99 ${num(l.latency_p99_ms) ? lat(l.latency_p99_ms) : "—"}` +
-      (num(h.n) ? ` · n=${h.n}` : "");
+      (num(h.n) ? ` · n=${h.n}` : "") + fb;
   };
 
   const legend = () => `<div class="bc-legend" aria-label="lanes">${LANES.filter((x) => visibleKey(x.key)).map((x) =>
@@ -547,9 +554,15 @@
       if (fr === null) return null;
       const brk = M.log && latBroken && v > BREAK_AT
         ? `<i class="sz-break" aria-hidden="true" style="left:${(LIN_SPAN * 100).toFixed(2)}%"></i>` : "";
+      // The tier-fallback mark (owner 2026-10-02): the bar carries the
+      // SERVED answer — the ↩ badge says the lane's own arm is absent and
+      // the answering tier's name is on hover, never an unexplained bar.
+      const fbMark = l.serves === "tier-fallback"
+        ? `<b class="bc-fb" title="${esc(l.served_by || "fallback tier")} answered">↩</b> `
+        : "";
       return `<div class="bc-hbar"${isPicked ? ' data-picked="1"' : ""} tabindex="0" data-tip="${esc(`<span class="bc-mut">${esc(s.name)}</span><br>` + tipHtml(l, host ? "@" + host : ""))}" aria-label="${esc(`${s.name} ${lane.label} ${l.model}${host ? " on " + host : ""}: ${f(v)}`)}">` +
         `<i style="width:${(fr * 100).toFixed(2)}%;background:${lane.color}"></i>${brk}` +
-        `${host && allSplit ? `<span class="bc-hhost">@${esc(host)}</span>` : ""}</div>`;
+        `${fbMark}${host && allSplit ? `<span class="bc-hhost">@${esc(host)}</span>` : ""}</div>`;
     };
     // The honest empty cell: "not run" is reserved for a lane that never
     // measured the suite. A lane that RAN but cannot score on the active
@@ -670,7 +683,10 @@
     // (100% - 64px) span the value label reserves), never the value column
     const brk = METRICS[m].log && latBroken && v > BREAK_AT
       ? `<i class="sz-break" aria-hidden="true" style="left:calc((100% - 64px) * ${LIN_SPAN})"></i>` : "";
-    return `<div class="bc-cell" tabindex="0" data-tip="${esc(tipHtml(l, extra))}"><i style="width:calc((100% - 64px) * ${fr.toFixed(4)});background:${laneOf(l).color}"></i>${brk}<span>${esc(fmtOf(m)(v))}</span></div>`;
+    // The tier-fallback mark — the value IS what the product serves; the
+    // badge + tooltip say which tier answered (owner 2026-10-02).
+    const fb = l.serves === "tier-fallback" ? `<b class="bc-fb" title="${esc(l.served_by || "fallback tier")} answered">↩</b>` : "";
+    return `<div class="bc-cell" tabindex="0" data-tip="${esc(tipHtml(l, extra))}"><i style="width:calc((100% - 64px) * ${fr.toFixed(4)});background:${laneOf(l).color}"></i>${brk}<span>${esc(fmtOf(m)(v))}${fb}</span></div>`;
   }
 
   function suite(s) {
@@ -684,7 +700,7 @@
         // "the machine" while every comparison row named its host (the
         // missing @m3-max-metal).
         const hh = host || primaryHost;
-        return `<div class="bc-slabel" title="${esc(`${shortLane(l)} · ${l.model}${hh ? " @" + hh : ""}`)}"><i class="bc-sw" style="background:${laneOf(l).color}"></i>${esc(shortLane(l))} · ${esc(l.model)}${hh ? ` <span class="bc-mut">@${esc(hh)}</span>` : ""}</div>` +
+        return `<div class="bc-slabel" title="${esc(`${shortLane(l)} · ${l.model}${hh ? " @" + hh : ""}`)}"><i class="bc-sw" style="background:${laneOf(l).color}"></i>${esc(shortLane(l))} · ${esc(l.model)}${l.serves === "tier-fallback" ? ` <b class="bc-fb" title="${esc(l.served_by || "fallback tier")} answered">↩</b>` : ""}${hh ? ` <span class="bc-mut">@${esc(hh)}</span>` : ""}</div>` +
         cell("acc", s, l, hh ? "@" + hh : "") + cell("p50", s, l, hh ? "@" + hh : "");
       }).join("") +
       `</div>`;
