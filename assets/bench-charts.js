@@ -996,13 +996,14 @@
 
   function radarLegend(laneRows, scoreOf, partialNote) {
     return laneRows.map((lane) => {
-      // fallback lanes lead with the FILL count (▲ = the served tier
-      // answers); other partial lanes keep the pending disclosure. The
-      // coverage numbers beside them stay the lane's OWN measured count.
+      // fallback lanes lead with the FILL count (▲ marks a fallback
+      // spoke — the served tier answers); other partial lanes keep the
+      // pending disclosure. The coverage numbers beside them stay the
+      // lane's OWN measured count.
       const fbn = (lane.data.fallback_suites || []).length;
       const partial = lane.data.complete === false;
       const mark = fbn
-        ? ` · ${fbn} fallback (▲ = the served tier answers)`
+        ? ` · ${fbn} fallback ▲`
         : (partial ? ` · partial+pending (${esc(partialNote)})` : "");
       return `<div class="rd-lg">` +
         `<i class="bc-sw" style="background:${lane.color}"></i>` +

@@ -215,7 +215,7 @@ if (fbMarks !== expectedFb) {
   console.error(`FAIL[radar-fb]: expected ${expectedFb} fallback triangle(s) (the published fallback_suites), got ${fbMarks}`);
   process.exit(1);
 }
-if (expectedFb > 0 && !aHtml.includes("fallback (▲")) {
+if (expectedFb > 0 && !aHtml.includes("fallback ▲")) {
   console.error("FAIL[radar-fb]: the legends must disclose the fallback spokes");
   process.exit(1);
 }
