@@ -487,3 +487,18 @@ durable record). Full narrative of each: `git log --follow -- .issues/<file>`.
   page smoke's not-run pin gains the hybrid/encoder rows. Verified
   headless: the hero renders ↩ bars on all five families, Reflex keeps
   its own cells (no double count), all four smokes green.
+
+## 2026-10-02 — the /families/ quarantined section removed with its suites (same owner call, this commit)
+
+The `/families/` page + `data/families.json` + the `publish_families.py` /
+`build_family_lane_doc.py` / `test_publish_families.py` /
+`families_page_smoke.cjs` pipeline existed ONLY to show the six harness
+families per lane (Plan 009's "quarantined our-lanes web section", reflex
+issue 059) — with the suites retired upstream (reflex `31b11d2`) and the
+board rows gone (`f1731fc`), the page had nothing to show and was removed in
+the same owner call. The home page's families link and the bench FAQ's
+pointer were updated (the FAQ now says the page was removed; the retirement
+record lives here). `publish_bench.py`'s RETIRED_SUITES comment records the
+removal; its quarantine gate still forbids the bench publisher from ever
+naming or ingesting that surface. Verified: the six suites render nowhere on
+the site, `/families/` answers the 404 path, all remaining smokes green.

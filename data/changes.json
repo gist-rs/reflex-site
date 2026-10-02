@@ -2,7 +2,7 @@
   {
     "date": "2026-10-02",
     "change": "The six harness_* decision-point suites removed from the board (owner call)",
-    "why": "Modelless reads at chance on them at the honest wide-eval populations (0.22–0.31 vs ~0.2–0.33 random-pick; the old small-n template-shared rows read 0.56–0.92 — the inflation the wide eval removed), and the suites are deleted from the reflex harness upstream — the board rows went with them (17 → 11 suites). The publisher drops the retired names at the load boundary of every path (fresh docs, updates, --rederive), so no older results doc can re-grow a row; the divergences line naming them is scrubbed too. The /families/ quarantined page + data/families.json are untouched."
+    "why": "Modelless reads at chance on them at the honest wide-eval populations (0.22–0.31 vs ~0.2–0.33 random-pick; the old small-n template-shared rows read 0.56–0.92 — the inflation the wide eval removed), and the suites are deleted from the reflex harness upstream — the board rows went with them (17 → 11 suites). The publisher drops the retired names at the load boundary of every path (fresh docs, updates, --rederive), so no older results doc can re-grow a row; the divergences line naming them is scrubbed too. The /families/ quarantined page + data/families.json — which existed only to show these six families per lane — were removed in the same call."
   },
   {
     "date": "2026-10-02",

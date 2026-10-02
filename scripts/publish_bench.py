@@ -319,9 +319,13 @@ DISCLOSURES = {
 # them). A suite named here is dropped at the LOAD boundary of every publish
 # path (fresh docs, lane-scoped updates, --rederive), so no older results
 # doc can ever re-grow a retired row; any meta.divergences line naming one
-# goes with it. The /families/ quarantined page and its own data file are
-# a separate surface and are deliberately untouched (the quarantine gate
-# below forbids this script from ever naming or ingesting either).
+# goes with it. The /families/ quarantined page and its own data file —
+# which existed ONLY to show the six retired families per lane (Plan 009's
+# "quarantined our-lanes web section") — were REMOVED in the same owner
+# call (2026-10-02): with the suites retired there is nothing for the
+# page to show. The quarantine gate below STILL forbids this script from
+# ever naming or ingesting that surface, so the removal cannot be
+# accidentally regrown from here.
 RETIRED_SUITES = (
     "harness_visibility",
     "harness_permissions",
