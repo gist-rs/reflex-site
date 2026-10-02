@@ -22,15 +22,18 @@
 //                               the segment's color; the tooltip carries the
 //                               provenance.
 //
-// Palette: engine = the site's ember (the Reflex · modelless lane color), model = the
-// laya lane blue — both already validated on the dark surfaces. Each
-// segment carries its own tooltip (data-sztip, this module's own handler — never
+// Palette: the engine segment follows the runtime's ENVIRONMENT — rust env =
+// the site's ember (#d95926), python env = the laya lane blue (#3987e5);
+// model = the founding palette's green (#199e70). All three are the founding
+// trio, validated all-pairs on the dark surfaces. Each segment carries its
+// own tooltip (data-sztip, this module's own handler — never
 // bench-charts' data-tip namespace).
 (function () {
   "use strict";
 
-  const ENGINE_COLOR = "#d95926";
-  const MODEL_COLOR = "#3987e5";
+  const RUST_COLOR = "#d95926";   // rust env — the site's ember
+  const PYTHON_COLOR = "#3987e5"; // python env — the laya lane blue
+  const MODEL_COLOR = "#199e70";  // model / weights — the founding palette's green
 
   // ── formatting (human bytes; SI, like every size a download page shows) ──
   function human(bytes) {
@@ -109,12 +112,14 @@
   }
 
   const provLine = (p) => p ? esc(p.source) + ": " + esc(p.detail) : "";
+  const envKind = (c) => (c.engine_kind === "python" ? "python" : "rust");
+  const envLabel = (kind) => (kind === "python" ? "python env" : "rust env");
   const tipHtml = (c, which) => {
     const isEngine = which === "engine";
     const bytes = isEngine ? c.engine_bytes : c.model_bytes;
     const what = isEngine ? c.engine_what : c.model_what;
     const prov = isEngine ? c.engine_provenance : c.model_provenance;
-    return `<b>${esc(c.name)} · ${isEngine ? "runtime / engine" : "model / weights"}</b><br>` +
+    return `<b>${esc(c.name)} · ${isEngine ? envLabel(envKind(c)) : "model / weights"}</b><br>` +
       `<span class="bc-mut">${esc(what)}</span><br>` +
       `<b>${human(bytes)}</b>${!isEngine && bytes === 0 ? " (nothing to download)" : ""}` +
       (prov ? `<br><span class="bc-mut">${provLine(prov)}</span>` : "") +
@@ -130,10 +135,12 @@
     const sc = scale(d);
     const grid = sc.ticks.map(([f]) =>
       `<i class="bc-grid${sc.broken && f === sc.span ? " sz-grid-break" : ""}" style="left:${(f * 100).toFixed(2)}%"></i>`).join("");
-    const colorOf = (which) => (which === "engine" ? ENGINE_COLOR : MODEL_COLOR);
+    const envKindOf = (c) => (c.engine_kind === "python" ? "python" : "rust");
+    const colorOf = (which, kind) => (which === "model" ? MODEL_COLOR : kind === "python" ? PYTHON_COLOR : RUST_COLOR);
 
     const rows = (d.candidates || []).map((c) => {
       const total = totalOf(c);
+      const kind = envKindOf(c);
       const chips = (c.targets || []).map((t) => `<span class="sz-chip">${esc(t)}</span>`).join("");
       const parts = [["engine", c.engine_bytes], ["model", c.model_bytes]].filter(([, b]) => b > 0);
       // bar length = the total's position on the broken axis; segments split
@@ -142,13 +149,13 @@
       const end = (sc.pos(total) * 100).toFixed(2);
       const seg = ([which, bytes]) =>
         `<i class="sz-seg" tabindex="0" data-sztip="${esc(tipHtml(c, which))}" ` +
-        `aria-label="${esc(`${c.name}: ${which === "engine" ? "runtime" : "model"} ${human(bytes)}`)}" ` +
-        `style="width:${((bytes / total) * 100).toFixed(3)}%;background:${colorOf(which)}"></i>`;
+        `aria-label="${esc(`${c.name}: ${which === "engine" ? envLabel(kind) : "model"} ${human(bytes)}`)}" ` +
+        `style="width:${((bytes / total) * 100).toFixed(3)}%;background:${colorOf(which, kind)}"></i>`;
       const brk = sc.broken && total > sc.linMax
         ? `<i class="sz-break" aria-hidden="true" style="left:${(sc.span * 100).toFixed(2)}%"></i>`
         : "";
       const lbl = ([which, bytes]) =>
-        `<span class="sz-lbl sz-lbl-${which}" style="color:${colorOf(which)}">${human(bytes)}</span>`;
+        `<span class="sz-lbl sz-lbl-${which}" style="color:${colorOf(which, kind)}">${human(bytes)}</span>`;
       const stack =
         `<div class="bc-hbar sz-stack"><div class="sz-bar" style="width:${end}%">${parts.map(seg).join("")}</div>${brk}</div>` +
         `<div class="sz-lbls" style="width:${end}%">${parts.map(lbl).join("")}</div>`;
@@ -161,7 +168,8 @@
     el.innerHTML =
       `<div class="sz-head">` +
       `<div class="bc-legend" aria-label="bar kinds">` +
-      `<span><i class="bc-sw" style="background:${ENGINE_COLOR}"></i>runtime / engine</span>` +
+      `<span><i class="bc-sw" style="background:${RUST_COLOR}"></i>rust env</span>` +
+      `<span><i class="bc-sw" style="background:${PYTHON_COLOR}"></i>python env</span>` +
       `<span><i class="bc-sw" style="background:${MODEL_COLOR}"></i>model / weights</span>` +
       `</div></div>` +
       `<div class="sz-grid"><div class="sz-axisrow"><span></span>` +
@@ -176,7 +184,7 @@
         ? `Axis is linear up to ${human(sc.linMax)}; a bar past the break sign runs on a compressed log scale ` +
           `(${human(sc.linMax)} … ${human(sc.max)}) — read its size from its label. `
         : `Axis is linear: a bar ends at its total. `) +
-      `Inside a bar, runtime and model split by their share of the bytes.</p>`;
+      `Inside a bar, the runtime env (rust or python) and the model split by their share of the bytes.</p>`;
   }
 
   window.SizeCharts = { render, scale, human, BREAK_AT };

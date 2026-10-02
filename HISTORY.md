@@ -4,7 +4,24 @@ One hash-pinned line per removed issue (the fleet noise-reduction convention:
 an issue file is removed once its work is verifiably landed; this file is the
 durable record). Full narrative of each: `git log --follow -- .issues/<file>`.
 
-- **2026-10-02 (latest) — the Rethink row never reads below the family: losing
+- **2026-10-02 (latest) — the /#sizes legend splits the engine segment by runtime
+  env: rust env in ember #d95926, python env in blue #3987e5, model / weights
+  moves to the founding palette's green #199e70 (owner call).** The chart
+  previously drew every engine segment ember and every model segment the laya
+  lane blue, so a Python-venv lane (laya python reference, gliner, agentjev,
+  openthai, bekko, CLM's vLLM image) read the same color as a Rust binary lane.
+  The data now carries `engine_kind` per candidate (rust = the five
+  Reflex/Instinct/Rethink rows; python = the six venv/docker rows — vLLM is a
+  Python serving stack, so the CLM docker image reads python), the chart colors
+  the engine segment by it, and model/weights takes the green — the third slot
+  of the founding trio, already validated all-pairs on the dark surfaces. The
+  legend is three entries; tooltips + aria-labels + the section sub-copy
+  follow. Gates: the render smoke pins the env color law (5 rust + 6 python +
+  9 model segments, legend wording), the self-test pins the engine_kind
+  partition, `--check` validates the field. data/sizes.json hand-synced with
+  the same static field the generator emits — byte counts untouched (the LIVE
+  sources were not re-fetched for a color change).
+- **2026-10-02 — the Rethink row never reads below the family: losing
   refused records displaced by the served answer (owner call, best-of-family).**
   The owner read the board as "Instinct scores higher than Rethink" on
   massive_intent_en / banking77 / prompt_injections and asked whether Rethink

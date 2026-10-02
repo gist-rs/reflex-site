@@ -57,6 +57,7 @@ CANDIDATES = [
         "key": "wasm_heads",
         "name": "Reflex · in-browser (wasm heads)",
         "framework": "Rust → wasm32 (wasm-opt -Oz), zero deps",
+        "engine_kind": "rust",
         "engine": ("local", "assets/arena_head.wasm"),
         "engine_what": "arena_head.wasm — the engine's fitted game heads as one module",
         "model": None,
@@ -68,6 +69,7 @@ CANDIDATES = [
         "key": "reflex_native",
         "name": "Reflex · native binary (modelless)",
         "framework": "one static Rust binary (dist profile, stripped, fat LTO)",
+        "engine_kind": "rust",
         "engine": ("release_installed",),
         "engine_what": "installed binary + THIRD_PARTY_LICENSES.md (unpacked from the aarch64-apple-darwin archive)",
         "model": None,
@@ -79,6 +81,7 @@ CANDIDATES = [
         "key": "reflex_laya_typed",
         "name": "Reflex + laya · typed",
         "framework": "the same reflex binary + the laya-riir lane (runtime download)",
+        "engine_kind": "rust",
         "engine": ("release_installed",),
         "engine_what": "the same installed binary",
         "model": ("hf_subtree", "convaiinnovations/laya", "typed-decisions/"),
@@ -90,6 +93,7 @@ CANDIDATES = [
         "key": "instinct_hybrid",
         "name": "Instinct \u00b7 trained specialists",
         "framework": "one serve binary + the Reflex half's dataset seats + BLAKE3-sealed specialist vessels (the hosted serving posture)",
+        "engine_kind": "rust",
         "engine": ("recorded_sum", "instinct_serve_binary", "instinct_datasets_t20k"),
         "engine_what": "the serve binary + the six t20k dataset suites (the Reflex half's corpora and question seats)",
         "model": ("recorded", "instinct_winner_vessels"),
@@ -101,6 +105,7 @@ CANDIDATES = [
         "key": "rethink_encoder",
         "name": "Rethink · encoder arm",
         "framework": "one serve binary (GPU host) + the laya-riir encoder resident from boot + the Reflex half's dataset seats",
+        "engine_kind": "rust",
         "engine": ("recorded_sum", "rethink_serve_binary", "instinct_datasets_t20k"),
         "engine_what": "the serve binary (the encoder lane's GPU-host build) + the six t20k dataset suites (the seats the ENC lanes boot from)",
         "model": ("sum",
@@ -114,6 +119,7 @@ CANDIDATES = [
         "key": "laya_python",
         "name": "laya · python reference",
         "framework": "CPython + torch (MPS build) + transformers + the pinned reference checkout",
+        "engine_kind": "python",
         "engine": ("recorded", "laya_python_runtime"),
         "engine_what": "the oracle's python import closure + the pinned .raw/laya checkout",
         "model": ("hf_subtree", "convaiinnovations/laya", "typed-decisions/"),
@@ -125,6 +131,7 @@ CANDIDATES = [
         "key": "gliner",
         "name": "GLiNER2.5-Decide",
         "framework": "their gliner2 package in a torch-cu venv",
+        "engine_kind": "python",
         "engine": ("recorded", "gliner_venv"),
         "engine_what": "the gliner2 venv (torch-cu + transformers + peft + accelerate)",
         "model": ("hf_total", "fastino/GLiNER2.5-Decide"),
@@ -136,6 +143,7 @@ CANDIDATES = [
         "key": "agentjev",
         "name": "AgentJev-0.6B",
         "framework": "their jev_service in a torch venv",
+        "engine_kind": "python",
         "engine": ("recorded", "agentjev_venv"),
         "engine_what": "their service venv (torch-cu + deps)",
         "model": ("hf_total", "aimeigaoshou/agent-jev", "Qwen/Qwen3-0.6B"),
@@ -147,6 +155,7 @@ CANDIDATES = [
         "key": "openthai",
         "name": "OpenThai-SystemOne",
         "framework": "their FastAPI service in a torch venv (the Thai/English decision comparison lane)",
+        "engine_kind": "python",
         "engine": ("recorded", "openthai_venv"),
         "engine_what": "their service venv (torch + transformers + fastapi/uvicorn + their openthai_systemone package)",
         "model": ("hf_total", "iapp/OpenThai-SystemOne"),
@@ -158,6 +167,7 @@ CANDIDATES = [
         "key": "bekko",
         "name": "Bekko-SystemOne-v0 (68M)",
         "framework": "their BekkoSentenceTransformer runtime in a torch venv",
+        "engine_kind": "python",
         "engine": ("recorded", "bekko_venv"),
         "engine_what": "the bekko lane venv (python 3.12: torch + transformers + sentence-transformers — the card's runtime pins)",
         "model": ("hf_total", "hotchpotch/bekko-system-one-v0-68m"),
@@ -169,6 +179,7 @@ CANDIDATES = [
         "key": "clm",
         "name": "CLM v0.1-8B",
         "framework": "vLLM docker image + their clm-serve head",
+        "engine_kind": "python",  # vLLM is a Python serving stack — the image is a python env
         "engine": ("recorded_sum", "clm_docker", "clm_repo"),
         "engine_what": "the vLLM serving image + their CLM repo/head checkout",
         "model": ("hf_total", "Qwen/Qwen3-8B", "Contrastive-LM/CLM-v0.1-8B"),
@@ -369,6 +380,7 @@ def build(release: dict, recorded: dict) -> dict:
             "key": spec["key"],
             "name": spec["name"],
             "framework": spec["framework"],
+            "engine_kind": spec["engine_kind"],
             "engine_bytes": engine_bytes,
             "engine_what": spec["engine_what"],
             "engine_provenance": engine_prov,
@@ -439,6 +451,8 @@ def check_committed() -> None:
             die(f"{c['key']}: non-positive engine_bytes")
         if c["model_bytes"] < 0:
             die(f"{c['key']}: negative model_bytes")
+        if c.get("engine_kind") not in ("rust", "python"):
+            die(f"{c['key']}: engine_kind must be 'rust' or 'python', got {c.get('engine_kind')!r}")
     print(f"sizes --check PASS ({len(totals)} candidates, ascending, all fields present)")
 
 

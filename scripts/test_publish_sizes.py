@@ -162,6 +162,19 @@ def _():
     assert by["clm"]["engine_bytes"] == 30_000_000_000 + 77_000_000
 
 
+@case("engine_kind tags every row rust or python (the size chart's env color law)")
+def _():
+    d = patched_build()
+    by = {c["key"]: c for c in d["candidates"]}
+    assert {k for k, c in by.items() if c["engine_kind"] == "rust"} == {
+        "wasm_heads", "reflex_native", "reflex_laya_typed", "instinct_hybrid", "rethink_encoder",
+    }
+    assert {k for k, c in by.items() if c["engine_kind"] == "python"} == {
+        "laya_python", "gliner", "agentjev", "openthai", "bekko", "clm",
+    }
+    assert all(c["engine_kind"] in ("rust", "python") for c in by.values())
+
+
 @case("model sources resolve: subtree / multi-repo sum")
 def _():
     d = patched_build()

@@ -76,10 +76,14 @@ const fail = (msg) => { console.error("FAIL: " + msg); process.exit(1); };
   d.candidates.forEach((c, i) => { if (rowNames[i] !== c.name) fail(`row ${i} is ${rowNames[i]}, expected ${c.name}`); });
 
   // 3. engine bar per candidate; model bar exactly when model_bytes > 0
-  const engineBars = (html.match(/aria-label="[^"]*: runtime /g) || []).length;
+  // (the engine aria-label now names the runtime env — rust env / python env)
+  const engineBars = (html.match(/aria-label="[^"]*: (?:rust env|python env) /g) || []).length;
+  const rustBars = (html.match(/aria-label="[^"]*: rust env /g) || []).length;
+  const pythonBars = (html.match(/aria-label="[^"]*: python env /g) || []).length;
   const modelBars = (html.match(/aria-label="[^"]*: model /g) || []).length;
   const withModel = d.candidates.filter((c) => c.model_bytes > 0).length;
   if (engineBars !== d.candidates.length) fail(`engine bars ${engineBars} != ${d.candidates.length}`);
+  if (rustBars + pythonBars !== engineBars) fail(`env bars ${rustBars} rust + ${pythonBars} python != ${engineBars} engine bars`);
   if (modelBars !== withModel) fail(`model bars ${modelBars} != lanes-with-weights ${withModel}`);
 
   // 4. one stack per candidate; the bar ends at the total's position on the
@@ -114,6 +118,14 @@ const fail = (msg) => { console.error("FAIL: " + msg); process.exit(1); };
     if (c.model_bytes > 0 && labels.at(-1)[2] !== window.SizeCharts.human(c.model_bytes)) fail(`bar ${i} model label ${labels.at(-1)[2]}`);
     const segColors = [...inner.matchAll(/background:([^"]+)"/g)].map((m) => m[1]);
     labels.forEach(([, col], k) => { if (col !== segColors[k]) fail(`bar ${i} label ${k} color ${col} != segment ${segColors[k]}`); });
+    // the color law: the engine segment follows the runtime env from the
+    // data (engine_kind) — rust #d95926 / python #3987e5 — and every model
+    // segment is the green slot
+    const wantEngine = c.engine_kind === "python" ? "#3987e5" : "#d95926";
+    if (c.engine_bytes > 0 && segColors[0] !== wantEngine)
+      fail(`bar ${i} (${c.key}) engine segment ${segColors[0]} != ${wantEngine} (engine_kind ${c.engine_kind})`);
+    if (c.model_bytes > 0 && segColors[segColors.length - 1] !== "#199e70")
+      fail(`bar ${i} (${c.key}) model segment ${segColors[segColors.length - 1]} != #199e70`);
   });
   const wantBroken = totals.filter((t) => t > BREAK_AT).length;
   if (nBroken !== wantBroken) fail(`break signs ${nBroken} != totals over BREAK_AT ${wantBroken}`);
@@ -136,5 +148,9 @@ const fail = (msg) => { console.error("FAIL: " + msg); process.exit(1); };
   const axis = (html.match(/class="bc-axis sz-axis"/g) || []).length;
   if (!axis) fail("no axis rendered");
 
-  console.log(`size chart render smoke PASS (${d.candidates.length} stacks · ${engineBars} engine + ${modelBars} model segments · ascending · broken-linear bars, ${nBroken} past the break · byte-share segments · under-bar labels)`);
+  // 8. the legend names all three slots with their colors
+  if (!/>rust env</.test(html) || !/>python env</.test(html) || !/>model \/ weights</.test(html))
+    fail("the legend does not carry rust env / python env / model / weights");
+
+  console.log(`size chart render smoke PASS (${d.candidates.length} stacks · ${rustBars} rust + ${pythonBars} python + ${modelBars} model segments · env color law · ascending · broken-linear bars, ${nBroken} past the break · byte-share segments · under-bar labels)`);
 })().catch((e) => { console.error("FAIL: " + (e && e.message || e)); process.exit(1); });
