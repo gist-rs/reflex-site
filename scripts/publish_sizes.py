@@ -91,15 +91,15 @@ CANDIDATES = [
     },
     {
         "key": "instinct_hybrid",
-        "name": "Instinct \u00b7 trained specialists",
+        "name": "Rethink · trained specialists",
         "framework": "one serve binary + the Reflex half's dataset seats + BLAKE3-sealed specialist vessels (the hosted serving posture)",
         "engine_kind": "rust",
         "engine": ("recorded_sum", "instinct_serve_binary", "instinct_datasets_t20k"),
         "engine_what": "the serve binary + the six t20k dataset suites (the Reflex half's corpora and question seats)",
         "model": ("recorded", "instinct_winner_vessels"),
-        "model_what": "the six sealed winner vessels (HOSTED-ONLY: ed25519-pinned, blake3 envelope \u2014 never on uncontrolled hardware)",
+        "model_what": "the six sealed winner vessels (HOSTED-ONLY: ed25519-pinned, blake3 envelope — never on uncontrolled hardware)",
         "targets": ["container (cf-container)", "hosted serving"],
-        "note": "the trained sibling lane: the specialists serve six text suites; game spots answer through its Reflex half",
+        "note": "the trained sibling lane: the specialists serve six text suites; game spots answer through its Reflex half. Display follows the landed 051 naming law (Instinct retires as a product brand; the repo rename is Phase 1, plan 006 — the row key stays instinct_hybrid until then)",
     },
     {
         "key": "rethink_encoder",

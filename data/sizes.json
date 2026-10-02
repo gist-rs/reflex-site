@@ -1,6 +1,6 @@
 {
  "meta": {
-  "date_utc": "2026-10-02T15:57:03Z",
+  "date_utc": "2026-10-02T16:56:38Z",
   "release": {
    "tag": "v0.2.3",
    "url": "https://github.com/gist-rs/reflex/releases/tag/v0.2.3",
@@ -60,7 +60,7 @@
   },
   {
    "key": "instinct_hybrid",
-   "name": "Instinct \u00b7 trained specialists",
+   "name": "Rethink \u00b7 trained specialists",
    "framework": "one serve binary + the Reflex half's dataset seats + BLAKE3-sealed specialist vessels (the hosted serving posture)",
    "engine_kind": "rust",
    "engine_bytes": 22596268,
@@ -79,7 +79,7 @@
     "container (cf-container)",
     "hosted serving"
    ],
-   "note": "the trained sibling lane: the specialists serve six text suites; game spots answer through its Reflex half"
+   "note": "the trained sibling lane: the specialists serve six text suites; game spots answer through its Reflex half. Display follows the landed 051 naming law (Instinct retires as a product brand; the repo rename is Phase 1, plan 006 \u2014 the row key stays instinct_hybrid until then)"
   },
   {
    "key": "rethink_encoder",
