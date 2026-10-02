@@ -314,17 +314,17 @@ for _fam in ("harness_visibility", "harness_permissions", "harness_tool_fit",
              "harness_routing", "harness_sensitivity", "harness_cache_reuse"):
     DISCLOSURES[_fam] = {
         "instinct": (
-            "the specialist lane is scoped out here — the n=12–16 "
-            "template-shared eval makes any trained win unfalsifiable "
-            "memorization (instinct issue 008 T8) — the served arm is the "
-            "artifact-less A0 row (instinct 057d31a, full-coverage "
-            "serving), re-baselined at Bench 049"
+            "the specialist lane is scoped out here — the seat/arena seam "
+            "stays display-only on these fixtures (instinct issue 008 T8; "
+            "the wide template-disjoint eval, Plan 009 / issue 059, does "
+            "not reopen specialist certification) — the served arm is the "
+            "artifact-less A0 row, re-baselined on the wide eval at "
+            "instinct Bench 0051; the caveat page is /families/"
         ),
         "instinct-encoder": (
-            "law-excluded — the n=12–16 template-shared eval makes any "
-            "encoder win unfalsifiable memorization; re-opens only with a "
-            "larger template-disjoint eval (instinct issue 008 T8) — the "
-            "served answer is the cell shown"
+            "owner call unmade — encoder cells need riir-train heads on "
+            "the family corpora; until then the /families/ page renders "
+            "`not run` (pending-not-zero law, Plan 009 / issue 059)"
         ),
     }
 

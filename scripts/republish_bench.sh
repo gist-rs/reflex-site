@@ -47,6 +47,7 @@ echo "== 1/5 publish_bench self-test"
 # closed for CORPUS_RESET, one env over).
 env -u PUBLISH_BENCH_LANES -u PUBLISH_ALLOW_SAMPLE_MISMATCH \
     -u PUBLISH_BENCH_CORPUS_RESET -u PUBLISH_BENCH_ALLOW_UNQUOTABLE \
+    -u PUBLISH_BENCH_POPULATION_RESET \
     python3 "$SITE_ROOT/scripts/test_publish_bench.py"
 
 echo "== 2/5 chart render smoke (pre-publish state)"
