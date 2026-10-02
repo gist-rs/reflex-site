@@ -29,6 +29,12 @@ Run the self-tests, the smokes and the parity check, commit + push, then
 `npx wrangler deploy` (manual; the custom domain is dashboard-attached —
 `wrangler.toml` has the why). Verify the live pages afterwards.
 
+## Branch
+
+`main` is the working branch AND the only branch (this repo rides `main`, like
+`katgpt-web` — unlike the rest of the workspace there is no `develop`; do not
+create one).
+
 ## Numbers
 
 Never type a measured number into page copy, the README or this file: render
