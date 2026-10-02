@@ -127,7 +127,13 @@ const server = http.createServer((req, res) => {
   // no hard block) and a pick() that gated on `hard` rendered the whole
   // lane "not run" on all nine measured suites while the tables scored
   // them fine (the user-reported ag_news case).
-  for (const [key, label] of [["gliner", "gliner"], ["agentjev", "agentjev"], ["openthai", "openthai"], ["paw", "paw"]]) {
+  // The instinct lanes ride it too: the katgpt matcher's `modelless` arm
+  // classified the derived tier-fallback cells (model "modelless" riding
+  // the Instinct/Rethink lane) as Reflex cells, and the hero rendered
+  // "Instinct — not run" / "Rethink — not run" on every family row beside
+  // a verdict card counting the same cells as family arms (2026-10-02
+  // user report) — a not-run on a suite WITH a cell, this exact class.
+  for (const [key, label] of [["gliner", "gliner"], ["agentjev", "agentjev"], ["openthai", "openthai"], ["paw", "paw"], ["hybrid", "Instinct"], ["encoder", "Rethink"]]) {
     const expected = benchData.suites.filter((s) => !laneHasCell(s, key)).length;
     const got = notRun.filter((t) => t.startsWith(label)).length;
     if (got !== expected) fail(`${label}: ${got} hero not-run bars vs ${expected} suites without a ${label} cell — a not-run on a measured suite means the extra-host fallback failed`);

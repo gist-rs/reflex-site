@@ -24,8 +24,19 @@
   // three founding slots were validated all-pairs (CVD ΔE 9.4, normal
   // ΔE 20.9); the two comparison-lane slots (clm violet, gliner teal) were
   // added later with the same dark-surface ≥3:1 contrast rule.
+  // The product-lane spellings the instinct family owns — the Reflex
+  // matcher's `modelless` arm must never swallow a cell whose lane names one
+  // of these. It did: the derived tier-fallback cells (the modelless tier's
+  // SERVED answer riding the Instinct/Rethink row, publish_bench.py
+  // apply_fallback_cells) carry model "modelless", so laneOf() filed them
+  // under the Reflex lane and the hero rendered "Instinct — not run" /
+  // "Rethink — not run" on every family row beside a verdict card that
+  // counted the same cells as family arms (2026-10-02 user report).
+  const PRODUCT_LANE_SPELLINGS = new Set([
+    "Instinct", "Instinct (hybrid)", "Rethink", "Rethink (encoder)", "Instinct (encoder)",
+  ]);
   const LANES = [
-    { key: "katgpt", label: "Reflex · modelless", color: "#d95926", match: (l) => l.lane === "KatGPT" || l.model === "modelless" },
+    { key: "katgpt", label: "Reflex · modelless", color: "#d95926", match: (l) => l.lane === "KatGPT" || (l.model === "modelless" && !PRODUCT_LANE_SPELLINGS.has(l.lane)) },
     { key: "rust", label: "laya (rust)", color: "#3987e5", match: (l) => l.lane === "laya (rust)" },
     { key: "python", label: "laya (python)", color: "#199e70", match: (l) => l.lane === "laya (python)" },
     { key: "clm", label: "clm", color: "#b39ddb", match: (l) => l.lane === "clm (reference)" },

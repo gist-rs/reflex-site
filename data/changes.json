@@ -1,6 +1,11 @@
 [
   {
     "date": "2026-10-02",
+    "change": "Family rows' served fallback fixed on the hero — Instinct/Rethink ↩ bars render where the Reflex matcher swallowed them",
+    "why": "laneOf()'s katgpt matcher (model === \"modelless\") classified the derived tier-fallback cells (the modelless tier's served answer riding the Instinct/Rethink lane) as Reflex cells, so the hero rendered \"Instinct — not run\" / \"Rethink — not run\" on the five harness families while the verdict card counted the same cells as family arms (2026-10-02 user report). The matcher now defers any cell whose lane names a product lane; the verdict card tags fallback arms ↩ (hover names the answering tier)."
+  },
+  {
+    "date": "2026-10-02",
     "change": "Edition label + timing/kind disclosure + efficiency frontier + cc table column",
     "why": "plan 001 (the Jev Decision Index distill): the scoring basis is pinned by digest under meta.edition 2026-10 (an AREA_CHANCE / area-membership / lane-set edit must bump the edition + add a row here); each lane discloses its entrant kind and its timing clock, and the frontier plots cc index vs p50 with the Pareto marks scoped to equal-coverage lanes. Below-chance cc stays negative everywhere (the ▾ / hollow-dot marks); the tables gain a cc column."
   },

@@ -143,6 +143,11 @@ function suiteLine(L, r, cmp, opts = {}) {
   // for the serving posture (the honesty half of the 017 display law).
   const armColor = r.viaEncoder ? L.color("Rethink") : L.instinct;
   const roTag = r.viaEncoder ? `<span class="iv-host" title="record-only — the encoder class is refused at serve (issue 014); the serving arm is the hybrid lane's">· record-only</span>` : "";
+  // The tier-fallback badge mirrors the board's bc-fb mark: the number IS
+  // what the product serves, the hover names the tier that answered.
+  const fbTag = r.viaFallback
+    ? `<b class="iv-fb" title="${ivEsc(`${r.servedBy || "the modelless tier"} answered — no family arm measured on this suite (full-coverage serving law)`)}">↩</b> `
+    : "";
   li.innerHTML =
     `<span class="iv-suite" title="${ivEsc(r.name)}">${ivEsc(r.name)}</span>` +
     `<span class="iv-bar">` +
@@ -150,7 +155,7 @@ function suiteLine(L, r, cmp, opts = {}) {
       (cmpW != null && hi > lo + 1e-9 ? `<i class="iv-gap" style="left:${lo.toFixed(2)}%;width:${(hi - lo).toFixed(2)}%;background:${cmpColor}"></i>` : "") +
       (cmpW != null ? `<b class="iv-tick" style="left:${cmpW}%;background:${cmpColor}"></b>` : "") +
     `</span>` +
-    `<span class="iv-nums"><b style="color:${armColor}">${pct(r.inst)}</b> ${roTag} vs ` +
+    `<span class="iv-nums"><b style="color:${armColor}">${pct(r.inst)}</b> ${fbTag}${roTag} vs ` +
       (cmpW != null
         ? `<span style="color:${cmpColor}">${pct(cmp.acc)} ${ivEsc(cmp.lane)}</span>` +
           (cmp.host ? ` <span class="iv-host">@${ivEsc(cmp.host)}</span>` : "")
@@ -186,6 +191,13 @@ function render(bench) {
     if (!fam.length) continue;
     const famCell = fam.reduce((a, b) => (accOf(b[0]) > accOf(a[0]) ? b : a));
     const viaEncoder = isEncoder(famCell[0]);
+    // A DERIVED tier-fallback family cell (serves: tier-fallback — the
+    // modelless tier's served answer riding the Instinct/Rethink row) is the
+    // family's number on the board, but it is not a family MEASUREMENT: the
+    // line carries the ↩ badge so it never reads as one (2026-10-02 user
+    // report — the card showed "22.0% vs 60.0% laya" with no marker while
+    // the hero called the same cell not-run).
+    const viaFallback = famCell[0].serves === "tier-fallback";
     const inst = accOf(famCell[0]);
     const kmCell = cells.find(([l]) => isModelless(l));
     const km = kmCell ? accOf(kmCell[0]) : null;
@@ -193,7 +205,7 @@ function render(bench) {
     const best = others.reduce((a, b) => (accOf(b[0]) > accOf(a[0]) ? b : a));
     armed.push({
       name: s.name, inst, km, kmN: nOf(kmCell && kmCell[0]), instN: nOf(famCell[0]),
-      viaEncoder,
+      viaEncoder, viaFallback, servedBy: famCell[0].served_by,
       bestLane: String(best[0].lane).replace(/ \(reference\)$/, "") === "KatGPT" ? "Reflex" : String(best[0].lane).replace(/ \(reference\)$/, ""),
       bestModel: best[0].model, bestAcc: accOf(best[0]), bestHost: best[1],
       edge: inst - accOf(best[0]),
@@ -296,7 +308,7 @@ function render(bench) {
     const legend = document.createElement("p");
     legend.className = "iv-legend";
     legend.innerHTML =
-      `per suite: <i class="iv-sw" style="background:${L.instinct}"></i>bar = the contributing family arm (Instinct magenta, Rethink violet = record-only) · <i class="iv-tickdemo"></i>tick = the compared lane (its lane color) · dim span = the gap · ≈ = within noise · grey hatch = no family arm yet`;
+      `per suite: <i class="iv-sw" style="background:${L.instinct}"></i>bar = the contributing family arm (Instinct magenta, Rethink violet = record-only) · <i class="iv-tickdemo"></i>tick = the compared lane (its lane color) · dim span = the gap · ≈ = within noise · grey hatch = no family arm yet · ↩ = the served fallback (the modelless tier answered — no family arm measured)`;
     box.append(legend, ul);
   } else {
     box.append(ul);
