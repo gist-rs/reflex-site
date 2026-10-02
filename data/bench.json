@@ -15465,6 +15465,10 @@
       "acc": 0.526667,
       "cc": 0.408333
      },
+     "emotion": {
+      "acc": 0.885,
+      "cc": 0.862
+     },
      "xnli_en": {
       "acc": 0.86,
       "cc": 0.79
@@ -15476,20 +15480,24 @@
      "typed_decisions": {
       "acc": 0.755,
       "cc": 0.641026
+     },
+     "code_fixtures": {
+      "acc": 0.5625,
+      "cc": 0.363636
      }
     },
     "areas": {
      "language": 0.667751,
-     "sentiment": 0.408333,
+     "sentiment": 0.635166,
      "reasoning": 0.696724,
-     "decisions": 0.641026
+     "decisions": 0.502331
     },
-    "index": 0.603459,
+    "index": 0.625493,
     "coverage": {
-     "suites": 7,
+     "suites": 9,
      "of": 9
     },
-    "complete": false
+    "complete": true
    },
    "laya": {
     "display": "laya (rust)",
@@ -15985,11 +15993,11 @@
    "encoder": {
     "clock": "in-process",
     "method": "Rust in-process GPU encode+head forward (Metal on the m3 hosts; the cell's `device` field names it)",
-    "suites": 7,
+    "suites": 9,
     "p50_geomean_ms": 16.7464,
     "n_used": 2,
     "n_unquotable": 2,
-    "n_unjudged": 3,
+    "n_unjudged": 5,
     "note": "population = the suites behind the lane's index; p50 geometric mean over latency_quotable cells only (unfit timing is shown in the tables, never plotted)"
    },
    "laya": {
