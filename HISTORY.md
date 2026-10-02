@@ -445,3 +445,25 @@ durable record). Full narrative of each: `git log --follow -- .issues/<file>`.
   63/63 (6 new area-rollup cases), chart_render_smoke (cc + radar arms),
   bench_page_smoke (radar renders, partial disclosed on both cards, the
   filter governs it), home_page_smoke, check_lane_pairing, mirrors --check.
+
+- **2026-10-02 — the hero's "Instinct / Rethink — not run" on the five
+  harness families was a laneOf() misclassification, not missing data
+  (user live report, `50b8ea3`).** `laneOf()`'s Reflex matcher
+  (`l.lane === "KatGPT" || l.model === "modelless"`) classified the
+  derived tier-fallback cells (`publish_bench.py apply_fallback_cells` —
+  the modelless tier's SERVED answer riding the Instinct/Rethink lane,
+  `model: "modelless"`) as Reflex cells: the hero folded them into the
+  Reflex lane and rendered "Instinct — not run" / "Rethink — not run" on
+  the five harness families, while `instinct.js` (lane-string matchers)
+  counted the same cells as family arms and the vs-best card showed
+  "22.0% vs 60.0% laya (rust) −38.0". Two classifiers, one data file —
+  the tell was `harness_cache_reuse` rendering its Instinct/Rethink bars
+  fine (its hybrid cell's model string is the A0 artifact-less spelling,
+  not "modelless"). Repair: the katgpt matcher defers any cell whose
+  `lane` names a product lane (`PRODUCT_LANE_SPELLINGS` — the same
+  spellings the instinct/rethink matchers carry); the verdict card tags
+  a tier-fallback family arm with the ↩ badge + hover naming the
+  answering tier (the board's bc-fb mark, one surface over), and the
+  page smoke's not-run pin gains the hybrid/encoder rows. Verified
+  headless: the hero renders ↩ bars on all five families, Reflex keeps
+  its own cells (no double count), all four smokes green.
