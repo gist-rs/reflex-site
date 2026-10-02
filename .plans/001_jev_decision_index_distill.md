@@ -213,9 +213,12 @@ landing: `git status --porcelain scripts/publish_bench.py` must be clean of sibl
 - [x] Distill the index mechanics into this plan.
 - [x] Substrate audit — cc/areas/pending/timing-stamp machinery located and cited (this
       revision).
-- [ ] Check whether laya finished their frozen suite (`?model=laya` on the Space) and if so
-      cite its public Decision Index score in the laya lane docs — external context for our
-      laya columns. Citation only; no new lanes, no runs.
+- [x] Check whether laya finished their frozen suite (`?model=laya` on the Space) and if so
+      cite its public Decision Index score in the laya lane docs — external context for our laya
+      columns. Citation only; no new lanes, no runs. (DONE 2026-10-02: Laya IS on the board —
+      Decision Index 0.2.1, frozen 120,340-request suite complete at 0.76 coverage, balanced-skill
+      6.04 vs Jev 57.91; cited in bench/index.html's References. The older "16.4" from the
+      community discussion was a 0.1-era figure.)
 - [-] Community contribution path (accept external lane PRs): NOT planned — our lanes
       require our harness; owner-gated if ever.
 - [-] The Instinct (hybrid) lane's latency verdicts: 9/9 cells are UNJUDGED (the lane's
