@@ -56,6 +56,10 @@
      vocabulary from style.css; the figure matches the home flow figure */
   .instinct .figure { margin: 14px 0 6px; }
   .instinct .figure img { max-width: 100%; height: auto; }
+  /* the shared sheet's `section h2` is margin 0-top, so mid-section headers
+     sit flush on the chart/paragraph above — give every h2 the same top gap
+     the inline margin-top:40px rows already use (inline style still wins) */
+  .wrap section h2 { margin-top: 40px; }
   /* the per-suite verdict lines (instinct.js): headline + a segmented
      "remain" bar + ONE LINE PER SUITE — fill = Instinct (its lane color),
      tick = the compared lane (its color), the dim span between = the gap */
@@ -202,11 +206,6 @@
       taken over exactly the suites behind the lane's index, and only over cells the run's own box check judged
       quotable (unfit timing stays visible in the suite tables, marked †, but is never plotted).</p>
     <div id="bench-timing"></div>
-
-    <h2 id="changes"><a class="hlink" href="#changes">Board changes</a></h2>
-    <details class="more"><summary>What changed on this board, and why (append-only)</summary>
-    <div id="bench-changes"><p class="cases">loading data/changes.json …</p></div>
-    </details>
 
     <h2 id="per-suite"><a class="hlink" href="#per-suite">Per suite</a></h2>
     <p class="sub">Charts first; open a suite's table for every metric, the G1 calibration verdict and the gate fit.</p>
@@ -408,6 +407,11 @@
       <li><strong>Latency</strong> is wall-clock on the host named in the provenance line above; it moves with the machine and its power
         state. Modelless accuracy does not — the publisher refuses to merge a host whose modelless accuracy drifts.</li>
     </ul></div>
+    </details>
+
+    <h2 id="changes"><a class="hlink" href="#changes">Board changes</a></h2>
+    <details class="more"><summary>What changed on this board, and why (append-only)</summary>
+    <div id="bench-changes"><p class="cases">loading data/changes.json …</p></div>
     </details>
 
     <h2 id="references" style="margin-top:40px"><a class="hlink" href="#references">References</a></h2>
