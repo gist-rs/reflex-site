@@ -8,6 +8,10 @@ original draft re-planned substrate that already ships (the chance-corrected `cc
 landed 2026-09-30 in `f0185af`, fixed `47f786d`, documented `cf23805`; the reflex Issue-058
 board restore landed `d750175`, so the sequencing blocker is gone). T1 was re-scoped to the
 genuinely-open deltas on top of that machinery.
+MERGED TO MAIN + DEPLOYED 2026-10-02: rebased onto dfef114 (the tier-fallback landing —
+`apply_fallback_cells` now runs inside `finalize()` between `compute_areas` and
+`apply_disclosures`, so `--rederive` preserves fallback cells and they never feed the lane's
+areas/timing/frontier); main `26fddb9`, live at reflex.gist.rs (edition 2026-10, areas v3).
 
 ## Why this matters
 
