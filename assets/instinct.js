@@ -86,8 +86,13 @@ function cellsOf(s) {
 
 // The family's two product lanes: Instinct (hybrid, serving) and Rethink
 // (encoder, record-only) — the same matchers the lane palette carries.
+// A DERIVED tier-fallback cell never counts as the encoder arm's own
+// contribution (the best-of-family display, owner 2026-10-02): it is the
+// seated tier's measurement wearing the Rethink row — the hybrid cell
+// carries the same number, so the family arm stays magenta, never a
+// violet bar on a number the encoder never measured.
 const isHybrid = (l) => l.lane === "Instinct" || l.lane === "Instinct (hybrid)";
-const isEncoder = (l) => l.lane === "Rethink" || l.lane === "Rethink (encoder)" || l.lane === "Instinct (encoder)";
+const isEncoder = (l) => !l.derived && (l.lane === "Rethink" || l.lane === "Rethink (encoder)" || l.lane === "Instinct (encoder)");
 const isFamily = (l) => isHybrid(l) || isEncoder(l);
 
 function row(state, text) {

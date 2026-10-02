@@ -4,6 +4,44 @@ One hash-pinned line per removed issue (the fleet noise-reduction convention:
 an issue file is removed once its work is verifiably landed; this file is the
 durable record). Full narrative of each: `git log --follow -- .issues/<file>`.
 
+- **2026-10-02 (latest) — the Rethink row never reads below the family: losing
+  refused records displaced by the served answer (owner call, best-of-family).**
+  The owner read the board as "Instinct scores higher than Rethink" on
+  massive_intent_en / banking77 / prompt_injections and asked whether Rethink
+  should not always show the best score, falling back to the serving tier.
+  Diagnosis: not a data bug — every one of those cells was a REAL measured
+  encoder read seated record-only per the 2026-10-01 progress-display call
+  (instinct issue 017), while the 2026-10-02 full-coverage fallback
+  (dfef114) filled HOLES only (`a real cell — the lane's own measurement
+  wins`), so a serve-refused LOSING record kept the row against the owner's
+  own "the chart should reflect the served product" directive. Verdict call
+  (owner, three options offered): **best-of-family** — fallback ↩ where the
+  encoder loses, violet record cells where it wins, raw losing reads as
+  disclosed records. Landed in `publish_bench.py` `apply_fallback_cells`:
+  the encoder lane's serve-refused record cells (`record_only` or `serves`
+  starting ✗) reading STRICTLY below the seated arm are displaced by the
+  served-answer fallback cell, with the refused arm's own measured cell
+  preserved verbatim under `displaced_record` and the `fallback_note` naming
+  the read + the gap (all numbers from the cells, never typed). At-or-above
+  the seated arm the violet record stands (sst5/xnli/ag_news/typed); suites
+  with nothing measurable to serve (the thai reference reads) keep their
+  records. Three accommodations the derivation forced: (1) `_area_lane_cell`
+  skips `derived` cells and `finalize` runs the fallback pass BEFORE
+  `compute_areas` — a displaced suite renders as a radar coverage GAP (the
+  encoder lane is 4/9 now, its own winning spokes) instead of double-counting
+  the seated arm's number; (2) `_measurable` canonicalizes a displaced cell
+  to its `displaced_record` — the rederive byte-guard still proves every
+  measurement byte-identical ("cells byte-identical" on the live file); (3)
+  `instinct.js` `isEncoder` excludes derived cells so the verdict card never
+  tags a fallback number violet. bench.json rederived in place: massive 0.8267↩
+  (record 0.6567), banking77 0.854↩ (record 0.442), prompt 0.8534↩ (record
+  0.8017) — Rethink ≥ Instinct everywhere, emotion unchanged (0.885↩). Page
+  copy (bench FAQ + the Naming paragraph) states the display law. Gates:
+  test_publish_bench 81/81 (2 new cases — displacement + radar-gap), bench
+  page / chart render / home page smokes + arena demo check PASS (arena live
+  smoke pre-existing env-red at HEAD: needs the real local engine — verified
+  identical on the pristine tree).
+
 - **2026-10-02 (later) — the bekko lane's two gaps closed: the /#sizes row + the
   two missing dataset-board suites (owner ask "beko has no size report and missing
   code_fixtures bench").** **(1) The sizes row** — `Bekko-SystemOne-v0 (68M)` joins

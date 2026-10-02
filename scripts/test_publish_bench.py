@@ -2502,6 +2502,132 @@ def case_fallback_cells_need_a_measurable_source():
     assert d2["suites"][0]["hybrid"] == first
 
 
+def case_displaced_losing_records_show_the_served_answer():
+    # The best-of-family display (owner call 2026-10-02): a serve-REFUSED
+    # record cell on the Rethink lane that reads STRICTLY BELOW the seated
+    # arm is displaced — the row shows the served answer (tier-fallback ↩,
+    # derived), the refused arm's own measured cell rides verbatim under
+    # displaced_record, and the note names the read and the gap. At-or-above
+    # the seated arm the violet record cell STAYS (the encoder arm is the
+    # family's best measured arm there). Nothing measurable to serve → no
+    # displacement. Idempotent, and the rederive byte-guard canonicalizes a
+    # displaced cell to its record (the measurement never moves).
+    d = {
+        "meta": {"host": "m3", "git_sha": "sha-a", "date_utc": "x"},
+        "suites": [
+            {   # banking77: the refused record (0.442) sits far under the
+                # seated arm (0.854) — displaced, record preserved.
+                "name": "banking77",
+                "n_questions": 500, "n_cases": 250,
+                "modelless": fb_cell("modelless", 0.842),
+                "hybrid": fb_cell("Instinct", 0.854),
+                "encoder": {
+                    "lane": "Rethink",
+                    "model": "ENC-banking77_encoder_v1",
+                    "hard": {"n": 500, "accuracy": 0.442},
+                    "serves": "✗ (encoder class refused at serve — the "
+                              "incumbent arm serves)",
+                    "record_only": True,
+                },
+            },
+            {   # ag_news: the refused record (0.9475) reads ABOVE the seated
+                # arm (0.8975) — the violet record cell stays, undisplaced.
+                "name": "ag_news",
+                "n_questions": 400, "n_cases": 200,
+                "modelless": fb_cell("modelless", 0.8825),
+                "hybrid": fb_cell("Instinct", 0.8975),
+                "encoder": {
+                    "lane": "Rethink",
+                    "model": "ENC-ag_news_encoder_v1",
+                    "hard": {"n": 400, "accuracy": 0.9475},
+                    "serves": "✗ (encoder class refused at serve)",
+                    "record_only": True,
+                },
+            },
+            {   # thai reference read: nothing measurable serves (no modelless,
+                # no hybrid) — the record cell stays undisplaced.
+                "name": "thai_wisesight",
+                "n_questions": 400, "n_cases": 400,
+                "encoder": {
+                    "lane": "Rethink",
+                    "model": "ENC-ref",
+                    "hard": {"n": 400, "accuracy": 0.4075},
+                    "serves": "✗ (record-only; no head earned)",
+                    "record_only": True,
+                },
+            },
+        ],
+    }
+    assert pb.apply_fallback_cells(d) == 0
+    s = {x["name"]: x for x in d["suites"]}
+    # banking77 — displaced: the row shows the served answer.
+    enc = s["banking77"]["encoder"]
+    assert enc["serves"] == "tier-fallback" and enc["derived"] is True
+    assert enc["hard"]["accuracy"] == 0.854
+    assert "Instinct" in enc["served_by"]
+    # the refused arm's own read rides the cell verbatim.
+    rec = enc["displaced_record"]
+    assert rec["hard"]["accuracy"] == 0.442
+    assert rec["record_only"] is True and rec.get("derived") is None
+    assert "0.4420" in enc["fallback_note"] and "best-of-family" in enc["fallback_note"]
+    # ag_news — the winning violet record cell stays.
+    win = s["ag_news"]["encoder"]
+    assert win["hard"]["accuracy"] == 0.9475
+    assert win.get("derived") is None and "displaced_record" not in win
+    # thai — nothing serves, the record stands.
+    assert s["thai_wisesight"]["encoder"]["hard"]["accuracy"] == 0.4075
+    assert s["thai_wisesight"]["encoder"].get("derived") is None
+    # Idempotent: a second pass over the displaced doc changes nothing.
+    before = copy.deepcopy(d)
+    assert pb.apply_fallback_cells(d) == 0
+    assert d == before
+    # The byte-guard canonicalizes the displacement: the measurable view of
+    # the displaced suite IS the preserved record, so a rederive over it
+    # holds (the measurement never moved — it was relocated verbatim).
+    m = pb._measurable(s["banking77"])
+    assert m["encoder"] == rec
+
+
+def case_displaced_records_leave_the_radar():
+    # A derived cell never feeds the lane's radar/timing rollup: the
+    # displaced banking77 reads as a coverage GAP on the encoder lane
+    # (the answering tier already owns the number on its own spoke),
+    # while the lane's own real cells (ag_news) still roll up.
+    d = {
+        "meta": {"host": "m3", "git_sha": "sha-a", "date_utc": "x"},
+        "suites": [
+            {
+                "name": "banking77",
+                "n_questions": 500, "n_cases": 250,
+                "modelless": fb_cell("modelless", 0.842),
+                "hybrid": fb_cell("Instinct", 0.854),
+                "encoder": {
+                    "lane": "Rethink", "model": "ENC-v1",
+                    "hard": {"n": 500, "accuracy": 0.442},
+                    "serves": "✗ (refused)", "record_only": True,
+                },
+            },
+            {
+                "name": "ag_news",
+                "n_questions": 400, "n_cases": 200,
+                "modelless": fb_cell("modelless", 0.8825),
+                "hybrid": fb_cell("Instinct", 0.8975),
+                "encoder": {
+                    "lane": "Rethink", "model": "ENC-v1",
+                    "hard": {"n": 400, "accuracy": 0.9475},
+                    "serves": "✗ (refused)", "record_only": True,
+                },
+            },
+        ],
+    }
+    assert pb.apply_fallback_cells(d) == 0
+    a = pb.compute_areas(d)
+    enc = a["lanes"]["encoder"]["per_suite"]
+    assert "banking77" not in enc          # displaced → gap, never the
+    assert enc["ag_news"]["acc"] == 0.9475  # seated arm's number twice
+    assert a["lanes"]["encoder"]["coverage"]["suites"] == 1
+
+
 def fb_cell(lane, acc, model=None):
     """A minimal measured-tier cell for the fallback fixtures."""
     return {
@@ -2518,6 +2644,8 @@ def fb_cell(lane, acc, model=None):
 CASES = [
     case_fallback_cells_close_product_lane_holes,
     case_fallback_cells_need_a_measurable_source,
+    case_displaced_losing_records_show_the_served_answer,
+    case_displaced_records_leave_the_radar,
     case_disclosures_stamp_cellless_lanes,
     case_disclosures_cell_supersedes,
     case_lane_carry_keeps_incumbent_timing,

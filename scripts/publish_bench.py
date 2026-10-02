@@ -782,8 +782,15 @@ def _area_lane_cell(s, lane):
             if best is None or acc > best_acc:
                 best, best_acc = (cell, cell.get("model")), acc
         return best
+    # A DERIVED tier-fallback cell never rolls up either (the finalize
+    # reorder, owner 2026-10-02): it is the answering tier's measurement,
+    # and that tier's own lane already carries it on the radar — counting
+    # it here would double-count the source tier and paint the product
+    # lane's spoke with a number its own arm never measured. The suite
+    # renders as a coverage gap instead (never zero).
     cell = s.get(lane)
-    if isinstance(cell, dict) and _cell_acc(cell) is not None:
+    if isinstance(cell, dict) and not cell.get("derived") \
+            and _cell_acc(cell) is not None:
         return (cell, None)
     return None
 
@@ -1569,28 +1576,54 @@ def fallback_cell(source_cell, display, served_by, note):
     return cell
 
 
-def apply_fallback_cells(d):
-    """Close the product lanes' holes with the SERVED ANSWER (owner
-    directive 2026-10-02: 'the chart should reflect the served product;
-    if anything falls back you note it — but it shows the result the
-    user will get').
+def _serve_refused_record(cell):
+    """A product-lane cell whose own arm is REFUSED at serve — the
+    record-only seating (instinct issue 017): `record_only` flagged, or the
+    serves field names the ✗ refusal. A derived fallback cell is NOT one
+    (it is the answering tier's cell, and displacing it again would not be
+    idempotent)."""
+    if not isinstance(cell, dict) or cell.get("derived"):
+        return False
+    if cell.get("record_only"):
+        return True
+    serves = cell.get("serves")
+    return isinstance(serves, str) and serves.startswith("✗")
 
-    For each suite, per product lane without a real cell:
-      - instinct (Instinct): the served tier is the modelless lane (the
-        artifact-less A0 rows serve it — instinct 057d31a).
-      - instinct-encoder (Rethink): the served tier is the seated arm of
-        the full-coverage manifest — the hybrid specialist where one
-        seats, else the modelless tier (the serving law: best measured
-        arm, A0 included).
+
+def apply_fallback_cells(d):
+    """Close the product lanes' holes with the SERVED ANSWER, and displace
+    the Rethink lane's LOSING refused records with it (owner directive
+    2026-10-02: 'the chart should reflect the served product; if anything
+    falls back you note it — but it shows the result the user will get';
+    best-of-family call same day: Rethink never reads below the seated
+    arm — where its encoder measured ahead the violet record cell stays).
+
+    For each suite, per product lane:
+      - a lane without a real cell gets a DERIVED served-answer cell:
+        - instinct (Instinct): the served tier is the modelless lane (the
+          artifact-less A0 rows serve it — instinct 057d31a).
+        - instinct-encoder (Rethink): the served tier is the seated arm of
+          the full-coverage manifest — the hybrid specialist where one
+          seats, else the modelless tier (the serving law: best measured
+          arm, A0 included).
+      - instinct-encoder ONLY: a real cell that is a serve-REFUSED record
+        (issue 017 seating) reading STRICTLY BELOW the seated arm is
+        DISPLACED — the served answer takes the row, the refused arm's
+        own measured cell rides verbatim under `displaced_record`, and
+        the fallback_note names the read and the gap. At-or-above the
+        seated arm the violet record cell stays (the encoder arm IS the
+        family's best measured arm there). Suites with nothing
+        measurable to serve (the thai reference reads: no modelless, no
+        hybrid) keep their record cells undisplaced.
 
     The tier's measured cell supplies every NUMBER; the cell is marked
     `serves: tier-fallback` + `served_by` + `derived` so no consumer can
-    misread it as this lane's own measurement. A DISCLOSURES note for
-    the suite+lane is CONSUMED into the cell (fallback_note) instead of
+    misread it as this lane's own measurement. A DISCLOSURES note for the
+    suite+lane is CONSUMED into the cell (fallback_note) instead of
     rendering as a noneBar. Where even the modelless lane has no cell,
     nothing is derived — the disclosure (if any) stays for the noneBar.
-    Idempotent: a fallback cell is skipped when a real cell exists (the
-    cell wins) and re-derived identically when the sources repeat."""
+    Idempotent: a fallback cell (hole or displacement) is skipped when it
+    occupies the lane key, and a non-refused real cell always wins."""
     known = {s["name"]: s for s in d.get("suites", [])}
     made = 0
     for name, s in known.items():
@@ -1598,8 +1631,9 @@ def apply_fallback_cells(d):
         hybrid = s.get("hybrid")
         modelless = s.get("modelless")
         for lane_key, spec in PRODUCT_LANES.items():
-            if s.get(spec["key"]):
-                continue  # a real cell — the lane's own measurement wins
+            cell = s.get(spec["key"])
+            if cell is not None and not _serve_refused_record(cell):
+                continue  # a real serving cell — the lane's own measurement wins
             if lane_key == "instinct":
                 source, served_by = modelless, "Reflex (the modelless tier)"
             else:
@@ -1611,6 +1645,29 @@ def apply_fallback_cells(d):
                 )
             if source is None or (source.get("hard") or {}).get("accuracy") is None:
                 continue  # nothing measurable serves — the disclosure stays
+            if cell is not None:
+                # The displacement branch (encoder lane only — a refused
+                # record on the instinct lane has no other seated arm to
+                # displace to). Strictly below the served arm → displace;
+                # at-or-above → the violet record cell stays.
+                enc_acc = _cell_acc(cell)
+                src_acc = _cell_acc(source)
+                if enc_acc is None or enc_acc >= src_acc:
+                    continue
+                base = disc.pop(lane_key, None)
+                record_note = (
+                    f"best-of-family (owner 2026-10-02): the encoder arm's "
+                    f"own measured read is {enc_acc:.4f}, {src_acc - enc_acc:.4f} "
+                    "under the served arm — refused at serve, so the served "
+                    "answer is shown; the refused arm's full record rides the "
+                    "cell (displaced_record)"
+                )
+                note = f"{base} — {record_note}" if base else record_note
+                fb = fallback_cell(source, spec["display"], served_by, note)
+                fb["displaced_record"] = cell
+                s[spec["key"]] = fb
+                made += 1
+                continue
             note = disc.get(lane_key) or (
                 "no seated arm for this lane on this suite — the served "
                 "answer is the tier shown (the full-coverage serving law, "
@@ -2248,19 +2305,23 @@ def finalize(d):
         for k in DROP_META_KEYS:
             row.pop(k, None)
     rename_lanes(d)
-    n_paired = compute_pairings(d)
-    compute_areas(d)
-    # The tier-fallback derivation (main 2026-10-02) runs AFTER
-    # compute_areas — a fallback cell is the ANSWERING tier's measurement,
-    # not this lane's own, so it must not feed the lane's areas/timing/
-    # frontier summary (double-counting the source tier) — and BEFORE
-    # apply_disclosures, matching the ordinary path's order at landing
-    # (dfef114): the fallback consumes a disclosure note into the cell,
-    # and a re-stamp of the table drops notes for lanes that carry cells.
+    # The tier-fallback derivation (owner 2026-10-02; displacement added
+    # same day, best-of-family) runs BEFORE compute_areas: a fallback cell
+    # is the ANSWERING tier's measurement, not this lane's own, and
+    # _area_lane_cell skips `derived` cells — so neither a hole-fill nor a
+    # displacement feeds the lane's areas/timing/frontier summary
+    # (double-counting the source tier); the suite renders as a coverage
+    # gap on the radar while the per-suite table shows the served answer.
+    # It also runs BEFORE apply_disclosures: the fallback consumes a
+    # disclosure note into the cell, and a re-stamp of the table drops
+    # notes for lanes that carry cells.
     # Idempotent under --rederive: an existing fallback cell occupies the
-    # lane key, so the derivation skips and the byte-guard holds.
+    # lane key, so the derivation skips and the byte-guard holds (a
+    # displaced record canonicalizes to itself in _measurable).
     if apply_fallback_cells(d) != 0:
         return None
+    n_paired = compute_pairings(d)
+    compute_areas(d)
     if apply_disclosures(d) != 0:
         return None
     for s in d.get("suites", []):
@@ -2292,8 +2353,18 @@ def finalize(d):
 def _measurable(s):
     """A suite row minus its DERIVED annotations (pairing verdicts, the
     disclosure stamps) — the identity the rederive byte-guard protects:
-    every measurement cell, verbatim."""
-    return {k: v for k, v in s.items() if k not in ("pairing", "disclosures")}
+    every measurement cell, verbatim. A tier-fallback encoder cell that
+    DISPLACED a refused record canonicalizes to that record: the
+    measurement is preserved verbatim under displaced_record, so the
+    guard compares it there — never the derived wrapper (which would
+    refuse the displacement the owner's best-of-family call asked for)
+    and never the record's absence (which would let a silent drop pass)."""
+    row = {k: v for k, v in s.items() if k not in ("pairing", "disclosures")}
+    enc = row.get("encoder")
+    if (isinstance(enc, dict) and enc.get("derived")
+            and "displaced_record" in enc):
+        row["encoder"] = enc["displaced_record"]
+    return row
 
 
 def rederive(path: Path) -> int:

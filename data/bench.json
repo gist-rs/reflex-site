@@ -7601,25 +7601,49 @@
    },
    "encoder": {
     "lane": "Rethink",
-    "model": "ENC-prompt_encoder_v1 (laya-english encoder + NLEH v1 head)",
+    "model": "A1",
     "hard": {
      "n": 116,
-     "accuracy": 0.8017241379310345
+     "accuracy": 0.853448275862069,
+     "ece": 0.0823830797754485,
+     "mean_confidence": 0.8039373015535289,
+     "acc_at_50_coverage": 0.9655172413793104
     },
-    "consult_rate": 1.0,
     "latency_scope": "arm-only",
     "latency_rows": "questions",
-    "serves": "\u2717 (encoder class refused at serve \u2014 the incumbent arm serves; instinct issue 014 C1, seating per issue 017)",
-    "gate": "acc 0.8017 (93/116 question rows) \u00b7 paired vs the incumbent A1: mean -0.0517 \u00b7 LB95 -0.1343 \u00b7 per-row p50 13.873 ms (metal device, laya-english). Serve REFUSED (014 class-wide latency class); record-only cell, seated per the owner call 2026-10-01 (instinct issue 017).",
-    "device": "metal",
-    "head_kind": "v1",
-    "ckpt": "english",
-    "shape_desc": "2 classes \u00b7 feat 3072",
-    "record_only": true,
-    "latency_quotable": true,
+    "latency_p50_ms": 0.0005420000000000001,
+    "latency_p99_ms": 0.0039169999999999995,
+    "latency_tail_support": 2,
+    "serves": "tier-fallback",
+    "served_by": "Instinct (A1)",
+    "fallback_note": "best-of-family (owner 2026-10-02): the encoder arm's own measured read is 0.8017, 0.0517 under the served arm \u2014 refused at serve, so the served answer is shown; the refused arm's full record rides the cell (displaced_record)",
+    "derived": true,
     "source_run": {
-     "git_sha": "e0440e3",
-     "date_utc": "2026-10-01T18:51:14Z"
+     "git_sha": "8bbff09",
+     "date_utc": "2026-09-28T10:13:40Z"
+    },
+    "displaced_record": {
+     "lane": "Rethink",
+     "model": "ENC-prompt_encoder_v1 (laya-english encoder + NLEH v1 head)",
+     "hard": {
+      "n": 116,
+      "accuracy": 0.8017241379310345
+     },
+     "consult_rate": 1.0,
+     "latency_scope": "arm-only",
+     "latency_rows": "questions",
+     "serves": "\u2717 (encoder class refused at serve \u2014 the incumbent arm serves; instinct issue 014 C1, seating per issue 017)",
+     "gate": "acc 0.8017 (93/116 question rows) \u00b7 paired vs the incumbent A1: mean -0.0517 \u00b7 LB95 -0.1343 \u00b7 per-row p50 13.873 ms (metal device, laya-english). Serve REFUSED (014 class-wide latency class); record-only cell, seated per the owner call 2026-10-01 (instinct issue 017).",
+     "device": "metal",
+     "head_kind": "v1",
+     "ckpt": "english",
+     "shape_desc": "2 classes \u00b7 feat 3072",
+     "record_only": true,
+     "latency_quotable": true,
+     "source_run": {
+      "git_sha": "e0440e3",
+      "date_utc": "2026-10-01T18:51:14Z"
+     }
     }
    }
   },
@@ -10183,25 +10207,49 @@
    },
    "encoder": {
     "lane": "Rethink",
-    "model": "ENC-massive_encoder_v1_probe (laya-english encoder + NLEH v1 head)",
+    "model": "H2(\u03b2=1,nmin=2,\u03c4=8)",
     "hard": {
      "n": 300,
-     "accuracy": 0.6566666666666666
+     "accuracy": 0.8266666666666667,
+     "ece": 0.06070700170483837,
+     "mean_confidence": 0.8355173326634961,
+     "acc_at_50_coverage": 0.9933333333333333
     },
-    "consult_rate": 1.0,
     "latency_scope": "arm-only",
     "latency_rows": "questions",
-    "serves": "\u2717 (encoder class refused at serve \u2014 the incumbent arm serves; instinct issue 014 C1, seating per issue 017)",
-    "gate": "acc 0.6567 (197/300 question rows) \u00b7 paired vs the incumbent A1: mean -0.1600 \u00b7 LB95 -0.2194 \u00b7 per-row p50 31.332 ms (metal device, laya-english). Serve REFUSED (014 class-wide latency class); record-only cell, seated per the owner call 2026-10-01 (instinct issue 017).",
-    "device": "metal",
-    "head_kind": "v1",
-    "ckpt": "english",
-    "shape_desc": "20 classes \u00b7 feat 21504",
-    "record_only": true,
-    "latency_quotable": false,
+    "latency_p50_ms": 0.001042,
+    "latency_p99_ms": 0.002125,
+    "latency_tail_support": 4,
+    "serves": "tier-fallback",
+    "served_by": "Instinct (H2(\u03b2=1,nmin=2,\u03c4=8))",
+    "fallback_note": "best-of-family (owner 2026-10-02): the encoder arm's own measured read is 0.6567, 0.1700 under the served arm \u2014 refused at serve, so the served answer is shown; the refused arm's full record rides the cell (displaced_record)",
+    "derived": true,
     "source_run": {
-     "git_sha": "e0440e3",
-     "date_utc": "2026-10-01T17:58:51Z"
+     "git_sha": "8bbff09",
+     "date_utc": "2026-09-28T10:13:40Z"
+    },
+    "displaced_record": {
+     "lane": "Rethink",
+     "model": "ENC-massive_encoder_v1_probe (laya-english encoder + NLEH v1 head)",
+     "hard": {
+      "n": 300,
+      "accuracy": 0.6566666666666666
+     },
+     "consult_rate": 1.0,
+     "latency_scope": "arm-only",
+     "latency_rows": "questions",
+     "serves": "\u2717 (encoder class refused at serve \u2014 the incumbent arm serves; instinct issue 014 C1, seating per issue 017)",
+     "gate": "acc 0.6567 (197/300 question rows) \u00b7 paired vs the incumbent A1: mean -0.1600 \u00b7 LB95 -0.2194 \u00b7 per-row p50 31.332 ms (metal device, laya-english). Serve REFUSED (014 class-wide latency class); record-only cell, seated per the owner call 2026-10-01 (instinct issue 017).",
+     "device": "metal",
+     "head_kind": "v1",
+     "ckpt": "english",
+     "shape_desc": "20 classes \u00b7 feat 21504",
+     "record_only": true,
+     "latency_quotable": false,
+     "source_run": {
+      "git_sha": "e0440e3",
+      "date_utc": "2026-10-01T17:58:51Z"
+     }
     }
    }
   },
@@ -11445,25 +11493,49 @@
    },
    "encoder": {
     "lane": "Rethink",
-    "model": "ENC-banking77_encoder_v1 (laya-english encoder + NLEH v1 head)",
+    "model": "H2(\u03b2=2,nmin=8,\u03c4=8)",
     "hard": {
      "n": 500,
-     "accuracy": 0.442
+     "accuracy": 0.854,
+     "ece": 0.08412793359878214,
+     "mean_confidence": 0.9374190933679326,
+     "acc_at_50_coverage": 0.996
     },
-    "consult_rate": 1.0,
     "latency_scope": "arm-only",
     "latency_rows": "questions",
-    "serves": "\u2717 (encoder class refused at serve \u2014 the incumbent arm serves; instinct issue 014 C1, seating per issue 017)",
-    "gate": "acc 0.4420 (221/500 question rows) \u00b7 paired vs the incumbent A1: mean -0.3860 \u00b7 LB95 -0.4363 \u00b7 per-row p50 42.983 ms (metal device, laya-english). Serve REFUSED (014 class-wide latency class); record-only cell, seated per the owner call 2026-10-01 (instinct issue 017).",
-    "device": "metal",
-    "head_kind": "v1",
-    "ckpt": "english",
-    "shape_desc": "77 classes \u00b7 feat 79872",
-    "record_only": true,
-    "latency_quotable": true,
+    "latency_p50_ms": 0.008541,
+    "latency_p99_ms": 0.06775,
+    "latency_tail_support": 6,
+    "serves": "tier-fallback",
+    "served_by": "Instinct (H2(\u03b2=2,nmin=8,\u03c4=8))",
+    "fallback_note": "best-of-family (owner 2026-10-02): the encoder arm's own measured read is 0.4420, 0.4120 under the served arm \u2014 refused at serve, so the served answer is shown; the refused arm's full record rides the cell (displaced_record)",
+    "derived": true,
     "source_run": {
-     "git_sha": "e0440e3",
-     "date_utc": "2026-10-01T18:50:28Z"
+     "git_sha": "8bbff09",
+     "date_utc": "2026-09-28T10:13:40Z"
+    },
+    "displaced_record": {
+     "lane": "Rethink",
+     "model": "ENC-banking77_encoder_v1 (laya-english encoder + NLEH v1 head)",
+     "hard": {
+      "n": 500,
+      "accuracy": 0.442
+     },
+     "consult_rate": 1.0,
+     "latency_scope": "arm-only",
+     "latency_rows": "questions",
+     "serves": "\u2717 (encoder class refused at serve \u2014 the incumbent arm serves; instinct issue 014 C1, seating per issue 017)",
+     "gate": "acc 0.4420 (221/500 question rows) \u00b7 paired vs the incumbent A1: mean -0.3860 \u00b7 LB95 -0.4363 \u00b7 per-row p50 42.983 ms (metal device, laya-english). Serve REFUSED (014 class-wide latency class); record-only cell, seated per the owner call 2026-10-01 (instinct issue 017).",
+     "device": "metal",
+     "head_kind": "v1",
+     "ckpt": "english",
+     "shape_desc": "77 classes \u00b7 feat 79872",
+     "record_only": true,
+     "latency_quotable": true,
+     "source_run": {
+      "git_sha": "e0440e3",
+      "date_utc": "2026-10-01T18:50:28Z"
+     }
     }
    }
   },
@@ -15591,51 +15663,31 @@
       "acc": 0.9475,
       "cc": 0.93
      },
-     "massive_intent_en": {
-      "acc": 0.656667,
-      "cc": 0.638596
-     },
-     "banking77": {
-      "acc": 0.442,
-      "cc": 0.434658
-     },
      "sst5": {
       "acc": 0.526667,
       "cc": 0.408333
-     },
-     "emotion": {
-      "acc": 0.885,
-      "cc": 0.862
      },
      "xnli_en": {
       "acc": 0.86,
       "cc": 0.79
      },
-     "prompt_injections": {
-      "acc": 0.801724,
-      "cc": 0.603448
-     },
      "typed_decisions": {
       "acc": 0.755,
       "cc": 0.641026
-     },
-     "code_fixtures": {
-      "acc": 0.5625,
-      "cc": 0.363636
      }
     },
     "areas": {
-     "language": 0.667751,
-     "sentiment": 0.635166,
-     "reasoning": 0.696724,
-     "decisions": 0.502331
+     "language": 0.93,
+     "sentiment": 0.408333,
+     "reasoning": 0.79,
+     "decisions": 0.641026
     },
-    "index": 0.625493,
+    "index": 0.69234,
     "coverage": {
-     "suites": 9,
+     "suites": 4,
      "of": 9
     },
-    "complete": true
+    "complete": false
    },
    "laya": {
     "display": "laya (rust)",
@@ -16140,11 +16192,11 @@
    "encoder": {
     "clock": "in-process",
     "method": "Rust in-process GPU encode+head forward (Metal on the m3 hosts; the cell's `device` field names it)",
-    "suites": 9,
+    "suites": 4,
     "p50_geomean_ms": 16.7464,
     "n_used": 2,
-    "n_unquotable": 2,
-    "n_unjudged": 5,
+    "n_unquotable": 1,
+    "n_unjudged": 1,
     "note": "population = the suites behind the lane's index; p50 geometric mean over latency_quotable cells only (unfit timing is shown in the tables, never plotted)"
    },
    "laya": {
