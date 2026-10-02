@@ -1,0 +1,145 @@
+{
+ "meta": {
+  "generated_utc": "2026-10-02T06:40:49Z",
+  "caveat": "Honest caveat \u2014 self-authored fixtures. These six families are our own synthetic decision-point fixtures, not standardized external benchmarks. Gates prevent train/eval token leakage, but the question styles, distractors and class balance are ours. These numbers measure how our lanes behave on our own fixture distribution \u2014 engineering signal, not capability claims. Not comparable to the dataset-suite board or to the Jev Decision Index.",
+  "quarantine": "This file feeds ONLY the /families/ section. It is never ingested by publish_bench.py and never touches bench.json's areas/cc/index math.",
+  "provenance": {
+   "modelless": {
+    "repo": "riir-reflex",
+    "record": "../riir-reflex/.benchmarks/105_families_wide_eval.md",
+    "sha": "e78c0e6",
+    "posture": "harness run() baseline (nb_scale 0), wide eval"
+   },
+   "hybrid": {
+    "repo": "riir-instinct",
+    "record": "../riir-instinct/.benchmarks/0051_families_wide_eval",
+    "sha": "0340f1f",
+    "posture": "A0 seat posture (head/nb/oc/ridge selects), wide eval"
+   },
+   "encoder": null
+  },
+  "cache_reuse_note": "harness_cache_reuse keeps its frozen 12-fixture eval record (the documented divergence, reflex Plan 009 REVISED-2); the other five carry the 96-100-case wide populations."
+ },
+ "families": [
+  {
+   "name": "harness_visibility",
+   "chance": 0.25,
+   "modelless": {
+    "acc": 0.3125,
+    "n": 96,
+    "abstain_rate": 0.5416666666666666,
+    "selective_acc": 0.36363636363636365,
+    "p50_ms": 0.013,
+    "p99_ms": 0.017,
+    "deterministic": true
+   },
+   "hybrid": {
+    "acc": 0.4895833333333333,
+    "n": null,
+    "verdict": "a0_stands"
+   },
+   "encoder": null,
+   "n": 96
+  },
+  {
+   "name": "harness_permissions",
+   "chance": 0.3333,
+   "modelless": {
+    "acc": 0.3125,
+    "n": 96,
+    "abstain_rate": 0.5,
+    "selective_acc": 0.2708333333333333,
+    "p50_ms": 0.009,
+    "p99_ms": 0.01,
+    "deterministic": true
+   },
+   "hybrid": {
+    "acc": 0.4895833333333333,
+    "n": null,
+    "verdict": "a0_stands"
+   },
+   "encoder": null,
+   "n": 96
+  },
+  {
+   "name": "harness_tool_fit",
+   "chance": 0.17,
+   "modelless": {
+    "acc": 0.3020833333333333,
+    "n": 96,
+    "abstain_rate": 0.7604166666666666,
+    "selective_acc": 0.34782608695652173,
+    "p50_ms": 0.01,
+    "p99_ms": 0.013,
+    "deterministic": true
+   },
+   "hybrid": {
+    "acc": 0.4895833333333333,
+    "n": null,
+    "verdict": "a0_stands"
+   },
+   "encoder": null,
+   "n": 96
+  },
+  {
+   "name": "harness_routing",
+   "chance": 0.25,
+   "modelless": {
+    "acc": 0.28125,
+    "n": 96,
+    "abstain_rate": 0.6145833333333334,
+    "selective_acc": 0.2702702702702703,
+    "p50_ms": 0.011,
+    "p99_ms": 0.013,
+    "deterministic": true
+   },
+   "hybrid": {
+    "acc": 0.4479166666666667,
+    "n": null,
+    "verdict": "a0_stands"
+   },
+   "encoder": null,
+   "n": 96
+  },
+  {
+   "name": "harness_sensitivity",
+   "chance": 0.2,
+   "modelless": {
+    "acc": 0.22,
+    "n": 100,
+    "abstain_rate": 0.5,
+    "selective_acc": 0.26,
+    "p50_ms": 0.01,
+    "p99_ms": 0.011,
+    "deterministic": true
+   },
+   "hybrid": {
+    "acc": 0.34,
+    "n": null,
+    "verdict": "a0_stands"
+   },
+   "encoder": null,
+   "n": 100
+  },
+  {
+   "name": "harness_cache_reuse",
+   "chance": 0.5,
+   "modelless": {
+    "acc": 0.5,
+    "n": 12,
+    "abstain_rate": 0.6666666666666666,
+    "selective_acc": 0.25,
+    "p50_ms": 0.01,
+    "p99_ms": 0.011,
+    "deterministic": true
+   },
+   "hybrid": {
+    "acc": 0.9166666666666666,
+    "n": null,
+    "verdict": "a0_stands"
+   },
+   "encoder": null,
+   "n": 12
+  }
+ ]
+}
