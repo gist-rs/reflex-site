@@ -1,6 +1,11 @@
 [
   {
     "date": "2026-10-02",
+    "change": "The six harness_* decision-point suites removed from the board (owner call)",
+    "why": "Modelless reads at chance on them at the honest wide-eval populations (0.22–0.31 vs ~0.2–0.33 random-pick; the old small-n template-shared rows read 0.56–0.92 — the inflation the wide eval removed), and the suites are deleted from the reflex harness upstream — the board rows went with them (17 → 11 suites). The publisher drops the retired names at the load boundary of every path (fresh docs, updates, --rederive), so no older results doc can re-grow a row; the divergences line naming them is scrubbed too. The /families/ quarantined page + data/families.json are untouched."
+  },
+  {
+    "date": "2026-10-02",
     "change": "Family rows' served fallback fixed on the hero — Instinct/Rethink ↩ bars render where the Reflex matcher swallowed them",
     "why": "laneOf()'s katgpt matcher (model === \"modelless\") classified the derived tier-fallback cells (the modelless tier's served answer riding the Instinct/Rethink lane) as Reflex cells, so the hero rendered \"Instinct — not run\" / \"Rethink — not run\" on the five harness families while the verdict card counted the same cells as family arms (2026-10-02 user report). The matcher now defers any cell whose lane names a product lane; the verdict card tags fallback arms ↩ (hover names the answering tier)."
   },

@@ -2501,7 +2501,7 @@ def case_fallback_cells_close_product_lane_holes():
                 "hybrid": fb_cell("Instinct", 0.854),
             },
             {   # no hybrid → both product lanes fall back to modelless
-                "name": "harness_visibility",
+                "name": "probe_a",
                 "n_questions": 16, "n_cases": 16,
                 "modelless": fb_cell("modelless", 0.5625),
                 "disclosures": {"instinct": "specialist scope",
@@ -2524,15 +2524,15 @@ def case_fallback_cells_close_product_lane_holes():
     assert enc["hard"]["accuracy"] == 0.854
     assert "Instinct" in enc["served_by"]
     assert enc["model"] == "Instinct" or "Instinct" in enc["served_by"]
-    # harness_visibility: BOTH product lanes derive from modelless; the
+    # probe_a: BOTH product lanes derive from modelless; the
     # disclosures are consumed into the cells.
     for k in ("hybrid", "encoder"):
-        c = s["harness_visibility"][k]
+        c = s["probe_a"][k]
         assert c["serves"] == "tier-fallback" and c["derived"] is True
         assert c["hard"]["accuracy"] == 0.5625
         assert "Reflex" in c["served_by"]
         assert c["fallback_note"]
-    assert "disclosures" not in s["harness_visibility"]
+    assert "disclosures" not in s["probe_a"]
     # emotion: the real instinct cell is untouched (not a fallback).
     assert s["emotion"]["hybrid"].get("derived") is None
     # …but its encoder lane falls back from the hybrid cell.
@@ -2546,7 +2546,7 @@ def case_fallback_cells_need_a_measurable_source():
     d = {
         "meta": {"host": "m3", "git_sha": "sha-a", "date_utc": "x"},
         "suites": [{
-            "name": "harness_tool_fit",
+            "name": "probe_b",
             "n_questions": 12, "n_cases": 12,
             "disclosures": {"instinct": "scope"},
         }],
@@ -2559,7 +2559,7 @@ def case_fallback_cells_need_a_measurable_source():
     d2 = {
         "meta": {"host": "m3", "git_sha": "sha-a", "date_utc": "x"},
         "suites": [{
-            "name": "harness_routing",
+            "name": "probe_c",
             "n_questions": 16, "n_cases": 16,
             "modelless": fb_cell("modelless", 0.75),
         }],
@@ -2568,6 +2568,53 @@ def case_fallback_cells_need_a_measurable_source():
     first = copy.deepcopy(d2["suites"][0]["hybrid"])
     assert pb.apply_fallback_cells(d2) == 0
     assert d2["suites"][0]["hybrid"] == first
+
+
+def case_retired_suites_never_publish():
+    # Owner call 2026-10-02: the six harness_* decision-point suites are
+    # retired from the board EVERYWHERE — the modelless engine read at
+    # chance on them at the honest wide-eval populations, and the suites
+    # are deleted from the reflex harness itself (that removal lands
+    # upstream, separately). The load-boundary filter must hold on every
+    # publish path so no older results doc can re-grow a row, the
+    # divergences line naming a retired suite goes with it, and the
+    # hand-maintained DISCLOSURES table carries no stale retired rows.
+    assert set(pb.RETIRED_SUITES) == {
+        "harness_visibility", "harness_permissions", "harness_tool_fit",
+        "harness_routing", "harness_sensitivity", "harness_cache_reuse",
+    }
+    for n in pb.RETIRED_SUITES:
+        assert n not in pb.DISCLOSURES, f"stale disclosure row for retired suite {n}"
+    d = doc("m3", "sha-a", {"sst5": {"modelless_acc": 0.42}})
+    d["suites"].extend(
+        {"name": n, "n_questions": 96, "n_cases": 96,
+         "modelless": {"lane": "modelless", "hard": {"accuracy": 0.25}}}
+        for n in pb.RETIRED_SUITES)
+    d["meta"]["divergences"] = [
+        "banking77: mteb/banking77 mirror",
+        "harness families: in-process synthetic fixtures; "
+        "harness_cache_reuse is LLM-lane only",
+    ]
+    dropped = pb.drop_retired_suites(d)
+    assert sorted(dropped) == sorted(pb.RETIRED_SUITES)
+    assert [s["name"] for s in d["suites"]] == ["sst5"]
+    assert d["meta"]["divergences"] == ["banking77: mteb/banking77 mirror"]
+    assert pb.drop_retired_suites(d) == []   # idempotent
+    # The ordinary path: the retired rows never reach the merged output.
+    merged = pb.merge(d, [])
+    pb.finalize(merged)
+    assert not ({s["name"] for s in merged["suites"]} & pb.RETIRED)
+    # --rederive on an already-published file carries the same filter, with
+    # the byte-guard still proving the SURVIVING cells untouched.
+    with tempfile.TemporaryDirectory() as td:
+        pub = Path(td) / "bench.json"
+        pub.write_text(json.dumps(merged), encoding="utf-8")
+        assert pb.rederive(pub) == 0
+        after = json.loads(pub.read_text(encoding="utf-8"))
+        assert not ({s["name"] for s in after["suites"]} & pb.RETIRED)
+        assert not any("harness_" in json.dumps(s) for s in after["suites"])
+        assert not any("harness_" in line
+                       for line in after["meta"].get("divergences", []))
 
 
 def case_displaced_losing_records_show_the_served_answer():
@@ -2808,6 +2855,7 @@ CASES = [
     case_area_timing_population_and_quotable,
     case_rederive_preserves_cells,
     case_rederive_archives_on_edition_bump,
+    case_retired_suites_never_publish,
 ]
 
 def main() -> int:

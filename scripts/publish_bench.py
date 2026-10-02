@@ -310,23 +310,62 @@ DISCLOSURES = {
         ),
     },
 }
-for _fam in ("harness_visibility", "harness_permissions", "harness_tool_fit",
-             "harness_routing", "harness_sensitivity", "harness_cache_reuse"):
-    DISCLOSURES[_fam] = {
-        "instinct": (
-            "the specialist lane is scoped out here — the seat/arena seam "
-            "stays display-only on these fixtures (instinct issue 008 T8; "
-            "the wide template-disjoint eval, Plan 009 / issue 059, does "
-            "not reopen specialist certification) — the served arm is the "
-            "artifact-less A0 row, re-baselined on the wide eval at "
-            "instinct Bench 0051; the caveat page is /families/"
-        ),
-        "instinct-encoder": (
-            "owner call unmade — encoder cells need riir-train heads on "
-            "the family corpora; until then the /families/ page renders "
-            "`not run` (pending-not-zero law, Plan 009 / issue 059)"
-        ),
-    }
+# Suite retirement (owner call, 2026-10-02): the six harness_* decision-point
+# families are REMOVED from the board everywhere — the modelless engine reads
+# AT CHANCE on them at the honest wide-eval populations (~0.22–0.31 against
+# ~0.2–0.33 random-pick; the old small-n template-shared rows read 0.56–0.92
+# and were the inflation), and the suites are deleted from the reflex harness
+# itself (that removal lands upstream — this repo only stops publishing
+# them). A suite named here is dropped at the LOAD boundary of every publish
+# path (fresh docs, lane-scoped updates, --rederive), so no older results
+# doc can ever re-grow a retired row; any meta.divergences line naming one
+# goes with it. The /families/ quarantined page and its own data file are
+# a separate surface and are deliberately untouched (the quarantine gate
+# below forbids this script from ever naming or ingesting either).
+RETIRED_SUITES = (
+    "harness_visibility",
+    "harness_permissions",
+    "harness_tool_fit",
+    "harness_routing",
+    "harness_sensitivity",
+    "harness_cache_reuse",
+)
+RETIRED = frozenset(RETIRED_SUITES)
+
+
+def drop_retired_suites(d):
+    """Drop the retired suites from a loaded doc — loud per row, idempotent.
+
+    Runs on EVERY loaded doc (the primary, every extra, a --rederive input)
+    BEFORE any merge/guard arithmetic, so a retired name cannot reach the
+    merged doc, the population guards, or the derived blocks. The divergences
+    list is scrubbed IN PLACE (merge shallow-copies the meta dict, so a
+    reassignment would not be seen through the copy). Returns the dropped
+    suite names."""
+    dropped = []
+    suites = d.get("suites") or []
+    kept = [s for s in suites if s.get("name") not in RETIRED]
+    if len(kept) != len(suites):
+        dropped = [s["name"] for s in suites if s.get("name") in RETIRED]
+        d["suites"] = kept
+    dropped_divs = 0
+    divs = (d.get("meta") or {}).get("divergences")
+    if isinstance(divs, list):
+        kept_divs = [line for line in divs
+                     if not (isinstance(line, str)
+                             and any(n in line for n in RETIRED_SUITES))]
+        if len(kept_divs) != len(divs):
+            dropped_divs = len(divs) - len(kept_divs)
+            divs[:] = kept_divs
+    if dropped or dropped_divs:
+        print(
+            "note: retired suites dropped (owner call 2026-10-02, "
+            "at-chance verdict): " + (", ".join(dropped) or "(none)")
+            + (f"; {dropped_divs} meta.divergences line(s) naming them"
+               if dropped_divs else ""),
+            file=sys.stderr,
+        )
+    return dropped
 
 # Both spellings of the python lane: the machine field in a fresh harness
 # doc, and the display name in a previously-published bench.json.
@@ -2432,6 +2471,10 @@ def rederive(path: Path) -> int:
             file=sys.stderr,
         )
         return 2
+    # The retirement filter runs BEFORE the byte-guard snapshot: dropping a
+    # retired suite row is the owner-directed change this pass exists to
+    # land; the guard then proves every SURVIVING suite's cells untouched.
+    drop_retired_suites(d)
     before = json.dumps([_measurable(s) for s in d.get("suites", [])],
                         sort_keys=True)
     n_paired = finalize(d)
@@ -2478,6 +2521,12 @@ def main() -> int:
         return 1
     primary = load_run(results_paths[0])
     extras = [load_run(p) for p in results_paths[1:]]
+    # Suite retirement (owner 2026-10-02): dropped at the load boundary of
+    # every path — before the guards, the incumbent snapshot, and the merge —
+    # so no older results doc can re-grow a retired row.
+    drop_retired_suites(primary)
+    for e in extras:
+        drop_retired_suites(e)
     lanes_env = os.environ.get("PUBLISH_BENCH_LANES", "").strip()
     if lanes_env:
         allowed = {x.strip() for x in lanes_env.split(",") if x.strip()}
