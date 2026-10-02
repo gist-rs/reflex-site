@@ -342,17 +342,31 @@ console.log("[old-data] areas/frontier/profile render graceful on stripped + URL
 fakeEl("frontier");
 window.BenchCharts.frontier(d, captured["frontier"]);
 const fHtml = captured["frontier"].innerHTML;
-let expectedPts = 0, expectedPartial = 0, expectedMiss = 0, expectedTPartial = 0, expectedRings = 0;
+let expectedPts = 0, expectedPartial = 0, expectedMiss = 0, expectedTPartial = 0;
+const fPlotted = [];
 for (const [key, ld] of Object.entries((d.areas || {}).lanes || {})) {
   const t = ((d.areas || {}).timing || {})[key] || {};
   const plotted = typeof ld.index === "number" && isFinite(ld.index)
     && typeof t.p50_geomean_ms === "number" && t.p50_geomean_ms > 0;
   if (!plotted) { expectedMiss++; continue; }
   expectedPts++;
+  fPlotted.push({ ld, t, x: t.p50_geomean_ms, y: ld.index });
   if (ld.complete === false) expectedPartial++;
   if (t.n_used < t.suites) expectedTPartial++;
-  else expectedRings++;   // ring-worthy candidates are full-timing lanes (dominance may still drop some; >=1 must survive)
 }
+// Expected rings RE-DERIVED from the data (never read off the renderer):
+// a lane rings iff full-timing, non-dominated by another full-timing lane
+// over the SAME per-suite set, AND at least one such rival exists — a solo
+// coverage group never rings (the 2026-10-02 round-3 verdict: laya(python)
+// drew a ring as the only plotted 8-suite lane while its index edge was a
+// coverage artifact). Round 2 pinned rings <= full-timing lanes; this pins
+// the exact set.
+const fCovOf = (p) => Object.keys(p.ld.per_suite || {}).sort().join(",");
+const fFull = (p) => p.t.n_used === p.t.suites;
+const fRivalled = (p) => fPlotted.some((q) => q !== p && fFull(q) && fCovOf(q) === fCovOf(p));
+const fDominated = (p) => !fFull(p) ? false : fPlotted.some((q) => q !== p && fFull(q)
+  && fCovOf(q) === fCovOf(p) && q.x <= p.x && q.y >= p.y && (q.x < p.x || q.y > p.y));
+const expectedRings = fPlotted.filter((p) => fFull(p) && !fDominated(p) && fRivalled(p)).length;
 const fDots = (fHtml.match(/class="rd-dot[ "]/g) || []).length;
 const fPartial = (fHtml.match(/ft-partial/g) || []).length;
 const fTPartial = (fHtml.match(/ft-tpartial/g) || []).length;
@@ -368,12 +382,24 @@ if (fTPartial !== expectedTPartial) {
   console.error(`FAIL[frontier]: ${fTPartial} timing-partial dot(s) vs ${expectedTPartial} in the data`);
   process.exit(1);
 }
-// a timing-partial dot must NEVER carry a frontier ring: rings ≤ full-timing
-// lanes, and every ring belongs to a full-timing lane (the encoder's 2-of-7
-// geomean drew ringed once — the round-2 verdict's measured defect)
+// a timing-partial dot must NEVER carry a frontier ring (the encoder's
+// 2-of-7 geomean drew ringed once — the round-2 verdict's measured
+// defect), and a solo-group dot must NEVER ring either (round 3): the
+// rendered count must EQUAL the re-derived frontier set
 const rings = (fHtml.match(/class="ft-ring"/g) || []).length;
-if (!rings || rings > expectedRings) {
-  console.error(`FAIL[frontier]: ${rings} ring(s) vs ${expectedRings} full-timing candidate lanes`);
+if (!rings) {
+  console.error("FAIL[frontier]: no ring rendered — at least one lane is expected on the frontier");
+  process.exit(1);
+}
+if (rings !== expectedRings) {
+  console.error(`FAIL[frontier]: ${rings} ring(s) vs ${expectedRings} re-derived frontier members`);
+  process.exit(1);
+}
+// every full-timing solo-group lane must carry the no-frontier disclosure
+const soloLanes = fPlotted.filter((p) => fFull(p) && !fRivalled(p)).length;
+const soloMarked = (fHtml.match(/alone in its coverage group/g) || []).length;
+if (soloMarked !== soloLanes) {
+  console.error(`FAIL[frontier]: ${soloMarked} solo disclosure(s) vs ${soloLanes} solo-group lane(s)`);
   process.exit(1);
 }
 const ariaTimed = (fHtml.match(/aria-label="[^"]*timing \d+\/\d+[^"]*"/g) || []).length;
@@ -385,6 +411,6 @@ if (expectedMiss && !fHtml.includes("Not plotted")) {
   console.error("FAIL[frontier]: the not-plotted lanes are not disclosed");
   process.exit(1);
 }
-console.log(`[frontier] ${fDots} dots, ${fPartial} partial, ${fTPartial} timing-partial, ${rings} rings, ${expectedMiss} not plotted`);
+console.log(`[frontier] ${fDots} dots, ${fPartial} partial, ${fTPartial} timing-partial, ${rings} rings, ${soloLanes} solo, ${expectedMiss} not plotted`);
 
 console.log(`chart render smoke PASS (p50: ${p50.bands} bands / ${p50.labels} lanes, broken at 500 ms; acc: ${acc.bands} bands / ${acc.labels} lanes; cc: ${cc.bands} bands; radar: ${polys} polys / ${dots} dots)`);

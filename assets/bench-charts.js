@@ -1113,6 +1113,11 @@
   // same suite count behind the index) sits up-and-left of it — a partial
   // lane "beating" a complete one is a comparison across different
   // populations and must not dominate (the 2026-10-02 verdict call).
+  // Round 3 (same day): a lane ALONE in its coverage group is never
+  // ringed — a frontier of one is not a frontier. laya(python) drew a
+  // ring as the only plotted 8-suite lane while its index edge over
+  // laya(rust) was pure coverage (G5-identical outputs, minus the
+  // code_fixtures spoke), reading as a quality win it never measured.
   function frontier(d, el) {
     if (!el) return;
     const A = d && d.areas;
@@ -1142,6 +1147,10 @@
     const dominated = (p) => !timingFull(p) ? false : pts.some((q) =>
       q !== p && timingFull(q) && covKey(q) === covKey(p) &&
       q.x <= p.x && q.y >= p.y && (q.x < p.x || q.y > p.y));
+    // a frontier needs a competitor: no other plotted full-timing lane over
+    // the same suite set → the non-domination above is vacuous
+    const rivalled = (p) => pts.some((q) =>
+      q !== p && timingFull(q) && covKey(q) === covKey(p));
     const W = 470, H = 310, L = 52, R = 16, T = 16, B = 40;
     const xs = pts.map((p) => p.x);
     const xmin = Math.log10(Math.min(...xs)) - 0.15;
@@ -1165,11 +1174,13 @@
       `<text class="ft-axis" x="${((L + W - R) / 2).toFixed(0)}" y="${H - 3}" text-anchor="middle">p50 latency · geometric mean over the lane's index suites · log</text>`;
     for (const p of pts) {
       const meta = LANES.find((x) => x.key === areaPaletteKey(p.key)) || OTHER;
-      const on = timingFull(p) && !dominated(p);
+      const on = timingFull(p) && !dominated(p) && rivalled(p);
       const partial = p.ld.complete === false;
       // timing-partial: the geomean covers a SUBSET of the index suites —
       // dashed stroke, never a frontier ring, aria carries the subset size
       const tpartial = !timingFull(p);
+      // solo coverage group: full timing, no plotted same-set rival
+      const solo = timingFull(p) && !rivalled(p);
       const cx = px(p.x), cy = py(p.y);
       const host = p.ld.host ? " · @" + p.ld.host : "";
       const tip = `<b>${esc((p.ld.display || meta.label) + host)}</b><br>` +
@@ -1177,6 +1188,7 @@
         `<span class="bc-mut">${esc(p.ld.kind || "")} · ${esc(p.t.clock || "")}</span>` +
         (partial ? `<br><span class="bc-mut">partial coverage — ${p.ld.coverage.suites}/${p.ld.coverage.of}</span>` : "") +
         (tpartial ? `<br><span class="bc-mut">timing partial — the geomean covers ${p.t.n_used} of ${p.t.suites} index suites; excluded from the frontier</span>` : "") +
+        (solo ? `<br><span class="bc-mut">alone in its coverage group — no frontier claim</span>` : "") +
         (on ? `<br><span class="bc-mut">on the Pareto frontier (within its coverage group)</span>` : "");
       if (on) out += `<circle class="ft-ring" cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="8.5" style="stroke:${meta.color}"/>`;
       out += `<circle class="rd-dot${partial ? " ft-partial" : ""}${tpartial ? " ft-tpartial" : ""}" cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="4.6" style="fill:${meta.color};fill-opacity:${partial ? 0.25 : 1};stroke:${meta.color};stroke-width:${tpartial ? 1.6 : 1};stroke-dasharray:${tpartial ? "2.5 2" : "none"}"` +
@@ -1187,7 +1199,7 @@
       ? ` Not plotted: ${missing.map((m) => esc(`${m.ld.display || m.key} — ${m.why}`)).join("; ")}.`
       : "";
     el.innerHTML = `<div class="ft-wrap">${out}</div>` +
-      `<p class="bc-note">${esc("One dot per lane: the cc decision index (y) against the p50 latency geometric mean over the lane's QUOTABLE index suites (x, log). Ringed dots sit on the Pareto frontier within their coverage group — lanes only compete against lanes that measured the SAME suites, and only on full timing; dashed dots are timing-partial (the geomean covers a subset of the index suites); hollow dots are partial lanes. Timing methods differ per lane — the table below says which clock each number comes from.")}${missNote}</p>`;
+      `<p class="bc-note">${esc("One dot per lane: the cc decision index (y) against the p50 latency geometric mean over the lane's QUOTABLE index suites (x, log). Ringed dots sit on the Pareto frontier within their coverage group — lanes only compete against lanes that measured the SAME suites, and only on full timing, and a lane alone in its group is never ringed; dashed dots are timing-partial (the geomean covers a subset of the index suites); hollow dots are partial lanes. Timing methods differ per lane — the table below says which clock each number comes from.")}${missNote}</p>`;
   }
 
   // ── the per-lane profile view (plan 001 task 8; /bench/?lane=<id>) ──
