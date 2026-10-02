@@ -907,9 +907,11 @@
   // right. Lanes honor the lane filter; the rollups are primary-host rows,
   // except a lane the primary host never ran — it rolls up from its
   // serving host under a host-tagged key and renders the host beside its
-  // name. A partial lane (the Rethink encoder arm) draws only its
-  // measured spokes — missing suites are gaps, never zeros dressed as
-  // data.
+  // name. A partial lane draws its SERVED answer on the suites its own
+  // arm never measured (the tier-fallback spokes publish_bench.py marks
+  // in the rollup): the spoke draws as a TRIANGLE (rd-fb), the tooltip
+  // names the answering tier, the legend counts the fill — a suite
+  // nothing measurable serves stays a gap, never zero dressed as data.
   const AREA_LANE_KEYS = {
     modelless: "katgpt", hybrid: "instinct", encoder: "instinct-encoder",
     laya: "rust", python: "python", clm: "clm", gliner: "gliner",
@@ -932,7 +934,7 @@
     }).filter((l) => !(window.BenchFilter && window.BenchFilter.ready()) || window.BenchFilter.visibleKey(l.meta.key));
   }
 
-  function radarSvg(spokes, laneRows, valuesOf, tipOf, ariaOf) {
+  function radarSvg(spokes, laneRows, valuesOf, tipOf, ariaOf, fbOf) {
     const n = spokes.length;
     const W = 430, H = 344, cx = 215, cy = 172, R = 112;
     const f2 = (v) => (+v).toFixed(2);
@@ -971,13 +973,22 @@
         out += `<line class="rd-polyline" x1="${f2(p1[0])}" y1="${f2(p1[1])}" x2="${f2(p2[0])}" y2="${f2(p2[1])}" style="stroke:${lane.color}"/>`;
       }
       for (const [i, p] of measured) {
-        // below-chance dot: HOLLOW ring at the centre (the clamp would sit
-        // it exactly on a 0 spoke — the hollow fill is what says negative;
+        // below-chance mark: HOLLOW at the centre (the clamp would sit it
+        // exactly on a 0 spoke — the hollow fill is what says negative;
         // the tooltip carries the signed value)
         const v = valuesOf(lane)[i];
         const below = num(v) && v < 0;
-        out += `<circle class="rd-dot${below ? " rd-dot-below" : ""}" cx="${f2(p[0])}" cy="${f2(p[1])}" r="3.2" style="fill:${below ? "none" : lane.color};stroke:${below ? lane.color : "none"};stroke-width:${below ? 1.6 : 0}"` +
-          ` data-tip="${esc(tipOf(lane, i))}" tabindex="0" aria-label="${esc(ariaOf(lane, i))}"/>`;
+        const tip = ` data-tip="${esc(tipOf(lane, i))}" tabindex="0" aria-label="${esc(ariaOf(lane, i))}"`;
+        if (fbOf && fbOf(lane, i)) {
+          // fallback spoke: TRIANGLE (▲) — the served tier answers where
+          // this lane's own arm has no cell; hollow when below chance,
+          // the same language as the hollow below-chance ring.
+          const r = 4.3, x = p[0], y = p[1];
+          const pts = `${f2(x)},${f2(y - r)} ${f2(x - r * 0.92)},${f2(y + r * 0.72)} ${f2(x + r * 0.92)},${f2(y + r * 0.72)}`;
+          out += `<polygon class="rd-dot rd-fb${below ? " rd-dot-below" : ""}" points="${pts}" style="fill:${below ? "none" : lane.color};stroke:${below ? lane.color : "none"};stroke-width:${below ? 1.6 : 0}"` + tip + `/>`;
+        } else {
+          out += `<circle class="rd-dot${below ? " rd-dot-below" : ""}" cx="${f2(p[0])}" cy="${f2(p[1])}" r="3.2" style="fill:${below ? "none" : lane.color};stroke:${below ? lane.color : "none"};stroke-width:${below ? 1.6 : 0}"` + tip + `/>`;
+        }
       }
     }
     return out + "</svg>";
@@ -985,13 +996,20 @@
 
   function radarLegend(laneRows, scoreOf, partialNote) {
     return laneRows.map((lane) => {
+      // fallback lanes lead with the FILL count (▲ = the served tier
+      // answers); other partial lanes keep the pending disclosure. The
+      // coverage numbers beside them stay the lane's OWN measured count.
+      const fbn = (lane.data.fallback_suites || []).length;
       const partial = lane.data.complete === false;
+      const mark = fbn
+        ? ` · ${fbn} fallback (▲ = the served tier answers)`
+        : (partial ? ` · partial+pending (${esc(partialNote)})` : "");
       return `<div class="rd-lg">` +
         `<i class="bc-sw" style="background:${lane.color}"></i>` +
         `<b>${esc(lane.label)}</b>` +
         `<span class="rd-lg-idx">${num(scoreOf(lane)) ? pct(scoreOf(lane)) : "—"}</span>` +
         `<span class="bc-mut">${lane.data.kind ? esc(lane.data.kind) + " · " : ""}${lane.data.coverage ? `${lane.data.coverage.suites}/${lane.data.coverage.of}` : ""}` +
-        (partial ? ` · partial+pending (${esc(partialNote)})` : "") +
+        mark +
         `</span></div>`;
     }).join("");
   }
@@ -1017,11 +1035,13 @@
       const a = areaDefs[i];
       const rows = a.suites.map((name) => {
         const e = lane.data.per_suite[name];
-        return e ? `${esc(name)}: <b>${pct(e.acc)}</b> raw` : `${esc(name)}: not run`;
+        return e ? `${esc(name)}: <b>${pct(e.acc)}</b> raw${e.fallback ? " (▲ fallback)" : ""}` : `${esc(name)}: not run`;
       }).join("<br>");
+      const fbCount = a.suites.filter((n) => ((lane.data.per_suite || {})[n] || {}).fallback).length;
       return `<span class="bc-sw" style="background:${lane.color}"></span><b>${esc(lane.label)}</b> · ${esc(a.label)}<br>` +
         `area score ${num((lane.data.areas || {})[a.id]) ? pct(lane.data.areas[a.id]) : "—"} (chance-corrected mean)<br>` +
-        `<span class="bc-mut">${rows}</span>`;
+        `<span class="bc-mut">${rows}</span>` +
+        (fbCount ? `<br><span class="bc-mut">includes ${fbCount} fallback spoke(s)</span>` : "");
     };
     const areaAria = (lane, i) =>
       `${lane.label} ${areaDefs[i].label}: ${num((lane.data.areas || {})[areaDefs[i].id]) ? pct(lane.data.areas[areaDefs[i].id]) : "not run"}`;
@@ -1035,29 +1055,41 @@
       const name = suiteNames[i];
       const e = lane.data.per_suite[name];
       if (!e) return `<span class="bc-sw" style="background:${lane.color}"></span><b>${esc(lane.label)}</b> · ${esc(name)}<br>not run`;
+      const fbLine = e.fallback
+        ? `<br><span class="bc-mut">▲ tier fallback — served by ${esc(e.served_by || "the answering tier")}` +
+          (num(e.record_acc) ? `; this lane's own refused record read ${pct(e.record_acc)}` : "") + `</span>`
+        : "";
       return `<span class="bc-sw" style="background:${lane.color}"></span><b>${esc(lane.label)}</b> · ${esc(name)}${e.ck ? ` <span class="bc-mut">(${esc(e.ck)} checkpoint)</span>` : ""}<br>` +
-        `chance-corrected <b>${pct(e.cc)}</b> · accuracy <b>${pct(e.acc)}</b> (chance ${chanceTxt(name)})`;
+        `chance-corrected <b>${pct(e.cc)}</b> · accuracy <b>${pct(e.acc)}</b> (chance ${chanceTxt(name)})` + fbLine;
     };
     const suiteAria = (lane, i) => {
       const name = suiteNames[i];
       const e = lane.data.per_suite[name];
-      return `${lane.label} ${name}: ${e ? pct(e.cc) + " chance-corrected" : "not run"}`;
+      if (!e) return `${lane.label} ${name}: not run`;
+      return `${lane.label} ${name}: ${pct(e.cc)} chance-corrected` +
+        (e.fallback ? ` (tier fallback, served by ${e.served_by || "the answering tier"})` : "");
     };
     const laneMean = (lane) => {
       const vs = suiteNames.map((name) => (lane.data.per_suite[name] || {}).cc).filter(num);
       return vs.length ? vs.reduce((a, v) => a + v, 0) / vs.length : null;
     };
     const partialNote = "see the Instinct section";
+    // fallback spokes draw on the per-benchmark card (the areas card rolls
+    // them into its means and discloses the count in the tooltip)
+    const suiteFb = (lane, i) => {
+      const e = lane.data.per_suite[suiteNames[i]];
+      return !!(e && e.fallback);
+    };
     el.innerHTML =
       `<div class="area-cards">` +
       `<div class="area-card"><h3>All areas <span class="bc-mut">· decision index</span></h3>` +
       radarSvg(areaDefs.map((a) => a.label), laneRows, areaVals, areaTip, areaAria) +
       `<div class="rd-legend">${radarLegend(laneRows, (l) => l.data.index, partialNote)}</div>` +
-      `<p class="bc-note">${esc("One spoke per area — the lane's mean chance-corrected score over the area's benchmarks; the index is the mean of the spokes. " + A.scale + ". Primary-host rows; a lane the primary host never ran renders from its serving host (host named on the lane).")}</p></div>` +
+      `<p class="bc-note">${esc("One spoke per area — the lane's mean chance-corrected score over the area's benchmarks; the index is the mean of the spokes. " + A.scale + ". Primary-host rows; a lane the primary host never ran renders from its serving host (host named on the lane). A lane's fallback spokes (triangles on the benchmarks card) roll into its area means.")}</p></div>` +
       `<div class="area-card"><h3>All benchmarks <span class="bc-mut">· ${esc(String(suiteNames.length))} spokes</span></h3>` +
-      radarSvg(suiteNames, laneRows, suiteVals, suiteTip, suiteAria) +
+      radarSvg(suiteNames, laneRows, suiteVals, suiteTip, suiteAria, suiteFb) +
       `<div class="rd-legend">${radarLegend(laneRows, laneMean, partialNote)}</div>` +
-      `<p class="bc-note">${esc(`One spoke per benchmark (${suiteNames.length}), chance-corrected — hover a point for the raw accuracy. A partial lane draws only its measured spokes; gaps are unmeasured, never zero. Primary-host rows; serving-host lanes carry their host.`)}</p></div>` +
+      `<p class="bc-note">${esc(`One spoke per benchmark (${suiteNames.length}), chance-corrected — hover a point for the raw accuracy. A lane's own spokes are dots; a triangle (▲) marks a fallback spoke — the served tier's answer where the lane's own arm has no seated cell (see the Instinct section); a suite nothing measurable serves stays a gap, never zero. Coverage counts the lane's own measured suites. Primary-host rows; serving-host lanes carry their host.`)}</p></div>` +
       `</div>`;
   }
 

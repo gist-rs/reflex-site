@@ -1941,7 +1941,7 @@ def cc_of(name, a):
 
 def case_area_rollups_math_and_coverage():
     a = pb.compute_areas(area_doc())
-    assert a["version"] == 3
+    assert a["version"] == 4
     # every area suite present → coverage floor 9
     assert len(a["suites"]) == 9 and [x["id"] for x in a["areas"]] == \
         ["language", "sentiment", "reasoning", "decisions"]
@@ -2062,6 +2062,74 @@ def case_area_rollup_is_idempotent():
     first = pb.compute_areas(d)
     second = pb.compute_areas(d)
     assert first == second
+
+
+def case_area_fallback_spokes_roll_up_marked():
+    """The radar reflects the SERVED product (owner 2026-10-02): a derived
+    tier-fallback cell rolls into the lane's per_suite/areas/index MARKED
+    (fallback + served_by; record_acc when a displaced record rode the
+    cell) — while coverage/complete stay the lane's OWN measured count and
+    fallback_suites names the fill. The entry carries no fallback fields
+    for a lane's own cell, and the block carries no fallback fields when
+    the lane needed none."""
+    d = area_doc()
+    fb_names = sorted(s["name"] for s in d["suites"] if s["name"] != "sst5")
+    for s in d["suites"]:
+        if s["name"] == "sst5":
+            continue
+        cell = dict(area_cell("Rethink", 0.7), derived=True,
+                    serves="tier-fallback", served_by="Instinct (A0)",
+                    fallback_note="test fixture")
+        if s["name"] == "emotion":
+            cell["displaced_record"] = area_cell("Rethink", 0.62)
+        s["encoder"] = cell
+    a = pb.compute_areas(d)
+    enc = a["lanes"]["encoder"]
+    assert enc["coverage"] == {"suites": 1, "of": 9}
+    assert enc["complete"] is False
+    assert enc["served_coverage"] == {"suites": 9, "of": 9}
+    assert enc["fallback_suites"] == fb_names
+    # the lane's own cell stays UNMARKED
+    assert enc["per_suite"]["sst5"] == {"acc": 0.526667,
+                                        "cc": cc_of("sst5", 0.5266667)}
+    for n in fb_names:
+        e = enc["per_suite"][n]
+        assert e["fallback"] is True and e["served_by"] == "Instinct (A0)"
+        assert e["cc"] == cc_of(n, 0.7)
+    assert "record_acc" not in enc["per_suite"]["ag_news"]
+    # the displaced record's own read rides the entry it was displaced on
+    assert enc["per_suite"]["emotion"]["record_acc"] == 0.62
+    # the index averages the DRAWN spokes (own + fallback), the areas
+    # means include the fallback ccs
+    assert enc["areas"]["sentiment"] == round(
+        (cc_of("sst5", 0.5266667) + cc_of("emotion", 0.7)) / 2, 6)
+    assert enc["index"] == round(sum(enc["areas"].values()) / 4, 6)
+    # a lane that needed no fallback carries none of the new fields
+    assert "fallback_suites" not in a["lanes"]["modelless"]
+    assert all("fallback" not in e
+               for e in a["lanes"]["modelless"]["per_suite"].values())
+    # idempotent over the fallback-bearing doc
+    assert pb.compute_areas(d) == a
+
+
+def case_area_timing_note_names_fallback_population():
+    """Fallback spokes join the timing population (the suites behind the
+    index) but their latency is the ANSWERING tier's — unjudged here,
+    never plotted — and the note names the fill so the verdict counts
+    cannot be misread."""
+    d = area_doc()
+    for s in d["suites"]:
+        if s["name"] != "sst5":
+            s["encoder"] = dict(area_cell("Rethink", 0.7), derived=True,
+                                serves="tier-fallback",
+                                served_by="Instinct (A0)",
+                                latency_p50_ms=3.0)
+    a = pb.compute_areas(d)
+    lt = a["timing"]["encoder"]
+    assert lt["suites"] == 9 and lt["n_used"] == 0
+    assert lt["p50_geomean_ms"] is None
+    assert lt["n_unjudged"] == 9
+    assert "fallback" in lt["note"]
 
 
 # ── plan 001 (2026-10-02): the Jev-distill arms — below-chance survival,
@@ -2265,7 +2333,7 @@ def case_rederive_preserves_cells():
         "finalize is idempotent over a published doc (rename_lanes is a no-op on current spellings)"
     assert published["meta"]["edition"] == pb.EDITION
     a = published["areas"]
-    assert a["version"] == 3 and "timing" in a and "chance_digest" in a
+    assert a["version"] == 4 and "timing" in a and "chance_digest" in a
     assert a["lanes"]["modelless"]["kind"] == pb.LANE_KIND["modelless"]
 
     # raw docs refuse
@@ -2588,11 +2656,14 @@ def case_displaced_losing_records_show_the_served_answer():
     assert m["encoder"] == rec
 
 
-def case_displaced_records_leave_the_radar():
-    # A derived cell never feeds the lane's radar/timing rollup: the
-    # displaced banking77 reads as a coverage GAP on the encoder lane
-    # (the answering tier already owns the number on its own spoke),
-    # while the lane's own real cells (ag_news) still roll up.
+def case_displaced_records_roll_up_marked():
+    # The owner's display directive (2026-10-02, the served-product radar)
+    # reversed the same-day gap rule: the displaced banking77 ROLLS UP as a
+    # MARKED fallback spoke (fallback + served_by + the displaced record's
+    # own read as record_acc) — the radar draws the served answer as a
+    # triangle, never a hole — while the lane's own real cells (ag_news)
+    # roll up unmarked, and coverage still counts only the lane's OWN
+    # measured suites.
     d = {
         "meta": {"host": "m3", "git_sha": "sha-a", "date_utc": "x"},
         "suites": [
@@ -2623,9 +2694,21 @@ def case_displaced_records_leave_the_radar():
     assert pb.apply_fallback_cells(d) == 0
     a = pb.compute_areas(d)
     enc = a["lanes"]["encoder"]["per_suite"]
-    assert "banking77" not in enc          # displaced → gap, never the
-    assert enc["ag_news"]["acc"] == 0.9475  # seated arm's number twice
-    assert a["lanes"]["encoder"]["coverage"]["suites"] == 1
+    # displaced banking77 → the SERVED answer, marked (never a gap, never
+    # a number wearing this lane's own name without the mark)
+    fb = enc["banking77"]
+    assert fb["fallback"] is True and fb["cc"] == cc_of("banking77", 0.854)
+    assert "Instinct" in fb["served_by"]
+    assert fb["record_acc"] == 0.442
+    # the lane's own record cell rolls up unmarked
+    assert enc["ag_news"]["acc"] == 0.9475
+    assert "fallback" not in enc["ag_news"]
+    # coverage stays the lane's OWN measured count; the fill is disclosed
+    # (the fixture doc carries only two area suites, so of = 2)
+    lane = a["lanes"]["encoder"]
+    assert lane["coverage"] == {"suites": 1, "of": 2}
+    assert lane["fallback_suites"] == ["banking77"]
+    assert lane["served_coverage"] == {"suites": 2, "of": 2}
 
 
 def fb_cell(lane, acc, model=None):
@@ -2645,7 +2728,7 @@ CASES = [
     case_fallback_cells_close_product_lane_holes,
     case_fallback_cells_need_a_measurable_source,
     case_displaced_losing_records_show_the_served_answer,
-    case_displaced_records_leave_the_radar,
+    case_displaced_records_roll_up_marked,
     case_disclosures_stamp_cellless_lanes,
     case_disclosures_cell_supersedes,
     case_lane_carry_keeps_incumbent_timing,
@@ -2715,6 +2798,8 @@ CASES = [
     case_area_partial_lane_discloses_and_never_pads,
     case_area_absent_lane_and_absent_suite_shrink_honestly,
     case_area_rollup_is_idempotent,
+    case_area_fallback_spokes_roll_up_marked,
+    case_area_timing_note_names_fallback_population,
     case_encoder_lane_display_rebrands_to_rethink,
     case_area_negative_cc_survives_rollup,
     case_area_zero_fill_regression,

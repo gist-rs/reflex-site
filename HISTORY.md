@@ -4,7 +4,37 @@ One hash-pinned line per removed issue (the fleet noise-reduction convention:
 an issue file is removed once its work is verifiably landed; this file is the
 durable record). Full narrative of each: `git log --follow -- .issues/<file>`.
 
-- **2026-10-02 (latest) — the /#sizes legend splits the engine segment by runtime
+- **2026-10-02 (latest) — the radar reflects the SERVED product: fallback
+  spokes drawn as triangles (owner call, resolves .issues/004's display
+  half).** The owner read the "All benchmarks" radar with Rethink at 4 drawn
+  spokes out of 9 as broken: the tables already show the served answer
+  (the tier-fallback cells `apply_fallback_cells` landed earlier the same
+  day), but `compute_areas` refused derived cells — the same-day reorder's
+  double-count call — so the radar drew holes where the product actually
+  answers. Reversal landed in `compute_areas`: a tier-fallback cell ROLLS
+  UP MARKED (`fallback` + `served_by` + `record_acc` where a displaced
+  record rode the cell), `_lane_block` gains `fallback_suites` +
+  `served_coverage` while `coverage`/`complete` keep counting only the
+  lane's OWN measured suites (filling the polygon never converts a partial
+  lane into a complete one), the index averages the DRAWN spokes (own +
+  fallback — Rethink 0.6923 → 0.6881 over 9), areas `version` 3 → 4, and
+  the timing note names the fallback population (the tier's latency is
+  unjudged here — shown in the tables, never plotted). The renderer draws
+  fallback spokes as TRIANGLES (`rd-fb`; hollow when below chance, the
+  below-chance ring's language), tooltips name the answering tier (and the
+  displaced record's own read), the legend reads "N fallback (▲ = the
+  served tier answers)", and the areas card's tooltip marks fallback rows.
+  Gates: two new self-test cases (fallback rollup marked + the timing
+  note) + `case_displaced_records_leave_the_radar` re-pinned to the new
+  law and renamed `case_displaced_records_roll_up_marked`; chart smoke
+  gains the data-derived `rd-fb` count + tooltip/legend arms; page smoke
+  9d pins triangles + disclosure. Rederived in place (`--rederive`, cells
+  byte-identical, 5 triangles on the live data). The issue's own-arm half
+  stays tracked in riir-instinct issue 014 D1 (the GPU serving deploy) —
+  the site's display question is closed: the board shows what the product
+  does, marked where the answer comes from a tier.
+
+- **2026-10-02 — the /#sizes legend splits the engine segment by runtime
   env: rust env in ember #d95926, python env in blue #3987e5, model / weights
   moves to the founding palette's green #199e70 (owner call).** The chart
   previously drew every engine segment ember and every model segment the laya

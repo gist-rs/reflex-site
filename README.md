@@ -20,6 +20,10 @@ static assets.
   chance-corrected so suites with different option counts share a radius
   (the chances ride `data/bench.json`'s `areas` block, emitted by
   `scripts/publish_bench.py` from the harness's own option construction).
+  A product lane's fallback spokes — the served tier's answer where the
+  lane's own arm has no seated cell — draw as triangles (▲) with the
+  answering tier named in the tooltip, while `coverage` keeps counting
+  the lane's own measured suites.
 - `/arena/` — the live games, four lanes, 2 per row: laya (Python) | laya
   (Rust), KatGPT modelless | raw baseline, under a TL;DR rendered from
   `data/bench.json`. Tetris adds a fifth, replay-only board — **Reflexer**,

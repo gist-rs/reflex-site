@@ -412,8 +412,10 @@ const server = http.createServer((req, res) => {
   }
 
   // 9d) the area radar (#bench-areas): two cards render from data.areas —
-  //     polygons only for complete lanes, dots for measured spokes, the
-  //     partial lane (Rethink encoder, coverage DATA-DERIVED from the
+  //     polygons for lanes, dots for the lane's own spokes, TRIANGLES
+  //     (rd-fb) for its fallback spokes (the served tier's answer — count
+  //     DATA-DERIVED from the publish's fallback_suites, never a literal),
+  //     the partial lane (Rethink encoder, coverage DATA-DERIVED from the
   //     publish's areas block — never a hand-typed literal, issue 017)
   //     disclosed in BOTH legends, and the lane filter governs it like
   //     every other section (hiding a lane removes its rows from both cards).
@@ -434,6 +436,14 @@ const server = http.createServer((req, res) => {
     const encRows = await page.$$eval("#bench-areas .rd-lg", (xs) => xs.filter((x) => x.textContent.includes("Rethink")).length);
     if (encRows !== 2) fail(`expected a Rethink legend row on both cards, got ${encRows}`);
     else console.log(`ok: area radar renders (${polys} polygons, ${dots} dots, partial lane disclosed on both cards)`);
+    // fallback spokes: triangles rendered per the published fallback_suites,
+    // disclosed in the legends (the served-product radar, 2026-10-02)
+    const expectedFb = Object.values(((benchData.areas || {}).lanes) || {})
+      .reduce((a, ld) => a + ((ld.fallback_suites || []).length), 0);
+    const fbs = await page.$$eval("#bench-areas .rd-fb", (xs) => xs.length);
+    if (fbs !== expectedFb) fail(`expected ${expectedFb} fallback triangle(s) (data-derived), got ${fbs}`);
+    else if (expectedFb > 0 && !legendTxt.includes("fallback")) fail("the radar legends must disclose the fallback spokes");
+    else console.log(`ok: ${fbs} fallback triangle(s) rendered + disclosed`);
     // the filter governs the radar: hiding the encoder lane empties its rows
     await page.uncheck('#lane-filter input[data-key="instinct-encoder"]');
     await page.waitForTimeout(300);

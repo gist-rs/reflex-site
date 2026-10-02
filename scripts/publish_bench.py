@@ -145,8 +145,13 @@ dataset facts read off the harness's own option construction; the rollup
 covers EVERY filterable lane (the product lanes Reflex / Instinct / Rethink
 / laya (rust) plus the comparison lanes — a lane the primary host never
 ran rolls up host-tagged from its serving host) and discloses per-lane
-coverage (the Rethink lane is 1/9, record-only — a partial index is
-disclosed as partial, never padded).
+coverage. A PRODUCT lane's missing suite draws its SERVED answer: the
+tier-fallback cell apply_fallback_cells derived rolls up MARKED
+(fallback + served_by, the displaced record's own read beside it) and
+the page draws it as a triangle — so a partial lane's index averages
+its DRAWN spokes (own + fallback) while coverage counts only the lane's
+own measured suites, fallback_suites names the rest, and a suite
+nothing measurable serves stays a gap (never padded, never zero).
 """
 
 import copy
@@ -782,15 +787,19 @@ def _area_lane_cell(s, lane):
             if best is None or acc > best_acc:
                 best, best_acc = (cell, cell.get("model")), acc
         return best
-    # A DERIVED tier-fallback cell never rolls up either (the finalize
-    # reorder, owner 2026-10-02): it is the answering tier's measurement,
-    # and that tier's own lane already carries it on the radar — counting
-    # it here would double-count the source tier and paint the product
-    # lane's spoke with a number its own arm never measured. The suite
-    # renders as a coverage gap instead (never zero).
+    # A DERIVED tier-fallback cell ROLLS UP (owner 2026-10-02, reversing
+    # the same-day reorder): the radar reflects the SERVED product — the
+    # serve path answers every suite through its tier stack, so the
+    # fallback cell IS what a user of this lane gets there. The earlier
+    # refusal answered a double-count worry; the mark answers it instead:
+    # the rollup flags the entry (fallback + served_by) and the lane block
+    # names fallback_suites, so the answering tier's number can never
+    # masquerade as this lane's own arm — every OTHER lane still draws its
+    # own cell, and this lane's row is what THIS product serves. A suite
+    # with no cell at all (nothing measurable serves) stays a coverage
+    # gap — never zero.
     cell = s.get(lane)
-    if isinstance(cell, dict) and not cell.get("derived") \
-            and _cell_acc(cell) is not None:
+    if isinstance(cell, dict) and _cell_acc(cell) is not None:
         return (cell, None)
     return None
 
@@ -809,11 +818,16 @@ def compute_areas(d):
     key ("clm@4090-win") with the serving host recorded on the lane block —
     the page renders the host beside the display name and the filter's
     palette key gates every posture of the lane. A lane missing a suite
-    simply lacks that suite's entry — the block carries per-lane coverage,
-    and a partial lane's index is the mean over what it measured
-    (disclosed, never padded with zeros). Re-running replaces the block
-    wholesale, so a publish over an already-augmented bench.json is
-    idempotent."""
+    simply lacks that suite's entry — EXCEPT a product lane carrying a
+    derived tier-fallback cell (apply_fallback_cells runs first in
+    finalize): that cell rolls up MARKED (fallback + served_by + the
+    displaced record's own read where one was displaced), the lane's
+    index averages its DRAWN spokes (own + fallback — the served
+    product), coverage/complete count only the lane's OWN measured
+    suites, and fallback_suites names the fill (disclosed, never padded
+    with zeros; a suite nothing measurable serves stays a gap).
+    Re-running replaces the block wholesale, so a publish over an
+    already-augmented bench.json is idempotent."""
     d.pop("areas", None)
     suites = {s["name"]: s for s in d.get("suites", [])}
     suite_meta = {}
@@ -845,6 +859,14 @@ def compute_areas(d):
                          "cc": round((acc - chance) / (1.0 - chance), 6)}
                 if ck:
                     entry["ck"] = ck
+                if cell.get("derived") and cell.get("serves") == "tier-fallback":
+                    entry["fallback"] = True
+                    if cell.get("served_by"):
+                        entry["served_by"] = cell["served_by"]
+                    rec = cell.get("displaced_record")
+                    rec_acc = _cell_acc(rec) if isinstance(rec, dict) else None
+                    if rec_acc is not None:
+                        entry["record_acc"] = round(rec_acc, 6)
                 per_suite[name] = entry
                 cells[name] = (cell, ck)
                 vals.append(entry["cc"])
@@ -874,6 +896,15 @@ def compute_areas(d):
                 unjudged += 1
         geo = (round(math.exp(sum(math.log(v) for v in used) / len(used)), 4)
                if used else None)
+        n_fb = sum(1 for _n, (c, _k) in cells.items()
+                   if c.get("derived") and c.get("serves") == "tier-fallback")
+        note = ("population = the suites behind the lane's index; "
+                "p50 geometric mean over latency_quotable cells only "
+                "(unfit timing is shown in the tables, never plotted)")
+        if n_fb:
+            note += (f"; {n_fb} fallback spoke(s) carry the answering "
+                     "tier's timing, unjudged here — shown in the suite "
+                     "tables, never plotted")
         return {
             "clock": LANE_TIMING[cls]["clock"],
             "method": LANE_TIMING[cls]["method"],
@@ -882,9 +913,7 @@ def compute_areas(d):
             "n_used": len(used),
             "n_unquotable": unquotable,
             "n_unjudged": unjudged,
-            "note": ("population = the suites behind the lane's index; "
-                     "p50 geometric mean over latency_quotable cells only "
-                     "(unfit timing is shown in the tables, never plotted)"),
+            "note": note,
         }
 
     def _lane_block(lane_key, display, color_key, per_suite, area_vals,
@@ -895,6 +924,13 @@ def compute_areas(d):
         entries were scored from; the timing block is derived from it so
         the timing aggregate and the index can never describe different
         suite sets."""
+        # coverage/complete count the lane's OWN measured suites — a
+        # fallback spoke fills the polygon, it never converts a partial
+        # lane into a complete one. fallback_suites + served_coverage
+        # disclose the fill (absent when the lane needed no fallback, so
+        # every unaffected lane's block is byte-identical to the old shape).
+        fb_names = sorted(n for n, e in per_suite.items() if e.get("fallback"))
+        own = len(per_suite) - len(fb_names)
         block = {
             "display": display,
             "color_key": color_key,
@@ -903,10 +939,14 @@ def compute_areas(d):
             "areas": area_vals,
             "index": (round(sum(area_vals.values()) / len(area_vals), 6)
                       if area_vals else None),
-            "coverage": {"suites": len(per_suite),
+            "coverage": {"suites": own,
                          "of": len(suite_meta)},
-            "complete": len(per_suite) == len(suite_meta),
+            "complete": own == len(suite_meta),
         }
+        if fb_names:
+            block["fallback_suites"] = fb_names
+            block["served_coverage"] = {"suites": len(per_suite),
+                                        "of": len(suite_meta)}
         if host is not None:
             block["host"] = host
         return block
@@ -947,7 +987,7 @@ def compute_areas(d):
                   for key in lanes_out}
 
     d["areas"] = {
-        "version": 3,
+        "version": 4,
         "edition": EDITION,
         "chance_digest": chance_digest(),
         "scale": ("chance-corrected accuracy: cc = (acc - chance) / "
@@ -966,7 +1006,10 @@ def compute_areas(d):
         "timing": timing_out,
         "scope": ("primary-host rows; a lane the primary host never ran "
                   "rolls up from its serving host under a host-tagged "
-                  "lane key (clm@4090-win)"),
+                  "lane key (clm@4090-win); a product lane's fallback "
+                  "spokes roll up from the answering tier (marked "
+                  "fallback, drawn as triangles — coverage stays the "
+                  "lane's own measured count)"),
     }
     return d["areas"]
 

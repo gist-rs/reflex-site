@@ -143,9 +143,10 @@ if (!/data-metric="cc"/.test(captured["summary"].innerHTML)) {
 console.log(`[cc] ${cc.bands} bands / ${cc.labels} lanes, note names the chance baseline`);
 
 // The area radar (the /bench/ decision-index cards): renders data.areas —
-// two cards (4 area spokes + 9 benchmark spokes), a polygon per complete
-// lane, measured-dots-only for the partial encoder lane, and legend rows
-// naming coverage (the 2/9 partial disclosure).
+// two cards (4 area spokes + 9 benchmark spokes), a polygon per lane,
+// dots for the lane's own spokes and TRIANGLES (rd-fb) for its fallback
+// spokes (the served tier's answer, the 2026-10-02 served-product radar),
+// and legend rows naming coverage + the fallback fill.
 const areaEl = fakeEl("areas");
 window.BenchCharts.areas(d, areaEl);
 const aHtml = captured["areas"].innerHTML;
@@ -201,6 +202,28 @@ if ((aHtml.match(/rd-polyline/g) || []).length !== expectedLines) {
   process.exit(1);
 }
 console.log(`[radar] ${polys} polygons, ${dots} dots, 2 cards, ${legends} legend rows, partial lane disclosed`);
+
+// Fallback spokes (2026-10-02, the served-product radar): a product lane's
+// derived tier-fallback cell rolls up MARKED and draws as a TRIANGLE
+// (rd-fb) — the count derives from the published fallback_suites, never a
+// hand-typed literal, and the legend + a tooltip must name the fill.
+let expectedFb = 0;
+for (const ld of Object.values((d.areas || {}).lanes || {}))
+  expectedFb += (ld.fallback_suites || []).length;
+const fbMarks = (aHtml.match(/rd-fb/g) || []).length;
+if (fbMarks !== expectedFb) {
+  console.error(`FAIL[radar-fb]: expected ${expectedFb} fallback triangle(s) (the published fallback_suites), got ${fbMarks}`);
+  process.exit(1);
+}
+if (expectedFb > 0 && !aHtml.includes("fallback (▲")) {
+  console.error("FAIL[radar-fb]: the legends must disclose the fallback spokes");
+  process.exit(1);
+}
+if (expectedFb > 0 && !/tier fallback — served by /.test(aHtml)) {
+  console.error("FAIL[radar-fb]: a fallback tooltip must name the answering tier");
+  process.exit(1);
+}
+console.log(`[radar-fb] ${fbMarks} fallback triangle(s) rendered + disclosed (data-derived)`);
 
 // ── plan 001 (2026-10-02): below-chance cc is VISIBLE, the two formula
 // copies agree, and the frontier renders. The published data carries

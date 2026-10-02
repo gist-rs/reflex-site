@@ -15466,7 +15466,7 @@
   }
  ],
  "areas": {
-  "version": 3,
+  "version": 4,
   "edition": "2026-10",
   "chance_digest": "9b08e3970c7a38a566ddeba3f37ad8d7",
   "scale": "chance-corrected accuracy: cc = (acc - chance) / (1 - chance); 0 = random guessing, 1 = every question right; per-suite chance = the mean per-question random-pick probability of the harness's own option construction (a dataset fact, not a measurement); values below 0 are BELOW CHANCE and stay negative on purpose \u2014 a lane scoring under random guessing must read that way, and negatives pull area means and the index down by design",
@@ -15663,31 +15663,75 @@
       "acc": 0.9475,
       "cc": 0.93
      },
+     "massive_intent_en": {
+      "acc": 0.826667,
+      "cc": 0.817544,
+      "fallback": true,
+      "served_by": "Instinct (H2(\u03b2=1,nmin=2,\u03c4=8))",
+      "record_acc": 0.656667
+     },
+     "banking77": {
+      "acc": 0.854,
+      "cc": 0.852079,
+      "fallback": true,
+      "served_by": "Instinct (H2(\u03b2=2,nmin=8,\u03c4=8))",
+      "record_acc": 0.442
+     },
      "sst5": {
       "acc": 0.526667,
       "cc": 0.408333
+     },
+     "emotion": {
+      "acc": 0.885,
+      "cc": 0.862,
+      "fallback": true,
+      "served_by": "Instinct (A0)"
      },
      "xnli_en": {
       "acc": 0.86,
       "cc": 0.79
      },
+     "prompt_injections": {
+      "acc": 0.853448,
+      "cc": 0.706897,
+      "fallback": true,
+      "served_by": "Instinct (A1)",
+      "record_acc": 0.801724
+     },
      "typed_decisions": {
       "acc": 0.755,
       "cc": 0.641026
+     },
+     "code_fixtures": {
+      "acc": 0.5625,
+      "cc": 0.363636,
+      "fallback": true,
+      "served_by": "Instinct (A1)"
      }
     },
     "areas": {
-     "language": 0.93,
-     "sentiment": 0.408333,
-     "reasoning": 0.79,
-     "decisions": 0.641026
+     "language": 0.866541,
+     "sentiment": 0.635166,
+     "reasoning": 0.748449,
+     "decisions": 0.502331
     },
-    "index": 0.69234,
+    "index": 0.688122,
     "coverage": {
      "suites": 4,
      "of": 9
     },
-    "complete": false
+    "complete": false,
+    "fallback_suites": [
+     "banking77",
+     "code_fixtures",
+     "emotion",
+     "massive_intent_en",
+     "prompt_injections"
+    ],
+    "served_coverage": {
+     "suites": 9,
+     "of": 9
+    }
    },
    "laya": {
     "display": "laya (rust)",
@@ -16192,12 +16236,12 @@
    "encoder": {
     "clock": "in-process",
     "method": "Rust in-process GPU encode+head forward (Metal on the m3 hosts; the cell's `device` field names it)",
-    "suites": 4,
+    "suites": 9,
     "p50_geomean_ms": 16.7464,
     "n_used": 2,
     "n_unquotable": 1,
-    "n_unjudged": 1,
-    "note": "population = the suites behind the lane's index; p50 geometric mean over latency_quotable cells only (unfit timing is shown in the tables, never plotted)"
+    "n_unjudged": 6,
+    "note": "population = the suites behind the lane's index; p50 geometric mean over latency_quotable cells only (unfit timing is shown in the tables, never plotted); 5 fallback spoke(s) carry the answering tier's timing, unjudged here \u2014 shown in the suite tables, never plotted"
    },
    "laya": {
     "clock": "in-process",
@@ -16290,6 +16334,6 @@
     "note": "population = the suites behind the lane's index; p50 geometric mean over latency_quotable cells only (unfit timing is shown in the tables, never plotted)"
    }
   },
-  "scope": "primary-host rows; a lane the primary host never ran rolls up from its serving host under a host-tagged lane key (clm@4090-win)"
+  "scope": "primary-host rows; a lane the primary host never ran rolls up from its serving host under a host-tagged lane key (clm@4090-win); a product lane's fallback spokes roll up from the answering tier (marked fallback, drawn as triangles \u2014 coverage stays the lane's own measured count)"
  }
 }

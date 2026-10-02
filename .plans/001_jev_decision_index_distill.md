@@ -12,6 +12,9 @@ MERGED TO MAIN + DEPLOYED 2026-10-02: rebased onto dfef114 (the tier-fallback la
 `apply_fallback_cells` now runs inside `finalize()` between `compute_areas` and
 `apply_disclosures`, so `--rederive` preserves fallback cells and they never feed the lane's
 areas/timing/frontier); main `26fddb9`, live at reflex.gist.rs (edition 2026-10, areas v3).
+ADDENDUM (same day, owner call): the "never feed the areas" half is REVERSED by the
+served-product radar — fallback cells roll up MARKED (areas v4, `fallback_suites`,
+triangles on the page, coverage still own-measured).
 
 ## Why this matters
 
