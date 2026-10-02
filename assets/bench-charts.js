@@ -512,20 +512,28 @@
 
   // ── sort: a minimal order toggle for the charts ──────────────────────────
   // "data" is the harness's own suite order / the lane order as published.
-  // "acc" sorts best-first (descending); "lat" sorts fastest-first
-  // (ascending — on the latency axis shorter is better, so both sorts put
-  // the best row on top). Key for suite rows: the FIRST VISIBLE lane in
-  // LANES order — the product lane at the default filter. Sorting by a lane
-  // the reader has filtered out renders as an unsorted page (the bars the
-  // reader sees carry no visible order), so the key follows the filter and
-  // the note names the lane actually used. Key for lane rows inside a
-  // suite table: that lane's own value. Missing cells sort last, never
-  // first.
+  // "by value" is the GENERIC sort (2026-10-02 user ask — acc@50% coverage
+  // and chance-corrected acc had no sort at all): it follows the ACTIVE
+  // METRIC, so one button covers every metric toggle instead of a sort
+  // button per metric, and switching metric with it armed re-sorts on the
+  // next render. Direction is per-metric, always best-first: higher
+  // accuracy metrics first, shorter latency first. "acc"/"lat" are the
+  // fixed-column sorts the per-suite TABLES keep — a table shows accuracy
+  // and p50 only (no metric toggle there), so a "by value" would be
+  // ambiguous. Key for suite rows: the FIRST VISIBLE lane in LANES order —
+  // the product lane at the default filter. Sorting by a lane the reader
+  // has filtered out renders as an unsorted page (the bars the reader sees
+  // carry no visible order), so the key follows the filter and the note
+  // names the lane actually used. Key for lane rows inside a suite table:
+  // that lane's own value. Missing cells sort last, never first.
   const SORTS = {
     data: { label: "data order" },
+    value: { label: "by value", dirOf: (m) => (METRICS[m].log ? "asc" : "desc") },
     acc: { label: "by accuracy", dir: "desc" },
     lat: { label: "by latency", dir: "asc" },
   };
+  const HERO_SORT_KEYS = ["data", "value"];
+  const TABLE_SORT_KEYS = ["data", "acc", "lat"];
   let heroSort = "data", suiteSort = "data";
   const suiteStore = new Map();
   // The primary run's host (meta.host) — its lanes carry "@host" like every
@@ -537,15 +545,22 @@
     primaryHost = h || null;
   }
 
-  function sortKeyOf(l, kind) {
+  function sortDirOf(kind, m) {
+    const S = SORTS[kind];
+    return S ? (S.dir || (S.dirOf ? S.dirOf(m) : null)) : null;
+  }
+  function sortKeyOf(l, kind, metric, s) {
     if (!l) return null;
     // accOf, same as pick(): the acc-only paw cells must be sortable too.
-    const v = kind === "acc" ? accOf(l) : l.latency_p50_ms;
-    return typeof v === "number" && isFinite(v) ? v : null;
+    // "value" reads the ACTIVE metric — cc's getter takes the suite for its
+    // chance baseline, so the caller passes the suite through.
+    const v = kind === "value" ? METRICS[metric].get(l, s)
+      : kind === "acc" ? accOf(l) : l.latency_p50_ms;
+    return num(v) ? v : null;
   }
-  function sortPairs(pairs, kind, keyOf) {
+  function sortPairs(pairs, kind, keyOf, m) {
     if (kind === "data") return pairs;
-    const dir = SORTS[kind].dir === "desc" ? -1 : 1;
+    const dir = sortDirOf(kind, m) === "desc" ? -1 : 1;
     return pairs.slice().sort((a, b) => {
       const av = keyOf(a), bv = keyOf(b);
       if (av == null && bv == null) return 0;
@@ -554,9 +569,9 @@
       return (av - bv) * dir;
     });
   }
-  function sortToggleHtml(kind, current) {
-    const btns = Object.entries(SORTS).map(([k, S]) =>
-      `<button type="button" data-sort="${k}" aria-pressed="${k === current}">${esc(S.label)}</button>`).join("");
+  function sortToggleHtml(kind, current, keys) {
+    const btns = keys.map((k) =>
+      `<button type="button" data-sort="${k}" aria-pressed="${k === current}">${esc(SORTS[k].label)}</button>`).join("");
     return `<div class="bc-toggle" role="group" aria-label="sort ${esc(kind)}">${btns}</div>`;
   }
   // The hero's sort-key lane: the first lane in LANES order the reader has
@@ -565,12 +580,15 @@
   function sortLane() {
     return LANES.find((x) => visibleKey(x.key)) || LANES[0];
   }
-  function sortNote(kind, lane) {
+  // Only "value" reaches the note body now — the hero's toggle is
+  // data/value, and the note names the metric actually sorted by.
+  function sortNote(kind, lane, m) {
     if (kind === "data") return "";
     const on = lane ? ` on the ${lane.label} lane` : "";
-    return SORTS[kind].dir === "desc"
-      ? ` Rows sorted best-accuracy-first${on}; not-run sorts last.`
-      : ` Rows sorted fastest-first${on}; not-run sorts last.`;
+    const M = METRICS[m];
+    return M.log
+      ? ` Rows sorted by ${M.label}, fastest first${on}; not-run sorts last.`
+      : ` Rows sorted by ${M.label}, best first${on}; not-run sorts last.`;
   }
 
   // ── hero: every suite × three lanes ──────────────────────────────────────
@@ -581,7 +599,7 @@
     const shown = LANES.filter((lane) => visibleKey(lane.key));
     const sLane = sortLane();
     const sorted = sortPairs((d.suites || []).map((s) => [s, null]), heroSort,
-      ([s]) => { const p = pick(s, sLane); return sortKeyOf(p ? p[0] : null, heroSort); });
+      ([s]) => { const p = pick(s, sLane); return sortKeyOf(p ? p[0] : null, heroSort, m, s); }, m);
     // All-rigs + a known primary host: one bar PER HOST per lane (the
     // host-mix fix — the old single best-accuracy bar put a 4090 cell and an
     // M3 cell in the same chart with the host named only on hover). Any
@@ -670,7 +688,7 @@
         : " Latency is log-scale (each gridline = 10×) — shorter is faster.")
         : m === "cc"
         ? " Chance-corrected: 0% = random guessing on that suite's options, so suites with different option counts share one axis. Suites without a curated chance baseline are marked \"no chance baseline\" — skipped, never guessed."
-        : " Chance level differs per suite — compare lanes within a row, not rows with each other.") + sortNote(heroSort, sLane);
+        : " Chance level differs per suite — compare lanes within a row, not rows with each other.") + sortNote(heroSort, sLane, m);
     return `<div class="bc-hgrid"><div></div>${axis(m)}${rows}<div></div>${axis(m)}</div><p class="bc-note">${esc(note)}</p>`;
   }
 
@@ -686,7 +704,7 @@
     tooltip();
     const btns = Object.entries(METRICS).map(([k, M]) =>
       `<button type="button" data-metric="${k}" aria-pressed="${k === heroMetric}">${esc(M.label)}${M.log ? " (log)" : ""}</button>`).join("");
-    el.innerHTML = `<div class="bc-bar">${legend()}<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><span class="bc-mut">sort</span>${sortToggleHtml("suites", heroSort)}<div class="bc-toggle" role="group" aria-label="metric">${btns}</div></div></div><div id="bench-hero-body">${heroBody()}</div>`;
+    el.innerHTML = `<div class="bc-bar">${legend()}<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><span class="bc-mut">sort</span>${sortToggleHtml("suites", heroSort, HERO_SORT_KEYS)}<div class="bc-toggle" role="group" aria-label="metric">${btns}</div></div></div><div id="bench-hero-body">${heroBody()}</div>`;
     el.querySelector(".bc-bar").addEventListener("click", (e) => {
       const m = e.target.closest("button[data-metric]");
       const so = e.target.closest("button[data-sort]");
@@ -865,10 +883,10 @@
 
   // ── suite-table sort control (rendered once above the tables) ────────────
   function suiteSortControl() {
-    return sortToggleHtml("lanes within each suite", suiteSort);
+    return sortToggleHtml("lanes within each suite", suiteSort, TABLE_SORT_KEYS);
   }
   function setSuiteSort(kind) {
-    if (!SORTS[kind]) return;
+    if (!TABLE_SORT_KEYS.includes(kind)) return;
     suiteSort = kind;
     for (const [name, s] of suiteStore) {
       const el = document.querySelector(`[data-bc-suite="${CSS.escape(name)}"]`);

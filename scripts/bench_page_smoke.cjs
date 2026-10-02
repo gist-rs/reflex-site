@@ -163,11 +163,13 @@ const server = http.createServer((req, res) => {
   //    reader filtered out rendered as an unsorted page — the bars carried
   //    no visible order). The key lane is read by COLOR (the first visible
   //    lane's swatch), widths must be monotone, and suites without the key
-  //    lane must sort last. Covers "by accuracy" AND "by latency". The
-  //    width is read from the [data-picked] bar — the cell the pick logic
-  //    chose IS the sort key; in the all-rigs view the lane renders several
-  //    per-host bars and the first DOM bar is the primary host's, not
-  //    necessarily the picked one.
+  //    lane must sort last. Covers the generic "by value" sort under the
+  //    four metrics — accuracy, p50 (fastest-first), and the two that had
+  //    NO sort before the generic one (acc@50% coverage, chance-corrected
+  //    acc; 2026-10-02 user ask). The width is read from the [data-picked]
+  //    bar — the cell the pick logic chose IS the sort key; in the all-rigs
+  //    view the lane renders several per-host bars and the first DOM bar is
+  //    the primary host's, not necessarily the picked one.
   const heroKeyWidths = (color) => page.$$eval(
     "#bench-hero .bc-htrack",
     (ts, c) => ts.map((t) => {
@@ -189,13 +191,13 @@ const server = http.createServer((req, res) => {
   };
   const heroNote = () => page.$eval("#bench-hero .bc-note", (n) => n.textContent);
   // accuracy, all lanes visible → key = Reflex · modelless (#d95926)
-  await page.click('#bench-hero button[data-sort="acc"]');
+  await page.click('#bench-hero button[data-sort="value"]');
   await page.waitForTimeout(100);
   let widths = await heroKeyWidths("#d95926");
   assertOrdered(widths, "acc · modelless key", false);
   let note = await heroNote();
-  if (!note.includes("Rows sorted best-accuracy-first on the Reflex · modelless lane")) fail(`sort note should name the modelless lane, got: ${note}`);
-  else console.log(`ok: hero by-accuracy sorts ${widths.length} rows by the modelless lane`);
+  if (!note.includes("Rows sorted by accuracy, best first on the Reflex · modelless lane")) fail(`sort note should name the modelless lane, got: ${note}`);
+  else console.log(`ok: hero by-value at the acc metric sorts ${widths.length} rows by the modelless lane`);
   // hide the product lane → key moves to laya (rust) (#3987e5), note names it
   await page.uncheck('#lane-filter input[data-key="katgpt"]');
   await page.waitForTimeout(100);
@@ -204,17 +206,17 @@ const server = http.createServer((req, res) => {
   note = await heroNote();
   if (!note.includes("on the laya (rust) lane")) fail(`sort note should name the laya (rust) lane once modelless is hidden, got: ${note}`);
   else console.log("ok: hero sort key follows the first visible lane (note names it)");
-  // latency, key back on modelless: fastest-first on the p50 metric
+  // latency: "by value" FOLLOWS the metric switch — no sort re-click, the
+  // p50 metric re-sorts fastest-first on the next render
   await page.check('#lane-filter input[data-key="katgpt"]');
   await page.waitForTimeout(100);
   await page.click('#bench-hero button[data-metric="p50"]');
-  await page.click('#bench-hero button[data-sort="lat"]');
   await page.waitForTimeout(100);
   widths = await heroKeyWidths("#d95926");
   assertOrdered(widths, "lat · modelless key", true);
   note = await heroNote();
-  if (!note.includes("Rows sorted fastest-first on the Reflex · modelless lane")) fail(`latency sort note wrong, got: ${note}`);
-  else console.log("ok: hero by-latency sorts fastest-first by the modelless lane");
+  if (!note.includes("Rows sorted by p50 latency, fastest first on the Reflex · modelless lane")) fail(`latency sort note wrong, got: ${note}`);
+  else console.log("ok: hero by-value follows the p50 metric switch (fastest-first, no re-click)");
   // 9) the broken latency axis (the /#sizes break-sign idiom): the p50
   //    hero carries one break sign per visible cell past 500 ms and the
   //    axis names the break, and the per-suite cell table carries them
@@ -246,6 +248,28 @@ const server = http.createServer((req, res) => {
     const cellBreaks = await page.$$eval("#tables .bc-cell .sz-break", (xs) => xs.length);
     if (cellBreaks !== expectedBreaks) fail(`expected ${expectedBreaks} suite-cell break sign(s) (data-derived), got ${cellBreaks}`);
     else console.log(`ok: suite cells carry the ${expectedBreaks} past-500ms break sign(s) (data-derived)`);
+  }
+
+  // 9a) the two metrics that had NO sort before the generic "by value" one
+  //     (2026-10-02 user ask): acc@50% coverage (two suites lack the field —
+  //     they must sort LAST) and chance-corrected acc (suites without a
+  //     chance baseline sort last too). Placed AFTER the break-sign block,
+  //     which needs the metric still p50.
+  {
+    await page.click('#bench-hero button[data-metric="acc50"]');
+    await page.waitForTimeout(100);
+    widths = await heroKeyWidths("#d95926");
+    assertOrdered(widths, "acc50 · modelless key", false);
+    note = await heroNote();
+    if (!note.includes("Rows sorted by acc@50% coverage, best first")) fail(`acc50 sort note wrong, got: ${note}`);
+    else console.log(`ok: hero by-value sorts by acc@50% coverage (${widths.filter((x) => x !== null).length} keyed rows, ${widths.filter((x) => x === null).length} not-run last)`);
+    await page.click('#bench-hero button[data-metric="cc"]');
+    await page.waitForTimeout(100);
+    widths = await heroKeyWidths("#d95926");
+    assertOrdered(widths, "cc · modelless key", false);
+    note = await heroNote();
+    if (!note.includes("Rows sorted by chance-corrected acc, best first")) fail(`cc sort note wrong, got: ${note}`);
+    else console.log(`ok: hero by-value sorts by chance-corrected acc (${widths.filter((x) => x !== null).length} keyed rows, ${widths.filter((x) => x === null).length} not-run last)`);
   }
 
   // 9b) the cc metric (2026-10-01, the user's live report): chance-corrected
