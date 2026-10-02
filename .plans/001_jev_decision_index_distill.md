@@ -197,7 +197,10 @@ landing: `git status --porcelain scripts/publish_bench.py` must be clean of sibl
 - [x] 9. **Determinism disclosure.** `determinism_ok` already ships as a structured cell
       field (the tables' det column reads it) — verified + surfaced in the profile view.
       [-] The repeat COUNT needs a harness-side field results.json does not carry — a
-      riir-reflex ask, never synthesized here.
+      riir-reflex ask, never synthesized here. (DELIVERED harness-side at reflex
+      `95c2dac`: `determinism_n` — the count of cases the repeat check actually
+      re-ran; lights up on the next harness run. The site render of it rides the
+      next plan touching the det column.)
 
 ### T3 — distinctive (our angle; no new models)
 
@@ -226,6 +229,12 @@ landing: `git status --porcelain scripts/publish_bench.py` must be clean of sibl
       posture), so it plots on neither the frontier nor the timing table's geomean
       column — a riir-reflex ask (stamp the hybrid lane's timing), never synthesized
       here. Filed alongside reflex `.issues/060`'s scope when the harness lane lands.
+      (MEASURED 2026-10-02: backfill_latency_verdicts.py over BOTH benchmark roots
+      resolves 0 — zero instinct docs carry box_state, zero hybrid cells with timing
+      live there. The deferral is data-validated: no recorded box_state exists for
+      the hybrid lane anywhere; it needs a stamped re-measure, reflex `a7475c7`
+      delivered the harness abstain-cause half (issue 060) — the latency re-measure
+      stays a GPU/measurement ask, not synthesizable here.)
 
 ## Non-goals
 
