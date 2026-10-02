@@ -4,6 +4,26 @@ One hash-pinned line per removed issue (the fleet noise-reduction convention:
 an issue file is removed once its work is verifiably landed; this file is the
 durable record). Full narrative of each: `git log --follow -- .issues/<file>`.
 
+- **2026-10-02 — the six harness_* decision-point suites are REMOVED from the bench board (owner
+  call; board commit `f1731fc`).** The wide template-disjoint eval delivered the verdict that retired
+  them: on the honest wide populations (96–100 cases per family) the modelless engine reads AT CHANCE
+  (0.22–0.31 against ~0.2–0.33 random-pick), where the old small-n board rows (0.56–0.92, n=12–16,
+  template-shared) were the inflation the wide eval existed to remove. Owner verdict: retire the suites
+  entirely; they are deleted from the reflex harness itself (that removal lands upstream, in
+  gist-rs/riir-reflex, separately). Landed: `data/bench.json` 17 → 11 suites, rederived in place via
+  `--rederive` (surviving measurement cells byte-identical, 9 pairing verdicts, areas/cc/chance_digest
+  re-derived, zero `harness_` occurrences in the served file); `publish_bench.py` gains `RETIRED_SUITES`
+  + `drop_retired_suites` at the LOAD boundary of every publish path (fresh docs, lane-scoped updates,
+  `--rederive`) so no older results doc can re-grow a retired row, with the `meta.divergences` line
+  naming them scrubbed in place and the six harness DISCLOSURES rows removed; the bench FAQ now states
+  the retirement (no measured numbers in page copy) and the p99 note no longer names the suites.
+  Gates: `test_publish_bench` 84/84 (new `case_retired_suites_never_publish` — filter on merge +
+  rederive + divergences scrub + no stale DISCLOSURES rows; the tier-fallback fixtures renamed to
+  neutral probe_a/probe_b/probe_c with the mechanism coverage kept), bench/home/chart/families/size
+  page smokes + `check_lane_pairing` + `arena_demo_check` all green on the new data. The `/families/`
+  quarantined page + `data/families.json` are untouched (owner-directed: they render the lanes'
+  record, not the board).
+
 - **2026-10-02 — the quarantined `/families/` section is LIVE (`38fbae4`, CF `0da6b32e`).** The six
   harness decision-point families render on their own page from their own `data/families.json`, our
   lanes only (Reflex modelless · Rethink hybrid · Rethink encoder `not run`), the honesty caveat
