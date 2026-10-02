@@ -82,8 +82,8 @@
       "date_utc": "2026-09-27T08:00:55Z"
      },
      "hybrid": {
-      "git_sha": "057d31a",
-      "date_utc": "2026-10-02T01:52:27Z"
+      "git_sha": "eef77d1",
+      "date_utc": "2026-10-02T10:01:40Z"
      },
      "paw": {
       "git_sha": "9dc33da",
@@ -2170,14 +2170,15 @@
     "consult_rate": 1.0,
     "latency_scope": "arm-only",
     "latency_rows": "questions",
-    "latency_p50_ms": 0.004542,
-    "latency_p99_ms": 0.041165999999999994,
+    "latency_p50_ms": 0.003166,
+    "latency_p99_ms": 0.012083,
     "latency_tail_support": 21,
     "serves": "H2(\u03b2=0.5,nmin=2,\u03c4=2)",
     "gate": "certified (paired LB95 +0.0580, mean +0.0750)",
+    "latency_quotable": true,
     "source_run": {
-     "git_sha": "8bbff09",
-     "date_utc": "2026-09-28T10:13:40Z"
+     "git_sha": "eef77d1",
+     "date_utc": "2026-10-02T10:01:40Z"
     }
    },
    "openthai": {
@@ -3584,14 +3585,15 @@
     "consult_rate": 1.0,
     "latency_scope": "arm-only",
     "latency_rows": "questions",
-    "latency_p50_ms": 0.001625,
-    "latency_p99_ms": 0.0035830000000000002,
+    "latency_p50_ms": 0.0015,
+    "latency_p99_ms": 0.003125,
     "latency_tail_support": 5,
     "serves": "H2(\u03b2=0.25,nmin=2,\u03c4=2)",
     "gate": "best measured, T2-uncertified (paired LB95 -0.0100) \u2014 certification is more questions, not a posture rollback",
+    "latency_quotable": true,
     "source_run": {
-     "git_sha": "8bbff09",
-     "date_utc": "2026-09-28T10:13:40Z"
+     "git_sha": "eef77d1",
+     "date_utc": "2026-10-02T10:01:40Z"
     }
    },
    "openthai": {
@@ -4891,14 +4893,15 @@
     "consult_rate": 0.0,
     "latency_scope": "seat+arm",
     "latency_rows": "questions",
-    "latency_p50_ms": 0.141,
-    "latency_p99_ms": 0.281,
+    "latency_p50_ms": 0.115,
+    "latency_p99_ms": 0.129,
     "latency_tail_support": 5,
     "serves": "A0",
     "gate": "served by the reflex half \u2014 the best measured arm on this suite",
+    "latency_quotable": true,
     "source_run": {
-     "git_sha": "8bbff09",
-     "date_utc": "2026-09-28T10:13:40Z"
+     "git_sha": "eef77d1",
+     "date_utc": "2026-10-02T10:01:40Z"
     }
    },
    "openthai": {
@@ -6198,14 +6201,15 @@
     "consult_rate": 1.0,
     "latency_scope": "arm-only",
     "latency_rows": "questions",
-    "latency_p50_ms": 0.000875,
-    "latency_p99_ms": 0.0017909999999999998,
-    "latency_tail_support": 7,
+    "latency_p50_ms": 0.000833,
+    "latency_p99_ms": 0.001792,
+    "latency_tail_support": 8,
     "serves": "A1",
     "gate": "best measured, T2-uncertified (paired LB95 -0.0129) \u2014 certification is more questions, not a posture rollback",
+    "latency_quotable": true,
     "source_run": {
-     "git_sha": "211c68d",
-     "date_utc": "2026-09-30T02:01:58Z"
+     "git_sha": "eef77d1",
+     "date_utc": "2026-10-02T10:01:40Z"
     }
    },
    "openthai": {
@@ -7451,14 +7455,15 @@
     "consult_rate": 1.0,
     "latency_scope": "arm-only",
     "latency_rows": "questions",
-    "latency_p50_ms": 0.0005420000000000001,
-    "latency_p99_ms": 0.0039169999999999995,
+    "latency_p50_ms": 0.000417,
+    "latency_p99_ms": 0.003,
     "latency_tail_support": 2,
     "serves": "A1",
     "gate": "certified (paired LB95 +0.0082, mean +0.0862)",
+    "latency_quotable": true,
     "source_run": {
-     "git_sha": "8bbff09",
-     "date_utc": "2026-09-28T10:13:40Z"
+     "git_sha": "eef77d1",
+     "date_utc": "2026-10-02T10:01:40Z"
     }
    },
    "openthai": {
@@ -8827,14 +8832,15 @@
     "consult_rate": 0.0,
     "latency_scope": "seat+arm",
     "latency_rows": "questions",
-    "latency_p50_ms": 0.106,
-    "latency_p99_ms": 0.269,
-    "latency_tail_support": 4,
+    "latency_p50_ms": 0.087,
+    "latency_p99_ms": 0.102,
+    "latency_tail_support": 5,
     "serves": "A0",
     "gate": "served by the reflex half \u2014 the best measured arm on this suite",
+    "latency_quotable": true,
     "source_run": {
-     "git_sha": "8bbff09",
-     "date_utc": "2026-09-28T10:13:40Z"
+     "git_sha": "eef77d1",
+     "date_utc": "2026-10-02T10:01:40Z"
     }
    },
    "openthai": {
@@ -10013,25 +10019,26 @@
    },
    "hybrid": {
     "lane": "Instinct",
-    "model": "H2(\u03b2=1,nmin=2,\u03c4=8)",
+    "model": "H2(\u03b2=1,nmin=2,\u03c4=4)",
     "hard": {
      "n": 300,
-     "accuracy": 0.8266666666666667,
-     "ece": 0.06070700170483837,
-     "mean_confidence": 0.8355173326634961,
+     "accuracy": 0.84,
+     "ece": 0.06870501239437647,
+     "mean_confidence": 0.8517494499514889,
      "acc_at_50_coverage": 0.9933333333333333
     },
     "consult_rate": 1.0,
     "latency_scope": "arm-only",
     "latency_rows": "questions",
-    "latency_p50_ms": 0.001042,
-    "latency_p99_ms": 0.002125,
+    "latency_p50_ms": 0.001083,
+    "latency_p99_ms": 0.001958,
     "latency_tail_support": 4,
-    "serves": "H2(\u03b2=1,nmin=2,\u03c4=8)",
-    "gate": "certified (paired LB95 +0.0124, mean +0.0467)",
+    "serves": "H2(\u03b2=1,nmin=2,\u03c4=4)",
+    "gate": "best measured, T2-uncertified (paired LB95 -0.0039) \u2014 certification is more questions, not a posture rollback",
+    "latency_quotable": true,
     "source_run": {
-     "git_sha": "8bbff09",
-     "date_utc": "2026-09-28T10:13:40Z"
+     "git_sha": "eef77d1",
+     "date_utc": "2026-10-02T10:01:40Z"
     }
    },
    "pairing": {
@@ -11372,14 +11379,15 @@
     "consult_rate": 1.0,
     "latency_scope": "arm-only",
     "latency_rows": "questions",
-    "latency_p50_ms": 0.008541,
-    "latency_p99_ms": 0.06775,
+    "latency_p50_ms": 0.007292,
+    "latency_p99_ms": 0.026709,
     "latency_tail_support": 6,
     "serves": "H2(\u03b2=2,nmin=8,\u03c4=8)",
     "gate": "best measured, T2-uncertified (paired LB95 -0.0013) \u2014 certification is more questions, not a posture rollback",
+    "latency_quotable": true,
     "source_run": {
-     "git_sha": "8bbff09",
-     "date_utc": "2026-09-28T10:13:40Z"
+     "git_sha": "eef77d1",
+     "date_utc": "2026-10-02T10:01:40Z"
     }
    },
    "openthai": {
@@ -12205,16 +12213,16 @@
     "consult_rate": 1.0,
     "latency_scope": "arm-only",
     "latency_rows": "questions",
-    "latency_p50_ms": 0.002,
-    "latency_p99_ms": 0.0218,
+    "latency_p50_ms": 0.000625,
+    "latency_p99_ms": 0.007041,
     "latency_tail_support": 1,
     "serves": "A1",
     "gate": "certified (paired LB95 +0.0021, mean +0.1875)",
+    "latency_quotable": true,
     "source_run": {
-     "git_sha": "07119b4",
-     "date_utc": "2026-09-30T00:59:53Z"
-    },
-    "cases_digest": "fnv1a64-93583fda4fc64946"
+     "git_sha": "eef77d1",
+     "date_utc": "2026-10-02T10:01:40Z"
+    }
    },
    "openthai": {
     "lane": "openthai (reference)",
@@ -15683,8 +15691,8 @@
       "cc": 0.863333
      },
      "massive_intent_en": {
-      "acc": 0.826667,
-      "cc": 0.817544
+      "acc": 0.84,
+      "cc": 0.831579
      },
      "banking77": {
       "acc": 0.854,
@@ -15716,12 +15724,12 @@
      }
     },
     "areas": {
-     "language": 0.844319,
+     "language": 0.848997,
      "sentiment": 0.569542,
      "reasoning": 0.495949,
      "decisions": 0.423576
     },
-    "index": 0.583346,
+    "index": 0.584516,
     "coverage": {
      "suites": 9,
      "of": 9
@@ -16306,10 +16314,10 @@
     "clock": "in-process",
     "method": "Rust in-process over the same seat (specialist compose + modelless base, one process)",
     "suites": 9,
-    "p50_geomean_ms": null,
-    "n_used": 0,
+    "p50_geomean_ms": 0.0035,
+    "n_used": 9,
     "n_unquotable": 0,
-    "n_unjudged": 9,
+    "n_unjudged": 0,
     "note": "population = the suites behind the lane's index; p50 geometric mean over latency_quotable cells only (unfit timing is shown in the tables, never plotted)"
    },
    "encoder": {
