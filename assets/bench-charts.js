@@ -814,55 +814,62 @@
   function laneStats(d, m, lane) {
     const vals = [], perSuite = [];
     const hosts = new Set();
-    let seen = 0, unplottable = 0;
+    let seen = 0, unfit = 0, served = 0, unverified = 0;
     for (const s of d.suites || []) {
       // pick() returns [lane, host] — host names the extra-host cell when the
       // primary host never ran this lane (the comparison-lane fallback)
       const picked = pick(s, lane);
       const l = picked ? picked[0] : null;
       if (!l) continue;
+      seen++;
       const v = METRICS[m].get(l, s);
-      // Latency plots quotable runs only (the same law the areas timing
-      // block and the frontier follow: unfit or unjudged timing is shown in
-      // the suite tables, never plotted). A picked cell carrying timing
-      // without a verified box state drops OUT of the row and counts here,
-      // so the note can name the lanes it happened to — a fallback cell's
-      // latency is the ANSWERING tier's clock, and an unfit run's is not a
-      // measurement the page may rank.
-      if (METRICS[m].log) {
-        seen++;
-        if (l.latency_quotable !== true) { unplottable++; continue; }
-      }
+      // Latency rows plot the SERVED product per suite (the owner's
+      // served-product law, the same semantics the accuracy rows already
+      // carry through pick()): the lane's own arm where it answered, the
+      // answering tier's clock where the arm declined (a tier-fallback cell,
+      // disclosed with ↩ — that is exactly "Rethink ≈ Reflex where the
+      // encoder doesn't fire"). Known-bad timing NEVER plots: a cell whose
+      // own box state read NOT QUOTABLE is the measured 12×-swing class
+      // (reflex Issue 021), excluded from the geomean and counted so the
+      // row can say so. Unjudged timing (a host without probes) plots and
+      // is counted unverified — an unknown, not a known-bad.
+      const fb = l.serves === "tier-fallback";
+      if (METRICS[m].log && !fb && l.latency_quotable === false) { unfit++; continue; }
       if (!num(v) || (METRICS[m].log && v <= 0)) continue;
+      if (METRICS[m].log) {
+        if (fb) served++;
+        else if (l.latency_quotable !== true) unverified++;
+      }
       vals.push(v);
       perSuite.push([s.name, v]);
       if (picked[1]) hosts.add(picked[1]);
     }
-    // The lane renders on this metric (it has cells) but nothing plottable —
-    // a zero row the caller names in the note, never silently drops.
-    if (!vals.length) return seen ? { zero: true, unplottable } : null;
+    // The lane renders on this metric but nothing plottable — a presence row
+    // the caller renders IN PLACE (never a vanished lane): every timed cell
+    // failed the box-state check.
+    if (!vals.length) return seen ? { zero: true, unfit, served, unverified } : null;
     const avg = METRICS[m].log
       ? Math.exp(vals.reduce((a, v) => a + Math.log(v), 0) / vals.length)
       : vals.reduce((a, v) => a + v, 0) / vals.length;
-    return { value: avg, min: Math.min(...vals), max: Math.max(...vals), n: vals.length, perSuite, hosts: [...hosts], unplottable };
+    return { value: avg, min: Math.min(...vals), max: Math.max(...vals), n: vals.length, perSuite, hosts: [...hosts], unfit, served, unverified };
   }
 
   function summaryBody() {
     const d = summaryData, m = summaryMetric, M = METRICS[m], f = fmtOf(m);
     // rows sorted best-average-first for the active metric: highest mean
     // accuracy first, fastest geometric-mean latency first (Array.sort is
-    // stable, so ties keep LANES order); lanes with no cell are dropped.
-    // Latency rows plot quotable runs only (laneStats) — a lane whose every
-    // timing cell is unfit or unjudged lands in the zero bucket and is
-    // NAMED in the note, never silently absent (the 2026-10-03 user
-    // report: Instinct and Rethink had been hidden from this chart
-    // wholesale; their quotable cells plot with the coverage counted on
-    // the label).
+    // stable, so ties keep LANES order). Latency rows plot the SERVED
+    // product (laneStats): own arm where it answered, the base lane's clock
+    // where it declined (↩); unfit cells never plot (counted, disclosed);
+    // unjudged cells plot marked. A lane with nothing plottable renders a
+    // PRESENCE row in place — the 2026-10-03 user report: hiding lanes
+    // (first the family lanes wholesale, then the unfit ones) read as
+    // results being lost. No lane ever vanishes from this chart.
     const total = (d.suites || []).length;
     const stats = LANES.map((lane) => [lane, laneStats(d, m, lane)]);
     const ranked = stats.filter(([, a]) => a && !a.zero)
       .sort(([, x], [, y]) => (M.log ? x.value - y.value : y.value - x.value));
-    const zeroLanes = stats.filter(([, a]) => a && a.zero).map(([lane]) => lane);
+    const zeroStats = stats.filter(([, a]) => a && a.zero);
     const rows = ranked.map(([lane, a]) => {
       const fLo = frac(m, a.min), fHi = frac(m, a.max), fAv = frac(m, a.value);
       const how = M.log ? "geometric mean" : "macro-average";
@@ -872,9 +879,12 @@
       // averaged over 2 of 14 suites must not read as the same denominator
       // as a full row (the reason Instinct/Rethink had been hidden instead)
       const cov = a.n < total ? ` <span class="bc-mut">· ${a.n}/${total}</span>` : "";
+      const fbTag = a.served ? ` <span class="bc-mut" title="suites the lane's own arm declined — the base lane answered">↩${a.served}</span>` : "";
       const tip = `<span class="bc-sw" style="background:${lane.color}"></span><b>${esc(lane.label)}</b><br>` +
         `${how} over <b>${a.n}</b> suites: <b>${f(a.value)}</b> — band = per-suite range (${spread})` +
-        (M.log ? `<br><span class="bc-mut">quotable runs only — the rest sits in the benchmark tables</span>` : "") +
+        (a.served ? `<br><span class="bc-mut">↩ ${a.served} of ${a.n} answered by the base lane — the served product</span>` : "") +
+        (a.unverified ? `<br><span class="bc-mut">⚠ ${a.unverified} cell(s) unverified — that host runs no box-state probes</span>` : "") +
+        (a.unfit ? `<br><span class="bc-mut">${a.unfit} unfit cell(s) excluded — a loaded-box run; values in the benchmark tables</span>` : "") +
         (a.hosts.length ? `<br><span class="bc-mut">includes extra-host cells: ${a.hosts.map((h) => "@" + esc(h)).join(", ")}</span>` : "") +
         `<br><span class="bc-mut">${per}</span>`;
       const band = a.n > 1
@@ -893,14 +903,20 @@
         : `left:${(fAv * 100).toFixed(2)}%;transform:translate(calc(-100% - 5px),-50%);`;
       const brk = M.log && latBroken && a.max > BREAK_AT
         ? `<i class="sz-break" aria-hidden="true" style="left:${(LIN_SPAN * 100).toFixed(2)}%"></i>` : "";
-      return `<div class="bc-hlabel"><i class="bc-sw" style="background:${lane.color}"></i>${esc(lane.label)}${cov}</div>` +
+      return `<div class="bc-hlabel"><i class="bc-sw" style="background:${lane.color}"></i>${esc(lane.label)}${cov}${fbTag}</div>` +
         `<div class="bc-htrack">${grid(m)}` +
         `<div class="bc-hbar" tabindex="0" data-tip="${esc(tip)}" aria-label="${esc(`${lane.label} averaged: ${f(a.value)} over ${a.n} suites (min ${f(a.min)}, max ${f(a.max)})`)}">` +
         `${band}${brk}<i class="bc-mark" style="left:${(fAv * 100).toFixed(2)}%;background:${lane.color}"></i><span class="bc-val" style="${valStyle}">${f(a.value)}</span></div></div>`;
-    }).join("");
-    const zeroNote = zeroLanes.length
-      ? ` ${zeroLanes.map((l) => l.label).join(", ")} ${zeroLanes.length === 1 ? "has" : "have"} no quotable latency — their timing sits in the benchmark tables, never plotted.`
-      : "";
+    }).join("") +
+      zeroStats.map(([lane, a]) =>
+        // presence row: the lane keeps its slot on the chart with the REASON
+        // where a value would be — a vanished lane reads as lost results
+        // (2026-10-03 user report); the unfit numbers themselves never plot
+        `<div class="bc-hlabel"><i class="bc-sw" style="background:${lane.color}"></i>${esc(lane.label)}</div>` +
+        `<div class="bc-htrack">` +
+        `<div class="bc-hbar bc-none" data-tip="${esc(`${lane.label}: every timed cell failed the box-state check (loaded box at run time) — ${a.unfit} unfit cell(s) excluded; the values sit in the benchmark tables`)}" aria-label="${esc(`${lane.label}: no verified timing`)}">timing failed the loaded-box check — re-run pending, values on /bench/</div></div>`
+      ).join("");
+    const anyServed = ranked.some(([, a]) => a.served);
     const note = (M.log
       ? (latBroken
         ? `Band = min → max suite p50; tick = geometric mean; log to ${lat(BREAK_AT)}, then a compressed tail past the break sign — exact values on the tooltip. Shorter is faster. `
@@ -909,8 +925,11 @@
         ? "Band = min → max suite chance-corrected accuracy; tick = macro-average; 0% = random guessing on that suite's option count (the same scale as the area radar), so suites compare — bars clip at the 0% chance line, tooltips carry exact values. "
         : "Band = min → max suite accuracy; tick = macro-average; chance differs per suite — compare lanes, not suites. ") +
       `Rows sorted ${M.log ? "fastest" : "best"} average first. ` +
-      `Over ${total} published suites — hover a bar for per-suite values; the count beside a lane is its plotted suites.` +
-      (M.log ? zeroNote + " Latency plots quotable runs only — timing without a verified run stays on the benchmark page's tables. Instinct and Rethink time only where their own arm ran." : "");
+      `Over ${total} published suites — hover a bar for per-suite values; the count beside a lane is its plotted suites, and each lane averages its own suites — the like-for-like view is the benchmark page's area radar.` +
+      (M.log
+        ? (anyServed ? " ↩k = k suites answered by the base lane — the served product (Rethink ≈ Reflex where the encoder declines). " : "") +
+          " Unfit timing (a loaded-box run) never plots — those lanes carry the reason in place; unverified = the run's host has no box-state probes."
+        : "");
     return `<div class="bc-hgrid"><div></div>${axis(m)}${rows}<div></div>${axis(m)}</div><p class="bc-note">${esc(note)}</p>`;
   }
 

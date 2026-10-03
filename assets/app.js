@@ -152,9 +152,11 @@ async function homeFigure() {
   }
   if (!window.BenchCharts) return;
   BenchCharts.setLogDomain(d);
-  // Latency rows plot quotable runs only, coverage counted on the label —
-  // Instinct and Rethink render beside the base lanes (2026-10-03 user
-  // report: the wholesale hide read as a missing render).
+  // Latency rows plot the SERVED product (own arm + the base lane's clock
+  // where it declined, ↩); unfit timing never plots — its lane keeps a
+  // presence row; unjudged cells plot marked. Instinct and Rethink render
+  // beside the base lanes; nothing ever vanishes from this chart
+  // (2026-10-03 user reports).
   if (chart) BenchCharts.summary(d, chart);
   if (tldrBody) {
     // Issue-058 follow-up (2026-10-01): the SAME denominator as the arena
