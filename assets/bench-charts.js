@@ -1661,8 +1661,34 @@
         : "");
     const ref = X.board_reference || {};
     const blog = X.blog_banking77_mf1 || {};
+    // The TL;DR card (plan 011 C3's remainder): one verdict line per suite,
+    // derived ONLY from the crosswalk's own pinned rows + the clef lane's
+    // published latency — never a hand-typed number (the site's law). It
+    // sits UNDER the caveat so the reading order holds (caveat, then the
+    // summary, then the tables). OUR rows only — the board/blog reference
+    // numbers never enter it, so the B5 caveat governs what it does not
+    // contain by construction.
+    const f4 = (v) => (v == null || !num(v)) ? "—" : v.toFixed(4);
+    const tldrLines = X.suites.map((s) => {
+      const clef = s.rows.find((r) => String(r.display).startsWith("clef"));
+      if (!clef || !num(clef.accuracy)) return null;
+      const others = s.rows.filter((r) => r !== clef && num(r.accuracy));
+      const best = others.length ? others.reduce((a, b) => (b.accuracy > a.accuracy ? b : a)) : null;
+      const clefCell = (d.suites || []).find((x) => x.name === s.name);
+      const p50 = clefCell && clefCell.clef && clefCell.clef.latency_p50_ms != null
+        ? ` at ${lat(clefCell.clef.latency_p50_ms)} p50 (${esc(clef.model || "local")})` : "";
+      if (!best || clef.accuracy > best.accuracy) {
+        return `<b>${esc(s.name)}</b> — Clef <b class="num">${f4(clef.accuracy)}</b> acc / <b class="num">${f4(clef.jdi_skill)}</b> skill${p50} leads every measured lane` +
+          (best ? ` (best other: ${esc(best.display)} ${f4(best.accuracy)})` : "");
+      }
+      const rec = best.record_only ? ` <b class="bc-fb" title="record-only — serve refused">rec</b>` : "";
+      return `<b>${esc(s.name)}</b> — ${esc(best.display)}${rec} leads at <b class="num">${f4(best.accuracy)}</b> acc / <b class="num">${f4(best.jdi_skill)}</b> skill over Clef <b class="num">${f4(clef.accuracy)}</b> / <b class="num">${f4(clef.jdi_skill)}</b>${p50}`;
+    }).filter(Boolean);
     el.innerHTML =
       `<p class="bc-note"><b>Read the caveat before any number:</b> ${esc(X.caveat || "")}</p>` +
+      (tldrLines.length
+        ? `<p class="bc-note tldr-verdict"><b>TL;DR</b> — our split, population-pinned: ${tldrLines.join(" · ")}.</p>`
+        : "") +
       X.suites.map(suiteHtml).join("") +
       (ref.rows && ref.rows.length
         ? `<h3 class="suite">The JDI board's own rows <span class="cases">— reference only</span></h3>` +

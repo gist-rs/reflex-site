@@ -143,6 +143,30 @@ const server = http.createServer((req, res) => {
     const expectedPins = X.suites.map((s) => s.pin);
     if (JSON.stringify(pins) !== JSON.stringify(expectedPins)) fail(`crosswalk pins ${pins} != data ${expectedPins}`);
     else console.log(`ok: crosswalk population pins render (${pins.length} suite(s))`);
+    // The TL;DR card (plan 011 C3's remainder): one verdict line per suite,
+    // derived from the rows — the leader name must match the data's argmax
+    // (accuracy, clef named in every line), and a record-only leader must
+    // carry its rec tag. Never a typed verdict.
+    const tldrEl = await page.$("#bench-crosswalk .bc-note.tldr-verdict");
+    if (!tldrEl) fail("crosswalk TL;DR card missing");
+    else {
+      const tldrText = await tldrEl.evaluate((el) => el.textContent);
+      const leaderOf = (s) => {
+        const withAcc = s.rows.filter((r) => typeof r.accuracy === "number");
+        return withAcc.length ? withAcc.reduce((a, b) => (b.accuracy > a.accuracy ? b : a)) : null;
+      };
+      for (const s of X.suites) {
+        if (!tldrText.includes(s.name)) fail(`TL;DR missing suite ${s.name}`);
+        const lead = leaderOf(s);
+        // clef-led suites read "<suite> — Clef … leads" (the renderer's
+        // fixed phrasing); every other leader reads "<suite> — <display>".
+        const leadTxt = String(lead.display).startsWith("clef") ? "Clef" : lead.display;
+        if (lead && !tldrText.includes(`${s.name} — ${leadTxt}`)) fail(`TL;DR leader mismatch on ${s.name}`);
+        if (lead && lead.record_only && !tldrText.includes("rec")) fail(`TL;DR record-only leader unmarked on ${s.name}`);
+      }
+      if (!/Clef/.test(tldrText)) fail("TL;DR never names Clef");
+      console.log(`ok: crosswalk TL;DR verdicts render (${X.suites.length} suite(s), leaders match the data)`);
+    }
   } else {
     console.log("ok: no crosswalk block (the board carries no clef cells) — section hidden");
   }
