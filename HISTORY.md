@@ -4,6 +4,18 @@ One hash-pinned line per removed issue (the fleet noise-reduction convention:
 an issue file is removed once its work is verifiably landed; this file is the
 durable record). Full narrative of each: `git log --follow -- .issues/<file>`.
 
+- **2026-10-03 — the home latency chart renders Instinct + Rethink again — quotable runs only, coverage on the label
+  (`6ed8f8a`, CF `23c57988`).** The user read the web-audit's wholesale hide (the `latencyBenchOnly` option) as a
+  missing render on the home summary's p50 metric. The rows plot again under the law the areas timing block and the
+  frontier already follow — `latency_quotable` cells only: Instinct 3.51 µs geomean over its 9 quotable suites,
+  Rethink 16.7 ms over its 2 (the unfit 364 ms typed read and the fallback cells' answering-tier clock stay in the
+  suite tables). Partial coverage is VISIBLE on the row label (`· n/14`, accuracy metrics too) instead of
+  tooltip-only, lanes with no quotable latency (clm, gliner, agentjev — unjudged 4090; bekko, paw — unfit) are NAMED
+  in the note and no longer plot their unverified timing on this chart. Verdict: hiding a partial lane and plotting
+  an unverified one were the same defect in opposite directions — the chart now does neither. Smoke: new
+  `p50-family` arm in `chart_render_smoke.cjs` pins the two rows, the coverage tags and the named-not-plotted lanes
+  (re-pin when the data's quotable verdicts move).
+
 - **2026-10-03 — the wire re-captured off reflex v0.2.4 + the first-corpus walkthrough LIVE
   (`cce66a5`, CF `15bd631f`).** The release carries the corpus serve lane (riir-reflex Issue 063)
   and the wire id fix (Issue 062 — verified: the served head reason reads `game-head/tetris
