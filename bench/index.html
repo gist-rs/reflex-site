@@ -197,6 +197,42 @@
     <p class="sub">Reflex · modelless is built for <b>latency</b> and <b>selective accuracy</b> (right when it answers,
       abstains when it can't) — not raw accuracy against a neural model. Judge it on those axes.
       <a href="/arena/">See it play →</a></p>
+    <details class="more gloss-box" id="glossary">
+      <summary>Words used on this page</summary>
+      <div class="gf-callout learn-gloss">
+        <dl class="gf-gloss">
+          <dt>abstain</dt><dd>Saying <em>I'm not sure</em> instead of guessing; the full probability distribution
+            still comes back with it.</dd>
+          <dt>coverage</dt><dd>The share of questions a lane actually answered.</dd>
+          <dt>calibration</dt><dd>Whether stated confidence matches reality: answers given “eight in ten” confidence
+            should be right about eight times in ten.</dd>
+          <dt>ECE</dt><dd>Expected calibration error — the average gap between confidence and accuracy. Lower is
+            better.</dd>
+          <dt>modelless</dt><dd>No neural network and no training run — answers come from documents you author plus
+            a few small numbers fitted from your labels.</dd>
+          <dt>lane</dt><dd>One way of answering the same questions — an engine plus its setup. The board compares
+            lanes side by side.</dd>
+          <dt>suite</dt><dd>One benchmark task: a fixed set of questions with known answers.</dd>
+          <dt>selective accuracy</dt><dd>How often answers are right, counting only the questions the system chose
+            to answer (abstentions left out). Read it beside coverage.</dd>
+          <dt>cc</dt><dd>Chance-corrected accuracy: zero is random guessing on that suite's option count, one is
+            perfect, below zero is worse than guessing.</dd>
+          <dt>conformal floor</dt><dd>A simple, well-understood baseline for honest confidence (split conformal
+            prediction). A calibration claim has to beat it.</dd>
+          <dt>record-only</dt><dd>Measured and published on the board, but not yet served to anyone.</dd>
+          <dt>tier-fallback</dt><dd>Where a product lane has no answer of its own on a suite, the cell shows what is
+            actually served there — the cheaper tier's answer — marked ↩ in tables and ▲ on the radar.</dd>
+          <dt>encoder head</dt><dd>A small trained layer on top of a text encoder that turns the encoder's reading
+            of the question into option probabilities.</dd>
+          <dt>vessel</dt><dd>The locked package a hosted head ships in. Only the hosted reader can open it, so the
+            weights never leave our servers.</dd>
+          <dt>rung</dt><dd>One step on the ladder: free local Reflex first; a hosted head only when the step below
+            abstains.</dd>
+        </dl>
+        <p class="faint gloss-more">The full primer — the Jev wire, prefill, macro-F1, the Jev Decision Index — is on
+          <a href="/resources/#learn">Resources</a>.</p>
+      </div>
+    </details>
     <div id="lane-filter"></div>
     <p class="lf-hint">Filter lanes — applies to every chart and table (remembered).</p>
     <div id="rig-filter"></div>
@@ -240,15 +276,15 @@
         where it measured ahead. Until it is the best published lane on <em>every</em> suite it covers, it is a promising PoC and lives here on the
         benchmark page — the arena TL;DR stays Reflex's.</p>
       <p class="sub"><strong>Naming:</strong> the lane names carry no qualifier — <strong>Instinct</strong> is the hybrid
-        (serving) lane, <strong>Rethink</strong> the encoder arm; the product vocabulary follows riir-instinct's naming law
-        (riir-ai Proposal 051, owner call 2026-10-01). Rethink is measured on a subset of suites so far (record-only: the encoder
+        (serving) lane, <strong>Rethink</strong> the encoder arm — Rethink is the separate hosted product
+        (<a href="https://rethink.gist.rs/">rethink.gist.rs</a>; its source is private). Rethink is measured on a subset of suites so far (record-only: the encoder
         class is refused at serve), so its radar draws a dot only where its own arm measured and a triangle (▲) where the
         served tier answers — the coverage count beside its row names its own measured suites, and the row never reads below
         the product it belongs to. Where its own arm measured <em>below</em> the seated one, the served answer shows (↩, the
         answering arm + the encoder's own read on hover); where it reads ahead, the violet record cell stands — results land
         as the encoder serving deploy exists.</p>
-      <figure class="figure">
-        <img src="/assets/instinct_flow.svg" width="1751" height="730"
+      <figure class="figure scrolls">
+        <img style="--minw:1204px" src="/assets/instinct_flow.svg" width="1751" height="730"
           alt="The Instinct composition flow in two bands: the top band is the question in — the same typed question runs Reflex's modelless engine first, and a confident fused-gate answer returns in microseconds with the specialist never paid; on abstain the bottom band takes over — top-k prune keeps the candidates, the locked per-domain specialist scores them, an H1 cascade or H2 prior fusion calibrates the pick, and the answer ships with a decision receipt — while arsenal.toml, the only selection surface, hot-swaps registered arms monotonically"
           loading="lazy">
         <figcaption>Registered arms only: a specialist joins the manifest solely where it beat free Reflex pre-registration, on one frozen test read
@@ -275,10 +311,10 @@
         their gliner2 package answers the same candidate-label questions — a comparison lane, never a product lane.
         <strong>agentjev</strong> — the external AgentJev-0.6B typed-decision specialist (Apache-2.0, not affiliated, Qwen3-0.6B backbone):
         their service answers over HTTP, measured gold-label on our split — a comparison lane, never a product lane.
-        <strong>Instinct</strong> — the trained-specialist hybrid (riir-instinct): a BLAKE3-locked distilled specialist composed with
+        <strong>Instinct</strong> — the trained-specialist hybrid (open source: riir-instinct): a BLAKE3-locked distilled specialist composed with
         Reflex — the modelless lane's fused gate decides when to consult it; the cell is the registered arm's single frozen test read
         over the same seat and protocol as every other lane (per suite, only where a hybrid arm won pre-registration).
-        <strong>Rethink</strong> — the same family's encoder arm (record-only: the encoder class is refused at serve, so it is
+        <strong>Rethink</strong> — the same family's encoder arm, served by the hosted Rethink product (record-only: the encoder class is refused at serve, so it is
         measured on a subset of suites so far and its row discloses the partial coverage). Where the encoder's own read sits
         below the seated arm's, the row shows the served answer with the ↩ fallback mark and the encoder's read in the note
         (best-of-family); where it reads ahead, the violet record cell stands on its own measurement.
@@ -327,13 +363,13 @@
         (acc@50cov, abstain / sel-acc) — not raw accuracy against a neural model.</p>
       <p>Where the gap was the scorer rather than the domain, it closes. Per-label count tables (naive-Bayes log-odds
         over the train rows, plus a sentence-pair view for premise/hypothesis tasks) are cal-selected per suite, and
-        the test split is read once. At its 051-era posture this took several suites to or past the laya lanes at the
+        the test split is read once. When count tables landed this took several suites to or past the laya lanes at the
         same sub-millisecond latency. <strong>2026-10-01 correction:</strong> the modelless cells published
         2026-09-28..30 were measured on a silently truncated 4,000-row-per-suite corpus pull while every posture
         they serve was selected on the full pools — the board read up to 42 points low on five suites through no
         engine change. Both hosts were re-run on the rebuilt full pools (every cell now carries a corpus digest;
-        reflex issue 058 owns the record), and the pre-076 numbers are restored — banking77 serves 0.8420, a real
-        engine gain since its 051-era reading. The test split never enters a corpus. A separate
+        the <a href="/data/changes.json">board change log</a> keeps the record), and the earlier numbers are restored —
+        banking77 now reads above its count-table-era cell, a real engine gain. The test split never enters a corpus. A separate
         <em>transductive</em> line under each table shows what happens if the engine may also read the test
         <em>text</em> (self-labelled, gold never read): it adds nothing, because the train rows already carry the
         vocabulary.</p>
@@ -352,7 +388,7 @@
         (~1.7 s/question). The 4090 prices the identical prompts at ~95 ms — same design, same accuracy
         (0.9200 byte-identical across both hosts), ~18× cheaper tokens. Verified as real, not box contamination:
         a preflight-passed exclusive-GPU re-read reproduced the number within 5% and made every
-        <code>@m3-max-metal</code> openthai cell quotable from its own run (riir-reflex Bench 085).</p>
+        <code>@m3-max-metal</code> openthai cell quotable from its own run.</p>
       </details>
       <details class="faq">
         <summary>Why is latency on a log scale?</summary>
@@ -399,7 +435,8 @@
     <details class="more"><summary>How to read these numbers</summary>
     <div class="notes"><ul>
       <li><strong>Fair board</strong> — every lane sees byte-identical questions. No single "we win" number exists or will exist.</li>
-      <li><strong>Instinct / Rethink</strong> are Reflex's trained sibling lanes (riir-instinct, private repo):
+      <li><strong>Instinct / Rethink</strong> are Reflex's trained sibling lanes (Instinct is open source,
+        <a href="https://github.com/gist-rs/riir-instinct">gist-rs/riir-instinct</a>; Rethink is the hosted product, private source):
         <strong>Instinct</strong> composes distilled per-domain specialists on top of the free engine — consulted only where
         Reflex's calibrated gate declines; <strong>Rethink</strong> is the same family's encoder arm (record-only so far —
         refused at serve, a partial-coverage lane). Full description: <a href="#faq"><em>What are the lanes?</em></a> and
@@ -476,7 +513,8 @@
       <li>paw reference: <a href="https://programasweights.com">ProgramAsWeights</a> (MIT) ·
         Python SDK <a href="https://github.com/programasweights/programasweights-python">programasweights-python</a> ·
         <a href="https://programasweights.readthedocs.io">docs</a></li>
-      <li>Instinct / Rethink — our lanes (riir-instinct, private repo): <strong>Instinct</strong> is the trained-specialist
+      <li>Instinct / Rethink — our lanes (Instinct open source; Rethink hosted at
+        <a href="https://rethink.gist.rs/">rethink.gist.rs</a>, private source): <strong>Instinct</strong> is the trained-specialist
         hybrid composed over Reflex; <strong>Rethink</strong> is the encoder arm (record-only so far). Described in the
         <a href="#faq">FAQ</a> above.</li>
     </ul></div>

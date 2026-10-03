@@ -152,7 +152,7 @@ async function homeFigure() {
   }
   if (!window.BenchCharts) return;
   BenchCharts.setLogDomain(d);
-  if (chart) BenchCharts.summary(d, chart);
+  if (chart) BenchCharts.summary(d, chart, { latencyBenchOnly: ["instinct", "instinct-encoder"] });
   if (tldrBody) {
     // Issue-058 follow-up (2026-10-01): the SAME denominator as the arena
     // TL;DR (arena_tldr.js pick()) — modelless + laya.english + py/english,
@@ -177,7 +177,8 @@ async function homeFigure() {
     if (speedup && geo) {
       tldrBody.innerHTML =
         `Typical decision <b class="num">${lat(geo)}</b> — median <b class="num">${Math.round(speedup).toLocaleString("en-US")}×</b> faster than the open-weights ` +
-        `model on the same questions, across <b class="num">${ratios.length}</b> suites.`;
+        `model on the same questions, across <b class="num">${ratios.length}</b> of the <b class="num">${(d.suites || []).length}</b> ` +
+        `published suites — the ones where both laya lanes (Rust and Python) also ran.`;
       // The Issue-021 verdict rides the claim it qualifies (never a
       // footnote elsewhere): a speed figure built on timing the run itself
       // judged unfit says so beside the number.

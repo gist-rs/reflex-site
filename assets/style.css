@@ -453,3 +453,14 @@ p code, li code, dd code, summary code { white-space: normal; overflow-wrap: any
 @media (max-width: 800px) { .scroll-hint { display: inline; } }
 /* a page's first section under the sticky header carries no rule of its own */
 main > section:first-child, .wrap > section:first-child { border-top: 0; }
+
+/* Big flow figures on a phone: below 760 px they keep a legible minimum
+   width (each <img> carries --minw = its viewBox width x 11/16, i.e. the
+   16 px label font never renders under 11 px) and scroll INSIDE the figure;
+   the page itself never scrolls sideways. */
+@media (max-width: 760px) {
+  .figure.scrolls img { min-width: var(--minw, 0); }
+  .figure.scrolls figcaption::before { content: "Swipe the figure sideways. "; color: var(--accent); }
+}
+.gloss-box > .learn-gloss { margin-top: var(--s-3); }
+.gloss-more { margin: var(--s-3) 0 0; font-size: var(--fs-0); }

@@ -333,7 +333,7 @@ the source of truth lives THERE; edit the source, never the mirror:
 - `docs/rethink/resources.md` + `docs/rethink/dev_flow.md` <- `../riir-rethink/.docs/05_resources/`
 - `assets/rethink_dev_flow.svg` <- `../riir-rethink/.docs/05_resources/dev_flow.svg`
 
-The flow figures are PRODUCED by `scripts/render_tetris_flows.py` (which
+The flow figures (decision_flow.svg included, since 2026-10-03) are PRODUCED by `scripts/render_tetris_flows.py` (which
 writes both mirrors byte-identically — several repos emit a doc-side
 `dev_flow.svg`, so the site copy is renamed per lane and the SVG's internal
 id follows the SITE name); this script is the drift detector between

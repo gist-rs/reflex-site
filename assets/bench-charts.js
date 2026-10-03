@@ -809,7 +809,7 @@
   // per-suite separation lives on /bench/ and only there.
   // the landing page defaults to the speed story — the reason Reflex exists;
   // /bench/'s hero keeps its own accuracy default
-  let summaryData = null, summaryMetric = "p50";
+  let summaryData = null, summaryMetric = "p50", summaryOpts = {};
 
   function laneStats(d, m, lane) {
     const vals = [], perSuite = [];
@@ -838,7 +838,12 @@
     // rows sorted best-average-first for the active metric: highest mean
     // accuracy first, fastest geometric-mean latency first (Array.sort is
     // stable, so ties keep LANES order); lanes with no cell are dropped
-    const ranked = LANES.map((lane) => [lane, laneStats(d, m, lane)])
+    // opts.latencyBenchOnly: lane keys whose TIMING renders on /bench/ only
+    // (the home page's family arms — their timing covers only the suites
+    // their own arm is registered on, which a one-row geomean beside the
+    // all-suite Reflex row cannot say; web trust audit Issue 005 T4)
+    const skip = M.log ? new Set(summaryOpts.latencyBenchOnly || []) : new Set();
+    const ranked = LANES.filter((lane) => !skip.has(lane.key)).map((lane) => [lane, laneStats(d, m, lane)])
       .filter(([, a]) => a)
       .sort(([, x], [, y]) => (M.log ? x.value - y.value : y.value - x.value));
     const rows = ranked.map(([lane, a]) => {
@@ -879,13 +884,15 @@
         ? "Band = min → max suite chance-corrected accuracy; tick = macro-average; 0% = random guessing on that suite's option count (the same scale as the area radar), so suites compare — bars clip at the 0% chance line, tooltips carry exact values. "
         : "Band = min → max suite accuracy; tick = macro-average; chance differs per suite — compare lanes, not suites. ") +
       `Rows sorted ${M.log ? "fastest" : "best"} average first. ` +
-      `Over ${(d.suites || []).length} published suites — hover a bar for per-suite values.`;
+      `Over ${(d.suites || []).length} published suites — hover a bar for per-suite values.` +
+      (skip.size ? " Instinct and Rethink time only the suites their own arm is registered on — their latency is on the benchmark page's Instinct section." : "");
     return `<div class="bc-hgrid"><div></div>${axis(m)}${rows}<div></div>${axis(m)}</div><p class="bc-note">${esc(note)}</p>`;
   }
 
-  function summary(d, el) {
+  function summary(d, el, opts) {
     if (!el || !d || !d.suites) return;
     summaryData = d;
+    summaryOpts = opts || {};
     setPrimaryHost(d.meta && d.meta.host);
     tooltip();
     const btns = Object.entries(METRICS).map(([k, M]) =>

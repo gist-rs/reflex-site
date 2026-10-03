@@ -18,3 +18,9 @@ tests
 node_modules
 CLAUDE.md
 .wt-jev
+# repo-internal records — history, plans, issues, healer state (2026-10-03: HISTORY.md + .plans were
+# being served live; they are records for contributors, read them on GitHub)
+HISTORY.md
+.plans
+.refine
+.assetsignore

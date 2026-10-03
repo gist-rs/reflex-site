@@ -30,10 +30,15 @@ renamed per lane (`reflex_dev_flow.svg`, `instinct_dev_flow.svg`,
 name — three figures sharing one doc-side filename must not share one id on
 the page.
 
-This renders every block through mermaid.ink (the same service + palette the
-riir-reflex hero `decision_flow.svg` uses: theme `base`, `#241410` node fill,
-`#ff8a4c` ember borders, `#f2e6dd` text, `#b99f8f` lines, `#1d110c` clusters,
-transparent background, monospace), post-processes per the Issue-131
+  6. riir-reflex `.docs/03_decision_flow/decision_flow.md` — the hero
+     decision-flow figure (only its headered compact block renders).
+
+This renders every block through mermaid.ink with a PER-SOURCE palette (the
+SOURCES table's 4th field): the gist.rs web-family ink palette with the
+owning product's accent on node borders for the education figures, and the
+original brown/ember theme (`#241410` node fill, `#ff8a4c` borders) for
+katgpt-rs's Tetris figures, whose arena step-through highlights are tuned to
+it — then post-processes per the Issue-131
 conventions (no `@import`, every selector scoped to the SVG's own id,
 `role="img"` + the aria sentence), and writes the SAME bytes to both mirrors:
 
@@ -96,13 +101,23 @@ def rethink_root() -> Path:
 # (root resolver, doc rel path, rename map {doc_filename: site_filename}) per
 # owning repo, in render order. An empty map is the identity: the doc-side
 # filename and the site-side assets/ filename agree.
+#
+# The 4th field is the PALETTE (2026-10-03, the gist.rs web-family restyle):
+# "rust" = the original brown/ember theme, kept for katgpt-rs's Tetris
+# figures (another repo's outputs, and assets/flow_walk.js's step highlights
+# are tuned to it); "family:<accent>" = the family ink palette with that
+# product accent on node borders (riir-ai .docs/13_web_family/family.css).
+# The 5th field, when True, renders ONLY the blocks that carry the
+# %% file:/%% aria: headers and skips the rest (decision_flow.md keeps an
+# un-rendered annotated block beside its compact hero block).
 SOURCES = (
-    (katgpt_root, ".docs/06_game_arenas/tetris_lane_flows.md", {}),
-    (instinct_root, ".docs/03_decision_flow/instinct_flow.md", {}),
-    (reflex_root, ".docs/05_resources/dev_flow.md", {"dev_flow.svg": "reflex_dev_flow.svg"}),
-    (instinct_root, ".docs/05_resources/dev_flow.md", {"dev_flow.svg": "instinct_dev_flow.svg"}),
-    (rethink_root, ".docs/03_decision_flow/rethink_flow.md", {}),
-    (rethink_root, ".docs/05_resources/dev_flow.md", {"dev_flow.svg": "rethink_dev_flow.svg"}),
+    (katgpt_root, ".docs/06_game_arenas/tetris_lane_flows.md", {}, "rust", False),
+    (reflex_root, ".docs/03_decision_flow/decision_flow.md", {}, "family:#ff8a3d", True),
+    (instinct_root, ".docs/03_decision_flow/instinct_flow.md", {}, "family:#f472b6", False),
+    (reflex_root, ".docs/05_resources/dev_flow.md", {"dev_flow.svg": "reflex_dev_flow.svg"}, "family:#ff8a3d", False),
+    (instinct_root, ".docs/05_resources/dev_flow.md", {"dev_flow.svg": "instinct_dev_flow.svg"}, "family:#f472b6", False),
+    (rethink_root, ".docs/03_decision_flow/rethink_flow.md", {}, "family:#a98bfa", False),
+    (rethink_root, ".docs/05_resources/dev_flow.md", {"dev_flow.svg": "rethink_dev_flow.svg"}, "family:#a98bfa", False),
 )
 
 THEME = {
@@ -126,20 +141,56 @@ THEME = {
 }
 
 
-def blocks(md: str):
-    """Yield (file, aria, code) for every ```mermaid block with a file header."""
+def family_theme(accent: str) -> dict:
+    """The gist-family v1 ink palette (family.css tokens): --surface-2 node
+    fill, the product accent on borders, --text labels, --muted edges,
+    --surface clusters with --line-2 borders, transparent background."""
+    return {
+        "theme": "base",
+        "themeVariables": {
+            "background": "transparent",
+            "primaryColor": "#1c212c",
+            "primaryBorderColor": accent,
+            "primaryTextColor": "#e9ecf2",
+            "secondaryColor": "#161a23",
+            "tertiaryColor": "#161a23",
+            "lineColor": "#9299ab",
+            "textColor": "#e9ecf2",
+            "clusterBkg": "#161a23",
+            "clusterBorder": "#343b4b",
+            "edgeLabelBackground": "#11141b",
+            "fontFamily": THEME["themeVariables"]["fontFamily"],
+            "fontSize": "16px",
+        },
+        "flowchart": dict(THEME["flowchart"]),
+    }
+
+
+def theme_for(palette: str) -> dict:
+    if palette == "rust":
+        return THEME
+    if palette.startswith("family:"):
+        return family_theme(palette.split(":", 1)[1])
+    raise SystemExit(f"unknown palette {palette!r}")
+
+
+def blocks(md: str, headered_only: bool = False):
+    """Yield (file, aria, code) for every ```mermaid block with a file header.
+    headered_only=True skips header-less blocks instead of refusing them."""
     for m in re.finditer(r"```mermaid\n(.*?)```", md, re.S):
         code = m.group(1)
         f = re.search(r"^%% file:\s*(\S+)\s*$", code, re.M)
         a = re.search(r"^%% aria:\s*(.+?)\s*$", code, re.M)
+        if headered_only and not f and not a:
+            continue
         if not f or not a:
             raise SystemExit(f"block without %% file:/%% aria: header:\n{code[:200]}")
         body = "\n".join(l for l in code.splitlines() if not l.startswith("%%"))
         yield f.group(1), a.group(1), body
 
 
-def render(code: str) -> str:
-    state = json.dumps({"code": code, "mermaid": THEME}).encode("utf-8")
+def render(code: str, theme: dict = THEME) -> str:
+    state = json.dumps({"code": code, "mermaid": theme}).encode("utf-8")
     pako = base64.urlsafe_b64encode(zlib.compress(state, 9)).decode("ascii")
     url = f"https://mermaid.ink/svg/pako:{pako}?bgColor=!transparent"
     req = urllib.request.Request(url, headers={"User-Agent": "reflex-site-render/1"})
@@ -178,7 +229,7 @@ def main() -> int:
     ap.add_argument("--check", action="store_true")
     args = ap.parse_args()
     bad = 0
-    for root_fn, rel, rename in SOURCES:
+    for root_fn, rel, rename, palette, headered_only in SOURCES:
         root = root_fn()
         if not (root / "Cargo.toml").exists():
             print(f"SKIP (loud): {root.name} checkout absent - {rel} UNCHECKED this run")
@@ -188,7 +239,7 @@ def main() -> int:
             print(f"✗ source missing: {doc}")
             bad += 1
             continue
-        items = list(blocks(doc.read_text(encoding="utf-8")))
+        items = list(blocks(doc.read_text(encoding="utf-8"), headered_only))
         if not items:
             print(f"✗ {doc} has zero mermaid blocks — nothing rendered is not a pass")
             bad += 1
@@ -207,7 +258,7 @@ def main() -> int:
                 else:
                     print(f"✓ {file} -> assets/{site_name} ({b.stat().st_size} B)")
                 continue
-            svg = postprocess(render(code), site_name, aria)
+            svg = postprocess(render(code, theme_for(palette)), site_name, aria)
             for dst in (a, b):
                 dst.write_text(svg, encoding="utf-8", newline="\n")
             print(f"✓ rendered {file} -> assets/{site_name} ({len(svg)} B) → both mirrors")

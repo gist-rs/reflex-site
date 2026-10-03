@@ -111,6 +111,34 @@
       </dl>
     </div>
 
+    <details class="more gloss-box">
+      <summary>More words used further down this page</summary>
+      <div class="gf-callout learn-gloss">
+        <dl class="gf-gloss">
+          <dt>modelless</dt><dd>No neural network and no training run — answers come from documents you author plus
+            a few small numbers fitted from your labels.</dd>
+          <dt>lane</dt><dd>One way of answering the same questions — an engine plus its setup. The board compares
+            lanes side by side.</dd>
+          <dt>suite</dt><dd>One benchmark task: a fixed set of questions with known answers.</dd>
+          <dt>selective accuracy</dt><dd>How often answers are right, counting only the questions the system chose
+            to answer (abstentions left out). Read it beside coverage.</dd>
+          <dt>cc</dt><dd>Chance-corrected accuracy: zero is random guessing on that suite's option count, one is
+            perfect, below zero is worse than guessing.</dd>
+          <dt>conformal floor</dt><dd>A simple, well-understood baseline for honest confidence (split conformal
+            prediction). A calibration claim has to beat it.</dd>
+          <dt>record-only</dt><dd>Measured and published on the board, but not yet served to anyone.</dd>
+          <dt>tier-fallback</dt><dd>Where a product lane has no answer of its own on a suite, the cell shows what is
+            actually served there — the cheaper tier's answer — marked ↩ in tables and ▲ on the radar.</dd>
+          <dt>encoder head</dt><dd>A small trained layer on top of a text encoder that turns the encoder's reading
+            of the question into option probabilities.</dd>
+          <dt>vessel</dt><dd>The locked package a hosted head ships in. Only the hosted reader can open it, so the
+            weights never leave our servers.</dd>
+          <dt>rung</dt><dd>One step on the ladder: free local Reflex first; a hosted head only when the step below
+            abstains.</dd>
+        </dl>
+      </div>
+    </details>
+
     <h3>The workflow</h3>
     <p><b>Inputs</b> (a state + typed questions) → <b>the decision model</b> (reads it all, scores every option)
       → <b>typed outputs</b> (one answer per question, each with probabilities). Your code reads the answer and,
@@ -245,8 +273,8 @@
       </div>
     </div>
 
-    <figure class="figure">
-      <img src="/assets/decision_flow.svg" width="1517" height="610"
+    <figure class="figure scrolls">
+      <img style="--minw:1043px" src="/assets/decision_flow.svg" width="1517" height="610"
         alt="The Reflex decision flow: state plus a typed question (choice, score, or yes/no) is embedded, routed to a domain, options scored corpus-is-the-model, calibrated by a sigmoid gate, then answered in microseconds with confidence or an honest abstain — loopback only, thresholds fitted offline from your own labeled data"
         loading="lazy">
       <figcaption>The free lane: <strong>Reflex</strong>'s decision flow — the same figure as the
@@ -254,8 +282,8 @@
         <a href="https://github.com/gist-rs/riir-reflex/blob/HEAD/.docs/03_decision_flow/decision_flow.md">decision_flow.md</a>.</figcaption>
     </figure>
 
-    <figure class="figure">
-      <img src="/assets/instinct_flow.svg" width="1751" height="730"
+    <figure class="figure scrolls">
+      <img style="--minw:1204px" src="/assets/instinct_flow.svg" width="1751" height="730"
         alt="The Instinct composition flow in two bands: the top band is the question in — the same typed question runs Reflex's modelless engine first, and a confident fused-gate answer returns in microseconds with the specialist never paid; on abstain the bottom band takes over — top-k prune keeps the candidates, the locked per-domain specialist scores them, an H1 cascade or H2 prior fusion calibrates the pick, and the answer ships with a decision receipt"
         loading="lazy">
       <figcaption>The composition: <strong>Instinct</strong>'s flow — the same figure as
@@ -294,8 +322,8 @@
       [Modelless: no neural network — no training run. Corpus: your documents — the corpus is the model.
       Abstain: the engine says “I don't know” instead of guessing.]</p>
 
-    <figure class="figure">
-      <img src="/assets/decision_flow.svg" width="1517" height="610"
+    <figure class="figure scrolls">
+      <img style="--minw:1043px" src="/assets/decision_flow.svg" width="1517" height="610"
         alt="The Reflex decision flow: state plus a typed question (choice, score, or yes/no) is embedded, routed to a domain, options scored corpus-is-the-model, calibrated by a sigmoid gate, then answered in microseconds with confidence or an honest abstain — loopback only, thresholds fitted offline from your own labeled data"
         loading="lazy">
       <figcaption>The Reflex decision flow — the same figure as the <a href="/#flow">home page</a>
@@ -363,8 +391,8 @@
       trained encoder head thinks — served HOSTED-ONLY from our GPU servers, so the weights never leave
       controlled hardware. [HOSTED-ONLY: weights that never leave our servers — you call, we think.]</p>
 
-    <figure class="figure">
-      <img src="/assets/rethink_flow.svg" width="1444" height="407"
+    <figure class="figure scrolls">
+      <img style="--minw:993px" src="/assets/rethink_flow.svg" width="1444" height="407"
         alt="One rung deeper than the bag specialist: when the modelless engine abstains, hashed-bag specialists answer fast on CPU, and the harder cases rise to a trained encoder head served HOSTED-ONLY from our GPU hosts, so the weights never leave our servers"
         loading="lazy">
       <figcaption>The Rethink flow — from question to answer, with the rung model drawn in.
@@ -414,9 +442,10 @@
       </details>
       <details class="faq">
         <summary>Where is the product surface?</summary>
-        <p>The storefront — <a href="https://rethink.gist.rs">rethink.gist.rs</a> — is incoming; the link may be
-        dark until it deploys. Until then, the <a href="/bench/">bench Rethink rows</a> are live and are the
-        measured side of everything this section claims.</p>
+        <p>The storefront is live at <a href="https://rethink.gist.rs/">rethink.gist.rs</a> — what the hosted tier
+        does, how your data is handled, and the buy card, which carries its honest state (a waitlist until
+        purchases open). The <a href="/bench/">bench Rethink rows</a> are the measured side of everything this
+        section claims.</p>
       </details>
     </div>
   </section>
@@ -427,8 +456,8 @@
       mirrored on this site, with the source of truth on GitHub for the public lanes.</p>
 
     <h3>Reflex — author a lane.</h3>
-    <figure class="figure">
-      <img src="/assets/reflex_dev_flow.svg" width="1799" height="142"
+    <figure class="figure scrolls">
+      <img style="--minw:1237px" src="/assets/reflex_dev_flow.svg" width="1799" height="142"
         alt="The Reflex development loop: author rules and grammar (state and options as sentences), label a small calibration slice, refit thresholds, serve on loopback, decide with an answer or an honest abstain, ship the binary"
         loading="lazy">
       <figcaption>Author your domain as closed-grammar sentences, label a small slice, refit, serve on loopback,
@@ -438,8 +467,8 @@
     </figure>
 
     <h3>Instinct — train a specialist.</h3>
-    <figure class="figure">
-      <img src="/assets/instinct_dev_flow.svg" width="1554" height="118"
+    <figure class="figure scrolls">
+      <img style="--minw:1068px" src="/assets/instinct_dev_flow.svg" width="1554" height="118"
         alt="The Instinct development build flow: a corpus is made from public data, a per-domain specialist is trained on it, a stratified holdout read applies the winner law so only a strict win over the free engine survives, the passing artifact is BLAKE3-locked, registered as a manifest row, and served with decision receipts"
         loading="lazy">
       <figcaption>Make a corpus from public data, train one specialist per domain, apply the winner law on a
@@ -449,8 +478,8 @@
     </figure>
 
     <h3>Rethink — mint a head.</h3>
-    <figure class="figure">
-      <img src="/assets/rethink_dev_flow.svg" width="1444" height="118"
+    <figure class="figure scrolls">
+      <img style="--minw:993px" src="/assets/rethink_dev_flow.svg" width="1444" height="118"
         alt="The Rethink development flow: train the head on the trainer side, lock it, mint a HOSTED-ONLY vessel, deploy to our GPU hosts only, and serve decisions through the storefront"
         loading="lazy">
       <figcaption>Train the head on the trainer side, lock it, mint a HOSTED-ONLY vessel, deploy to our GPU hosts

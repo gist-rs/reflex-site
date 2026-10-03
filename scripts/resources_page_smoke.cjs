@@ -253,10 +253,13 @@ function digitFindings(text, label, fail) {
   //    the superset)
   digitFindings(await page.evaluate(() => document.body.innerText), "rendered innerText", fail);
 
-  // 9. the storefront is marked incoming (graceful degradation — no hard
-  //    dependency on a URL that may be dark)
-  if (!/incoming/.test(flat)) fail("storefront not marked incoming");
-  else console.log("ok: rethink.gist.rs marked incoming");
+  // 9. the storefront is LIVE (rethink.gist.rs deployed 2026-10-03 — the old
+  //    "incoming / may be dark" wording is a stale claim, web trust audit
+  //    Issue 005 T2): the FAQ links it and no "incoming"/"dark" hedge remains
+  const store = await page.evaluate(() => [...document.querySelectorAll("#rethink a[href^='https://rethink.gist.rs']")].length);
+  if (!store) fail("the Rethink section must link the live storefront (rethink.gist.rs)");
+  else if (/incoming|may be\s+dark/.test(flat)) fail("stale storefront hedge (incoming / may be dark) still on the page");
+  else console.log("ok: rethink.gist.rs linked as live (no incoming/dark hedge)");
 
   // 10. nav: exactly one Resources link, marked current here; GitHub icon in
   const cur = await page.$$eval("header.site nav a", (as) =>

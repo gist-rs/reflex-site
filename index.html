@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Reflex — a modelless decision engine for your machine</title>
-  <meta name="description" content="Typed decisions (choice / score / yes-no) in microseconds, with calibrated confidence and a real abstain. No model weights, nothing leaves your machine.">
+  <meta name="description" content="Typed decisions (choice / score / yes-no) in microseconds, with calibrated confidence and a real abstain. No neural network; thresholds fitted from your labeled data; nothing leaves your machine.">
   <link rel="stylesheet" href="/assets/family.css">
   <link rel="stylesheet" href="/assets/style.css">
 </head>
@@ -41,7 +41,8 @@
     <h1>Decisions in microseconds.<br><em>Honest when it doesn't know.</em></h1>
     <p class="lead">
       Ask <strong>choice</strong>, <strong>score</strong> or <strong>yes/no</strong> — get an answer with
-      calibrated confidence, or an <strong>abstain</strong> instead of a guess. No model weights, nothing leaves your machine.
+      calibrated confidence, or an <strong>abstain</strong> instead of a guess. No neural network to download — the only
+      fitted numbers are small thresholds and heads rebuilt from your own documents and labels. Nothing leaves your machine.
     </p>
 
     <div class="cta-row">
@@ -71,8 +72,8 @@
     <h2><a class="hlink" href="#flow">How it works</a></h2>
     <p class="sub">Embed → route to your corpus → score options → calibrate → answer or abstain.
       Thresholds are fitted offline from <strong>your</strong> labeled data.</p>
-    <figure class="figure">
-      <img src="/assets/decision_flow.svg" width="1517" height="610"
+    <figure class="figure scrolls">
+      <img style="--minw:1043px" src="/assets/decision_flow.svg" width="1517" height="610"
         alt="The Reflex decision flow: state plus a typed question (choice, score, or yes/no) is embedded, routed to a domain, options scored corpus-is-the-model, calibrated by a sigmoid gate, then answered in microseconds with confidence or an honest abstain — loopback only, thresholds fitted offline from your own labeled data"
         loading="lazy">
       <figcaption>Runs on <code>127.0.0.1:7331</code> only. Write-up:
@@ -186,6 +187,11 @@
         <a class="cta" href="/bench/">Audit the tables</a>
       </div>
       <div class="page-card">
+        <h3>Need more than the floor?</h3>
+        <p>Where Reflex abstains, Rethink answers — a hosted trained head, paid only for those questions.</p>
+        <a class="cta" href="https://rethink.gist.rs/">Meet Rethink</a>
+      </div>
+      <div class="page-card">
         <h3>For agents</h3>
         <p>One skill file teaches your coding agent to use Reflex.</p>
         <a class="cta" href="/#skill">Install the skill</a>
@@ -218,7 +224,7 @@
     <p class="sub">One static binary, checksum-verified. <code>reflex --version</code> prints its feature set.</p>
     <div class="cmd"><span class="os">macOS / Linux</span><code>curl -fsSL https://raw.githubusercontent.com/gist-rs/reflex/main/install.sh | sh</code><button data-copy="curl -fsSL https://raw.githubusercontent.com/gist-rs/reflex/main/install.sh | sh">copy</button></div>
     <div class="cmd"><span class="os">Windows</span><code>iwr -useb https://raw.githubusercontent.com/gist-rs/reflex/main/install.ps1 | iex</code><button data-copy="iwr -useb https://raw.githubusercontent.com/gist-rs/reflex/main/install.ps1 | iex">copy</button></div>
-    <div class="cmd"><span class="os">Homebrew</span><code>brew tap gist-rs/tap &amp;&amp; brew install riir-reflex</code> <span class="hint-inline">— installs the <code>reflex</code> command</span><button data-copy="brew tap gist-rs/tap && brew install riir-reflex">copy</button></div>
+    <div class="cmd"><span class="os">Homebrew</span><code>brew tap gist-rs/tap &amp;&amp; brew trust gist-rs/tap &amp;&amp; brew install riir-reflex</code> <span class="hint-inline">— macOS + Linux; installs the <code>reflex</code> command (Homebrew 6+ loads third-party tap formulas only after <code>brew trust</code>)</span><button data-copy="brew tap gist-rs/tap && brew trust gist-rs/tap && brew install riir-reflex">copy</button></div>
   </section>
 
   <section id="notes">

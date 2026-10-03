@@ -6,13 +6,13 @@
       "repo": "riir-reflex",
       "src": ".docs/03_decision_flow/decision_flow.svg",
       "dst": "assets/decision_flow.svg",
-      "sha256": "b2f6126a978cb7c9f7aa28c87d79cc3e75c9a28294830fda37aaf1ecd892b5d6"
+      "sha256": "cf02848f2df18a93e703bee3a3793a4083bdfeaf6c65dabf543e75ba2ccffc7a"
     },
     {
       "repo": "riir-reflex",
       "src": ".docs/04_agent_skill/SKILL.md",
       "dst": "skills/reflex-integration/SKILL.md",
-      "sha256": "b2b779986f049f722a281783b486b8fd0ebcbbf55b8cf70808f4412eb2772252"
+      "sha256": "f2998521a565a7de48543364df20a2df570c15115a794cae8d320876637565c0"
     },
     {
       "repo": "riir-reflex",
@@ -30,13 +30,13 @@
       "repo": "riir-reflex",
       "src": ".docs/05_resources/dev_flow.svg",
       "dst": "assets/reflex_dev_flow.svg",
-      "sha256": "8fce609f47f22cb51c63d4d95ef94520835b784fbb959c196708635a4d04d805"
+      "sha256": "010838180b7b4b9aa5d1fc237852f545c88df9716719bfcbf797c4981c20c451"
     },
     {
       "repo": "riir-instinct",
       "src": ".docs/03_decision_flow/instinct_flow.svg",
       "dst": "assets/instinct_flow.svg",
-      "sha256": "75a33746e0c9b3895a6cba60a8d2126522e0345ee55262622036ff1ca0e884c3"
+      "sha256": "74d245ba51fea39618926df614ec3cb07d33620083262e26ad2a6b662a3fd7b9"
     },
     {
       "repo": "riir-instinct",
@@ -54,13 +54,13 @@
       "repo": "riir-instinct",
       "src": ".docs/05_resources/dev_flow.svg",
       "dst": "assets/instinct_dev_flow.svg",
-      "sha256": "4c9b04639832d88c822f85dda6d2ba4bf401eb1b9c6487886472e1220e9374f9"
+      "sha256": "8d560f918f4517a637dfbc027282b139032f36cb1a8ad43f9c437ecf71224c0e"
     },
     {
       "repo": "riir-rethink",
       "src": ".docs/03_decision_flow/rethink_flow.svg",
       "dst": "assets/rethink_flow.svg",
-      "sha256": "ac78a3a85e2b866fd8218b60788d749522c140a3482fb4256bf6d687aa5b899e"
+      "sha256": "839f7c978371202481b692bcc25f2dd20cd1ef029cc38405ef9d3c64549e2755"
     },
     {
       "repo": "riir-rethink",
@@ -78,7 +78,7 @@
       "repo": "riir-rethink",
       "src": ".docs/05_resources/dev_flow.svg",
       "dst": "assets/rethink_dev_flow.svg",
-      "sha256": "458b985bc2130dd089dd1fd7b58006eefd660476072812a2459bd806d0bdf733"
+      "sha256": "fc1df9b9531f99d3fa651f88412206d8cbca46c3b243985b1e16a86dc241f31d"
     }
   ]
 }

@@ -153,7 +153,7 @@ function render(bench) {
   ul.appendChild(row(rustPyUnfit.length ? null : rustFaster.length === n,
     `<b>Rust vs Python laya, speed:</b> Rust faster on <b>${rustFaster.length}/${n}</b>` +
     (rustSlower.length
-      ? `, slower on ${rustSlower.length} (${slowList}) — a bug by our bar (<a href="https://github.com/gist-rs/riir-reflex/blob/HEAD/HISTORY.md">riir-reflex Issue 020</a> closed on Rust winning every cell).`
+      ? `, slower on ${rustSlower.length} (${slowList}) — a bug by our bar (the engine's <a href="https://github.com/gist-rs/riir-reflex/blob/HEAD/HISTORY.md">change history</a> closed that work on Rust winning every cell).`
       : ".") + unfitTail(rustPyUnfit)));
   const pairLine = crossSample.length
     ? `; ${crossSample.length} pair(s) on different samples — not comparable (${crossSample.map((r) => r.pairDetail).join(", ")})`
