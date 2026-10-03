@@ -100,21 +100,22 @@ const p50 = checkMetric("p50", "summary");
 // The broken latency axis (the /#sizes break-sign idiom): the published data
 // carries past-500 ms plotted lane reads — openthai's slowest suite, bekko's
 // typed_decisions/banking77 cells (since the bekko 400M quotable-timing
-// window, reflex bench 115), and (since reflex bench 116) paw's hosted
-// aggregate (~1.1 s over its 3 quotable cells) — so the p50 body renders
-// exactly three sz-break signs, the dashed break gridline
+// window, reflex bench 115), paw's hosted aggregate (~1.1 s over its 3
+// quotable cells, reflex bench 116), and clef's two quotable cells
+// (3368/1690 ms, reflex bench 118's quiet-box re-read) — so the p50 body
+// renders exactly four sz-break signs, the dashed break gridline
 // once per axis (top + bottom), and an axis tick naming the break. Re-pin
 // the count when the data's slowest read moves across the break.
 const p50Html = captured["summary"].innerHTML;
 const p50Breaks = (p50Html.match(/class="sz-break"/g) || []).length;
-if (p50Breaks !== 3) { console.error(`FAIL[p50-break]: expected exactly 3 sz-break signs, got ${p50Breaks}`); process.exit(1); }
+if (p50Breaks !== 4) { console.error(`FAIL[p50-break]: expected exactly 4 sz-break signs, got ${p50Breaks}`); process.exit(1); }
 const p50GridBreaks = (p50Html.match(/sz-grid-break/g) || []).length;
 const p50Rows = (p50Html.match(/class="bc-hbar"/g) || []).length;
 // the grid rides EVERY row track (one per lane row), so the break gridline
 // count must equal the row count — a grid that lost the break tick reds here
 if (p50Rows < 2 || p50GridBreaks !== p50Rows) { console.error(`FAIL[p50-break]: expected a break gridline on every row track (${p50Rows}), got ${p50GridBreaks}`); process.exit(1); }
 if (!/style="left:80\.00%">500 ms<\/span>/.test(p50Html)) { console.error("FAIL[p50-break]: the axis does not name the 500 ms break tick"); process.exit(1); }
-console.log(`[p50-break] 3 break signs, ${p50GridBreaks} break gridlines (one per row track), axis names the 500 ms break, ${p50.details} tap-to-expand rows`);
+console.log(`[p50-break] ${p50Breaks} break signs, ${p50GridBreaks} break gridlines (one per row track), axis names the 500 ms break, ${p50.details} tap-to-expand rows`);
 
 // The family lanes plot on the speed chart, and NO lane ever vanishes from
 // it (the 2026-10-03 user reports: hiding the family lanes wholesale read as
@@ -149,25 +150,26 @@ if (!rethinkTag.some((t) => t.endsWith("↩5</span>"))) {
 // the checkpoint id out of the cells; the bare form must NOT render).
 // Since reflex bench 115 (2026-10-03) bekko's 9 cells are latency_quotable,
 // so the lane plots a real bar — the presence-row shape it wore while the
-// timing was unfit must be gone. The presence-row STATE itself is the
-// designed rendering for a lane whose timing is legitimately pending —
-// clef wears it now (acc-only cells, the quiet-box re-read pending); the
-// pin names WHO wears it, never that nobody does (a lane in that state
-// with no row is the vanishing this check exists for).
+// timing was unfit must be gone. Since reflex bench 118 (2026-10-04) clef's
+// two cells are quotable too (the quiet-box re-read) — clef plots a real
+// bar and the presence-row set is EMPTY. The presence-row STATE itself
+// stays the designed rendering for a lane whose timing is legitimately
+// pending (clef wore it between benches 113 and 118) — a lane in that
+// state with no row is the vanishing this check exists for, so the pin
+// asserts NO presence rows beyond the data-backed pending set (currently
+// none) rather than deleting the state.
 if (!/aria-label="bekko 400M averaged: /.test(p50Html) || p50Html.includes(">bekko<") || /aria-label="bekko(?! 400M) /.test(p50Html)) {
   console.error("FAIL[p50-family]: bekko must plot a real bar, sized-labeled");
   process.exit(1);
 }
+if (!/aria-label="clef averaged: /.test(p50Html)) {
+  console.error("FAIL[p50-family]: clef must plot a real p50 bar (bench 118's quotable cells — the presence row retires)");
+  process.exit(1);
+}
 {
   const presence = [...p50Html.matchAll(/aria-label="([^"]*?)\s*(?::\s*)?no verified timing[^"]*"/g)].map((m) => m[1].trim());
-  const pending = new Set(["clef", "clef (local)"]);
-  const unexpected = presence.filter((l) => !pending.has(l));
-  if (unexpected.length) {
-    console.error(`FAIL[p50-family]: a presence row survived beyond the pending-timing lanes (clef) — got [${unexpected.join(", ")}]`);
-    process.exit(1);
-  }
-  if (!presence.some((l) => l.startsWith("clef"))) {
-    console.error("FAIL[p50-family]: clef (acc-only, re-read pending) must keep its presence row — lanes never vanish");
+  if (presence.length) {
+    console.error(`FAIL[p50-family]: a presence row survived with no legitimately-pending lane — got [${presence.join(", ")}] (a lane whose timing turned quotable must plot its bar, never keep the placeholder)`);
     process.exit(1);
   }
 }

@@ -105,8 +105,8 @@
       "date_utc": "2026-10-03T17:14:24Z"
      },
      "clef": {
-      "git_sha": "50d340d",
-      "date_utc": "2026-10-03T07:16:56Z"
+      "git_sha": "91dd0cb",
+      "date_utc": "2026-10-03T20:18:10Z"
      }
     },
     "head_posture": "OFF (head_scale 0 \u2014 the published baseline posture)"
@@ -2551,8 +2551,17 @@
     "brier_soft": 0.11176883383455492,
     "score_mae": 0.2956587900000002,
     "within_1": 0.975,
+    "latency_p50_ms": 1690.0,
+    "latency_p99_ms": 2554.0,
+    "latency_tail_support": 5,
+    "latency_extremes": {
+     "first_ms": 1691.0,
+     "max_ms": 2606.0,
+     "argmax_case": 399
+    },
     "determinism_ok": true,
     "determinism_n": 10,
+    "seconds": 724.068979125,
     "n_cases": 400,
     "n_questions": 2000,
     "score_threshold": null,
@@ -2570,9 +2579,10 @@
     "jdi_chance": 0.2925,
     "jdi_skill": 0.5696113074204947,
     "cases_digest": "fnv1a64-6e37760ee2a5b6c9",
+    "latency_quotable": true,
     "source_run": {
-     "git_sha": "50d340d",
-     "date_utc": "2026-10-03T07:16:56Z"
+     "git_sha": "91dd0cb",
+     "date_utc": "2026-10-03T20:18:10Z"
     }
    }
   },
@@ -12105,8 +12115,17 @@
     "brier_soft": null,
     "score_mae": null,
     "within_1": null,
+    "latency_p50_ms": 3368.0,
+    "latency_p99_ms": 4371.0,
+    "latency_tail_support": 6,
+    "latency_extremes": {
+     "first_ms": 2331.0,
+     "max_ms": 4632.0,
+     "argmax_case": 126
+    },
     "determinism_ok": true,
     "determinism_n": 10,
+    "seconds": 1775.382709042,
     "n_cases": 500,
     "n_questions": 500,
     "score_threshold": null,
@@ -12124,9 +12143,10 @@
     "jdi_chance": 0.014,
     "jdi_skill": 0.9533468559837728,
     "cases_digest": "fnv1a64-dd8ab35333abb82a",
+    "latency_quotable": true,
     "source_run": {
-     "git_sha": "2290415",
-     "date_utc": "2026-10-03T07:00:40Z"
+     "git_sha": "91dd0cb",
+     "date_utc": "2026-10-03T20:05:58Z"
     }
    }
   },
@@ -16416,10 +16436,10 @@
     "clock": "http",
     "method": "HTTP round-trip to a local clef-flash-4bit (community 4-bit quant of their 9B) served on the m3 behind a loopback shim; the hosted 27B posture is owner-gated \u2014 never pooled with these cells",
     "suites": 2,
-    "p50_geomean_ms": null,
-    "n_used": 0,
+    "p50_geomean_ms": 2385.7745,
+    "n_used": 2,
     "n_unquotable": 0,
-    "n_unjudged": 2,
+    "n_unjudged": 0,
     "note": "population = the suites behind the lane's index; p50 geometric mean over latency_quotable cells only (unfit timing is shown in the tables, never plotted)"
    },
    "clm@4090-win": {

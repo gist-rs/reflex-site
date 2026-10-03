@@ -315,6 +315,11 @@ const server = http.createServer((req, res) => {
       // so the null check excludes them exactly as it does every other lane.
       if (s.paw?.latency_p50_ms != null) visibleP50s.push(s.paw.latency_p50_ms);
       if (s.paw_local?.latency_p50_ms != null) visibleP50s.push(s.paw_local.latency_p50_ms);
+      // clef joined the visible-latency set at reflex bench 118 (the
+      // quiet-box re-read: both cells quotable, 3368/1690 ms — past the
+      // break). The lane's OTHER cells stay acc-only until measured on a
+      // preflight-clean box.
+      if (s.clef?.latency_p50_ms != null) visibleP50s.push(s.clef.latency_p50_ms);
     }
     const expectedBreaks = visibleP50s.filter((v) => v > 500).length;
     const heroBreaks = await page.$$eval("#bench-hero .sz-break", (xs) => xs.length);
