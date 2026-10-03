@@ -61,7 +61,7 @@
   {
    "key": "instinct_hybrid",
    "name": "Instinct \u00b7 trained specialists",
-   "framework": "one serve binary + the Reflex half's dataset seats + BLAKE3-sealed specialist vessels (the hosted serving posture)",
+   "framework": "one serve binary + the Reflex half's dataset seats + BLAKE3-locked specialist vessels (the hosted serving posture)",
    "engine_kind": "rust",
    "engine_bytes": 22596268,
    "engine_what": "the serve binary + the six t20k dataset suites (the Reflex half's corpora and question seats)",
@@ -70,10 +70,10 @@
     "detail": "1,787,744 B (the riir-instinct `serve` release binary (aarch64-apple-darwin) \u2014 the hosted hybrid lane's serving edge, 2026-09-27 on m3-max-metal) + 20,808,524 B (the six t20k dataset suites the serving posture stages (ag_news 6,324,897 \u00b7 emotion 2,719,177 \u00b7 sst5 1,799,678 \u00b7 massive_intent_en 2,516,925 \u00b7 banking77 2,157,368 \u00b7 xnli_en 5,290,479) \u2014 the Reflex half's corpora and question seats, 2026-09-27 on m3-max-metal)"
    },
    "model_bytes": 20320298,
-   "model_what": "the six sealed winner vessels (HOSTED-ONLY: ed25519-pinned, blake3 envelope \u2014 never on uncontrolled hardware)",
+   "model_what": "the six locked winner vessels (HOSTED-ONLY: ed25519-pinned, blake3 envelope \u2014 never on uncontrolled hardware)",
    "model_provenance": {
     "source": "recorded measurement",
-    "detail": "the six sealed winner vessels (BLAKE3 + ed25519, HOSTED-ONLY): ag_news 524,381 \u00b7 emotion 786,545 \u00b7 sst5 655,460 \u00b7 massive_intent_en 7,865,749 \u00b7 banking77 10,094,864 \u00b7 xnli_en 393,299 \u2014 measured 2026-09-27 on m3-max-metal: sum of lstat sizes over ../riir-train/data/instinct_specialists/{ag_news,emotion,sst5,massive_intent_en,banking77,xnli_en}_winner_v1.bin (the deploy.yaml files: rows)"
+    "detail": "the six locked winner vessels (BLAKE3 + ed25519, HOSTED-ONLY): ag_news 524,381 \u00b7 emotion 786,545 \u00b7 sst5 655,460 \u00b7 massive_intent_en 7,865,749 \u00b7 banking77 10,094,864 \u00b7 xnli_en 393,299 \u2014 measured 2026-09-27 on m3-max-metal: sum of lstat sizes over ../riir-train/data/instinct_specialists/{ag_news,emotion,sst5,massive_intent_en,banking77,xnli_en}_winner_v1.bin (the deploy.yaml files: rows)"
    },
    "targets": [
     "container (cf-container)",
@@ -93,10 +93,10 @@
     "detail": "7,940,160 B (the riir-instinct `serve` release binary built with --features serve-encoder-metal (aarch64-apple-darwin) \u2014 the Rethink encoder lane's GPU-host serving edge (the encoder lane + the laya-riir Metal backend compiled in; the CUDA twin is the same size class), 2026-10-01 on m3-max-metal) + 20,808,524 B (the six t20k dataset suites the serving posture stages (ag_news 6,324,897 \u00b7 emotion 2,719,177 \u00b7 sst5 1,799,678 \u00b7 massive_intent_en 2,516,925 \u00b7 banking77 2,157,368 \u00b7 xnli_en 5,290,479) \u2014 the Reflex half's corpora and question seats, 2026-09-27 on m3-max-metal)"
    },
    "model_bytes": 455724111,
-   "model_what": "the laya-english checkpoint as the derived Q8_0 artifact (the adopted encoding \u2014 LAYA_WEIGHTS_VARIANT=q8; 53.1% of the F16 file) + the three sealed NLEH heads (sst5 \u00b7 xnli_en \u00b7 ag_news v1)",
+   "model_what": "the laya-english checkpoint as the derived Q8_0 artifact (the adopted encoding \u2014 LAYA_WEIGHTS_VARIANT=q8; 53.1% of the F16 file) + the three locked NLEH heads (sst5 \u00b7 xnli_en \u00b7 ag_news v1)",
    "model_provenance": {
     "source": "sum of measured sources",
-    "detail": "447,729,135 B (recorded measurement: the laya-english checkpoint as the derived Q8_0 artifact (the ADOPTED serving encoding \u2014 LAYA_WEIGHTS_VARIANT=q8, riir-infer plan 616 Phases 1\u20132; 53.1% of the 842,609,210-byte F16 file) \u2014 the weights the Rethink encoder serving lane loads resident from boot \u2014 measured 2026-10-02 on m3-max-metal: lstat over ~/.cache/riir-reflex/laya/english/derived/model.q8.safetensors (stat -f %z \u2192 447729135); the model.q8.safetensors.blake3 sidecar sits beside it \u2014 digest NOT re-verified at record time (no blake3 CLI on the box)) + 7,994,976 B (recorded measurement: the three sealed NLEH encoder heads the serving lane serves (english-checkpoint paired): sst5 t6_s0.bin 3,197,988 \u00b7 xnli_en_encoder_v1.bin 2,131,996 \u00b7 ag_news_encoder_v1.bin 2,664,992. The typed v2 head (typed_encoder_v2.bin, 1,066,004 \u2014 same dir) is NOT in this posture: it is trained over the TYPED checkpoint (encoder_serve hardcodes Checkpoint::English; 'a head trained on the typed cache is meaningless over the english encoder') and rides the arena's record-only measurement lane \u2014 measured 2026-10-01 on m3-max-metal: sum of lstat sizes over ../riir-train/.raw/t599/{t6_s0.bin,xnli_en_encoder_v1.bin,ag_news_encoder_v1.bin} (the .blake3 sidecars excluded))"
+    "detail": "447,729,135 B (recorded measurement: the laya-english checkpoint as the derived Q8_0 artifact (the ADOPTED serving encoding \u2014 LAYA_WEIGHTS_VARIANT=q8, riir-infer plan 616 Phases 1\u20132; 53.1% of the 842,609,210-byte F16 file) \u2014 the weights the Rethink encoder serving lane loads resident from boot \u2014 measured 2026-10-02 on m3-max-metal: lstat over ~/.cache/riir-reflex/laya/english/derived/model.q8.safetensors (stat -f %z \u2192 447729135); the model.q8.safetensors.blake3 sidecar sits beside it \u2014 digest NOT re-verified at record time (no blake3 CLI on the box)) + 7,994,976 B (recorded measurement: the three locked NLEH encoder heads the serving lane serves (english-checkpoint paired): sst5 t6_s0.bin 3,197,988 \u00b7 xnli_en_encoder_v1.bin 2,131,996 \u00b7 ag_news_encoder_v1.bin 2,664,992. The typed v2 head (typed_encoder_v2.bin, 1,066,004 \u2014 same dir) is NOT in this posture: it is trained over the TYPED checkpoint (encoder_serve hardcodes Checkpoint::English; 'a head trained on the typed cache is meaningless over the english encoder') and rides the arena's record-only measurement lane \u2014 measured 2026-10-01 on m3-max-metal: sum of lstat sizes over ../riir-train/.raw/t599/{t6_s0.bin,xnli_en_encoder_v1.bin,ag_news_encoder_v1.bin} (the .blake3 sidecars excluded))"
    },
    "targets": [
     "GPU host (Metal/CUDA)",

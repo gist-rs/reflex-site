@@ -220,7 +220,7 @@ def _():
     r = by["rethink_encoder"]
     assert r["engine_bytes"] == 8_000_000 + 20_000_000, r["engine_bytes"]
     # the adopted q8 posture: the model half is the recorded derived Q8_0
-    # artifact + the recorded sealed heads — no live HF tree in the row.
+    # artifact + the recorded locked heads — no live HF tree in the row.
     assert r["model_bytes"] == 450_000_000 + 9_000_000, r["model_bytes"]
     assert r["model_provenance"]["source"] == "sum of measured sources", r["model_provenance"]
     for needle in ("laya_english_q8_artifact fake", "rethink_encoder_heads fake"):

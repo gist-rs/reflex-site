@@ -92,12 +92,12 @@ CANDIDATES = [
     {
         "key": "instinct_hybrid",
         "name": "Instinct · trained specialists",
-        "framework": "one serve binary + the Reflex half's dataset seats + BLAKE3-sealed specialist vessels (the hosted serving posture)",
+        "framework": "one serve binary + the Reflex half's dataset seats + BLAKE3-locked specialist vessels (the hosted serving posture)",
         "engine_kind": "rust",
         "engine": ("recorded_sum", "instinct_serve_binary", "instinct_datasets_t20k"),
         "engine_what": "the serve binary + the six t20k dataset suites (the Reflex half's corpora and question seats)",
         "model": ("recorded", "instinct_winner_vessels"),
-        "model_what": "the six sealed winner vessels (HOSTED-ONLY: ed25519-pinned, blake3 envelope — never on uncontrolled hardware)",
+        "model_what": "the six locked winner vessels (HOSTED-ONLY: ed25519-pinned, blake3 envelope — never on uncontrolled hardware)",
         "targets": ["container (cf-container)", "hosted serving"],
         "note": "the trained sibling lane: the specialists serve six text suites; game spots answer through its Reflex half. The three-product naming is Reflex / Instinct / Rethink — Instinct is the open teaching lane (052); Rethink is the private moat",
     },
@@ -111,7 +111,7 @@ CANDIDATES = [
         "model": ("sum",
                   ("recorded", "laya_english_q8_artifact"),
                   ("recorded", "rethink_encoder_heads")),
-        "model_what": "the laya-english checkpoint as the derived Q8_0 artifact (the adopted encoding — LAYA_WEIGHTS_VARIANT=q8; 53.1% of the F16 file) + the three sealed NLEH heads (sst5 · xnli_en · ag_news v1)",
+        "model_what": "the laya-english checkpoint as the derived Q8_0 artifact (the adopted encoding — LAYA_WEIGHTS_VARIANT=q8; 53.1% of the F16 file) + the three locked NLEH heads (sst5 · xnli_en · ag_news v1)",
         "targets": ["GPU host (Metal/CUDA)", "record-only today"],
         "note": "the adopted q8 serving posture (riir-infer plan 616 Phases 1–2): 348.8 MiB device-resident q8 weights vs 1,654.9 MiB at the widened-F32 posture (4.74×) and 1,492 MiB whole-process RSS vs 4,825 MiB at the F16 host-widen posture — measured 2026-10-02 on m3-max-metal (AC). the lane is record-only today (GPU-host targets: the encoder class is refused at the CPU-only deploy shape, so nothing ships until a GPU serving deploy exists) — the serving lane loads the english checkpoint only; the typed cell is record-only (its v2 head is paired to the typed checkpoint through the arena's measurement lane, so that checkpoint + the typed full-pool corpus are recorded separately, not part of this posture) and serves only after a head retrained over english encodes or a typed serve lane; pre-adoption reference: the F16 english checkpoint tree was 848,195,504 B on HF — the row's model bytes before the q8 adoption",
     },
@@ -297,7 +297,7 @@ def resolve_model(spec: tuple, recorded: dict) -> tuple[int, dict]:
     """One model spec tuple → (bytes, provenance). `sum` composes child
     specs (any kinds, recursively) so one row can carry a LIVE HF tree AND
     a RECORDED artifact side by side — the Rethink lane's checkpoints plus
-    its sealed heads."""
+    its locked heads."""
     mk = spec[0]
     if mk == "hf_subtree":
         _, repo, prefix = spec
