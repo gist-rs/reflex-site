@@ -272,9 +272,10 @@ const server = http.createServer((req, res) => {
       for (const h of Object.values(s.extra_host_lanes || {})) {
         if (h.modelless?.latency_p50_ms != null) visibleP50s.push(h.modelless.latency_p50_ms);
         for (const l of Object.values(h.laya || {})) if (l.latency_p50_ms != null) visibleP50s.push(l.latency_p50_ms);
-        for (const lane of [h.openthai]) if (lane?.latency_p50_ms != null) visibleP50s.push(lane.latency_p50_ms);
+        for (const lane of [h.openthai, h.bekko]) if (lane?.latency_p50_ms != null) visibleP50s.push(lane.latency_p50_ms);
       }
       if (s.openthai?.latency_p50_ms != null) visibleP50s.push(s.openthai.latency_p50_ms);
+      if (s.bekko?.latency_p50_ms != null) visibleP50s.push(s.bekko.latency_p50_ms);
     }
     const expectedBreaks = visibleP50s.filter((v) => v > 500).length;
     const heroBreaks = await page.$$eval("#bench-hero .sz-break", (xs) => xs.length);

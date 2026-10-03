@@ -4,6 +4,19 @@ One hash-pinned line per removed issue (the fleet noise-reduction convention:
 an issue file is removed once its work is verifiably landed; this file is the
 durable record). Full narrative of each: `git log --follow -- .issues/<file>`.
 
+- **2026-10-03 — the bekko 400M timing LANDED: 9/9 quotable cells, the presence row becomes a real bar (riir-reflex
+  bench 115, 067 T1–T5 executed).** The lane's p50 geomean is **231.7 ms** (`areas.timing.bekko` n_used 9/9, zero
+  unfit/unjudged); every accuracy cell byte-identical to the published 400M board. The window that landed is NOT one
+  quiet 15-min run — the box's baseline (editor + sibling sessions) drifts 3.2→8.8 on minutes and two full-run
+  attempts went start-quotable → end-unfit — but **per-suite docs**, each span fitted to a baseline dip, each cell
+  stamped with its own doc's verdict; banking77 (registry-order last in ANY doc, its 6.3-min tail always the end
+  probe) landed via the `[banking77, typed, code_fixtures]` triple that ends on code_fixtures' 20 s light run.
+  Publish: lane-scoped update (current bench.json as primary — the fresh-docs wall fired once, answered as it
+  names). Chart truth moved with the data: the home p50 chart now carries **2 sz-break signs** (openthai + bekko's
+  767 ms typed cell) — `chart_render_smoke`'s break arm re-pinned 1→2 and its bekko presence-row arm replaced by a
+  plots-a-real-bar arm; `bench_page_smoke`'s break-count collector gained the bekko lane it predates (the expected
+  count is data-derived and now counts bekko's two past-500 ms cells); publisher self-test 84/84, home + copy gates
+  green as-is. Full post-mortem: `../riir-reflex/.benchmarks/115_bekko400m_timing/RECORD.md`.
 - **2026-10-03 — the home summary chart defaults to the SHARED bench (the equal basis) and the bekko label names its
   size (owner ask: "top most graph acc … didn't mention what beko size is, i think 400M? also better scope to
   intersected equal max bench which is 9/9").** Two pieces. (1) SCOPE: a `shared 9 / all 14` toggle beside the metric

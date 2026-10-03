@@ -98,20 +98,22 @@ function checkMetric(metric, bodySel) {
 const p50 = checkMetric("p50", "summary");
 
 // The broken latency axis (the /#sizes break-sign idiom): the published data
-// carries exactly one past-500 ms lane read (openthai's slowest suite), so
-// the p50 body renders exactly one sz-break sign, the dashed break gridline
+// carries exactly TWO past-500 ms lane reads — openthai's slowest suite and
+// (since the bekko 400M quotable-timing window, reflex bench 115) bekko's
+// typed_decisions/banking77 cells — so the p50 body renders exactly two
+// sz-break signs, the dashed break gridline
 // once per axis (top + bottom), and an axis tick naming the break. Re-pin
 // the count when the data's slowest read moves across the break.
 const p50Html = captured["summary"].innerHTML;
 const p50Breaks = (p50Html.match(/class="sz-break"/g) || []).length;
-if (p50Breaks !== 1) { console.error(`FAIL[p50-break]: expected exactly 1 sz-break sign, got ${p50Breaks}`); process.exit(1); }
+if (p50Breaks !== 2) { console.error(`FAIL[p50-break]: expected exactly 2 sz-break signs, got ${p50Breaks}`); process.exit(1); }
 const p50GridBreaks = (p50Html.match(/sz-grid-break/g) || []).length;
 const p50Rows = (p50Html.match(/class="bc-hbar"/g) || []).length;
 // the grid rides EVERY row track (one per lane row), so the break gridline
 // count must equal the row count — a grid that lost the break tick reds here
 if (p50Rows < 2 || p50GridBreaks !== p50Rows) { console.error(`FAIL[p50-break]: expected a break gridline on every row track (${p50Rows}), got ${p50GridBreaks}`); process.exit(1); }
 if (!/style="left:80\.00%">500 ms<\/span>/.test(p50Html)) { console.error("FAIL[p50-break]: the axis does not name the 500 ms break tick"); process.exit(1); }
-console.log(`[p50-break] 1 break sign, ${p50GridBreaks} break gridlines (one per row track), axis names the 500 ms break, ${p50.details} tap-to-expand rows`);
+console.log(`[p50-break] 2 break signs, ${p50GridBreaks} break gridlines (one per row track), axis names the 500 ms break, ${p50.details} tap-to-expand rows`);
 
 // The family lanes plot on the speed chart, and NO lane ever vanishes from
 // it (the 2026-10-03 user reports: hiding the family lanes wholesale read as
@@ -140,12 +142,19 @@ if (!rethinkTag.some((t) => t.endsWith("↩5</span>"))) {
   console.error(`FAIL[p50-family]: Rethink's ↩5 served tag missing — got ${rethinkTag.join(", ")}`);
   process.exit(1);
 }
-// every lane keeps its slot: the unfit-only lane renders a presence row, the
-// unjudged lanes (4090) plot again with their disclosure. The bekko label
+// every lane keeps its slot: a lane with verified timing plots it, an
+// unjudged lane (4090) plots with its disclosure. The bekko label
 // carries the data-derived model size ("bekko 400M" — applyLaneSizes reads
 // the checkpoint id out of the cells; the bare form must NOT render).
-if (!p50Html.includes("bekko 400M: no verified timing") || p50Html.includes(">bekko<") || /aria-label="bekko(?! 400M) /.test(p50Html)) {
-  console.error("FAIL[p50-family]: bekko must render a presence row, sized-labeled, with no value");
+// Since reflex bench 115 (2026-10-03) bekko's 9 cells are latency_quotable,
+// so the lane plots a real bar — the presence-row shape it wore while the
+// timing was unfit must be gone.
+if (!/aria-label="bekko 400M averaged: /.test(p50Html) || p50Html.includes(">bekko<") || /aria-label="bekko(?! 400M) /.test(p50Html)) {
+  console.error("FAIL[p50-family]: bekko must plot a real bar, sized-labeled");
+  process.exit(1);
+}
+if (p50Html.includes("no verified timing")) {
+  console.error("FAIL[p50-family]: a presence row survived — every lane now has plottable or disclosed timing");
   process.exit(1);
 }
 for (const back of ["paw", "clm", "gliner", "agentjev", "openthai"]) {
@@ -160,7 +169,7 @@ if (!p50Html.includes("Unfit timing")) {
   console.error("FAIL[p50-family]: the note must disclose the unfit-exclusion rule");
   process.exit(1);
 }
-console.log(`[p50-family] Instinct ${byLane["Instinct"].val} over 9 · Rethink ${byLane["Rethink"].val} over 8 (↩5 served) · bekko presence row · unjudged lanes plot marked · ${covTagged} coverage tags`);
+console.log(`[p50-family] Instinct ${byLane["Instinct"].val} over 9 · Rethink ${byLane["Rethink"].val} over 8 (↩5 served) · bekko 400M plots (quotable 9/9, reflex bench 115) · unjudged lanes plot marked · ${covTagged} coverage tags`);
 
 // Switch the metric via the captured click handler (accuracy: log=false path).
 const toggle = captured[".bc-toggle"];
