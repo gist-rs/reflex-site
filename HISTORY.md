@@ -566,3 +566,22 @@ timed out at 30 s. Deployed `a83f9c66` (T1/T2/T5) and `888a4b7d` (T3/T4). Live
 assets were curl-verified and the live /arena labels measured at 11 px with
 no sideways scroll at 390. `arena_prod_smoke.mjs` needs a local engine with
 `RIIR_REFLEX_ALLOWED_ORIGIN` and was not run.
+
+## 2026-10-03 — Issue 005 CLOSED: stale and false claims on the Reflex pages
+
+Web trust audit (riir-ai Issue 1028): 14 claims checked by fetching every link on the five pages.
+
+- **T1–T5b** (`e97247b`, riir-reflex `50d340d`): /bench's "riir-instinct, private repo" corrected
+  (it is public); Rethink attributed to its own product; the storefront linked live; the TL;DR
+  says which N of M suites its ratio covers; the Homebrew line includes `brew trust`; the agent
+  skill names the `reflex` command and was re-captured against 0.2.3.
+- **T6a** (gist-rs/reflex `adaa0aa`, scoop-bucket `caacf62`): the Scoop line is live.
+- **#10** (yes/no vs `noul`): `/docs/api/#types` maps the two names (`295a398`, Issue 006 T2).
+- **T6b** (owner: "draft it, protect me, publish"): the binary repo said "MIT OR Apache-2.0"
+  while the engine source is MIT. The `reflex` binary is **MIT**, matching its public MIT
+  source; a stricter binary licence would not hold over code anyone can build. gist-rs/reflex
+  `edc3c99` adds `LICENSE` and a README §License with a no-warranty and advisory-answers note;
+  riir-reflex `d009604` puts `LICENSE` in every release archive. Every crate in the binary is
+  public MIT (katgpt-*, riir-infer, riir-reflexer), so nothing private ships under that notice.
+  The sibling binary, cargo-refine, went the other way the same day: proprietary EULA
+  (riir-refine `7aee4497`, Issue 144 T5; gist-rs/cargo-refine `c957411`).
