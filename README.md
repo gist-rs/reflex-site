@@ -399,7 +399,10 @@ No secrets, no bindings, no KV — the worker serves files and nothing else.
 The gist.rs web family (adopted 2026-10-03): `assets/family.css` is a
 byte-identical copy of `riir-ai/.docs/13_web_family/family.css` (re-copy it
 when the source moves — never fork a token here) and loads before
-`assets/style.css`; every page sets `<html data-product="reflex">` (accent =
+`assets/style.css`; `assets/family_hl.js` is likewise a byte-identical copy of
+the family code highlighter (every page with a `pre>code` / `.cmd>code`
+block loads it; the playground colours its runtime request JSON with
+`gfHl.el`); every page sets `<html data-product="reflex">` (accent =
 the family Reflex orange), opens with the family bar (`.gf-bar`, Reflex
 current) and closes with the family footer (`.gf-foot`). `style.css` keeps its
 historical variable names as ALIASES onto the family tokens, so the charts,

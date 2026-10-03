@@ -20,6 +20,8 @@
   --accent:var(--c-ai); --accent-ink:#06121a;
   --accent-soft:color-mix(in srgb,var(--accent) 13%,transparent);
   --accent-line:color-mix(in srgb,var(--accent) 42%,transparent);
+  /* code — syntax colours for family_hl.js; soft so no hue reads as a product accent */
+  --hl-key:#8cb4e0; --hl-str:#b5cf8f; --hl-num:#dcbc8a; --hl-lit:#d7a6d9; --hl-flag:#86c5c0;
   /* type */
   --sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans","Noto Sans Thai",sans-serif;
   --mono:ui-monospace,SFMono-Regular,"JetBrains Mono",Menlo,Consolas,monospace;
@@ -46,6 +48,8 @@ a:hover{text-decoration:underline;text-underline-offset:3px}
 code,kbd,pre,samp{font-family:var(--mono);font-size:.9em}
 :not(pre)>code{background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r-1);padding:.05em .4em;white-space:nowrap}
 pre{background:var(--bg-2);border:1px solid var(--line);border-radius:var(--r-2);padding:var(--s-4);overflow-x:auto;line-height:1.5}
+.hl-k{color:var(--hl-key)} .hl-s{color:var(--hl-str)} .hl-n{color:var(--hl-num)} .hl-l,.hl-v{color:var(--hl-lit)} .hl-f{color:var(--hl-flag)}
+.hl-p{color:var(--muted)} .hl-m{color:var(--faint);font-style:italic} .hl-c{color:var(--text);font-weight:600}
 h1,h2,h3{line-height:1.2;letter-spacing:-.015em;margin:0 0 var(--s-3)}
 h1{font-size:var(--fs-5);font-weight:750}
 h2{font-size:var(--fs-4);font-weight:700}

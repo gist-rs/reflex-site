@@ -258,6 +258,7 @@ async function ask(where) {
   }
   const turn = { board: rowsOf(board), cur, next, bag: [], nOptions: opts.length };
   $("rx-request").textContent = JSON.stringify(placeRequest(turn), null, 1).slice(0, 1600);
+  globalThis.gfHl?.el($("rx-request"), "json"); // runtime colouring (family_hl.js)
   out.textContent = where === "cloud" ? "asking Cloudflare…" : "asking this tab…";
   const r = await reflexerPlace(where, turn);
   if (r.error || r.pick == null) {
