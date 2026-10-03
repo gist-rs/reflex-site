@@ -266,6 +266,10 @@
     <div id="lane-profile"></div>
     <div id="bench-areas" aria-live="polite"></div>
 
+    <h2 id="crosswalk"><a class="hlink" href="#crosswalk">The JDI crosswalk</a></h2>
+    <p>Where Cloudflare's Clef lands against our lanes on the same splits — every measured row digest-pinned to one population; the JDI board's own rows quoted as reference only.</p>
+    <div id="bench-crosswalk" aria-live="polite"></div>
+
     <h2 id="frontier"><a class="hlink" href="#frontier">Efficiency frontier</a></h2>
     <p class="sub">Decision quality per millisecond — the cc index against the p50 latency geometric mean, one dot per
       lane. The view no leaderboard in this space publishes; it is where a modelless engine's story is visible. Timing
@@ -919,6 +923,10 @@ function render(d) {
   // lane filter re-renders it through the same render(d) walk as everything
   // else.
   if (window.BenchCharts && BenchCharts.areas) BenchCharts.areas(d, document.getElementById("bench-areas"));
+  // The JDI crosswalk (plan 011 C3): renders data.crosswalk — derived at
+  // publish time with the digest pin asserted; absent block (a board with no
+  // clef cells) renders the refresh note inside the renderer itself.
+  if (window.BenchCharts && BenchCharts.crosswalk) BenchCharts.crosswalk(d, document.getElementById("bench-crosswalk"));
   // The lane profile view (/bench/?lane=<id>, plan 001 task 8): read-only,
   // never touches the saved lane filter. Renders empty without the param.
   if (window.BenchCharts && BenchCharts.profile) BenchCharts.profile(d, document.getElementById("lane-profile"));

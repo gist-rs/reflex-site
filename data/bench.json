@@ -81,8 +81,8 @@
       "date_utc": "2026-09-27T08:00:55Z"
      },
      "hybrid": {
-      "git_sha": "b6425bf",
-      "date_utc": "2026-10-03T09:03:51Z"
+      "git_sha": "eef77d1",
+      "date_utc": "2026-10-02T10:01:40Z"
      },
      "paw": {
       "git_sha": "0dc2c20",
@@ -93,8 +93,8 @@
       "date_utc": "2026-09-28T16:27:36Z"
      },
      "encoder": {
-      "git_sha": "e0440e3",
-      "date_utc": "2026-10-01T19:20:00Z"
+      "git_sha": "c2c5dc3",
+      "date_utc": "2026-10-01T14:59:02Z"
      },
      "bekko": {
       "git_sha": "e8328de",
@@ -2172,7 +2172,10 @@
      "accuracy": 0.6475,
      "ece": 0.18986412296281885,
      "mean_confidence": 0.8235891979113439,
-     "acc_at_50_coverage": 0.754
+     "acc_at_50_coverage": 0.754,
+     "macro_f1": 0.6052308469932142,
+     "jdi_chance": 0.2925,
+     "jdi_skill": 0.5017667844522968
     },
     "consult_rate": 1.0,
     "latency_scope": "arm-only",
@@ -2182,6 +2185,7 @@
     "latency_tail_support": 21,
     "serves": "H2(\u03b2=0.5,nmin=2,\u03c4=2)",
     "gate": "certified (paired LB95 +0.0580, mean +0.0750)",
+    "cases_digest": "fnv1a64-6e37760ee2a5b6c9",
     "latency_quotable": true,
     "source_run": {
      "git_sha": "eef77d1",
@@ -2321,7 +2325,10 @@
     "model": "ENC-typed_encoder_v2 (laya-typed encoder + NLEH v2 per-option head)",
     "hard": {
      "n": 2000,
-     "accuracy": 0.755
+     "accuracy": 0.755,
+     "macro_f1": 0.7445330507017898,
+     "jdi_chance": 0.2925,
+     "jdi_skill": 0.6537102473498233
     },
     "consult_rate": 1.0,
     "latency_scope": "arm-only",
@@ -2335,6 +2342,7 @@
     "ckpt": "typed",
     "shape_desc": "d 1024 \u00b7 hidden 128 \u00b7 widths 2/4/5",
     "record_only": true,
+    "cases_digest": "fnv1a64-6e37760ee2a5b6c9",
     "latency_quotable": false,
     "source_run": {
      "git_sha": "c2c5dc3",
@@ -3726,7 +3734,10 @@
      "accuracy": 0.8975,
      "ece": 0.013315694555954022,
      "mean_confidence": 0.888912138562494,
-     "acc_at_50_coverage": 0.99
+     "acc_at_50_coverage": 0.99,
+     "macro_f1": 0.8878275558568157,
+     "jdi_chance": 0.3075,
+     "jdi_skill": 0.8519855595667869
     },
     "consult_rate": 1.0,
     "latency_scope": "arm-only",
@@ -3736,6 +3747,7 @@
     "latency_tail_support": 5,
     "serves": "H2(\u03b2=0.25,nmin=2,\u03c4=2)",
     "gate": "best measured, T2-uncertified (paired LB95 -0.0100) \u2014 certification is more questions, not a posture rollback",
+    "cases_digest": "fnv1a64-07eff23c06505584",
     "latency_quotable": true,
     "source_run": {
      "git_sha": "eef77d1",
@@ -5080,7 +5092,10 @@
      "accuracy": 0.885,
      "ece": 0.8622394363582135,
      "mean_confidence": 0.022760563641786576,
-     "acc_at_50_coverage": 0.97
+     "acc_at_50_coverage": 0.97,
+     "macro_f1": 0.8014284327939634,
+     "jdi_chance": 0.2975,
+     "jdi_skill": 0.8362989323843416
     },
     "consult_rate": 0.0,
     "latency_scope": "seat+arm",
@@ -5090,6 +5105,7 @@
     "latency_tail_support": 5,
     "serves": "A0",
     "gate": "served by the reflex half \u2014 the best measured arm on this suite",
+    "cases_digest": "fnv1a64-6feefd1c947dd008",
     "latency_quotable": true,
     "source_run": {
      "git_sha": "eef77d1",
@@ -6434,7 +6450,10 @@
      "accuracy": 0.4216666666666667,
      "ece": 0.10076249030729133,
      "mean_confidence": 0.4711805712431669,
-     "acc_at_50_coverage": 0.5
+     "acc_at_50_coverage": 0.5,
+     "macro_f1": 0.3645178225884921,
+     "jdi_chance": 0.2733333333333333,
+     "jdi_skill": 0.20412844036697253
     },
     "consult_rate": 1.0,
     "latency_scope": "arm-only",
@@ -6444,6 +6463,7 @@
     "latency_tail_support": 8,
     "serves": "A1",
     "gate": "best measured, T2-uncertified (paired LB95 -0.0129) \u2014 certification is more questions, not a posture rollback",
+    "cases_digest": "fnv1a64-ad64a6cb0039e916",
     "latency_quotable": true,
     "source_run": {
      "git_sha": "eef77d1",
@@ -7734,7 +7754,10 @@
      "accuracy": 0.853448275862069,
      "ece": 0.0823830797754485,
      "mean_confidence": 0.8039373015535289,
-     "acc_at_50_coverage": 0.9655172413793104
+     "acc_at_50_coverage": 0.9655172413793104,
+     "macro_f1": 0.8529126575669427,
+     "jdi_chance": 0.5172413793103449,
+     "jdi_skill": 0.6964285714285714
     },
     "consult_rate": 1.0,
     "latency_scope": "arm-only",
@@ -7744,6 +7767,7 @@
     "latency_tail_support": 2,
     "serves": "A1",
     "gate": "certified (paired LB95 +0.0082, mean +0.0862)",
+    "cases_digest": "fnv1a64-5080803ec29f2423",
     "latency_quotable": true,
     "source_run": {
      "git_sha": "eef77d1",
@@ -9161,7 +9185,10 @@
      "accuracy": 0.5233333333333333,
      "ece": 0.5026737833023072,
      "mean_confidence": 0.020659550031026205,
-     "acc_at_50_coverage": 0.6466666666666666
+     "acc_at_50_coverage": 0.6466666666666666,
+     "macro_f1": 0.5070059473023049,
+     "jdi_chance": 0.3333333333333333,
+     "jdi_skill": 0.285
     },
     "consult_rate": 0.0,
     "latency_scope": "seat+arm",
@@ -9171,6 +9198,7 @@
     "latency_tail_support": 5,
     "serves": "A0",
     "gate": "served by the reflex half \u2014 the best measured arm on this suite",
+    "cases_digest": "fnv1a64-b136750e5af1d412",
     "latency_quotable": true,
     "source_run": {
      "git_sha": "eef77d1",
@@ -10409,7 +10437,10 @@
      "accuracy": 0.84,
      "ece": 0.06870501239437647,
      "mean_confidence": 0.8517494499514889,
-     "acc_at_50_coverage": 0.9933333333333333
+     "acc_at_50_coverage": 0.9933333333333333,
+     "macro_f1": 0.8317455255770921,
+     "jdi_chance": 0.08666666666666667,
+     "jdi_skill": 0.8248175182481752
     },
     "consult_rate": 1.0,
     "latency_scope": "arm-only",
@@ -10419,6 +10450,7 @@
     "latency_tail_support": 4,
     "serves": "H2(\u03b2=1,nmin=2,\u03c4=4)",
     "gate": "best measured, T2-uncertified (paired LB95 -0.0039) \u2014 certification is more questions, not a posture rollback",
+    "cases_digest": "fnv1a64-49390c8b80475849",
     "latency_quotable": true,
     "source_run": {
      "git_sha": "eef77d1",
@@ -11813,7 +11845,10 @@
      "accuracy": 0.854,
      "ece": 0.08412793359878214,
      "mean_confidence": 0.9374190933679326,
-     "acc_at_50_coverage": 0.996
+     "acc_at_50_coverage": 0.996,
+     "macro_f1": 0.8527493620885521,
+     "jdi_chance": 0.014,
+     "jdi_skill": 0.8519269776876267
     },
     "consult_rate": 1.0,
     "latency_scope": "arm-only",
@@ -11823,6 +11858,7 @@
     "latency_tail_support": 6,
     "serves": "H2(\u03b2=2,nmin=8,\u03c4=8)",
     "gate": "best measured, T2-uncertified (paired LB95 -0.0013) \u2014 certification is more questions, not a posture rollback",
+    "cases_digest": "fnv1a64-dd8ab35333abb82a",
     "latency_quotable": true,
     "source_run": {
      "git_sha": "eef77d1",
@@ -12755,7 +12791,10 @@
      "accuracy": 0.5625,
      "ece": 0.2524139366578311,
      "mean_confidence": 0.6191526229958981,
-     "acc_at_50_coverage": 0.75
+     "acc_at_50_coverage": 0.75,
+     "macro_f1": 0.4258928571428571,
+     "jdi_chance": 0.375,
+     "jdi_skill": 0.3
     },
     "consult_rate": 1.0,
     "latency_scope": "arm-only",
@@ -12765,12 +12804,12 @@
     "latency_tail_support": 1,
     "serves": "A1",
     "gate": "certified (paired LB95 +0.0021, mean +0.1875)",
+    "cases_digest": "fnv1a64-93583fda4fc64946",
     "latency_quotable": true,
     "source_run": {
      "git_sha": "eef77d1",
      "date_utc": "2026-10-02T10:01:40Z"
-    },
-    "cases_digest": "fnv1a64-93583fda4fc64946"
+    }
    },
    "openthai": {
     "lane": "openthai (reference)",
@@ -16534,5 +16573,257 @@
    }
   ],
   "disclosure": "forced-pick accuracy on our own 50/50 corpus/test split of the benchmark (every lane reads the same halves) \u2014 NOT comparable to the benchmark's own leaderboard, whose skill score is a different scale we do not publish. avg is the unweighted mean over the three suite accuracies. A missing cell is a disclosed gap, never a zero."
+ },
+ "crosswalk": {
+  "caveat": "JDI-comparable crosswalk, NOT a JDI board row \u2014 different corpus, protocol caps, hardware; board membership requires their full frozen suite.",
+  "suites": [
+   {
+    "name": "typed_decisions",
+    "n_cases": 400,
+    "n_questions": 2000,
+    "pin": "fnv1a64-6e37760ee2a5b6c9",
+    "rows": [
+     {
+      "lane": "clef",
+      "display": "clef (local)",
+      "model": "clef-flash-4bit",
+      "n": 2000,
+      "accuracy": 0.6955,
+      "macro_f1": 0.674190133619508,
+      "jdi_chance": 0.2925,
+      "jdi_skill": 0.5696113074204947,
+      "serves": null,
+      "record_only": false
+     },
+     {
+      "lane": "hybrid",
+      "display": "Instinct",
+      "model": "H2(\u03b2=0.5,nmin=2,\u03c4=2)",
+      "n": 2000,
+      "accuracy": 0.6475,
+      "macro_f1": 0.6052308469932142,
+      "jdi_chance": 0.2925,
+      "jdi_skill": 0.5017667844522968,
+      "serves": "H2(\u03b2=0.5,nmin=2,\u03c4=2)",
+      "record_only": false
+     },
+     {
+      "lane": "encoder",
+      "display": "Rethink",
+      "model": "ENC-typed_encoder_v2 (laya-typed encoder + NLEH v2 per-option head)",
+      "n": 2000,
+      "accuracy": 0.755,
+      "macro_f1": 0.7445330507017898,
+      "jdi_chance": 0.2925,
+      "jdi_skill": 0.6537102473498233,
+      "serves": "\u2717 (encoder class refused at serve \u2014 the incumbent arm serves; instinct issue 014 C1, seating per issue 017)",
+      "record_only": true
+     },
+     {
+      "lane": "modelless",
+      "display": "KatGPT",
+      "model": "modelless",
+      "n": 2000,
+      "accuracy": 0.5725,
+      "macro_f1": 0.5428588466644556,
+      "jdi_chance": null,
+      "jdi_skill": null,
+      "serves": null,
+      "record_only": false
+     },
+     {
+      "lane": "openthai",
+      "display": "openthai (reference)",
+      "model": "openthai-systemone",
+      "n": 2000,
+      "accuracy": 0.5345,
+      "macro_f1": 0.5371199035294525,
+      "jdi_chance": null,
+      "jdi_skill": null,
+      "serves": null,
+      "record_only": false
+     },
+     {
+      "lane": "bekko",
+      "display": "bekko (reference)",
+      "model": "hotchpotch/bekko-system-one-v0-400m",
+      "n": 2000,
+      "accuracy": 0.6235,
+      "macro_f1": 0.6118980306296695,
+      "jdi_chance": 0.2925,
+      "jdi_skill": 0.46784452296819795,
+      "serves": null,
+      "record_only": false
+     }
+    ],
+    "excluded": [
+     "paw_local@typed_decisions: no measured accuracy on this suite",
+     "paw@typed_decisions: no measured accuracy on this suite"
+    ]
+   },
+   {
+    "name": "banking77",
+    "n_cases": 500,
+    "n_questions": 500,
+    "pin": "fnv1a64-dd8ab35333abb82a",
+    "rows": [
+     {
+      "lane": "clef",
+      "display": "clef (local)",
+      "model": "clef-flash-4bit",
+      "n": 500,
+      "accuracy": 0.954,
+      "macro_f1": 0.9536241896631502,
+      "jdi_chance": 0.014,
+      "jdi_skill": 0.9533468559837728,
+      "serves": null,
+      "record_only": false
+     },
+     {
+      "lane": "hybrid",
+      "display": "Instinct",
+      "model": "H2(\u03b2=2,nmin=8,\u03c4=8)",
+      "n": 500,
+      "accuracy": 0.854,
+      "macro_f1": 0.8527493620885521,
+      "jdi_chance": 0.014,
+      "jdi_skill": 0.8519269776876267,
+      "serves": "H2(\u03b2=2,nmin=8,\u03c4=8)",
+      "record_only": false
+     },
+     {
+      "lane": "modelless",
+      "display": "KatGPT",
+      "model": "modelless",
+      "n": 500,
+      "accuracy": 0.842,
+      "macro_f1": 0.8362254543690752,
+      "jdi_chance": null,
+      "jdi_skill": null,
+      "serves": null,
+      "record_only": false
+     },
+     {
+      "lane": "openthai",
+      "display": "openthai (reference)",
+      "model": "openthai-systemone",
+      "n": 500,
+      "accuracy": 0.656,
+      "macro_f1": 0.6355435167453176,
+      "jdi_chance": null,
+      "jdi_skill": null,
+      "serves": null,
+      "record_only": false
+     },
+     {
+      "lane": "bekko",
+      "display": "bekko (reference)",
+      "model": "hotchpotch/bekko-system-one-v0-400m",
+      "n": 500,
+      "accuracy": 0.792,
+      "macro_f1": 0.7805128981026606,
+      "jdi_chance": 0.014,
+      "jdi_skill": 0.7890466531440162,
+      "serves": null,
+      "record_only": false
+     }
+    ],
+    "excluded": [
+     "encoder@banking77: tier-fallback (the answering tier's read, not this lane's own)",
+     "paw_local@banking77: no measured accuracy on this suite",
+     "paw@banking77: no measured accuracy on this suite"
+    ]
+   }
+  ],
+  "board_reference": {
+   "note": "The JDI board's own rows \u2014 their frozen corpus, their protocol, their hardware (edition release-v2.1, generated 2026-09-28, pinned in reflex .research/005). REFERENCE ONLY: no number here is comparable with the measured rows above without the caveat's full weight.",
+   "columns": [
+    "entrant",
+    "balanced_raw",
+    "balanced_skill",
+    "median_ms"
+   ],
+   "rows": [
+    {
+     "entrant": "Jev (jev-1.13.0, hosted)",
+     "balanced_raw": 68.09,
+     "balanced_skill": 57.91,
+     "median_ms": 524.1,
+     "note": "ECE 0.074"
+    },
+    {
+     "entrant": "pplx-decider-v1-27b (Qwen3.8-27B full FT)",
+     "balanced_raw": 66.89,
+     "balanced_skill": 56.4,
+     "median_ms": 101.4,
+     "note": "strongest open entrant"
+    },
+    {
+     "entrant": "Rune 26B-A4B v3",
+     "balanced_raw": 67.3,
+     "balanced_skill": 57.44,
+     "median_ms": 120.5,
+     "note": ""
+    },
+    {
+     "entrant": "Winnow-12B (Q8 GGUF/llama.cpp)",
+     "balanced_raw": 61.91,
+     "balanced_skill": 50.02,
+     "median_ms": 72.5,
+     "note": ""
+    },
+    {
+     "entrant": "GLiNER2.5-Decide (our GLiNER lane)",
+     "balanced_raw": 32.35,
+     "balanced_skill": 11.21,
+     "median_ms": 23.3,
+     "note": ""
+    },
+    {
+     "entrant": "CLM-v0.1-8B (our CLM lane)",
+     "balanced_raw": 27.94,
+     "balanced_skill": 7.4,
+     "median_ms": 46.8,
+     "note": ""
+    },
+    {
+     "entrant": "laya (our laya lane's source)",
+     "balanced_raw": 27.53,
+     "balanced_skill": 6.04,
+     "median_ms": 5.8,
+     "note": "fastest on board"
+    }
+   ]
+  },
+  "blog_banking77_mf1": {
+   "note": "Clef's own blog table on BANKING77 (their run, their corpus \u2014 macro-F1 % and median ms; pinned in reflex .research/005). Our banking77 row above is OUR split \u2014 the same suite family, never the same population.",
+   "rows": [
+    {
+     "model": "Clef",
+     "macro_f1_pct": 94.2,
+     "median_ms": 209.3
+    },
+    {
+     "model": "Clef-flash",
+     "macro_f1_pct": 90.93,
+     "median_ms": 38.8
+    },
+    {
+     "model": "Kev-9B",
+     "macro_f1_pct": 84.83,
+     "median_ms": null
+    },
+    {
+     "model": "Jev",
+     "macro_f1_pct": 79.74,
+     "median_ms": 524.1
+    },
+    {
+     "model": "laya",
+     "macro_f1_pct": 14.29,
+     "median_ms": 5.8
+    }
+   ]
+  }
  }
 }

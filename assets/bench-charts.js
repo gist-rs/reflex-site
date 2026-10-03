@@ -1625,6 +1625,59 @@
       (notes ? `<div class="s1mb-notes">${notes}</div>` : "");
   }
 
-  window.BenchCharts = { hero, suite, setLogDomain, summary, areas, frontier, profile, s1mb, suiteSortControl, setSuiteSort, setPrimaryHost, lat, accOf, ccOf };
+  // The JDI crosswalk (plan 011 C3): the side-by-side on the suites the
+  // clef lane covers — every row OUR measurement on OUR split, digest-pinned
+  // to the same population (publish_bench asserts the pin at build time and
+  // excludes mismatched lanes; the exclusion notes render here). The board's
+  // own rows + Clef's blog table ride BELOW as REFERENCE ONLY (their corpus,
+  // their protocol) under the B5 caveat, which the publisher carries verbatim
+  // — this renderer never re-words it.
+  function crosswalk(d, el) {
+    if (!el) return;
+    const X = d && d.crosswalk;
+    if (!X || !Array.isArray(X.suites) || !X.suites.length) {
+      el.innerHTML = `<p class="cases">the crosswalk needs a bench.json with the crosswalk block (a clef-carrying board) — refresh with publish_bench.py --rederive data/bench.json</p>`;
+      return;
+    }
+    const fmt = (v, d4) => (v == null || !num(v)) ? "—" : (d4 ? v.toFixed(4) : String(v));
+    const rowHtml = (r) => {
+      const pal = laneOf({ lane: r.display, model: r.model });
+      const tag = r.record_only ? ` <b class="bc-fb" title="record-only — serve refused">rec</b>` : "";
+      return `<tr>` +
+        `<td><i class="bc-sw" style="background:${pal.color}"></i>${esc(r.display)}${tag}</td>` +
+        `<td class="bc-mut">${esc(r.model || "")}</td>` +
+        `<td>${esc(fmt(r.n))}</td>` +
+        `<td><b>${esc(fmt(r.accuracy, true))}</b></td>` +
+        `<td>${esc(fmt(r.macro_f1, true))}</td>` +
+        `<td>${esc(fmt(r.jdi_chance, true))}</td>` +
+        `<td>${esc(fmt(r.jdi_skill, true))}</td></tr>`;
+    };
+    const suiteHtml = (s) =>
+      `<h3 class="suite" id="crosswalk-${esc(s.name)}">${esc(s.name)} <span class="cases">— ${esc(s.n_cases)} cases / ${esc(s.n_questions)} questions · population pin <code>${esc(s.pin)}</code></span></h3>` +
+      `<div class="scroll"><table class="bench"><thead><tr><th>lane</th><th>model</th><th>n</th><th>acc</th><th>macro F1</th><th>chance</th><th>skill</th></tr></thead><tbody>` +
+      s.rows.map(rowHtml).join("") + `</tbody></table></div>` +
+      (s.excluded && s.excluded.length
+        ? `<p class="cases">excluded from the crosswalk: ${s.excluded.map((e) => `“${esc(e)}”`).join(" · ")}</p>`
+        : "");
+    const ref = X.board_reference || {};
+    const blog = X.blog_banking77_mf1 || {};
+    el.innerHTML =
+      `<p class="bc-note"><b>Read the caveat before any number:</b> ${esc(X.caveat || "")}</p>` +
+      X.suites.map(suiteHtml).join("") +
+      (ref.rows && ref.rows.length
+        ? `<h3 class="suite">The JDI board's own rows <span class="cases">— reference only</span></h3>` +
+          `<div class="scroll"><table class="bench"><thead><tr><th>entrant</th><th>balanced raw</th><th>balanced skill</th><th>median ms</th><th>note</th></tr></thead><tbody>` +
+          ref.rows.map((r) => `<tr><td>${esc(r.entrant)}</td><td>${esc(fmt(r.balanced_raw))}</td><td>${esc(fmt(r.balanced_skill))}</td><td>${esc(fmt(r.median_ms))}</td><td class="bc-mut">${esc(r.note || "")}</td></tr>`).join("") +
+          `</tbody></table></div><p class="cases">${esc(ref.note || "")}</p>`
+        : "") +
+      (blog.rows && blog.rows.length
+        ? `<h3 class="suite">Clef's blog — BANKING77 macro-F1 <span class="cases">— their run, reference only</span></h3>` +
+          `<div class="scroll"><table class="bench"><thead><tr><th>model</th><th>macro F1 %</th><th>median ms</th></tr></thead><tbody>` +
+          blog.rows.map((r) => `<tr><td>${esc(r.model)}</td><td>${esc(fmt(r.macro_f1_pct))}</td><td>${esc(fmt(r.median_ms))}</td></tr>`).join("") +
+          `</tbody></table></div><p class="cases">${esc(blog.note || "")}</p>`
+        : "");
+  }
+
+  window.BenchCharts = { hero, suite, setLogDomain, summary, areas, frontier, profile, s1mb, crosswalk, suiteSortControl, setSuiteSort, setPrimaryHost, lat, accOf, ccOf };
   window.BenchRig.scoped = scopedPairs;
 })();

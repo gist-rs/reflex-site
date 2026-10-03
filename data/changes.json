@@ -33,5 +33,10 @@
   "date": "2026-10-04",
   "change": "Clef comparison lane joins the board (edition 2026-10-2: clef (local) — community 4-bit 9B, m3 loopback; banking77 + typed_decisions acc-only)",
   "why": "the Clef-vs-Rethink crosswalk starts with the local-posture cells published on the JDI axes (macro F1 + chance-corrected skill); latency stays acc-only until the quiet-box re-read, the hosted 27B cell is owner-gated"
+ },
+ {
+  "date": "2026-10-04",
+  "change": "The JDI crosswalk section ships on /bench/ (plan-011 C3): the side-by-side on the clef-carrying suites, every measured row digest-pinned to one population",
+  "why": "the Rethink hybrid + encoder cells joined the pin (axes + cases_digest from the C2 gold join); the JDI board's own rows + Clef's blog table render as reference only under the B5 caveat, verbatim; mismatched or unpinnable lanes are excluded with the reason shown, never silently mixed"
  }
 ]

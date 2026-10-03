@@ -614,6 +614,49 @@ AREA_CHANCE = {
     "code_fixtures": (1 / 8 + 1 / 2) / 2,
 }
 
+# ── the JDI crosswalk (plan 011 C3) ──────────────────────────────────────
+# The B5 honesty law, VERBATIM (the same sentence the clef docs' crosswalk
+# headers carry — one wording, every medium):
+CROSSWALK_B5_CAVEAT = (
+    "JDI-comparable crosswalk, NOT a JDI board row — different corpus, "
+    "protocol caps, hardware; board membership requires their full frozen "
+    "suite."
+)
+
+# The JDI board's own rows (their frozen corpus, their protocol, their
+# hardware — REFERENCE ONLY). Pinned from the plan-011 B1 snapshot
+# (.benchmarks/data/jdi/index.json, gitignored local reference; the pins
+# live in the tracked PROVENANCE.md there): edition release-v2.1, generated
+# 2026-09-28T00:39:36+00:00, suite corpus sha256 b2b56d6f…d5, hardware
+# "1 × RTX PRO 6000", Jev jev-1.13.0 — recorded in reflex
+# .research/005 §crosswalk. These are CURATED constants (the AREA_CHANCE
+# precedent), never measurements by this harness.
+JDI_BOARD_REFERENCE = [
+    # (entrant, balanced_raw, balanced_skill, median_ms, note)
+    ("Jev (jev-1.13.0, hosted)", 68.09, 57.91, 524.1, "ECE 0.074"),
+    ("pplx-decider-v1-27b (Qwen3.8-27B full FT)", 66.89, 56.40, 101.4,
+     "strongest open entrant"),
+    ("Rune 26B-A4B v3", 67.30, 57.44, 120.5, ""),
+    ("Winnow-12B (Q8 GGUF/llama.cpp)", 61.91, 50.02, 72.5, ""),
+    ("GLiNER2.5-Decide (our GLiNER lane)", 32.35, 11.21, 23.3, ""),
+    ("CLM-v0.1-8B (our CLM lane)", 27.94, 7.40, 46.8, ""),
+    ("laya (our laya lane's source)", 27.53, 6.04, 5.8,
+     "fastest on board"),
+    # Clef/clef-flash: not yet on the board (too new) — no row exists to
+    # quote; our clef cells are OUR runs, listed in the measured rows.
+]
+
+# The blog's own BANKING77 macro-F1 table (Clef's run, not the board —
+# their corpus, their protocol): pinned from .research/005 §crosswalk.
+JDI_BLOG_BANKING77_MF1 = [
+    # (model, macro_f1_pct, median_ms)
+    ("Clef", 94.20, 209.3),
+    ("Clef-flash", 90.93, 38.8),
+    ("Kev-9B", 84.83, None),
+    ("Jev", 79.74, 524.1),
+    ("laya", 14.29, 5.8),
+]
+
 # The area grouping (the radar's spokes). The Thai suites stay out of it:
 # no chance baseline is curated for them (AREA_CHANCE), and adding one is
 # an owner curation call, not a publish-time guess.
@@ -1256,6 +1299,141 @@ def compute_s1mb(d):
     return d["s1mb"]
 
 
+# The crosswalk's lane order (plan 011 C3): the comparison lanes carrying
+# OUR cells on OUR splits, clef first (the lane the crosswalk exists for).
+CROSSWALK_LANES = (
+    "clef", "hybrid", "encoder", "modelless", "openthai", "bekko",
+    "paw_local", "paw",
+)
+
+
+def compute_crosswalk(d):
+    """Emit d["crosswalk"] — the plan-011 C3 side-by-side: our measured
+    cells on the suites the clef lane covers, plus the JDI board's own rows
+    as REFERENCE ONLY.
+
+    The digest pin (C2's machinery, asserted at build time — the whole
+    point of the crosswalk): every measured row's cell carries the suite's
+    population pin and it must EQUAL the clef cell's — a lane measured on a
+    different population (different corpus pull, different trim, a stale
+    seat) is EXCLUDED with the reason recorded, never silently mixed. The
+    clef cell is the pin's anchor (its run carries the harness-stamped
+    cases_digest); a clef cell without a digest refuses the suite's
+    crosswalk outright (no anchor, no table).
+
+    Derived cells are excluded by construction: a tier-fallback encoder
+    cell (`derived`) is the ANSWERING tier's measurement re-labeled, not
+    this lane's own — the row would duplicate the hybrid row wearing the
+    encoder's name.
+
+    Idempotent (the compute_areas precedent): re-running replaces the
+    block wholesale."""
+    d.pop("crosswalk", None)
+    suites = []
+    for s in d.get("suites", []):
+        clef = s.get("clef")
+        if not clef:
+            continue
+        pin = clef.get("cases_digest")
+        if not pin:
+            print(
+                f"note: crosswalk — {s['name']}: the clef cell carries no "
+                "cases_digest; no anchor, no crosswalk (re-publish the "
+                "clef lane from a stamped run)",
+                file=sys.stderr,
+            )
+            continue
+        rows = []
+        excluded = []
+        for lane in CROSSWALK_LANES:
+            cell = s.get(lane)
+            if not cell:
+                continue
+            what = f"{lane}@{s['name']}"
+            if isinstance(cell, dict) and cell.get("derived"):
+                excluded.append(f"{what}: tier-fallback (the answering "
+                                "tier's read, not this lane's own)")
+                continue
+            hard = (cell or {}).get("hard") or {}
+            if hard.get("accuracy") is None:
+                excluded.append(f"{what}: no measured accuracy on this suite")
+                continue
+            dg = cell.get("cases_digest")
+            if dg != pin:
+                excluded.append(
+                    f"{what}: digest {dg or '(absent)'} != the pin {pin} "
+                    "(different population — excluded, never mixed)")
+                continue
+            rows.append({
+                "lane": lane,
+                "display": LANE_DISPLAY.get(lane, lane),
+                "model": cell.get("model"),
+                "n": hard.get("n"),
+                "accuracy": hard["accuracy"],
+                "macro_f1": hard.get("macro_f1"),
+                # Two cell spellings, one law: harness LaneResult cells
+                # (clef/bekko/…) carry the JDI axes at the CELL level; the
+                # instinct lane-doc cells carry them inside `hard` (the
+                # builder's shape). hard wins — same law, one precedence.
+                "jdi_chance": (hard.get("jdi_chance")
+                                if hard.get("jdi_chance") is not None
+                                else cell.get("jdi_chance")),
+                "jdi_skill": (hard.get("jdi_skill")
+                               if hard.get("jdi_skill") is not None
+                               else cell.get("jdi_skill")),
+                "serves": cell.get("serves"),
+                "record_only": (cell.get("serves") or "").startswith("✗"),
+            })
+        if not rows:
+            continue
+        suites.append({
+            "name": s["name"],
+            "n_cases": s.get("n_cases"),
+            "n_questions": s.get("n_questions"),
+            "pin": pin,
+            "rows": rows,
+            "excluded": excluded,
+        })
+    if not suites:
+        # No clef cells at all (a board that predates the lane): the
+        # section stays absent rather than shipping an empty shell — the
+        # page hides the section when the block is missing.
+        return None
+    d["crosswalk"] = {
+        "caveat": CROSSWALK_B5_CAVEAT,
+        "suites": suites,
+        "board_reference": {
+            "note": (
+                "The JDI board's own rows — their frozen corpus, their "
+                "protocol, their hardware (edition release-v2.1, generated "
+                "2026-09-28, pinned in reflex .research/005). REFERENCE "
+                "ONLY: no number here is comparable with the measured rows "
+                "above without the caveat's full weight."
+            ),
+            "columns": ["entrant", "balanced_raw", "balanced_skill",
+                        "median_ms"],
+            "rows": [
+                {"entrant": e, "balanced_raw": raw, "balanced_skill": sk,
+                 "median_ms": ms, "note": note}
+                for (e, raw, sk, ms, note) in JDI_BOARD_REFERENCE
+            ],
+        },
+        "blog_banking77_mf1": {
+            "note": (
+                "Clef's own blog table on BANKING77 (their run, their "
+                "corpus — macro-F1 % and median ms; pinned in reflex "
+                ".research/005). Our banking77 row above is OUR split — "
+                "the same suite family, never the same population."
+            ),
+            "rows": [
+                {"model": m, "macro_f1_pct": f1, "median_ms": ms}
+                for (m, f1, ms) in JDI_BLOG_BANKING77_MF1
+            ],
+        },
+    }
+    return d["crosswalk"]
+
+
 def stamp_cell(cell, suite, meta=None):
     """Carry the source run's population identity onto the lane cell, and
     (when the run carries a box_state) the run's latency verdict — on the
@@ -1279,6 +1457,13 @@ def stamp_cell(cell, suite, meta=None):
         return
     if suite.get("cases_digest"):
         cell["cases_digest"] = suite["cases_digest"]
+    elif suite.get("test_digest"):
+        # The C2 lane docs (instinct's hybrid/encoder docs, rethink's ESC
+        # records) name the same population pin `test_digest` — the seat's
+        # cases_digest law under the arena's field spelling. Carried under
+        # the CELL's canonical name so lane_identity and the crosswalk's
+        # digest pin read one spelling for every lane (plan 011 C2/C3).
+        cell["cases_digest"] = suite["test_digest"]
     if meta and "box_state" in meta and "latency_p50_ms" in cell:
         # The verdict describes the timing beside it — a cell whose timing
         # was stripped (the :acc-only publish) carries no verdict, so the
@@ -2625,6 +2810,11 @@ def finalize(d):
     n_paired = compute_pairings(d)
     compute_areas(d)
     compute_s1mb(d)
+    # The plan-011 C3 crosswalk (after the fallback derivation — derived
+    # cells are excluded by construction, and the digest pin reads the
+    # final cells): replaces the block wholesale (idempotent under
+    # --rederive).
+    compute_crosswalk(d)
     if apply_disclosures(d) != 0:
         return None
     for s in d.get("suites", []):

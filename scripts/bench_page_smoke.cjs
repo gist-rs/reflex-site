@@ -123,6 +123,30 @@ const server = http.createServer((req, res) => {
   if (clefRows !== expectedClef || expectedClef < 1) fail(`clef rows ${clefRows} != data ${expectedClef}`);
   else console.log(`ok: ${clefRows} clef table rows (data-derived)`);
 
+  // 3f) the JDI crosswalk (plan 011 C3): the section renders per data.
+  //     crosswalk — one table per crosswalk suite (the clef-carrying set),
+  //     the B5 caveat VERBATIM (the publisher carries the sentence; the page
+  //     renders it, never re-words it), the board reference rows, and at
+  //     least one measured row per suite (clef itself). A missing block on
+  //     a clef-carrying board is the invisible-section class.
+  const X = laneData.crosswalk;
+  if (X && Array.isArray(X.suites) && X.suites.length) {
+    const xwTables = await page.$$eval("#bench-crosswalk table", (ts) => ts.length);
+    const xwExpected = X.suites.length + 2; // suites + board ref + blog
+    if (xwTables !== xwExpected) fail(`crosswalk tables ${xwTables} != data ${xwExpected}`);
+    else console.log(`ok: crosswalk renders ${X.suites.length} suite table(s) + the reference blocks (data-derived)`);
+    const caveatText = await page.$eval("#bench-crosswalk .bc-note", (el) => el.textContent);
+    if (!caveatText.includes(X.caveat)) fail(`crosswalk caveat not verbatim: ${caveatText.slice(0, 80)}`);
+    else console.log("ok: crosswalk B5 caveat renders verbatim");
+    // The pin line: every suite's heading carries its population pin.
+    const pins = await page.$$eval("#bench-crosswalk h3.suite .cases code", (els) => els.map((e) => e.textContent));
+    const expectedPins = X.suites.map((s) => s.pin);
+    if (JSON.stringify(pins) !== JSON.stringify(expectedPins)) fail(`crosswalk pins ${pins} != data ${expectedPins}`);
+    else console.log(`ok: crosswalk population pins render (${pins.length} suite(s))`);
+  } else {
+    console.log("ok: no crosswalk block (the board carries no clef cells) — section hidden");
+  }
+
   // 4) hero bars: a lane's not-run bars must be EXACTLY the suites the
   //    lane never measured (read from the data — the suite set grows over
   //    time; the reflex Bench 074 Thai suites joined without clm/gliner/
