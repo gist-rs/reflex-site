@@ -259,6 +259,14 @@
       quotable (unfit timing stays visible in the suite tables, marked †, but is never plotted).</p>
     <div id="bench-timing"></div>
 
+    <h2 id="s1mb" style="margin-top:40px"><a class="hlink" href="#s1mb">S1MB — the external judgment benchmark</a></h2>
+    <p class="sub">The System One Mosaic Benchmark (S1MB) asks a model to judge — pick an answer, rate a reply, or
+      say true/false — across thousands of everyday tasks. We bench our three serving lanes on it with our own
+      scoring: every lane reads the same halves of the same questions and is scored on the share it gets right.
+      That share is <strong>not</strong> comparable to S1MB's own leaderboard number, which uses a different
+      scoring scale we don't publish. A missing cell is a disclosed gap, never a zero.</p>
+    <div id="bench-s1mb" aria-live="polite"></div>
+
     <h2 id="per-suite"><a class="hlink" href="#per-suite">Per suite</a></h2>
     <p class="sub">Charts first; open a suite's table for every metric, the G1 calibration verdict and the gate fit.</p>
     <p id="bench-meta">loading data/bench.json …</p>
@@ -826,6 +834,45 @@ function renderTiming(d) {
     `<p class="cases">comparability: an in-process read and an HTTP round-trip are both "latency" here, and they are NOT comparable — compare a lane's p50 against its own past, and read cross-lane ratios only within one clock class. The frontier above plots lanes with at least one quotable cell; “— not plotted” names a lane whose published cells carry no quotable timing today.</p>`;
 }
 
+// The S1MB board (the external judgment benchmark, after #timing): one row
+// per lane × the three suites + the unweighted average, rendered from
+// d.s1mb (publish_bench.py derives it from the same suite cells the
+// per-suite tables show, so the two can never disagree). An old bench.json
+// (no s1mb block) renders the refresh note; a missing cell renders "—" as
+// the disclosed gap it is.
+function renderS1mb(d) {
+  const el = document.getElementById("bench-s1mb");
+  if (!el) return;
+  const S = d && d.s1mb;
+  if (!S || !Array.isArray(S.lanes)) {
+    el.innerHTML = `<p class="cases">the S1MB board needs a bench.json with the s1mb block — refresh with publish_bench.py --rederive data/bench.json</p>`;
+    return;
+  }
+  const suiteName = { s1mb_noul: "true/false", s1mb_score: "rate a reply", s1mb_choice: "pick an answer" };
+  const cellOf = (lane, suite) => {
+    const c = (lane.cells || {})[suite];
+    if (!c || typeof c.acc !== "number") return "—";
+    const v = (Math.round(c.acc * 1000) / 10) + "%";
+    return c.fallback ? `${v} <span class="chip" title="no trained head passed its earn gate on this suite — the answering tier's served read">served by tier</span>` : v;
+  };
+  const rows = S.lanes.map((lane) => {
+    const cov = lane.coverage || {};
+    const avg = (typeof lane.avg === "number") ? (Math.round(lane.avg * 1000) / 10) + "%" : "—";
+    const gap = cov.suites < cov.of
+      ? ` <span class="chip">${cov.of - cov.suites} suite${cov.of - cov.suites === 1 ? "" : "s"} not measured</span>`
+      : "";
+    const note = lane.note ? `<div class="cases">${esc(lane.note)}</div>` : "";
+    return `<tr><td>${esc(lane.display)}${gap}<br><span class="cases">${esc(lane.model || "")}</span>${note}</td>` +
+      S.suites.map((s) => `<td>${cellOf(lane, s)}</td>`).join("") +
+      `<td><strong>${avg}</strong></td></tr>`;
+  }).join("");
+  const heads = S.suites.map((s) => `<th>${esc(suiteName[s] || s)}</th>`).join("");
+  el.innerHTML = `<div class="scroll"><table class="bench">` +
+    `<thead><tr><th>lane</th>${heads}<th>average</th></tr></thead>` +
+    `<tbody>${rows}</tbody></table></div>` +
+    `<p class="cases">${esc(S.disclosure || "")}</p>`;
+}
+
 // The board-changes list (plan 001 task 7): a curated append-only feed
 // (data/changes.json, {date, change, why} rows citing their records).
 // Absent file or a fetch failure hides nothing else — the section renders
@@ -873,6 +920,7 @@ function render(d) {
   // renders the graceful re-derive note instead.
   if (window.BenchCharts && BenchCharts.frontier) BenchCharts.frontier(d, document.getElementById("bench-frontier"));
   renderTiming(d);
+  renderS1mb(d);
   renderChanges();
   // The rig radio (after hero(): BenchRig.init runs inside hero() and the
   // radio's onchange re-renders the WHOLE page — charts, tables, provenance).

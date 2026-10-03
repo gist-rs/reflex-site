@@ -1057,6 +1057,183 @@ def compute_areas(d):
     return d["areas"]
 
 
+# ── The S1MB external-benchmark section (reflex plan 010) ─────────────
+# The System One Mosaic Benchmark judged by OUR three serving lanes under
+# OUR metric (forced-pick accuracy on the deterministic 50/50 corpus/test
+# split every lane shares) — never the S1MB leaderboard's baseline-
+# adjusted skill score, which is a different scale and is not published
+# here at all. The block derives from the suite rows (the same cells the
+# per-suite tables render), so it can never disagree with them, and a
+# lane with no measured cell on a suite renders the gap (never zero,
+# never padded). Re-running replaces the block wholesale (idempotent).
+S1MB_SUITES = ("s1mb_noul", "s1mb_score", "s1mb_choice")
+
+
+def compute_s1mb(d):
+    """Emit d["s1mb"] — the three-lane S1MB board. Lanes read the suite
+    rows: reflex = the modelless cell (primary host), instinct = the
+    hybrid cell (its served arm's read — A0 on every s1mb suite today),
+    rethink = the encoder lane's posture note only (no trained head has
+    passed its earn gate on these suites, so the lane has no cell — the
+    gap is disclosed, never padded) with the laya (rust) lane's measured
+    rows quoted beside it as the encoder family's zero-shot reading."""
+    d.pop("s1mb", None)
+    suites = {s["name"]: s for s in d.get("suites", [])}
+    if not any(name in suites for name in S1MB_SUITES):
+        return None
+
+    def cell_of(suite_row, key):
+        c = suite_row.get(key)
+        if not isinstance(c, dict):
+            return None
+        hard = c.get("hard") or {}
+        acc = hard.get("accuracy")
+        if acc is None:
+            return None
+        out = {"n": hard.get("n"), "acc": round(acc, 4)}
+        serves = c.get("serves")
+        if serves:
+            out["serves"] = serves
+        q = c.get("latency_quotable")
+        if q is not None:
+            out["latency_quotable"] = q
+        return out
+
+    def cell_anyhost(suite_row, key):
+        """The primary-host cell when it exists, else the first host
+        container that carries one. The laya cells under a host container
+        are CHECKPOINT-KEYED (english / multilingual / typed …) — the s1mb
+        rows route the english checkpoint (the s1mb suites' routing is
+        english by the suite table's own disclosure), so a dict value
+        reads its english entry and refuses to guess another checkpoint."""
+        c = cell_of(suite_row, key)
+        if c is not None:
+            return c
+        for host_lanes in (suite_row.get("extra_host_lanes") or {}).values():
+            v = host_lanes.get(key)
+            if isinstance(v, dict) and "hard" in v:
+                c = cell_of({key: v}, key)
+            elif isinstance(v, dict):
+                c = cell_of({key: v.get("english")}, key)
+            else:
+                c = None
+            if c is not None:
+                return c
+        return None
+
+    lanes = []
+
+    def lane_row(key, display, model, note, anyhost=False):
+        cells, accs, gaps = {}, [], []
+        for name in S1MB_SUITES:
+            sr = suites.get(name)
+            if sr is None:
+                continue
+            c = (cell_anyhost if anyhost else cell_of)(sr, key)
+            if c is not None:
+                cells[name] = c
+                accs.append(c["acc"])
+            else:
+                gaps.append(name)
+        lanes.append({
+            "key": key,
+            "display": display,
+            "model": model,
+            "note": note,
+            "cells": cells,
+            "avg": (round(sum(accs) / len(accs), 4) if accs else None),
+            "coverage": {"suites": len(cells), "of": len(S1MB_SUITES)},
+            **({"gap_suites": gaps} if gaps else {}),
+        })
+
+    lane_row(
+        "modelless", "Reflex", "the modelless engine (count tables + "
+        "sigmoid calibration)",
+        "the free floor — runs in the browser tab")
+    lane_row(
+        "hybrid", "Instinct", "the served hybrid arm over the same seat",
+        "the served arm is the modelless half (A0) on every s1mb suite "
+        "today — no specialist arm cleared its certification gate, so "
+        "the lane's cells are the A0 reads (shown, labeled, per the "
+        "show-losses law)")
+    lane_row(
+        "laya", "laya (rust)", "the zero-shot encoder lane (english "
+        "checkpoint, round-1 breadth)",
+        "the encoder family's measured zero-shot reading on this "
+        "benchmark — the s1mb suites route the english checkpoint, "
+        "measured on the GPU serving host",
+        anyhost=True)
+    laya_lane = lanes[-1]
+    if "s1mb_choice" in (laya_lane.get("gap_suites") or []):
+        laya_lane["note"] = (
+            laya_lane["note"] + "; the encoder head budget refuses the "
+            "pick-an-answer suite's option list (it runs to hundreds of "
+            "rendered options per question), so that cell is an honest "
+            "gap, not a zero")
+    elif laya_lane.get("gap_suites"):
+        laya_lane["note"] = (
+            laya_lane["note"] + "; no measured cell on "
+            + ", ".join(laya_lane["gap_suites"]) + " — a disclosed gap, "
+            "never a zero")
+
+    # Rethink: encoder cells when the lane has them. A tier-fallback cell
+    # (derived: the answering tier's read, marked) carries the fallback
+    # flag through — the page labels it "served by the modelless tier",
+    # the same triangle semantics the radar uses; only a cell that is a
+    # real encoder read counts toward the lane's own coverage.
+    enc_cells, enc_accs, enc_fallbacks = {}, [], 0
+    for name in S1MB_SUITES:
+        sr = suites.get(name)
+        if sr is None:
+            continue
+        raw = sr.get("encoder")
+        c = cell_of(sr, "encoder")
+        if c is None:
+            continue
+        if isinstance(raw, dict) and raw.get("derived"):
+            c["fallback"] = True
+            enc_fallbacks += 1
+        else:
+            enc_accs.append(c["acc"])
+        enc_cells[name] = c
+    rethink = {
+        "key": "encoder",
+        "display": "Rethink",
+        "model": "trained per-option encoder head",
+        "cells": enc_cells,
+        "avg": (round(sum(enc_accs) / len(enc_accs), 4) if enc_accs else None),
+        "coverage": {"suites": len(enc_cells) - enc_fallbacks,
+                     "of": len(S1MB_SUITES)},
+        "note": ("no trained head has passed its earn gate on these "
+                 "suites yet, so the lane serves the answering tier "
+                 "(shown above as the served-by reading) — the gap is "
+                 "the disclosure, never a padded number"),
+    }
+    if enc_cells and not enc_fallbacks:
+        rethink.pop("note")
+    if not enc_cells:
+        rethink["note"] = ("no measured cells yet — the lane publishes "
+                           "only a head that passes its own training earn "
+                           "gate on these suites, and none has; the gap "
+                           "is the disclosure, never a padded number")
+    lanes.append(rethink)
+
+    d["s1mb"] = {
+        "version": 1,
+        "suites": list(S1MB_SUITES),
+        "lanes": lanes,
+        "disclosure": (
+            "forced-pick accuracy on our own 50/50 corpus/test split of "
+            "the benchmark (every lane reads the same halves) — NOT "
+            "comparable to the benchmark's own leaderboard, whose skill "
+            "score is a different scale we do not publish. avg is the "
+            "unweighted mean over the three suite accuracies. A missing "
+            "cell is a disclosed gap, never a zero."
+        ),
+    }
+    return d["s1mb"]
+
+
 def stamp_cell(cell, suite, meta=None):
     """Carry the source run's population identity onto the lane cell, and
     (when the run carries a box_state) the run's latency verdict — on the
@@ -1080,7 +1257,11 @@ def stamp_cell(cell, suite, meta=None):
         return
     if suite.get("cases_digest"):
         cell["cases_digest"] = suite["cases_digest"]
-    if meta and "box_state" in meta:
+    if meta and "box_state" in meta and "latency_p50_ms" in cell:
+        # The verdict describes the timing beside it — a cell whose timing
+        # was stripped (the :acc-only publish) carries no verdict, so the
+        # unfit marks and the unfit-cell counts can never name timing
+        # the cell does not show.
         cell["latency_quotable"] = doc_latency_quotable(meta)
     if meta:
         sr = {k: meta[k] for k in LANE_SOURCE_KEYS if k in meta}
@@ -2408,6 +2589,7 @@ def finalize(d):
         return None
     n_paired = compute_pairings(d)
     compute_areas(d)
+    compute_s1mb(d)
     if apply_disclosures(d) != 0:
         return None
     for s in d.get("suites", []):

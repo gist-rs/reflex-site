@@ -53,8 +53,8 @@
     "corpus_cap_mode": "registry defaults",
     "lane_sources": {
      "modelless": {
-      "git_sha": "8ca8770",
-      "date_utc": "2026-10-02T12:01:18Z"
+      "git_sha": "d009604",
+      "date_utc": "2026-10-03T08:35:02Z"
      },
      "laya:english": {
       "git_sha": "8ca8770",
@@ -81,8 +81,8 @@
       "date_utc": "2026-09-27T08:00:55Z"
      },
      "hybrid": {
-      "git_sha": "eef77d1",
-      "date_utc": "2026-10-02T10:01:40Z"
+      "git_sha": "b6425bf",
+      "date_utc": "2026-10-03T09:03:51Z"
      },
      "paw": {
       "git_sha": "9dc33da",
@@ -132,12 +132,12 @@
     "corpus_cap_mode": "registry defaults",
     "lane_sources": {
      "modelless": {
-      "git_sha": "ad94345",
-      "date_utc": "2026-10-01T02:07:23Z"
+      "git_sha": "3cad008",
+      "date_utc": "2026-10-02T20:23:08Z"
      },
      "laya:english": {
-      "git_sha": "97c2b1f",
-      "date_utc": "2026-09-28T07:13:04Z"
+      "git_sha": "3cad008",
+      "date_utc": "2026-10-02T20:23:08Z"
      },
      "laya:multilingual": {
       "git_sha": "97c2b1f",
@@ -12719,6 +12719,2205 @@
      "date_utc": "2026-10-01T19:20:00Z"
     }
    }
+  },
+  {
+   "name": "s1mb_choice",
+   "n_questions": 4329,
+   "n_cases": 4329,
+   "modelless": {
+    "lane": "KatGPT",
+    "model": "modelless",
+    "hard": {
+     "n": 4329,
+     "accuracy": 0.22961422961422961,
+     "macro_f1": 0.05728477985464882,
+     "ece": 0.04368157599910449,
+     "brier": 0.7720725868820079,
+     "nll": 1.843002186277205,
+     "aurc": 0.6642965880999749,
+     "mean_confidence": 0.24446859121964598,
+     "acc_at_50_coverage": 0.3202402957486137,
+     "acc_at_80_coverage": 0.2682645105399942
+    },
+    "readout_ece": 0.20603674965280053,
+    "raw_abstain": {
+     "abstain_rate": 0.7803187803187803,
+     "selective_accuracy": 0.138801261829653,
+     "selective_n": 951
+    },
+    "calibrated_abstain": {
+     "abstain_rate": 0.7803187803187803,
+     "selective_accuracy": 0.138801261829653,
+     "selective_n": 951
+    },
+    "abstain_causes": {
+     "score_gate": 2686,
+     "distance_gate": 692,
+     "grammar_invalid": 0
+    },
+    "readout_ece_raw": 0.20603674965280053,
+    "readout_ece_calibrated": 0.20603674965280053,
+    "floor_ece": 0.40613977927410666,
+    "g1_pass": false,
+    "g1_verdict": "fail",
+    "by_question_type": null,
+    "soft_acc": null,
+    "brier_soft": null,
+    "score_mae": null,
+    "within_1": null,
+    "determinism_ok": true,
+    "determinism_n": 10,
+    "n_cases": 4329,
+    "n_questions": 4329,
+    "score_threshold": 0.010039693,
+    "distance_threshold": 0.5756306,
+    "threshold_recommendation": {
+     "posture": {
+      "posture": "percentile",
+      "rho": 0.3
+     },
+     "score": {
+      "threshold": 0.010039693,
+      "status": "fitted",
+      "targetAccuracy": 0.15,
+      "support": {
+       "n": 200,
+       "nPass": 140,
+       "nAbstain": 60
+      }
+     },
+     "distance": {
+      "threshold": 0.5756306,
+      "status": "fitted",
+      "targetAccuracy": 0.16428572,
+      "support": {
+       "n": 200,
+       "nPass": 140,
+       "nAbstain": 60
+      }
+     }
+    },
+    "corpus_cap": {
+     "effective": 16,
+     "source": "registry",
+     "selection": null
+    },
+    "head_selection": null,
+    "nb_selection": null,
+    "oc_selection": null,
+    "ridge_selection": null,
+    "genome_selection": null,
+    "transductive": null,
+    "confusion": [
+     {
+      "gold": "not_mentioned",
+      "pred": "contradiction",
+      "count": 312,
+      "share_of_errors": 0.09355322338830585
+     },
+     {
+      "gold": "entailment",
+      "pred": "contradiction",
+      "count": 257,
+      "share_of_errors": 0.07706146926536732
+     },
+     {
+      "gold": "not_mentioned",
+      "pred": "entailment",
+      "count": 108,
+      "share_of_errors": 0.032383808095952024
+     },
+     {
+      "gold": "entailment",
+      "pred": "neutral",
+      "count": 80,
+      "share_of_errors": 0.0239880059970015
+     },
+     {
+      "gold": "contradiction",
+      "pred": "entailment",
+      "count": 61,
+      "share_of_errors": 0.018290854572713643
+     },
+     {
+      "gold": "contradiction",
+      "pred": "neutral",
+      "count": 53,
+      "share_of_errors": 0.015892053973013492
+     },
+     {
+      "gold": "option_1",
+      "pred": "option_0",
+      "count": 53,
+      "share_of_errors": 0.015892053973013492
+     },
+     {
+      "gold": "neutral",
+      "pred": "entailment",
+      "count": 46,
+      "share_of_errors": 0.013793103448275862
+     },
+     {
+      "gold": "option_2",
+      "pred": "option_3",
+      "count": 26,
+      "share_of_errors": 0.007796101949025487
+     },
+     {
+      "gold": "A",
+      "pred": "B",
+      "count": 25,
+      "share_of_errors": 0.0074962518740629685
+     },
+     {
+      "gold": "2",
+      "pred": "3",
+      "count": 24,
+      "share_of_errors": 0.00719640179910045
+     },
+     {
+      "gold": "option_0",
+      "pred": "option_1",
+      "count": 22,
+      "share_of_errors": 0.006596701649175412
+     }
+    ],
+    "pair_head_ab": null,
+    "jdi_chance": 0.23331023331023332,
+    "jdi_skill": 0.0,
+    "readout_report": {
+     "best_on_cal": "max_prob",
+     "candidates": [
+      {
+       "mode": "dispatch",
+       "cal_ece": 0.13536291792988778
+      },
+      {
+       "mode": "max_prob",
+       "cal_ece": 0.09499485112726685
+      },
+      {
+       "mode": "inv_entropy",
+       "cal_ece": 0.15231328934431076
+      }
+     ]
+    },
+    "corpus_fallbacks": [
+     "getting_spare_card",
+     "verify_my_identity",
+     "virtual_card_not_working",
+     "disposable_card_limits",
+     "reverted_card_payment?",
+     "pending_cash_withdrawal",
+     "get_physical_card",
+     "lost_or_stolen_card",
+     "top_up_by_card_charge",
+     "extra_charge_on_statement",
+     "automatic_top_up",
+     "get_disposable_virtual_card",
+     "transfer_not_received_by_recipient",
+     "request_refund",
+     "pending_card_payment",
+     "declined_transfer",
+     "age_limit",
+     "card_payment_fee_charged",
+     "verify_source_of_funds",
+     "declined_card_payment",
+     "card_payment_wrong_exchange_rate",
+     "wrong_amount_of_cash_received",
+     "atm_support",
+     "transaction_charged_twice",
+     "wrong_exchange_rate_for_cash_withdrawal",
+     "supported_cards_and_currencies",
+     "balance_not_updated_after_bank_transfer",
+     "card_swallowed",
+     "failed_transfer",
+     "cancel_transfer",
+     "direct_debit_payment_not_recognised",
+     "top_up_limits",
+     "exchange_via_app",
+     "passcode_forgotten",
+     "top_up_by_cash_or_cheque",
+     "top_up_by_bank_transfer_charge",
+     "beneficiary_not_allowed",
+     "compromised_card",
+     "unable_to_verify_identity",
+     "card_not_working",
+     "exchange_rate",
+     "card_payment_not_recognised",
+     "transfer_into_account",
+     "cash_withdrawal_charge",
+     "card_arrival",
+     "card_acceptance",
+     "activate_my_card",
+     "transfer_timing",
+     "terminate_account",
+     "topping_up_by_card",
+     "cash_withdrawal_not_recognised",
+     "getting_virtual_card",
+     "country_support",
+     "Refund_not_showing_up",
+     "balance_not_updated_after_cheque_or_cash_deposit",
+     "change_pin",
+     "pending_transfer",
+     "edit_personal_details",
+     "verify_top_up",
+     "pending_top_up",
+     "why_verify_identity",
+     "card_about_to_expire",
+     "exchange_charge",
+     "transfer_fee_charged",
+     "top_up_failed",
+     "fiat_currency_support",
+     "card_delivery_estimate",
+     "rewards_balance",
+     "translate",
+     "cancel",
+     "maybe",
+     "restaurant_reviews",
+     "repeat",
+     "todo_list",
+     "flight_status",
+     "last_maintenance",
+     "pto_balance",
+     "directions",
+     "restaurant_reservation",
+     "confirm_reservation",
+     "order_status",
+     "tell_joke",
+     "oos",
+     "calculator",
+     "gas_type",
+     "travel_suggestion",
+     "share_location",
+     "shopping_list",
+     "change_language",
+     "timezone",
+     "yes",
+     "book_flight",
+     "payday",
+     "no",
+     "meeting_schedule",
+     "do_you_have_pets",
+     "order",
+     "credit_limit_change",
+     "recipe",
+     "calendar_update",
+     "improve_credit_score",
+     "pin_change",
+     "update_playlist",
+     "cancel_reservation",
+     "date",
+     "measurement_conversion",
+     "definition",
+     "oil_change_how",
+     "whisper_mode",
+     "flip_coin",
+     "find_phone",
+     "todo_list_update",
+     "redeem_rewards",
+     "change_user_name",
+     "change_ai_name",
+     "min_payment",
+     "spelling",
+     "how_busy",
+     "change_accent",
+     "schedule_meeting",
+     "food_last",
+     "international_fees",
+     "book_hotel",
+     "where_are_you_from",
+     "change_volume",
+     "are_you_a_bot",
+     "tire_change",
+     "ingredients_list",
+     "current_location",
+     "goodbye",
+     "insurance_change",
+     "w2",
+     "pto_used",
+     "new_card",
+     "traffic",
+     "balance",
+     "fun_fact",
+     "ingredient_substitution",
+     "transfer",
+     "freeze_account",
+     "schedule_maintenance",
+     "thank_you",
+     "what_is_your_name",
+     "gas",
+     "vaccines",
+     "accept_reservations",
+     "transactions",
+     "cook_time",
+     "distance",
+     "routing",
+     "report_lost_card",
+     "next_song",
+     "carry_on",
+     "what_song",
+     "travel_notification",
+     "apr",
+     "nutrition_info",
+     "who_made_you",
+     "next_holiday",
+     "bill_balance",
+     "reminder_update",
+     "how_old_are_you",
+     "mpg",
+     "rollover_401k",
+     "account_blocked",
+     "plug_type",
+     "card_declined",
+     "smart_home",
+     "meal_suggestion",
+     "direct_deposit",
+     "sync_device",
+     "pay_bill",
+     "uber",
+     "pto_request_status",
+     "taxes",
+     "order_checks",
+     "greeting",
+     "income",
+     "spending_history",
+     "calories",
+     "reset_settings",
+     "expiration_date",
+     "tire_pressure",
+     "meaning_of_life",
+     "make_call",
+     "insurance",
+     "restaurant_suggestion",
+     "interest_rate",
+     "credit_limit",
+     "bill_due",
+     "who_do_you_work_for",
+     "report_fraud",
+     "roll_dice",
+     "change_speed",
+     "damaged_card",
+     "shopping_list_update",
+     "what_are_your_hobbies",
+     "lost_luggage",
+     "oil_change_when",
+     "text",
+     "travel_alert",
+     "car_rental",
+     "international_visa",
+     "application_status",
+     "jump_start",
+     "credit_score",
+     "what_can_i_ask_you",
+     "replacement_card_duration",
+     "pto_request",
+     "national_id",
+     "company_name",
+     "account_number",
+     "password",
+     "url",
+     "-47",
+     "-4",
+     "14",
+     "34",
+     "24",
+     "5760",
+     "5756",
+     "5750",
+     "5765",
+     "33",
+     "-2",
+     "8",
+     "12",
+     "29",
+     "16",
+     "52",
+     "-5",
+     "17",
+     "72",
+     "80",
+     "78",
+     "103",
+     "98",
+     "48",
+     "200",
+     "150",
+     "180",
+     "196",
+     "64",
+     "114",
+     "59",
+     "84",
+     "38",
+     "63",
+     "43",
+     "32",
+     "21",
+     "20",
+     "-18",
+     "27",
+     "149",
+     "197",
+     "172",
+     "147",
+     "88",
+     "93",
+     "-1",
+     "-3",
+     "350",
+     "397",
+     "400",
+     "375",
+     "248",
+     "254",
+     "255",
+     "251",
+     "6580",
+     "6598",
+     "6600",
+     "6593",
+     "293",
+     "305",
+     "288",
+     "13997",
+     "14000",
+     "13993",
+     "14007",
+     "-33",
+     "475",
+     "504",
+     "501",
+     "500",
+     "11",
+     "40",
+     "90",
+     "70",
+     "89",
+     "1198",
+     "1194",
+     "1202",
+     "1173",
+     "297",
+     "310",
+     "-15",
+     "-10",
+     "71",
+     "121",
+     "-21",
+     "36",
+     "122",
+     "128",
+     "125",
+     "190",
+     "207",
+     "47",
+     "39",
+     "92",
+     "130",
+     "76",
+     "195",
+     "41",
+     "46",
+     "283",
+     "273",
+     "44",
+     "18",
+     "-8",
+     "62",
+     "5",
+     "55",
+     "play game",
+     "iot coffee",
+     "transport traffic",
+     "calendar query",
+     "qa factoid",
+     "play audiobook",
+     "iot cleaning",
+     "alarm remove",
+     "general negate",
+     "recommendation events",
+     "alarm set",
+     "play podcasts",
+     "transport query",
+     "general commandstop",
+     "iot wemo off",
+     "music settings",
+     "general explain",
+     "lists query",
+     "general joke",
+     "iot hue lightup",
+     "email query",
+     "takeaway query",
+     "play radio",
+     "lists remove",
+     "music query",
+     "recommendation movies",
+     "close_no_action",
+     "delivery",
+     "stop",
+     "harmful",
+     "qa_stock",
+     "recommendation_movies",
+     "audio_volume_up",
+     "play_audiobook",
+     "recommendation_locations",
+     "cooking_recipe",
+     "datetime_convert",
+     "cooking_query",
+     "qa_currency",
+     "weather_query",
+     "music_query",
+     "iot_hue_lightdim",
+     "iot_hue_lightup",
+     "qa_definition",
+     "audio_volume_down",
+     "general_greet",
+     "iot_hue_lightoff",
+     "alarm_set",
+     "general_quirky",
+     "play_podcasts",
+     "email_addcontact",
+     "cooking",
+     "IN:LIKE_MUSIC",
+     "IN:GET_RECIPES",
+     "IN:GET_TIMER",
+     "IN:CREATE_PLAYLIST_MUSIC",
+     "IN:PAUSE_MUSIC",
+     "IN:SET_DEFAULT_PROVIDER_CALLING",
+     "IN:SWITCH_CALL",
+     "IN:SET_UNAVAILABLE",
+     "IN:GET_EDUCATION_DEGREE",
+     "IN:GET_MAJOR",
+     "IN:GET_TRACK_INFO_MUSIC",
+     "IN:GET_ATTENDEE_EVENT",
+     "IN:UPDATE_METHOD_CALL",
+     "IN:GET_AVAILABILITY",
+     "IN:GET_EMPLOYMENT_TIME",
+     "IN:GET_REMINDER_DATE_TIME",
+     "IN:CREATE_REMINDER",
+     "IN:SKIP_TRACK_MUSIC",
+     "IN:GET_AGE",
+     "IN:GET_LIFE_EVENT",
+     "IN:STOP_SHUFFLE_MUSIC",
+     "IN:GET_CALL",
+     "IN:MERGE_CALL",
+     "IN:DELETE_ALARM",
+     "IN:UNLOOP_MUSIC",
+     "IN:SET_DEFAULT_PROVIDER_MUSIC",
+     "IN:RESUME_CALL",
+     "IN:CREATE_CALL",
+     "IN:GET_CALL_TIME",
+     "IN:GET_CONTACT_METHOD",
+     "IN:GET_UNDERGRAD",
+     "IN:GET_GENDER",
+     "IN:SHARE_EVENT",
+     "IN:RESTART_TIMER",
+     "IN:SET_RSVP_INTERESTED",
+     "IN:QUESTION_NEWS",
+     "IN:GET_DETAILS_NEWS",
+     "IN:ADD_TIME_TIMER",
+     "IN:GET_MESSAGE_CONTACT",
+     "IN:ANSWER_CALL",
+     "IN:SET_AVAILABLE",
+     "IN:UPDATE_REMINDER_LOCATION",
+     "IN:REMOVE_FROM_PLAYLIST_MUSIC",
+     "IN:PLAY_MEDIA",
+     "IN:HOLD_CALL",
+     "IN:GET_STORIES_NEWS",
+     "IN:GET_EVENT",
+     "IN:FOLLOW_MUSIC",
+     "IN:GET_AIRQUALITY",
+     "IN:CANCEL_CALL",
+     "IN:GET_REMINDER_AMOUNT",
+     "IN:GET_WEATHER",
+     "IN:UPDATE_REMINDER_DATE_TIME",
+     "IN:CANCEL_MESSAGE",
+     "IN:IS_TRUE_RECIPES",
+     "IN:GET_GROUP",
+     "IN:PAUSE_TIMER",
+     "IN:DISPREFER",
+     "IN:CREATE_TIMER",
+     "option_9",
+     "option_10",
+     "option_11",
+     "option_12",
+     "option_13",
+     "option_14",
+     "option_15",
+     "mixed",
+     "SearchHotel",
+     "MakePayment",
+     "RequestPayment",
+     "GetTimesForMovie",
+     "BuyMovieTickets",
+     "FindRestaurants",
+     "SearchHouse",
+     "SearchOnewayFlight",
+     "LookupMusic",
+     "AddAlarm",
+     "GetWeather",
+     "GetRide",
+     "ShareLocation",
+     "teacher",
+     "supervisor",
+     "clerk",
+     "lawyer",
+     "baker",
+     "carpenter",
+     "developer",
+     "auditor"
+    ],
+    "corpus_digest": "fnv1a64-e5cf849bd33ea8e1",
+    "cases_digest": "fnv1a64-46281107df052d0e",
+    "source_run": {
+     "git_sha": "d009604",
+     "date_utc": "2026-10-03T08:35:02Z"
+    }
+   },
+   "hybrid": {
+    "lane": "Instinct",
+    "model": "A0",
+    "hard": {
+     "n": 4329,
+     "accuracy": 0.22961422961422961,
+     "ece": 0.20603674965280053,
+     "mean_confidence": 0.021036477420426566,
+     "acc_at_50_coverage": 0.17236598890942698
+    },
+    "consult_rate": 0.0,
+    "latency_scope": "seat+arm",
+    "latency_rows": "questions",
+    "serves": "A0",
+    "gate": "served by the reflex half \u2014 the best measured arm on this suite",
+    "source_run": {
+     "git_sha": "b6425bf",
+     "date_utc": "2026-10-03T09:03:51Z"
+    }
+   },
+   "extra_host_lanes": {
+    "4090-win": {
+     "modelless": {
+      "lane": "KatGPT",
+      "model": "modelless",
+      "hard": {
+       "n": 4329,
+       "accuracy": 0.22961422961422961,
+       "macro_f1": 0.05728477985464882,
+       "ece": 0.043681576005988834,
+       "brier": 0.7720725868744388,
+       "nll": 1.8430021862719967,
+       "aurc": 0.6642965880999749,
+       "mean_confidence": 0.2444685912265303,
+       "acc_at_50_coverage": 0.3202402957486137,
+       "acc_at_80_coverage": 0.2682645105399942
+      },
+      "readout_ece": 0.2060367496941066,
+      "raw_abstain": {
+       "abstain_rate": 0.7803187803187803,
+       "selective_accuracy": 0.138801261829653,
+       "selective_n": 951
+      },
+      "calibrated_abstain": {
+       "abstain_rate": 0.7803187803187803,
+       "selective_accuracy": 0.138801261829653,
+       "selective_n": 951
+      },
+      "abstain_causes": {
+       "score_gate": 2686,
+       "distance_gate": 692,
+       "grammar_invalid": 0
+      },
+      "readout_ece_raw": 0.2060367496941066,
+      "readout_ece_calibrated": 0.2060367496941066,
+      "floor_ece": 0.40613977927410666,
+      "g1_pass": false,
+      "g1_verdict": "fail",
+      "by_question_type": null,
+      "soft_acc": null,
+      "brier_soft": null,
+      "score_mae": null,
+      "within_1": null,
+      "determinism_ok": true,
+      "determinism_n": 10,
+      "n_cases": 4329,
+      "n_questions": 4329,
+      "score_threshold": 0.010039693,
+      "distance_threshold": 0.5756306,
+      "threshold_recommendation": {
+       "posture": {
+        "posture": "percentile",
+        "rho": 0.3
+       },
+       "score": {
+        "threshold": 0.010039693,
+        "status": "fitted",
+        "targetAccuracy": 0.15,
+        "support": {
+         "n": 200,
+         "nPass": 140,
+         "nAbstain": 60
+        }
+       },
+       "distance": {
+        "threshold": 0.5756306,
+        "status": "fitted",
+        "targetAccuracy": 0.16428572,
+        "support": {
+         "n": 200,
+         "nPass": 140,
+         "nAbstain": 60
+        }
+       }
+      },
+      "corpus_cap": {
+       "effective": 16,
+       "source": "registry",
+       "selection": null
+      },
+      "head_selection": null,
+      "nb_selection": null,
+      "oc_selection": null,
+      "ridge_selection": null,
+      "genome_selection": null,
+      "transductive": null,
+      "confusion": [
+       {
+        "gold": "not_mentioned",
+        "pred": "contradiction",
+        "count": 312,
+        "share_of_errors": 0.09355322338830585
+       },
+       {
+        "gold": "entailment",
+        "pred": "contradiction",
+        "count": 257,
+        "share_of_errors": 0.07706146926536732
+       },
+       {
+        "gold": "not_mentioned",
+        "pred": "entailment",
+        "count": 108,
+        "share_of_errors": 0.032383808095952024
+       },
+       {
+        "gold": "entailment",
+        "pred": "neutral",
+        "count": 80,
+        "share_of_errors": 0.0239880059970015
+       },
+       {
+        "gold": "contradiction",
+        "pred": "entailment",
+        "count": 61,
+        "share_of_errors": 0.018290854572713643
+       },
+       {
+        "gold": "contradiction",
+        "pred": "neutral",
+        "count": 53,
+        "share_of_errors": 0.015892053973013492
+       },
+       {
+        "gold": "option_1",
+        "pred": "option_0",
+        "count": 53,
+        "share_of_errors": 0.015892053973013492
+       },
+       {
+        "gold": "neutral",
+        "pred": "entailment",
+        "count": 46,
+        "share_of_errors": 0.013793103448275862
+       },
+       {
+        "gold": "option_2",
+        "pred": "option_3",
+        "count": 26,
+        "share_of_errors": 0.007796101949025487
+       },
+       {
+        "gold": "A",
+        "pred": "B",
+        "count": 25,
+        "share_of_errors": 0.0074962518740629685
+       },
+       {
+        "gold": "2",
+        "pred": "3",
+        "count": 24,
+        "share_of_errors": 0.00719640179910045
+       },
+       {
+        "gold": "option_0",
+        "pred": "option_1",
+        "count": 22,
+        "share_of_errors": 0.006596701649175412
+       }
+      ],
+      "pair_head_ab": null,
+      "jdi_chance": 0.23331023331023332,
+      "jdi_skill": 0.0,
+      "readout_report": {
+       "best_on_cal": "max_prob",
+       "candidates": [
+        {
+         "mode": "dispatch",
+         "cal_ece": 0.13536291792988778
+        },
+        {
+         "mode": "max_prob",
+         "cal_ece": 0.09499485112726685
+        },
+        {
+         "mode": "inv_entropy",
+         "cal_ece": 0.15231328934431076
+        }
+       ]
+      },
+      "corpus_fallbacks": [
+       "getting_spare_card",
+       "verify_my_identity",
+       "virtual_card_not_working",
+       "disposable_card_limits",
+       "reverted_card_payment?",
+       "pending_cash_withdrawal",
+       "get_physical_card",
+       "lost_or_stolen_card",
+       "top_up_by_card_charge",
+       "extra_charge_on_statement",
+       "automatic_top_up",
+       "get_disposable_virtual_card",
+       "transfer_not_received_by_recipient",
+       "request_refund",
+       "pending_card_payment",
+       "declined_transfer",
+       "age_limit",
+       "card_payment_fee_charged",
+       "verify_source_of_funds",
+       "declined_card_payment",
+       "card_payment_wrong_exchange_rate",
+       "wrong_amount_of_cash_received",
+       "atm_support",
+       "transaction_charged_twice",
+       "wrong_exchange_rate_for_cash_withdrawal",
+       "supported_cards_and_currencies",
+       "balance_not_updated_after_bank_transfer",
+       "card_swallowed",
+       "failed_transfer",
+       "cancel_transfer",
+       "direct_debit_payment_not_recognised",
+       "top_up_limits",
+       "exchange_via_app",
+       "passcode_forgotten",
+       "top_up_by_cash_or_cheque",
+       "top_up_by_bank_transfer_charge",
+       "beneficiary_not_allowed",
+       "compromised_card",
+       "unable_to_verify_identity",
+       "card_not_working",
+       "exchange_rate",
+       "card_payment_not_recognised",
+       "transfer_into_account",
+       "cash_withdrawal_charge",
+       "card_arrival",
+       "card_acceptance",
+       "activate_my_card",
+       "transfer_timing",
+       "terminate_account",
+       "topping_up_by_card",
+       "cash_withdrawal_not_recognised",
+       "getting_virtual_card",
+       "country_support",
+       "Refund_not_showing_up",
+       "balance_not_updated_after_cheque_or_cash_deposit",
+       "change_pin",
+       "pending_transfer",
+       "edit_personal_details",
+       "verify_top_up",
+       "pending_top_up",
+       "why_verify_identity",
+       "card_about_to_expire",
+       "exchange_charge",
+       "transfer_fee_charged",
+       "top_up_failed",
+       "fiat_currency_support",
+       "card_delivery_estimate",
+       "rewards_balance",
+       "translate",
+       "cancel",
+       "maybe",
+       "restaurant_reviews",
+       "repeat",
+       "todo_list",
+       "flight_status",
+       "last_maintenance",
+       "pto_balance",
+       "directions",
+       "restaurant_reservation",
+       "confirm_reservation",
+       "order_status",
+       "tell_joke",
+       "oos",
+       "calculator",
+       "gas_type",
+       "travel_suggestion",
+       "share_location",
+       "shopping_list",
+       "change_language",
+       "timezone",
+       "yes",
+       "book_flight",
+       "payday",
+       "no",
+       "meeting_schedule",
+       "do_you_have_pets",
+       "order",
+       "credit_limit_change",
+       "recipe",
+       "calendar_update",
+       "improve_credit_score",
+       "pin_change",
+       "update_playlist",
+       "cancel_reservation",
+       "date",
+       "measurement_conversion",
+       "definition",
+       "oil_change_how",
+       "whisper_mode",
+       "flip_coin",
+       "find_phone",
+       "todo_list_update",
+       "redeem_rewards",
+       "change_user_name",
+       "change_ai_name",
+       "min_payment",
+       "spelling",
+       "how_busy",
+       "change_accent",
+       "schedule_meeting",
+       "food_last",
+       "international_fees",
+       "book_hotel",
+       "where_are_you_from",
+       "change_volume",
+       "are_you_a_bot",
+       "tire_change",
+       "ingredients_list",
+       "current_location",
+       "goodbye",
+       "insurance_change",
+       "w2",
+       "pto_used",
+       "new_card",
+       "traffic",
+       "balance",
+       "fun_fact",
+       "ingredient_substitution",
+       "transfer",
+       "freeze_account",
+       "schedule_maintenance",
+       "thank_you",
+       "what_is_your_name",
+       "gas",
+       "vaccines",
+       "accept_reservations",
+       "transactions",
+       "cook_time",
+       "distance",
+       "routing",
+       "report_lost_card",
+       "next_song",
+       "carry_on",
+       "what_song",
+       "travel_notification",
+       "apr",
+       "nutrition_info",
+       "who_made_you",
+       "next_holiday",
+       "bill_balance",
+       "reminder_update",
+       "how_old_are_you",
+       "mpg",
+       "rollover_401k",
+       "account_blocked",
+       "plug_type",
+       "card_declined",
+       "smart_home",
+       "meal_suggestion",
+       "direct_deposit",
+       "sync_device",
+       "pay_bill",
+       "uber",
+       "pto_request_status",
+       "taxes",
+       "order_checks",
+       "greeting",
+       "income",
+       "spending_history",
+       "calories",
+       "reset_settings",
+       "expiration_date",
+       "tire_pressure",
+       "meaning_of_life",
+       "make_call",
+       "insurance",
+       "restaurant_suggestion",
+       "interest_rate",
+       "credit_limit",
+       "bill_due",
+       "who_do_you_work_for",
+       "report_fraud",
+       "roll_dice",
+       "change_speed",
+       "damaged_card",
+       "shopping_list_update",
+       "what_are_your_hobbies",
+       "lost_luggage",
+       "oil_change_when",
+       "text",
+       "travel_alert",
+       "car_rental",
+       "international_visa",
+       "application_status",
+       "jump_start",
+       "credit_score",
+       "what_can_i_ask_you",
+       "replacement_card_duration",
+       "pto_request",
+       "national_id",
+       "company_name",
+       "account_number",
+       "password",
+       "url",
+       "-47",
+       "-4",
+       "14",
+       "34",
+       "24",
+       "5760",
+       "5756",
+       "5750",
+       "5765",
+       "33",
+       "-2",
+       "8",
+       "12",
+       "29",
+       "16",
+       "52",
+       "-5",
+       "17",
+       "72",
+       "80",
+       "78",
+       "103",
+       "98",
+       "48",
+       "200",
+       "150",
+       "180",
+       "196",
+       "64",
+       "114",
+       "59",
+       "84",
+       "38",
+       "63",
+       "43",
+       "32",
+       "21",
+       "20",
+       "-18",
+       "27",
+       "149",
+       "197",
+       "172",
+       "147",
+       "88",
+       "93",
+       "-1",
+       "-3",
+       "350",
+       "397",
+       "400",
+       "375",
+       "248",
+       "254",
+       "255",
+       "251",
+       "6580",
+       "6598",
+       "6600",
+       "6593",
+       "293",
+       "305",
+       "288",
+       "13997",
+       "14000",
+       "13993",
+       "14007",
+       "-33",
+       "475",
+       "504",
+       "501",
+       "500",
+       "11",
+       "40",
+       "90",
+       "70",
+       "89",
+       "1198",
+       "1194",
+       "1202",
+       "1173",
+       "297",
+       "310",
+       "-15",
+       "-10",
+       "71",
+       "121",
+       "-21",
+       "36",
+       "122",
+       "128",
+       "125",
+       "190",
+       "207",
+       "47",
+       "39",
+       "92",
+       "130",
+       "76",
+       "195",
+       "41",
+       "46",
+       "283",
+       "273",
+       "44",
+       "18",
+       "-8",
+       "62",
+       "5",
+       "55",
+       "play game",
+       "iot coffee",
+       "transport traffic",
+       "calendar query",
+       "qa factoid",
+       "play audiobook",
+       "iot cleaning",
+       "alarm remove",
+       "general negate",
+       "recommendation events",
+       "alarm set",
+       "play podcasts",
+       "transport query",
+       "general commandstop",
+       "iot wemo off",
+       "music settings",
+       "general explain",
+       "lists query",
+       "general joke",
+       "iot hue lightup",
+       "email query",
+       "takeaway query",
+       "play radio",
+       "lists remove",
+       "music query",
+       "recommendation movies",
+       "close_no_action",
+       "delivery",
+       "stop",
+       "harmful",
+       "qa_stock",
+       "recommendation_movies",
+       "audio_volume_up",
+       "play_audiobook",
+       "recommendation_locations",
+       "cooking_recipe",
+       "datetime_convert",
+       "cooking_query",
+       "qa_currency",
+       "weather_query",
+       "music_query",
+       "iot_hue_lightdim",
+       "iot_hue_lightup",
+       "qa_definition",
+       "audio_volume_down",
+       "general_greet",
+       "iot_hue_lightoff",
+       "alarm_set",
+       "general_quirky",
+       "play_podcasts",
+       "email_addcontact",
+       "cooking",
+       "IN:LIKE_MUSIC",
+       "IN:GET_RECIPES",
+       "IN:GET_TIMER",
+       "IN:CREATE_PLAYLIST_MUSIC",
+       "IN:PAUSE_MUSIC",
+       "IN:SET_DEFAULT_PROVIDER_CALLING",
+       "IN:SWITCH_CALL",
+       "IN:SET_UNAVAILABLE",
+       "IN:GET_EDUCATION_DEGREE",
+       "IN:GET_MAJOR",
+       "IN:GET_TRACK_INFO_MUSIC",
+       "IN:GET_ATTENDEE_EVENT",
+       "IN:UPDATE_METHOD_CALL",
+       "IN:GET_AVAILABILITY",
+       "IN:GET_EMPLOYMENT_TIME",
+       "IN:GET_REMINDER_DATE_TIME",
+       "IN:CREATE_REMINDER",
+       "IN:SKIP_TRACK_MUSIC",
+       "IN:GET_AGE",
+       "IN:GET_LIFE_EVENT",
+       "IN:STOP_SHUFFLE_MUSIC",
+       "IN:GET_CALL",
+       "IN:MERGE_CALL",
+       "IN:DELETE_ALARM",
+       "IN:UNLOOP_MUSIC",
+       "IN:SET_DEFAULT_PROVIDER_MUSIC",
+       "IN:RESUME_CALL",
+       "IN:CREATE_CALL",
+       "IN:GET_CALL_TIME",
+       "IN:GET_CONTACT_METHOD",
+       "IN:GET_UNDERGRAD",
+       "IN:GET_GENDER",
+       "IN:SHARE_EVENT",
+       "IN:RESTART_TIMER",
+       "IN:SET_RSVP_INTERESTED",
+       "IN:QUESTION_NEWS",
+       "IN:GET_DETAILS_NEWS",
+       "IN:ADD_TIME_TIMER",
+       "IN:GET_MESSAGE_CONTACT",
+       "IN:ANSWER_CALL",
+       "IN:SET_AVAILABLE",
+       "IN:UPDATE_REMINDER_LOCATION",
+       "IN:REMOVE_FROM_PLAYLIST_MUSIC",
+       "IN:PLAY_MEDIA",
+       "IN:HOLD_CALL",
+       "IN:GET_STORIES_NEWS",
+       "IN:GET_EVENT",
+       "IN:FOLLOW_MUSIC",
+       "IN:GET_AIRQUALITY",
+       "IN:CANCEL_CALL",
+       "IN:GET_REMINDER_AMOUNT",
+       "IN:GET_WEATHER",
+       "IN:UPDATE_REMINDER_DATE_TIME",
+       "IN:CANCEL_MESSAGE",
+       "IN:IS_TRUE_RECIPES",
+       "IN:GET_GROUP",
+       "IN:PAUSE_TIMER",
+       "IN:DISPREFER",
+       "IN:CREATE_TIMER",
+       "option_9",
+       "option_10",
+       "option_11",
+       "option_12",
+       "option_13",
+       "option_14",
+       "option_15",
+       "mixed",
+       "SearchHotel",
+       "MakePayment",
+       "RequestPayment",
+       "GetTimesForMovie",
+       "BuyMovieTickets",
+       "FindRestaurants",
+       "SearchHouse",
+       "SearchOnewayFlight",
+       "LookupMusic",
+       "AddAlarm",
+       "GetWeather",
+       "GetRide",
+       "ShareLocation",
+       "teacher",
+       "supervisor",
+       "clerk",
+       "lawyer",
+       "baker",
+       "carpenter",
+       "developer",
+       "auditor"
+      ],
+      "corpus_digest": "fnv1a64-e5cf849bd33ea8e1",
+      "cases_digest": "fnv1a64-46281107df052d0e",
+      "source_run": {
+       "git_sha": "3cad008",
+       "date_utc": "2026-10-02T20:23:08Z"
+      }
+     }
+    }
+   },
+   "encoder": {
+    "lane": "Rethink",
+    "model": "A0",
+    "hard": {
+     "n": 4329,
+     "accuracy": 0.22961422961422961,
+     "ece": 0.20603674965280053,
+     "mean_confidence": 0.021036477420426566,
+     "acc_at_50_coverage": 0.17236598890942698
+    },
+    "latency_scope": "seat+arm",
+    "latency_rows": "questions",
+    "latency_p50_ms": null,
+    "latency_p99_ms": null,
+    "latency_tail_support": null,
+    "serves": "tier-fallback",
+    "served_by": "Instinct (A0)",
+    "fallback_note": "no seated arm for this lane on this suite \u2014 the served answer is the tier shown (the full-coverage serving law, instinct 057d31a)",
+    "derived": true,
+    "source_run": {
+     "git_sha": "b6425bf",
+     "date_utc": "2026-10-03T09:03:51Z"
+    }
+   }
+  },
+  {
+   "name": "s1mb_noul",
+   "n_questions": 6173,
+   "n_cases": 6173,
+   "modelless": {
+    "lane": "KatGPT",
+    "model": "modelless",
+    "hard": {
+     "n": 6173,
+     "accuracy": 0.7054916572169123,
+     "macro_f1": 0.42913836905658626,
+     "ece": 0.20416973503486036,
+     "brier": 0.5001310888121616,
+     "nll": 0.6932784373256037,
+     "aurc": 0.37506022202551853,
+     "mean_confidence": 0.501321922182052,
+     "acc_at_50_coverage": 0.6970187945560596,
+     "acc_at_80_coverage": 0.6871202916160389
+    },
+    "readout_ece": 0.006089712481202825,
+    "raw_abstain": {
+     "abstain_rate": 1.0,
+     "selective_accuracy": 0.0,
+     "selective_n": 0
+    },
+    "calibrated_abstain": {
+     "abstain_rate": 0.4676818402721529,
+     "selective_accuracy": 0.30401704199634816,
+     "selective_n": 3286
+    },
+    "abstain_causes": {
+     "score_gate": 0,
+     "distance_gate": 2887,
+     "grammar_invalid": 0
+    },
+    "readout_ece_raw": 0.10980077466141282,
+    "readout_ece_calibrated": 0.006089712481202825,
+    "floor_ece": 0.06142461191525924,
+    "g1_pass": true,
+    "g1_verdict": "pass",
+    "by_question_type": null,
+    "soft_acc": null,
+    "brier_soft": null,
+    "score_mae": null,
+    "within_1": null,
+    "determinism_ok": true,
+    "determinism_n": 10,
+    "n_cases": 6173,
+    "n_questions": 6173,
+    "score_threshold": 0.45501745,
+    "distance_threshold": 0.6012192,
+    "threshold_recommendation": {
+     "posture": {
+      "posture": "percentile",
+      "rho": 0.3
+     },
+     "score": {
+      "threshold": 0.45501745,
+      "status": "fitted",
+      "targetAccuracy": 0.455,
+      "support": {
+       "n": 200,
+       "nPass": 200,
+       "nAbstain": 0
+      }
+     },
+     "distance": {
+      "threshold": 0.6012192,
+      "status": "fitted",
+      "targetAccuracy": 0.47142857,
+      "support": {
+       "n": 200,
+       "nPass": 140,
+       "nAbstain": 60
+      }
+     }
+    },
+    "corpus_cap": {
+     "effective": 64,
+     "source": "registry",
+     "selection": null
+    },
+    "head_selection": null,
+    "nb_selection": null,
+    "oc_selection": null,
+    "ridge_selection": null,
+    "genome_selection": null,
+    "transductive": null,
+    "confusion": [],
+    "pair_head_ab": null,
+    "jdi_chance": 0.7357848695933906,
+    "jdi_skill": 0.0,
+    "readout_report": {
+     "best_on_cal": "max_prob",
+     "candidates": [
+      {
+       "mode": "dispatch",
+       "cal_ece": 0.11997524559497832
+      },
+      {
+       "mode": "max_prob",
+       "cal_ece": 0.0015637028217315718
+      },
+      {
+       "mode": "inv_entropy",
+       "cal_ece": 0.11997524559497832
+      }
+     ]
+    },
+    "corpus_digest": "fnv1a64-0c8778c6d51742f4",
+    "cases_digest": "fnv1a64-a887ca350a4a8b7c",
+    "source_run": {
+     "git_sha": "d009604",
+     "date_utc": "2026-10-03T08:35:02Z"
+    }
+   },
+   "hybrid": {
+    "lane": "Instinct",
+    "model": "A0",
+    "hard": {
+     "n": 6173,
+     "accuracy": 0.7054916572169123,
+     "ece": 0.10980077466141282,
+     "mean_confidence": 3.2369676834370933e-05,
+     "acc_at_50_coverage": 0.6970187945560596
+    },
+    "consult_rate": 0.0,
+    "latency_scope": "seat+arm",
+    "latency_rows": "questions",
+    "serves": "A0",
+    "gate": "served by the reflex half (A0 is the argmax)",
+    "source_run": {
+     "git_sha": "b6425bf",
+     "date_utc": "2026-10-03T09:03:51Z"
+    }
+   },
+   "extra_host_lanes": {
+    "4090-win": {
+     "modelless": {
+      "lane": "KatGPT",
+      "model": "modelless",
+      "hard": {
+       "n": 6173,
+       "accuracy": 0.7054916572169123,
+       "macro_f1": 0.42913836905658626,
+       "ece": 0.20416973503486036,
+       "brier": 0.5001310888121616,
+       "nll": 0.6932784373256037,
+       "aurc": 0.37506022202551853,
+       "mean_confidence": 0.501321922182052,
+       "acc_at_50_coverage": 0.6970187945560596,
+       "acc_at_80_coverage": 0.6871202916160389
+      },
+      "readout_ece": 0.006089712481202825,
+      "raw_abstain": {
+       "abstain_rate": 1.0,
+       "selective_accuracy": 0.0,
+       "selective_n": 0
+      },
+      "calibrated_abstain": {
+       "abstain_rate": 0.4676818402721529,
+       "selective_accuracy": 0.30401704199634816,
+       "selective_n": 3286
+      },
+      "abstain_causes": {
+       "score_gate": 0,
+       "distance_gate": 2887,
+       "grammar_invalid": 0
+      },
+      "readout_ece_raw": 0.10980077466141282,
+      "readout_ece_calibrated": 0.006089712481202825,
+      "floor_ece": 0.06142461191525924,
+      "g1_pass": true,
+      "g1_verdict": "pass",
+      "by_question_type": null,
+      "soft_acc": null,
+      "brier_soft": null,
+      "score_mae": null,
+      "within_1": null,
+      "determinism_ok": true,
+      "determinism_n": 10,
+      "n_cases": 6173,
+      "n_questions": 6173,
+      "score_threshold": 0.45501745,
+      "distance_threshold": 0.6012192,
+      "threshold_recommendation": {
+       "posture": {
+        "posture": "percentile",
+        "rho": 0.3
+       },
+       "score": {
+        "threshold": 0.45501745,
+        "status": "fitted",
+        "targetAccuracy": 0.455,
+        "support": {
+         "n": 200,
+         "nPass": 200,
+         "nAbstain": 0
+        }
+       },
+       "distance": {
+        "threshold": 0.6012192,
+        "status": "fitted",
+        "targetAccuracy": 0.47142857,
+        "support": {
+         "n": 200,
+         "nPass": 140,
+         "nAbstain": 60
+        }
+       }
+      },
+      "corpus_cap": {
+       "effective": 64,
+       "source": "registry",
+       "selection": null
+      },
+      "head_selection": null,
+      "nb_selection": null,
+      "oc_selection": null,
+      "ridge_selection": null,
+      "genome_selection": null,
+      "transductive": null,
+      "confusion": [],
+      "pair_head_ab": null,
+      "jdi_chance": 0.7357848695933906,
+      "jdi_skill": 0.0,
+      "readout_report": {
+       "best_on_cal": "max_prob",
+       "candidates": [
+        {
+         "mode": "dispatch",
+         "cal_ece": 0.11997524559497832
+        },
+        {
+         "mode": "max_prob",
+         "cal_ece": 0.0015637028217315718
+        },
+        {
+         "mode": "inv_entropy",
+         "cal_ece": 0.11997524559497832
+        }
+       ]
+      },
+      "corpus_digest": "fnv1a64-0c8778c6d51742f4",
+      "cases_digest": "fnv1a64-a887ca350a4a8b7c",
+      "source_run": {
+       "git_sha": "3cad008",
+       "date_utc": "2026-10-02T20:23:08Z"
+      }
+     },
+     "laya": {
+      "english": {
+       "lane": "laya (rust)",
+       "model": "english",
+       "hard": {
+        "n": 6173,
+        "accuracy": 0.6964198930827799,
+        "macro_f1": 0.6277703084304177,
+        "ece": 0.09739886602948292,
+        "brier": 0.405517668958367,
+        "nll": 0.6462810084974737,
+        "aurc": 0.18015165205991684,
+        "mean_confidence": 0.7911902478535553,
+        "acc_at_50_coverage": 0.8204795852235904,
+        "acc_at_80_coverage": 0.7353179424868368
+       },
+       "readout_ece": 0.09739886602948293,
+       "raw_abstain": null,
+       "calibrated_abstain": null,
+       "abstain_causes": null,
+       "readout_ece_raw": null,
+       "readout_ece_calibrated": null,
+       "floor_ece": null,
+       "g1_pass": null,
+       "g1_verdict": null,
+       "by_question_type": null,
+       "soft_acc": null,
+       "brier_soft": null,
+       "score_mae": null,
+       "within_1": null,
+       "latency_p50_ms": 18.0,
+       "latency_p99_ms": 32.0,
+       "latency_tail_support": 62,
+       "latency_extremes": {
+        "first_ms": 17.0,
+        "max_ms": 43.0,
+        "argmax_case": 3626
+       },
+       "determinism_ok": true,
+       "determinism_n": 10,
+       "seconds": 126.8324202,
+       "n_cases": 6173,
+       "n_questions": 6173,
+       "score_threshold": null,
+       "distance_threshold": null,
+       "threshold_recommendation": null,
+       "corpus_cap": null,
+       "head_selection": null,
+       "nb_selection": null,
+       "oc_selection": null,
+       "ridge_selection": null,
+       "genome_selection": null,
+       "transductive": null,
+       "confusion": null,
+       "pair_head_ab": null,
+       "jdi_chance": 0.7357848695933906,
+       "jdi_skill": 0.0,
+       "cases_digest": "fnv1a64-a887ca350a4a8b7c",
+       "latency_quotable": null,
+       "source_run": {
+        "git_sha": "3cad008",
+        "date_utc": "2026-10-02T20:23:08Z"
+       }
+      }
+     }
+    }
+   },
+   "encoder": {
+    "lane": "Rethink",
+    "model": "A0",
+    "hard": {
+     "n": 6173,
+     "accuracy": 0.7054916572169123,
+     "ece": 0.10980077466141282,
+     "mean_confidence": 3.2369676834370933e-05,
+     "acc_at_50_coverage": 0.6970187945560596
+    },
+    "latency_scope": "seat+arm",
+    "latency_rows": "questions",
+    "latency_p50_ms": null,
+    "latency_p99_ms": null,
+    "latency_tail_support": null,
+    "serves": "tier-fallback",
+    "served_by": "Instinct (A0)",
+    "fallback_note": "no seated arm for this lane on this suite \u2014 the served answer is the tier shown (the full-coverage serving law, instinct 057d31a)",
+    "derived": true,
+    "source_run": {
+     "git_sha": "b6425bf",
+     "date_utc": "2026-10-03T09:03:51Z"
+    }
+   }
+  },
+  {
+   "name": "s1mb_score",
+   "n_questions": 2571,
+   "n_cases": 2571,
+   "modelless": {
+    "lane": "KatGPT",
+    "model": "modelless",
+    "hard": {
+     "n": 2571,
+     "accuracy": 0.49669389342668224,
+     "macro_f1": 0.09700252081297644,
+     "ece": 0.2918895636288539,
+     "brier": 0.7940942525693938,
+     "nll": 1.585251007273525,
+     "aurc": 0.580947914748886,
+     "mean_confidence": 0.20631818539701702,
+     "acc_at_50_coverage": 0.45603112840466925,
+     "acc_at_80_coverage": 0.48249027237354086
+    },
+    "readout_ece": 0.2665456929579174,
+    "raw_abstain": {
+     "abstain_rate": 1.0,
+     "selective_accuracy": 0.0,
+     "selective_n": 0
+    },
+    "calibrated_abstain": {
+     "abstain_rate": 0.07701283547257877,
+     "selective_accuracy": 0.5132743362831859,
+     "selective_n": 2373
+    },
+    "abstain_causes": {
+     "score_gate": 0,
+     "distance_gate": 198,
+     "grammar_invalid": 0
+    },
+    "readout_ece_raw": 0.00638683968796335,
+    "readout_ece_calibrated": 0.2665456929579174,
+    "floor_ece": 0.4304924231429053,
+    "g1_pass": false,
+    "g1_verdict": "fail",
+    "by_question_type": null,
+    "soft_acc": null,
+    "brier_soft": null,
+    "score_mae": 1.4454512420669667,
+    "within_1": 0.29015947102294826,
+    "determinism_ok": true,
+    "determinism_n": 10,
+    "n_cases": 2571,
+    "n_questions": 2571,
+    "score_threshold": 0.23013736,
+    "distance_threshold": 0.41533497,
+    "threshold_recommendation": {
+     "posture": {
+      "posture": "percentile",
+      "rho": 0.3
+     },
+     "score": {
+      "threshold": 0.23013736,
+      "status": "fitted",
+      "targetAccuracy": 0.23,
+      "support": {
+       "n": 200,
+       "nPass": 200,
+       "nAbstain": 0
+      }
+     },
+     "distance": {
+      "threshold": 0.41533497,
+      "status": "fitted",
+      "targetAccuracy": 0.27857143,
+      "support": {
+       "n": 200,
+       "nPass": 140,
+       "nAbstain": 60
+      }
+     }
+    },
+    "corpus_cap": {
+     "effective": 16,
+     "source": "registry",
+     "selection": null
+    },
+    "head_selection": null,
+    "nb_selection": null,
+    "oc_selection": null,
+    "ridge_selection": null,
+    "genome_selection": null,
+    "transductive": null,
+    "confusion": [
+     {
+      "gold": "1.0",
+      "pred": "0.0",
+      "count": 509,
+      "share_of_errors": 0.39335394126738793
+     },
+     {
+      "gold": "3.0",
+      "pred": "0.0",
+      "count": 354,
+      "share_of_errors": 0.2735703245749614
+     },
+     {
+      "gold": "2.0",
+      "pred": "0.0",
+      "count": 241,
+      "share_of_errors": 0.18624420401854713
+     },
+     {
+      "gold": "4.0",
+      "pred": "0.0",
+      "count": 135,
+      "share_of_errors": 0.10432766615146831
+     },
+     {
+      "gold": "0.3333333333333333",
+      "pred": "0.0",
+      "count": 12,
+      "share_of_errors": 0.00927357032457496
+     },
+     {
+      "gold": "0.5",
+      "pred": "0.0",
+      "count": 12,
+      "share_of_errors": 0.00927357032457496
+     },
+     {
+      "gold": "0.75",
+      "pred": "0.0",
+      "count": 10,
+      "share_of_errors": 0.0077279752704791345
+     },
+     {
+      "gold": "0.25",
+      "pred": "0.0",
+      "count": 8,
+      "share_of_errors": 0.0061823802163833074
+     },
+     {
+      "gold": "0.6666666666666666",
+      "pred": "0.0",
+      "count": 8,
+      "share_of_errors": 0.0061823802163833074
+     },
+     {
+      "gold": "0.1111111111111111",
+      "pred": "0.4444444444444444",
+      "count": 1,
+      "share_of_errors": 0.0007727975270479134
+     },
+     {
+      "gold": "0.2",
+      "pred": "0.0",
+      "count": 1,
+      "share_of_errors": 0.0007727975270479134
+     },
+     {
+      "gold": "0.4",
+      "pred": "0.0",
+      "count": 1,
+      "share_of_errors": 0.0007727975270479134
+     }
+    ],
+    "pair_head_ab": null,
+    "jdi_chance": 0.4955270322831583,
+    "jdi_skill": 0.0023130300693909285,
+    "readout_report": {
+     "best_on_cal": "dispatch",
+     "candidates": [
+      {
+       "mode": "dispatch",
+       "cal_ece": 0.0006642995774745942
+      },
+      {
+       "mode": "max_prob",
+       "cal_ece": 0.09429798692464829
+      },
+      {
+       "mode": "inv_entropy",
+       "cal_ece": 2.0314157009124756e-05
+      }
+     ]
+    },
+    "corpus_fallbacks": [
+     "5",
+     "6",
+     "7",
+     "8",
+     "9"
+    ],
+    "corpus_digest": "fnv1a64-f5d9f67a1fd69443",
+    "cases_digest": "fnv1a64-81f40d7a9b57e9b6",
+    "source_run": {
+     "git_sha": "d009604",
+     "date_utc": "2026-10-03T08:35:02Z"
+    }
+   },
+   "hybrid": {
+    "lane": "Instinct",
+    "model": "A0",
+    "hard": {
+     "n": 2571,
+     "accuracy": 0.49669389342668224,
+     "ece": 0.00638683968796335,
+     "mean_confidence": 0.0002253734586722004,
+     "acc_at_50_coverage": 0.4217898832684825
+    },
+    "consult_rate": 0.0,
+    "latency_scope": "seat+arm",
+    "latency_rows": "questions",
+    "serves": "A0",
+    "gate": "served by the reflex half \u2014 the best measured arm on this suite",
+    "source_run": {
+     "git_sha": "b6425bf",
+     "date_utc": "2026-10-03T09:03:51Z"
+    }
+   },
+   "extra_host_lanes": {
+    "4090-win": {
+     "modelless": {
+      "lane": "KatGPT",
+      "model": "modelless",
+      "hard": {
+       "n": 2571,
+       "accuracy": 0.49669389342668224,
+       "macro_f1": 0.09700252081297644,
+       "ece": 0.2918895636288539,
+       "brier": 0.7940942525693938,
+       "nll": 1.585251007273525,
+       "aurc": 0.580947914748886,
+       "mean_confidence": 0.20631818539701702,
+       "acc_at_50_coverage": 0.45603112840466925,
+       "acc_at_80_coverage": 0.48249027237354086
+      },
+      "readout_ece": 0.2665456929579174,
+      "raw_abstain": {
+       "abstain_rate": 1.0,
+       "selective_accuracy": 0.0,
+       "selective_n": 0
+      },
+      "calibrated_abstain": {
+       "abstain_rate": 0.07701283547257877,
+       "selective_accuracy": 0.5132743362831859,
+       "selective_n": 2373
+      },
+      "abstain_causes": {
+       "score_gate": 0,
+       "distance_gate": 198,
+       "grammar_invalid": 0
+      },
+      "readout_ece_raw": 0.00638683968796335,
+      "readout_ece_calibrated": 0.2665456929579174,
+      "floor_ece": 0.4304924231429053,
+      "g1_pass": false,
+      "g1_verdict": "fail",
+      "by_question_type": null,
+      "soft_acc": null,
+      "brier_soft": null,
+      "score_mae": 1.4454512420669667,
+      "within_1": 0.29015947102294826,
+      "determinism_ok": true,
+      "determinism_n": 10,
+      "n_cases": 2571,
+      "n_questions": 2571,
+      "score_threshold": 0.23013736,
+      "distance_threshold": 0.41533497,
+      "threshold_recommendation": {
+       "posture": {
+        "posture": "percentile",
+        "rho": 0.3
+       },
+       "score": {
+        "threshold": 0.23013736,
+        "status": "fitted",
+        "targetAccuracy": 0.23,
+        "support": {
+         "n": 200,
+         "nPass": 200,
+         "nAbstain": 0
+        }
+       },
+       "distance": {
+        "threshold": 0.41533497,
+        "status": "fitted",
+        "targetAccuracy": 0.27857143,
+        "support": {
+         "n": 200,
+         "nPass": 140,
+         "nAbstain": 60
+        }
+       }
+      },
+      "corpus_cap": {
+       "effective": 16,
+       "source": "registry",
+       "selection": null
+      },
+      "head_selection": null,
+      "nb_selection": null,
+      "oc_selection": null,
+      "ridge_selection": null,
+      "genome_selection": null,
+      "transductive": null,
+      "confusion": [
+       {
+        "gold": "1.0",
+        "pred": "0.0",
+        "count": 509,
+        "share_of_errors": 0.39335394126738793
+       },
+       {
+        "gold": "3.0",
+        "pred": "0.0",
+        "count": 354,
+        "share_of_errors": 0.2735703245749614
+       },
+       {
+        "gold": "2.0",
+        "pred": "0.0",
+        "count": 241,
+        "share_of_errors": 0.18624420401854713
+       },
+       {
+        "gold": "4.0",
+        "pred": "0.0",
+        "count": 135,
+        "share_of_errors": 0.10432766615146831
+       },
+       {
+        "gold": "0.3333333333333333",
+        "pred": "0.0",
+        "count": 12,
+        "share_of_errors": 0.00927357032457496
+       },
+       {
+        "gold": "0.5",
+        "pred": "0.0",
+        "count": 12,
+        "share_of_errors": 0.00927357032457496
+       },
+       {
+        "gold": "0.75",
+        "pred": "0.0",
+        "count": 10,
+        "share_of_errors": 0.0077279752704791345
+       },
+       {
+        "gold": "0.25",
+        "pred": "0.0",
+        "count": 8,
+        "share_of_errors": 0.0061823802163833074
+       },
+       {
+        "gold": "0.6666666666666666",
+        "pred": "0.0",
+        "count": 8,
+        "share_of_errors": 0.0061823802163833074
+       },
+       {
+        "gold": "0.1111111111111111",
+        "pred": "0.4444444444444444",
+        "count": 1,
+        "share_of_errors": 0.0007727975270479134
+       },
+       {
+        "gold": "0.2",
+        "pred": "0.0",
+        "count": 1,
+        "share_of_errors": 0.0007727975270479134
+       },
+       {
+        "gold": "0.4",
+        "pred": "0.0",
+        "count": 1,
+        "share_of_errors": 0.0007727975270479134
+       }
+      ],
+      "pair_head_ab": null,
+      "jdi_chance": 0.4955270322831583,
+      "jdi_skill": 0.0023130300693909285,
+      "readout_report": {
+       "best_on_cal": "dispatch",
+       "candidates": [
+        {
+         "mode": "dispatch",
+         "cal_ece": 0.0006642995774745942
+        },
+        {
+         "mode": "max_prob",
+         "cal_ece": 0.09429798692464829
+        },
+        {
+         "mode": "inv_entropy",
+         "cal_ece": 2.0314157009124756e-05
+        }
+       ]
+      },
+      "corpus_fallbacks": [
+       "5",
+       "6",
+       "7",
+       "8",
+       "9"
+      ],
+      "corpus_digest": "fnv1a64-f5d9f67a1fd69443",
+      "cases_digest": "fnv1a64-81f40d7a9b57e9b6",
+      "source_run": {
+       "git_sha": "3cad008",
+       "date_utc": "2026-10-02T20:23:08Z"
+      }
+     },
+     "laya": {
+      "english": {
+       "lane": "laya (rust)",
+       "model": "english",
+       "hard": {
+        "n": 2571,
+        "accuracy": 0.2590431738623104,
+        "macro_f1": 0.12722887517853823,
+        "ece": 0.18714566316608316,
+        "brier": 0.8355351283547244,
+        "nll": 1.7237879218114467,
+        "aurc": 0.6122756154382043,
+        "mean_confidence": 0.44618883702839446,
+        "acc_at_50_coverage": 0.3478599221789883,
+        "acc_at_80_coverage": 0.28745136186770426
+       },
+       "readout_ece": 0.07684850252819911,
+       "raw_abstain": null,
+       "calibrated_abstain": null,
+       "abstain_causes": null,
+       "readout_ece_raw": null,
+       "readout_ece_calibrated": null,
+       "floor_ece": null,
+       "g1_pass": null,
+       "g1_verdict": null,
+       "by_question_type": null,
+       "soft_acc": null,
+       "brier_soft": null,
+       "score_mae": null,
+       "within_1": null,
+       "latency_p50_ms": 24.0,
+       "latency_p99_ms": 31.0,
+       "latency_tail_support": 26,
+       "latency_extremes": {
+        "first_ms": 23.0,
+        "max_ms": 33.0,
+        "argmax_case": 2024
+       },
+       "determinism_ok": true,
+       "determinism_n": 10,
+       "seconds": 65.2643958,
+       "n_cases": 2571,
+       "n_questions": 2571,
+       "score_threshold": null,
+       "distance_threshold": null,
+       "threshold_recommendation": null,
+       "corpus_cap": null,
+       "head_selection": null,
+       "nb_selection": null,
+       "oc_selection": null,
+       "ridge_selection": null,
+       "genome_selection": null,
+       "transductive": null,
+       "confusion": null,
+       "pair_head_ab": null,
+       "jdi_chance": 0.4955270322831583,
+       "jdi_skill": 0.0,
+       "cases_digest": "fnv1a64-81f40d7a9b57e9b6",
+       "latency_quotable": null,
+       "source_run": {
+        "git_sha": "3cad008",
+        "date_utc": "2026-10-02T20:23:08Z"
+       }
+      }
+     }
+    }
+   },
+   "encoder": {
+    "lane": "Rethink",
+    "model": "A0",
+    "hard": {
+     "n": 2571,
+     "accuracy": 0.49669389342668224,
+     "ece": 0.00638683968796335,
+     "mean_confidence": 0.0002253734586722004,
+     "acc_at_50_coverage": 0.4217898832684825
+    },
+    "latency_scope": "seat+arm",
+    "latency_rows": "questions",
+    "latency_p50_ms": null,
+    "latency_p99_ms": null,
+    "latency_tail_support": null,
+    "serves": "tier-fallback",
+    "served_by": "Instinct (A0)",
+    "fallback_note": "no seated arm for this lane on this suite \u2014 the served answer is the tier shown (the full-coverage serving law, instinct 057d31a)",
+    "derived": true,
+    "source_run": {
+     "git_sha": "b6425bf",
+     "date_utc": "2026-10-03T09:03:51Z"
+    }
+   }
   }
  ],
  "areas": {
@@ -13596,5 +15795,124 @@
    }
   },
   "scope": "primary-host rows; a lane the primary host never ran rolls up from its serving host under a host-tagged lane key (clm@4090-win); a product lane's fallback spokes roll up from the answering tier (marked fallback, drawn as triangles \u2014 coverage stays the lane's own measured count)"
+ },
+ "s1mb": {
+  "version": 1,
+  "suites": [
+   "s1mb_noul",
+   "s1mb_score",
+   "s1mb_choice"
+  ],
+  "lanes": [
+   {
+    "key": "modelless",
+    "display": "Reflex",
+    "model": "the modelless engine (count tables + sigmoid calibration)",
+    "note": "the free floor \u2014 runs in the browser tab",
+    "cells": {
+     "s1mb_noul": {
+      "n": 6173,
+      "acc": 0.7055
+     },
+     "s1mb_score": {
+      "n": 2571,
+      "acc": 0.4967
+     },
+     "s1mb_choice": {
+      "n": 4329,
+      "acc": 0.2296
+     }
+    },
+    "avg": 0.4773,
+    "coverage": {
+     "suites": 3,
+     "of": 3
+    }
+   },
+   {
+    "key": "hybrid",
+    "display": "Instinct",
+    "model": "the served hybrid arm over the same seat",
+    "note": "the served arm is the modelless half (A0) on every s1mb suite today \u2014 no specialist arm cleared its certification gate, so the lane's cells are the A0 reads (shown, labeled, per the show-losses law)",
+    "cells": {
+     "s1mb_noul": {
+      "n": 6173,
+      "acc": 0.7055,
+      "serves": "A0"
+     },
+     "s1mb_score": {
+      "n": 2571,
+      "acc": 0.4967,
+      "serves": "A0"
+     },
+     "s1mb_choice": {
+      "n": 4329,
+      "acc": 0.2296,
+      "serves": "A0"
+     }
+    },
+    "avg": 0.4773,
+    "coverage": {
+     "suites": 3,
+     "of": 3
+    }
+   },
+   {
+    "key": "laya",
+    "display": "laya (rust)",
+    "model": "the zero-shot encoder lane (english checkpoint, round-1 breadth)",
+    "note": "the encoder family's measured zero-shot reading on this benchmark \u2014 the s1mb suites route the english checkpoint, measured on the GPU serving host; the encoder head budget refuses the pick-an-answer suite's option list (it runs to hundreds of rendered options per question), so that cell is an honest gap, not a zero",
+    "cells": {
+     "s1mb_noul": {
+      "n": 6173,
+      "acc": 0.6964
+     },
+     "s1mb_score": {
+      "n": 2571,
+      "acc": 0.259
+     }
+    },
+    "avg": 0.4777,
+    "coverage": {
+     "suites": 2,
+     "of": 3
+    },
+    "gap_suites": [
+     "s1mb_choice"
+    ]
+   },
+   {
+    "key": "encoder",
+    "display": "Rethink",
+    "model": "trained per-option encoder head",
+    "cells": {
+     "s1mb_noul": {
+      "n": 6173,
+      "acc": 0.7055,
+      "serves": "tier-fallback",
+      "fallback": true
+     },
+     "s1mb_score": {
+      "n": 2571,
+      "acc": 0.4967,
+      "serves": "tier-fallback",
+      "fallback": true
+     },
+     "s1mb_choice": {
+      "n": 4329,
+      "acc": 0.2296,
+      "serves": "tier-fallback",
+      "fallback": true
+     }
+    },
+    "avg": null,
+    "coverage": {
+     "suites": 0,
+     "of": 3
+    },
+    "note": "no trained head has passed its earn gate on these suites yet, so the lane serves the answering tier (shown above as the served-by reading) \u2014 the gap is the disclosure, never a padded number"
+   }
+  ],
+  "disclosure": "forced-pick accuracy on our own 50/50 corpus/test split of the benchmark (every lane reads the same halves) \u2014 NOT comparable to the benchmark's own leaderboard, whose skill score is a different scale we do not publish. avg is the unweighted mean over the three suite accuracies. A missing cell is a disclosed gap, never a zero."
  }
 }
