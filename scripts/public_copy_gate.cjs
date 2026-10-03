@@ -51,7 +51,6 @@ const FAQ_FIGURE_ALLOW = new Map([
 // next release is re-captured; an id in ordinary copy is never allowed, and a
 // row no capture carries any more reds (the recapture forces its removal).
 const WIRE_ID_ALLOW = new Map([
-  ["Bench 881", "reflex 0.2.3's Tetris-head routing.reason; dropped at the source (riir-reflex 193e462) — re-capture after the next release, then delete this row"],
 ]);
 const wireIdSeen = new Set();
 

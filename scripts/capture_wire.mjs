@@ -12,9 +12,18 @@
 // `reflex` on :7331 is never touched. Asserts the posture each example is
 // captioned with (answered / abstained / error status) — a release that
 // changes it fails here instead of shipping a wrong caption.
+//
+// Since v0.2.4 the game heads are MINT-ONLY (the boot fit retired), so this
+// script mints throwaway demo heads first — the demo heads are public BY
+// DESIGN (arsenal A10) and the mint is deterministic — and boots the engine
+// on them; the home page's caption names the mint step. A second engine
+// boots on the vendored sample corpus (`first-corpus/`, the walkthrough's
+// download) for the `corpus_answered` / `corpus_off` cases (riir-reflex
+// Issue 063's serve lane).
 import { spawn, execFileSync } from "node:child_process";
 import { createServer, connect } from "node:net";
-import { writeFileSync } from "node:fs";
+import { writeFileSync, mkdtempSync, rmSync } from "node:fs";
+import os from "node:os";
 import path from "node:path";
 
 const ROOT = path.resolve(import.meta.dirname, "..");
@@ -35,6 +44,27 @@ if (!version) fail(`unrecognised --version line ${JSON.stringify(verLine)}`);
 if (/STALE/.test(stamp)) fail(`build stamp is STALE — not the shipped binary:\n${stamp}`);
 const features = rest.find((l) => l.startsWith("compiled features:"))?.slice(18).trim() ?? "";
 
+// ── the demo heads (mint-only since v0.2.4) ───────────────────────────────
+// The mint is deterministic (same fixtures + key → byte-identical vessels)
+// and the demo heads are public BY DESIGN — this throwaway key anchors
+// nothing but this capture. The engine refuses to serve vessels without a
+// trust anchor, so the verifying key rides the boot env.
+const tmp = mkdtempSync(path.join(os.tmpdir(), "reflex-wire-"));
+process.on("exit", () => rmSync(tmp, { recursive: true, force: true }));
+const CAPTURE_KEY = "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f";
+const headsDir = path.join(tmp, "heads");
+// The fixtures live in the engine repo (the workstation convention keeps the
+// sibling checkout beside this one); mint-heads resolves them relative to CWD.
+const { existsSync } = await import("node:fs");
+const FIXTURES = path.join(ROOT, "..", "riir-reflex", "assets", "game_heads");
+if (!existsSync(path.join(FIXTURES, "tetris_oracle_laya_en_v3.jsonl"))) {
+  fail(`the engine fixtures are not at ${FIXTURES} — clone gist-rs/riir-reflex beside this checkout (the mint needs assets/game_heads)`);
+}
+const mint = JSON.parse(
+  execFileSync(ENGINE, ["mint-heads", "--out", headsDir, "--fixtures", FIXTURES, "--key-id", "42", `--key=${CAPTURE_KEY}`], { encoding: "utf8" }).split("\n").filter((l) => l.startsWith("{")).pop(),
+);
+const HEADS_PUBKEY = mint.verifying_key;
+
 // ── a free loopback port ───────────────────────────────────────────────────
 const port = await new Promise((res, rej) => {
   const s = createServer();
@@ -46,7 +76,14 @@ const port = await new Promise((res, rej) => {
 });
 const BASE = `http://127.0.0.1:${port}`;
 const child = spawn(ENGINE, [], {
-  env: { ...process.env, RIIR_REFLEX_BIND: `127.0.0.1:${port}`, RIIR_REFLEX_ALLOWED_ORIGIN: "", RIIR_REFLEX_LAYA: "" },
+  env: {
+    ...process.env,
+    RIIR_REFLEX_BIND: `127.0.0.1:${port}`,
+    RIIR_REFLEX_ALLOWED_ORIGIN: "",
+    RIIR_REFLEX_LAYA: "",
+    RIIR_REFLEX_HEADS_DIR: headsDir,
+    RIIR_REFLEX_HEADS_PUBKEY: HEADS_PUBKEY,
+  },
   stdio: ["ignore", "ignore", "pipe"],
 });
 let log = "";
@@ -205,6 +242,77 @@ for (const c of CASES) {
   };
 }
 
+// ── the corpus posture (riir-reflex Issue 063's serve lane) ──────────────────
+// A second engine boots on the vendored sample corpus (the walkthrough's
+// download); the two cases it contributes are the first-corpus story:
+// in-corpus ANSWERS (distance-gated), off-corpus abstains. The demo engine
+// above stays the plain posture, so its cases stay comparable release to
+// release.
+const CORPUS_DIR = path.join(ROOT, "first-corpus");
+const port2 = await new Promise((res, rej) => {
+  const s = createServer();
+  s.once("error", rej);
+  s.listen(0, "127.0.0.1", () => { const p = s.address().port; s.close(() => res(p)); });
+});
+const child2 = spawn(ENGINE, [], {
+  env: {
+    ...process.env,
+    RIIR_REFLEX_BIND: `127.0.0.1:${port2}`,
+    RIIR_REFLEX_ALLOWED_ORIGIN: "",
+    RIIR_REFLEX_LAYA: "",
+    RIIR_REFLEX_HEADS_DIR: headsDir,
+    RIIR_REFLEX_HEADS_PUBKEY: HEADS_PUBKEY,
+    RIIR_REFLEX_CORPUS: CORPUS_DIR,
+  },
+  stdio: ["ignore", "ignore", "pipe"],
+});
+child2.stderr.on("data", (b) => (log += b));
+const BASE2 = `http://127.0.0.1:${port2}`;
+for (let i = 0; ; i++) {
+  try { if ((await fetch(`${BASE2}/healthz`)).ok) break; } catch {}
+  if (i > 100) fail(`the corpus engine never answered /healthz\n${log}`);
+  await new Promise((r) => setTimeout(r, 100));
+}
+const CORPUS_CASES = [
+  {
+    name: "corpus_answered",
+    body: {
+      state: "our deploy regressed the error budget after the rollout — run the rollback and verify the health endpoints",
+      questions: [{
+        id: "route", kind: "choice", prompt: "Which runbook applies?",
+        options: ["billing", "deploy", "onboarding"],
+      }],
+    },
+    expect: { status: 200, answered: true },
+  },
+  {
+    name: "corpus_off",
+    body: {
+      state: "my sourdough starter stopped rising after i moved it to a colder kitchen",
+      questions: [{
+        id: "route", kind: "choice", prompt: "Which runbook applies?",
+        options: ["billing", "deploy", "onboarding"],
+      }],
+    },
+    expect: { status: 200, answered: false },
+  },
+];
+for (const c of CORPUS_CASES) {
+  const r = await fetch(`${BASE2}/decide`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(c.body),
+  });
+  const text = await r.text();
+  if (r.status !== c.expect.status) fail(`${c.name}: status ${r.status}, captioned ${c.expect.status} — ${text}`);
+  if ("answered" in c.expect) {
+    const any = JSON.parse(text).answers.some((a) => a.outcome !== null);
+    if (any !== c.expect.answered) fail(`${c.name}: answered=${any}, captioned ${c.expect.answered} — ${text}`);
+  }
+  out[c.name] = { method: "POST", path: "/decide", request: JSON.stringify(c.body), status: r.status, response: text };
+}
+child2.kill();
+
 // Determinism, measured: the same request twice must return byte-identical
 // bytes on the modelless lane (the claim the API page makes).
 const again = await fetch(`${BASE}/decide`, {
@@ -224,7 +332,8 @@ const doc = {
     release_notes: `https://github.com/gist-rs/reflex/releases/tag/v${version}`,
     captured: new Date().toISOString().slice(0, 10),
     deterministic_repeat: deterministic,
-    note: "every request below was sent to a fresh engine; responses are verbatim bytes",
+    demo_heads_minted: true,
+    note: "every request below was sent to a fresh engine; responses are verbatim bytes. The game heads are minted throwaway demo vessels (mint-only since v0.2.4); the corpus cases boot the vendored first-corpus sample.",
   },
   cases: out,
 };

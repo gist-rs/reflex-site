@@ -1,41 +1,42 @@
 {
   "_meta": {
     "generator": "scripts/capture_wire.mjs",
-    "engine": "reflex 0.2.3",
-    "version": "0.2.3",
-    "features": "default laya-riir laya-riir-metal modelless",
-    "release_notes": "https://github.com/gist-rs/reflex/releases/tag/v0.2.3",
+    "engine": "reflex 0.2.4",
+    "version": "0.2.4",
+    "features": "default laya-riir laya-riir-metal modelless nb-ridge nb-scope option-cond vessel-public-read",
+    "release_notes": "https://github.com/gist-rs/reflex/releases/tag/v0.2.4",
     "captured": "2026-10-03",
     "deterministic_repeat": true,
-    "note": "every request below was sent to a fresh engine; responses are verbatim bytes"
+    "demo_heads_minted": true,
+    "note": "every request below was sent to a fresh engine; responses are verbatim bytes. The game heads are minted throwaway demo vessels (mint-only since v0.2.4); the corpus cases boot the vendored first-corpus sample."
   },
   "cases": {
     "healthz": {
       "method": "GET",
       "path": "/healthz",
       "status": 200,
-      "response": "{\"status\":\"ok\",\"lanes\":{\"modelless\":\"ready\",\"raw\":\"ready\",\"laya\":\"off\"},\"heads\":{\"tetris\":true,\"lanes\":true,\"flappy\":true}}"
+      "response": "{\"status\":\"ok\",\"lanes\":{\"modelless\":\"ready\",\"raw\":\"ready\",\"laya\":\"off\"},\"heads\":{\"tetris\":true,\"lanes\":true,\"flappy\":true},\"corpus\":\"demo\"}"
     },
     "answered": {
       "method": "POST",
       "path": "/decide",
       "request": "{\"state\":\"The piece leaves no holes under it on the left edge, sits flat on the surface, and the stack stays low.\",\"questions\":[{\"id\":\"clean\",\"kind\":\"noul\",\"prompt\":\"Does the stack look clean?\"}]}",
       "status": 200,
-      "response": "{\"answers\":[{\"question_id\":\"clean\",\"outcome\":{\"noul\":{\"yes\":true}},\"probabilities\":[0.51988834],\"confidence\":0.51988834}],\"routing\":{\"lane\":\"modelless\",\"reason\":\"game-head/tetris (corpus-fitted, Bench 881 decoded arm)\"},\"calibration\":{\"method\":\"none\",\"temperature\":1.0}}"
+      "response": "{\"answers\":[{\"question_id\":\"clean\",\"outcome\":{\"noul\":{\"yes\":true}},\"probabilities\":[0.51943666],\"confidence\":0.51943666}],\"routing\":{\"lane\":\"modelless\",\"reason\":\"game-head/tetris (corpus-fitted, decoded arm)\"},\"calibration\":{\"method\":\"none\",\"temperature\":1.0}}"
     },
     "abstained": {
       "method": "POST",
       "path": "/decide",
       "request": "{\"state\":\"The staging deploy of release candidate 4.2 finished but the error budget is down to 12 percent and two health endpoints are flapping after the rollout. Rollback is one command. Decide what happens next.\",\"questions\":[{\"id\":\"route\",\"kind\":\"choice\",\"prompt\":\"Route this ticket to the team that owns it.\",\"options\":[\"deploy-ops\",\"billing-support\"]},{\"id\":\"promote\",\"kind\":\"noul\",\"prompt\":\"Should the rollout be promoted to production right now?\"},{\"id\":\"severity\",\"kind\":\"score\",\"prompt\":\"How severe is this situation?\",\"options\":[\"routine\",\"needs-attention\",\"critical\"]}]}",
       "status": 200,
-      "response": "{\"answers\":[{\"question_id\":\"route\",\"outcome\":null,\"probabilities\":[0.52583224,0.47416782],\"confidence\":0.0019263625},{\"question_id\":\"promote\",\"outcome\":null,\"probabilities\":[0.5135249],\"confidence\":0.00052791834},{\"question_id\":\"severity\",\"outcome\":null,\"probabilities\":[0.36018527,0.2878931,0.35192162],\"confidence\":0.0043790936}],\"routing\":{\"lane\":\"modelless\",\"reason\":\"modelless corpus routing: ops=3 support=0; fused abstain (score+distance) armed\"},\"calibration\":{\"method\":\"none\",\"temperature\":1.0}}"
+      "response": "{\"answers\":[{\"question_id\":\"route\",\"outcome\":null,\"probabilities\":[0.52583224,0.47416782],\"confidence\":0.0019263625},{\"question_id\":\"promote\",\"outcome\":null,\"probabilities\":[0.49452087],\"confidence\":0.00008660555},{\"question_id\":\"severity\",\"outcome\":null,\"probabilities\":[0.3601853,0.2878931,0.35192165],\"confidence\":0.004379213}],\"routing\":{\"lane\":\"modelless\",\"reason\":\"modelless corpus routing: ops=3 support=0; fused abstain (score+distance) armed; drafter-only=1\"},\"calibration\":{\"method\":\"none\",\"temperature\":1.0}}"
     },
     "off_corpus": {
       "method": "POST",
       "path": "/decide",
       "request": "{\"state\":\"My sourdough starter stopped rising after I moved it to a colder kitchen.\",\"questions\":[{\"id\":\"route\",\"kind\":\"choice\",\"prompt\":\"Route this ticket to the team that owns it.\",\"options\":[\"deploy-ops\",\"billing-support\"]}]}",
       "status": 200,
-      "response": "{\"answers\":[{\"question_id\":\"route\",\"outcome\":null,\"probabilities\":[0.52577484,0.4742252],\"confidence\":0.0019177794}],\"routing\":{\"lane\":\"modelless\",\"reason\":\"modelless corpus routing: ops=0 support=1; fused abstain (score+distance) armed\"},\"calibration\":{\"method\":\"none\",\"temperature\":1.0}}"
+      "response": "{\"answers\":[{\"question_id\":\"route\",\"outcome\":null,\"probabilities\":[0.52577484,0.47422513],\"confidence\":0.0019177794}],\"routing\":{\"lane\":\"modelless\",\"reason\":\"modelless corpus routing: ops=0 support=1; fused abstain (score+distance) armed\"},\"calibration\":{\"method\":\"none\",\"temperature\":1.0}}"
     },
     "raw_lane": {
       "method": "POST",
@@ -45,12 +46,12 @@
       },
       "request": "{\"state\":\"The piece leaves no holes under it on the left edge, sits flat on the surface, and the stack stays low.\",\"questions\":[{\"id\":\"clean\",\"kind\":\"noul\",\"prompt\":\"Does the stack look clean?\"}]}",
       "status": 200,
-      "response": "{\"answers\":[{\"question_id\":\"clean\",\"outcome\":null,\"probabilities\":[0.4931789],\"confidence\":0.00013428926}],\"routing\":{\"lane\":\"modelless\",\"reason\":\"modelless corpus routing: ops=0 support=1; fused abstain (score+distance) armed\"},\"calibration\":{\"method\":\"none\",\"temperature\":1.0}}"
+      "response": "{\"answers\":[{\"question_id\":\"clean\",\"outcome\":null,\"probabilities\":[0.49452087],\"confidence\":0.00008660555}],\"routing\":{\"lane\":\"modelless\",\"reason\":\"modelless corpus routing: ops=0 support=1; fused abstain (score+distance) armed\"},\"calibration\":{\"method\":\"none\",\"temperature\":1.0}}"
     },
     "feedback": {
       "method": "POST",
       "path": "/feedback",
-      "request": "{\"p\":0.51988834,\"outcome\":true}",
+      "request": "{\"p\":0.51943666,\"outcome\":true}",
       "status": 200,
       "response": "{\"refit\":false}"
     },
@@ -83,7 +84,7 @@
       },
       "request": "{\"state\":\"\",\"questions\":[]}",
       "status": 400,
-      "response": "{\"error\":\"unknown lane \\\"fast\\\" (supported: modelless, raw, laya)\"}"
+      "response": "{\"error\":\"unknown lane \\\"fast\\\" (supported: modelless, raw, laya, laya-ane)\"}"
     },
     "err_laya_off": {
       "method": "POST",
@@ -109,6 +110,20 @@
       },
       "status": 413,
       "response": "{\"error\":\"body too large\"}"
+    },
+    "corpus_answered": {
+      "method": "POST",
+      "path": "/decide",
+      "request": "{\"state\":\"our deploy regressed the error budget after the rollout — run the rollback and verify the health endpoints\",\"questions\":[{\"id\":\"route\",\"kind\":\"choice\",\"prompt\":\"Which runbook applies?\",\"options\":[\"billing\",\"deploy\",\"onboarding\"]}]}",
+      "status": 200,
+      "response": "{\"answers\":[{\"question_id\":\"route\",\"outcome\":{\"choice\":{\"index\":1}},\"probabilities\":[0.3341486,0.3407357,0.32511574],\"confidence\":0.00016820431}],\"routing\":{\"lane\":\"modelless\",\"reason\":\"modelless corpus routing: billing=0 deploy=1 onboarding=0; fused abstain (score+distance) armed\"},\"calibration\":{\"method\":\"none\",\"temperature\":1.0}}"
+    },
+    "corpus_off": {
+      "method": "POST",
+      "path": "/decide",
+      "request": "{\"state\":\"my sourdough starter stopped rising after i moved it to a colder kitchen\",\"questions\":[{\"id\":\"route\",\"kind\":\"choice\",\"prompt\":\"Which runbook applies?\",\"options\":[\"billing\",\"deploy\",\"onboarding\"]}]}",
+      "status": 200,
+      "response": "{\"answers\":[{\"question_id\":\"route\",\"outcome\":null,\"probabilities\":[0.31989384,0.34005812,0.34004804],\"confidence\":0.00037240982}],\"routing\":{\"lane\":\"modelless\",\"reason\":\"modelless corpus routing: billing=0 deploy=0 onboarding=1; fused abstain (score+distance) armed\"},\"calibration\":{\"method\":\"none\",\"temperature\":1.0}}"
     }
   }
 }

@@ -54,7 +54,9 @@
       You need no config file or daemon.</p>
     <div class="cmd"><span class="os">start</span><code>reflex</code><button data-copy="reflex">copy</button></div>
     <div class="cmd"><span class="os">another port</span><code>RIIR_REFLEX_BIND=127.0.0.1:9400 reflex</code><button data-copy="RIIR_REFLEX_BIND=127.0.0.1:9400 reflex">copy</button></div>
-    <p class="sub">Then ask it something. This question is one the built-in Tetris head answers:</p>
+    <p class="sub">Then ask it something. This question is one the Tetris head answers — the heads are
+      signed vessels you mint once (<code>reflex mint-heads --out heads --key-id 42 --key &lt;64-hex-seed&gt;</code>)
+      and load with <code>RIIR_REFLEX_HEADS_DIR=heads RIIR_REFLEX_HEADS_PUBKEY=&lt;the mint's verifying key&gt;</code>.</p>
     <!-- wire:case answered --><div class="wire-pair" data-wire-case="answered"><div class="wire-pane"><div class="wire-h">Request<button data-copy="curl -s -X POST http://127.0.0.1:7331/decide \
   -H 'Content-Type: application/json' \
   -d '{
@@ -74,13 +76,104 @@
     {
       &quot;question_id&quot;: &quot;clean&quot;,
       &quot;outcome&quot;: {&quot;noul&quot;: {&quot;yes&quot;: true}},
-      &quot;probabilities&quot;: [0.51988834],
-      &quot;confidence&quot;: 0.51988834
+      &quot;probabilities&quot;: [0.51943666],
+      &quot;confidence&quot;: 0.51943666
     }
   ],
   &quot;routing&quot;: {
     &quot;lane&quot;: &quot;modelless&quot;,
-    &quot;reason&quot;: &quot;game-head/tetris (corpus-fitted, Bench 881 decoded arm)&quot;
+    &quot;reason&quot;: &quot;game-head/tetris (corpus-fitted, decoded arm)&quot;
+  },
+  &quot;calibration&quot;: {&quot;method&quot;: &quot;none&quot;, &quot;temperature&quot;: 1.0}
+}</code></pre></div></div><!-- /wire:case -->
+  </section>
+
+  <section id="corpus">
+    <h2><a class="hlink" href="#corpus">Your own corpus</a></h2>
+    <p class="sub">Start the engine on YOUR text instead of the demo corpus:</p>
+    <div class="cmd"><span class="os">corpus boot</span><code>RIIR_REFLEX_CORPUS=first-corpus reflex</code><button data-copy="RIIR_REFLEX_CORPUS=first-corpus reflex">copy</button></div>
+    <p class="sub">The directory holds one <code>&lt;domain&gt;.md</code> file — or a <code>&lt;domain&gt;/</code> folder of
+      <code>.md</code> files — per domain, 1 to 8 domains, sorted by name. A malformed corpus refuses
+      to boot with the named reason; it is never silently swapped for the demo engine.
+      <code>/healthz</code> reports which posture is live (<code>"corpus":"demo"</code> or the domain list).
+      On a corpus boot, in-corpus questions answer and off-corpus questions abstain (the
+      corpus-distance gate decides; the sample corpus downloads from the <a href="/#try-it">home page</a>).</p>
+    <!-- wire:case corpus_answered --><div class="wire-pair" data-wire-case="corpus_answered"><div class="wire-pane"><div class="wire-h">Request<button data-copy="curl -s -X POST http://127.0.0.1:7331/decide \
+  -H 'Content-Type: application/json' \
+  -d '{
+  &quot;state&quot;: &quot;our deploy regressed the error budget after the rollout — run the rollback and verify the health endpoints&quot;,
+  &quot;questions&quot;: [
+    {
+      &quot;id&quot;: &quot;route&quot;,
+      &quot;kind&quot;: &quot;choice&quot;,
+      &quot;prompt&quot;: &quot;Which runbook applies?&quot;,
+      &quot;options&quot;: [&quot;billing&quot;, &quot;deploy&quot;, &quot;onboarding&quot;]
+    }
+  ]
+}'">copy</button></div><pre><code>curl -s -X POST http://127.0.0.1:7331/decide \
+  -H 'Content-Type: application/json' \
+  -d '{
+  &quot;state&quot;: &quot;our deploy regressed the error budget after the rollout — run the rollback and verify the health endpoints&quot;,
+  &quot;questions&quot;: [
+    {
+      &quot;id&quot;: &quot;route&quot;,
+      &quot;kind&quot;: &quot;choice&quot;,
+      &quot;prompt&quot;: &quot;Which runbook applies?&quot;,
+      &quot;options&quot;: [&quot;billing&quot;, &quot;deploy&quot;, &quot;onboarding&quot;]
+    }
+  ]
+}'</code></pre></div><div class="wire-pane"><div class="wire-h">Response · HTTP 200</div><pre><code>{
+  &quot;answers&quot;: [
+    {
+      &quot;question_id&quot;: &quot;route&quot;,
+      &quot;outcome&quot;: {&quot;choice&quot;: {&quot;index&quot;: 1}},
+      &quot;probabilities&quot;: [0.3341486, 0.3407357, 0.32511574],
+      &quot;confidence&quot;: 0.00016820431
+    }
+  ],
+  &quot;routing&quot;: {
+    &quot;lane&quot;: &quot;modelless&quot;,
+    &quot;reason&quot;: &quot;modelless corpus routing: billing=0 deploy=1 onboarding=0; fused abstain (score+distance) armed&quot;
+  },
+  &quot;calibration&quot;: {&quot;method&quot;: &quot;none&quot;, &quot;temperature&quot;: 1.0}
+}</code></pre></div></div><!-- /wire:case -->
+    <h3 class="wire-cap">Off-corpus still abstains</h3>
+    <!-- wire:case corpus_off --><div class="wire-pair" data-wire-case="corpus_off"><div class="wire-pane"><div class="wire-h">Request<button data-copy="curl -s -X POST http://127.0.0.1:7331/decide \
+  -H 'Content-Type: application/json' \
+  -d '{
+  &quot;state&quot;: &quot;my sourdough starter stopped rising after i moved it to a colder kitchen&quot;,
+  &quot;questions&quot;: [
+    {
+      &quot;id&quot;: &quot;route&quot;,
+      &quot;kind&quot;: &quot;choice&quot;,
+      &quot;prompt&quot;: &quot;Which runbook applies?&quot;,
+      &quot;options&quot;: [&quot;billing&quot;, &quot;deploy&quot;, &quot;onboarding&quot;]
+    }
+  ]
+}'">copy</button></div><pre><code>curl -s -X POST http://127.0.0.1:7331/decide \
+  -H 'Content-Type: application/json' \
+  -d '{
+  &quot;state&quot;: &quot;my sourdough starter stopped rising after i moved it to a colder kitchen&quot;,
+  &quot;questions&quot;: [
+    {
+      &quot;id&quot;: &quot;route&quot;,
+      &quot;kind&quot;: &quot;choice&quot;,
+      &quot;prompt&quot;: &quot;Which runbook applies?&quot;,
+      &quot;options&quot;: [&quot;billing&quot;, &quot;deploy&quot;, &quot;onboarding&quot;]
+    }
+  ]
+}'</code></pre></div><div class="wire-pane"><div class="wire-h">Response · HTTP 200</div><pre><code>{
+  &quot;answers&quot;: [
+    {
+      &quot;question_id&quot;: &quot;route&quot;,
+      &quot;outcome&quot;: null,
+      &quot;probabilities&quot;: [0.31989384, 0.34005812, 0.34004804],
+      &quot;confidence&quot;: 0.00037240982
+    }
+  ],
+  &quot;routing&quot;: {
+    &quot;lane&quot;: &quot;modelless&quot;,
+    &quot;reason&quot;: &quot;modelless corpus routing: billing=0 deploy=0 onboarding=1; fused abstain (score+distance) armed&quot;
   },
   &quot;calibration&quot;: {&quot;method&quot;: &quot;none&quot;, &quot;temperature&quot;: 1.0}
 }</code></pre></div></div><!-- /wire:case -->
@@ -93,7 +186,7 @@
       <tbody>
         <tr><td><code>POST /decide</code></td><td>decision request</td><td>Answers every question in the request, or abstains on it.</td></tr>
         <tr><td><code>POST /feedback</code></td><td><code>{"p", "outcome"}</code></td><td>Reports whether a past answer was right; the engine recalibrates once it has enough reports.</td></tr>
-        <tr><td><code>GET /healthz</code></td><td>none</td><td>Liveness, which lanes are ready, and which game heads loaded.</td></tr>
+        <tr><td><code>GET /healthz</code></td><td>none</td><td>Liveness, which lanes are ready, which game heads loaded, and the corpus posture (<code>"demo"</code> or the domain list).</td></tr>
       </tbody>
     </table></div>
   </section>
@@ -207,19 +300,19 @@
     {
       &quot;question_id&quot;: &quot;promote&quot;,
       &quot;outcome&quot;: null,
-      &quot;probabilities&quot;: [0.5135249],
-      &quot;confidence&quot;: 0.00052791834
+      &quot;probabilities&quot;: [0.49452087],
+      &quot;confidence&quot;: 0.00008660555
     },
     {
       &quot;question_id&quot;: &quot;severity&quot;,
       &quot;outcome&quot;: null,
-      &quot;probabilities&quot;: [0.36018527, 0.2878931, 0.35192162],
-      &quot;confidence&quot;: 0.0043790936
+      &quot;probabilities&quot;: [0.3601853, 0.2878931, 0.35192165],
+      &quot;confidence&quot;: 0.004379213
     }
   ],
   &quot;routing&quot;: {
     &quot;lane&quot;: &quot;modelless&quot;,
-    &quot;reason&quot;: &quot;modelless corpus routing: ops=3 support=0; fused abstain (score+distance) armed&quot;
+    &quot;reason&quot;: &quot;modelless corpus routing: ops=3 support=0; fused abstain (score+distance) armed; drafter-only=1&quot;
   },
   &quot;calibration&quot;: {&quot;method&quot;: &quot;none&quot;, &quot;temperature&quot;: 1.0}
 }</code></pre></div></div><!-- /wire:case -->
@@ -253,7 +346,7 @@
     {
       &quot;question_id&quot;: &quot;route&quot;,
       &quot;outcome&quot;: null,
-      &quot;probabilities&quot;: [0.52577484, 0.4742252],
+      &quot;probabilities&quot;: [0.52577484, 0.47422513],
       &quot;confidence&quot;: 0.0019177794
     }
   ],
@@ -300,8 +393,8 @@
     {
       &quot;question_id&quot;: &quot;clean&quot;,
       &quot;outcome&quot;: null,
-      &quot;probabilities&quot;: [0.4931789],
-      &quot;confidence&quot;: 0.00013428926
+      &quot;probabilities&quot;: [0.49452087],
+      &quot;confidence&quot;: 0.00008660555
     }
   ],
   &quot;routing&quot;: {
@@ -319,9 +412,9 @@
       calibration toward them. <code>refit</code> stays <code>false</code> until the engine holds enough reports to recalibrate.</p>
     <!-- wire:case feedback --><div class="wire-pair" data-wire-case="feedback"><div class="wire-pane"><div class="wire-h">Request<button data-copy="curl -s -X POST http://127.0.0.1:7331/feedback \
   -H 'Content-Type: application/json' \
-  -d '{&quot;p&quot;: 0.51988834, &quot;outcome&quot;: true}'">copy</button></div><pre><code>curl -s -X POST http://127.0.0.1:7331/feedback \
+  -d '{&quot;p&quot;: 0.51943666, &quot;outcome&quot;: true}'">copy</button></div><pre><code>curl -s -X POST http://127.0.0.1:7331/feedback \
   -H 'Content-Type: application/json' \
-  -d '{&quot;p&quot;: 0.51988834, &quot;outcome&quot;: true}'</code></pre></div><div class="wire-pane"><div class="wire-h">Response · HTTP 200</div><pre><code>{&quot;refit&quot;: false}</code></pre></div></div><!-- /wire:case -->
+  -d '{&quot;p&quot;: 0.51943666, &quot;outcome&quot;: true}'</code></pre></div><div class="wire-pane"><div class="wire-h">Response · HTTP 200</div><pre><code>{&quot;refit&quot;: false}</code></pre></div></div><!-- /wire:case -->
   </section>
 
   <section id="health">
@@ -329,7 +422,8 @@
     <!-- wire:case healthz --><div class="wire-pair" data-wire-case="healthz"><div class="wire-pane"><div class="wire-h">Request<button data-copy="curl -s http://127.0.0.1:7331/healthz">copy</button></div><pre><code>curl -s http://127.0.0.1:7331/healthz</code></pre></div><div class="wire-pane"><div class="wire-h">Response · HTTP 200</div><pre><code>{
   &quot;status&quot;: &quot;ok&quot;,
   &quot;lanes&quot;: {&quot;modelless&quot;: &quot;ready&quot;, &quot;raw&quot;: &quot;ready&quot;, &quot;laya&quot;: &quot;off&quot;},
-  &quot;heads&quot;: {&quot;tetris&quot;: true, &quot;lanes&quot;: true, &quot;flappy&quot;: true}
+  &quot;heads&quot;: {&quot;tetris&quot;: true, &quot;lanes&quot;: true, &quot;flappy&quot;: true},
+  &quot;corpus&quot;: &quot;demo&quot;
 }</code></pre></div></div><!-- /wire:case -->
   </section>
 
@@ -404,7 +498,7 @@
   -d '{&quot;state&quot;: &quot;&quot;, &quot;questions&quot;: []}'">copy</button></div><pre><code>curl -s -X POST http://127.0.0.1:7331/decide \
   -H 'Content-Type: application/json' \
   -H 'X-Reflex-Lane: fast' \
-  -d '{&quot;state&quot;: &quot;&quot;, &quot;questions&quot;: []}'</code></pre></div><div class="wire-pane"><div class="wire-h">Response · HTTP 400</div><pre><code>{&quot;error&quot;: &quot;unknown lane \&quot;fast\&quot; (supported: modelless, raw, laya)&quot;}</code></pre></div></div><!-- /wire:case -->
+  -d '{&quot;state&quot;: &quot;&quot;, &quot;questions&quot;: []}'</code></pre></div><div class="wire-pane"><div class="wire-h">Response · HTTP 400</div><pre><code>{&quot;error&quot;: &quot;unknown lane \&quot;fast\&quot; (supported: modelless, raw, laya, laya-ane)&quot;}</code></pre></div></div><!-- /wire:case -->
     <h3 class="wire-cap">The laya lane, not enabled</h3>
     <!-- wire:case err_laya_off --><div class="wire-pair" data-wire-case="err_laya_off"><div class="wire-pane"><div class="wire-h">Request<button data-copy="curl -s -X POST http://127.0.0.1:7331/decide \
   -H 'Content-Type: application/json' \
@@ -491,7 +585,7 @@
       rulebook engine: <a href="https://github.com/gist-rs/riir-reflexer">gist-rs/riir-reflexer</a> ·
       site: <a href="https://github.com/gist-rs/reflex-site">gist-rs/reflex-site</a> ·
       <a href="https://github.com/gist-rs/reflex/releases">Download</a> ·
-      <!-- wire:version --><span data-wire-version>engine <a href="https://github.com/gist-rs/reflex/releases/tag/v0.2.3">reflex 0.2.3 · release notes</a></span><!-- /wire:version -->
+      <!-- wire:version --><span data-wire-version>engine <a href="https://github.com/gist-rs/reflex/releases/tag/v0.2.4">reflex 0.2.4 · release notes</a></span><!-- /wire:version -->
     </div>
     </div>
   </div>
