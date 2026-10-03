@@ -43,5 +43,10 @@
   "date": "2026-10-04",
   "change": "clef's timing graduates to quotable (the quiet-box re-read): banking77 p50 3368 ms · typed 1690 ms — the acc-only posture retires; the p50 presence row retires with it",
   "why": "both re-reads on a preflight-clean box (load 2.57→1.07 / 1.22→2.80, AC, High Power) with accuracy, ECE, macro-F1 and the population digests reproducing the lane's first reading exactly — the determinism witnesses; the loaded-box figures were 14-29% inflated exactly as the Issue-021 law predicts"
+ },
+ {
+  "date": "2026-10-04",
+  "change": "clef completes its 9-suite index (the dataset-suite tail, local 4-bit rig): 7 new cells, all timing-quotable — p50 geomean 680 ms across the lane",
+  "why": "clef leads sst5 (0.6033), massive_intent (0.9333) and banking77 (0.9540); bekko leads ag_news at 0.9150, openthai leads xnli_en at 0.8967, Instinct leads emotion and prompt_injections; code_fixtures is a three-way tie at 0.5938 — the crosswalk's verdict lines now say 'ties' where nobody leads, never a false leader"
  }
 ]
