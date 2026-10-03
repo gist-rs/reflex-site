@@ -4,6 +4,19 @@ One hash-pinned line per removed issue (the fleet noise-reduction convention:
 an issue file is removed once its work is verifiably landed; this file is the
 durable record). Full narrative of each: `git log --follow -- .issues/<file>`.
 
+- **2026-10-03 — the home latency chart replotted as the SERVED product; no lane ever vanishes (`4b7fe65`,
+  CF `e4466d52`).** The strict quotable-only pass (`6ed8f8a`) traded the wholesale hide for three new user
+  reports the same day: comparison lanes' p50 bars vanished ("we got all latency p50 before"), bekko's top
+  accuracy row gained no denominator explanation, and Rethink's latency lost the served shape ("it should be
+  lower as Reflex when no abstain — I saw that graph before"). Reworked per suite on the SAME accuracy pick
+  (one served run per metric): own arm where it answered + the tier-fallback cell's clock where it declined,
+  disclosed ↩k on the label — Rethink reads 93 µs over 8 (↩5 served), the shape the user remembered. Unfit
+  timing still never plots (the reflex Issue-021 12× class) but its lane keeps a PRESENCE row with the reason
+  (bekko); unjudged cells (4090, no probes) plot again marked ⚠. Note names the own-suites denominator and the
+  like-for-like radar; bekko's top accuracy is REAL on the shared nine (0.693 vs 0.669) — the documented
+  modelless accuracy tradeoff. Issues for the underlying unfit/unjudged timing: riir-reflex `.issues/065`,
+  riir-rethink `.issues/021`.
+
 - **2026-10-03 — the home latency chart renders Instinct + Rethink again — quotable runs only, coverage on the label
   (`6ed8f8a`, CF `23c57988`).** The user read the web-audit's wholesale hide (the `latencyBenchOnly` option) as a
   missing render on the home summary's p50 metric. The rows plot again under the law the areas timing block and the
