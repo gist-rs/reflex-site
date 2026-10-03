@@ -24,7 +24,7 @@
       "repo": "riir-reflex",
       "src": ".docs/05_resources/dev_flow.md",
       "dst": "docs/reflex/dev_flow.md",
-      "sha256": "c03b50bdefa4e9dc31bfe591d8ca3159db6ce6df61fc33cfd51c5c8f526c82e5"
+      "sha256": "dcb4f390884dc9e9cd8926865e2d5d6488ea33ffff98cfb00cb0d8f3ac5758cd"
     },
     {
       "repo": "riir-reflex",
@@ -42,7 +42,7 @@
       "repo": "riir-instinct",
       "src": ".docs/05_resources/resources.md",
       "dst": "docs/instinct/resources.md",
-      "sha256": "eafce7b706b5ede25b7b11a511d1c7b333fde52fb5c2fd7f0a4a205825bf748d"
+      "sha256": "28160be1b138f71971879d1b38fa64921f4e9851542b4cdff9199416e318a693"
     },
     {
       "repo": "riir-instinct",
