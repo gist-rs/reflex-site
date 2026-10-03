@@ -85,8 +85,8 @@
       "date_utc": "2026-10-03T09:03:51Z"
      },
      "paw": {
-      "git_sha": "9dc33da",
-      "date_utc": "2026-09-29T02:12:55Z"
+      "git_sha": "0dc2c20",
+      "date_utc": "2026-10-03T17:02:32Z"
      },
      "openthai": {
       "git_sha": "00bddd1",
@@ -99,6 +99,10 @@
      "bekko": {
       "git_sha": "e8328de",
       "date_utc": "2026-10-03T16:34:28Z"
+     },
+     "paw_local": {
+      "git_sha": "0dc2c20",
+      "date_utc": "2026-10-03T17:14:24Z"
      }
     },
     "head_posture": "OFF (head_scale 0 \u2014 the published baseline posture)"
@@ -2432,6 +2436,42 @@
      "git_sha": "e8328de",
      "date_utc": "2026-10-03T16:34:28Z"
     }
+   },
+   "paw_local": {
+    "lane": "paw (local)",
+    "model": "paw-ft-bs48-20260530",
+    "posture": "local-subprocess",
+    "program_id": "73c963ebfd40a8d25288,f1d08b30f8c84c2fec6c,04a3b05698d9f7afc8cd,3f8d28006aa102c9df04,0189d0989f5222454bea,5c74a4fca552e2471669,0c366580689869c1f689,0522b1a4023281b00c19,c4bf7c8af208cf4374af,19114692867411036ed5,3466ab136a4aa4ae6bdf,84d32e31a96917d47a0b,eeecbb0dbfd3bba96bdb,d8564cd360417f43590c,492c5669e60b7b07a7db",
+    "spec_file": "scripts/paw_specs/typed_decisions.action.txt,scripts/paw_specs/typed_decisions.needs_review.txt,scripts/paw_specs/typed_decisions.outcome.txt,scripts/paw_specs/typed_decisions.risk.txt,scripts/paw_specs/typed_decisions.urgency.txt,scripts/paw_specs/typed_decisions.category.txt,scripts/paw_specs/typed_decisions.churn_risk.txt,scripts/paw_specs/typed_decisions.needs_human.txt,scripts/paw_specs/typed_decisions.discrepancy_severity.txt,scripts/paw_specs/typed_decisions.disposition.txt,scripts/paw_specs/typed_decisions.duplicate.txt,scripts/paw_specs/typed_decisions.matches_order.txt,scripts/paw_specs/typed_decisions.credential_compromise.txt,scripts/paw_specs/typed_decisions.severity.txt,scripts/paw_specs/typed_decisions.true_positive.txt",
+    "spec_blake3": "72055396b7348aa43c7fcc2f56d7617e9d6448defdcd1a37fe46680a29c3973c,c7a474c539477d43c9b1de0d464f695836ecf7744fd3021c64dbf166a482451b,b18771699ebb4d643ef2a95de0890fc3f735e090e58bda0afb4eee4115ee4cd5,8d5ae953d07c1ba75f325e3cee87eec54cccf4a3a2adb05221e287b7c6852a46,dadfd9808e4aa4edbcdcb1ca8445b5070ff132d48e5c6a1d0ce082a80b2e68ea,1e91ffffbd7ecc71492da3dc24f9552cd08d48e162ab1b7923b7cdf1ba42bf66,b3d2713c4a8bea1a38b46ed2c26188ac506c54712b06736daa90240516cad297,0ac1f08efb9a0e0c4bfe8d80cadf12b90221ad20ad3965d5e99685aff3f7c75b,6a6ed8cbcc154f47435e9258a84d560d8fd1292a51edc639be5218d3dcd84016,eb7abb02fb227a9ccd04136c7b46ac9ffd72553780da57e608ddd232cf92212d,bdcd453d1d3e321e39d3ab77685d1e0f00b959f0bdc9c1df59b031f90b91eaf6,175eb2d46596884958f2bafc6786a0945aa8982e08270b81dcb50e05471a9f19,b0edaed6fff9b21a2d8d94406acc82fb7b2d2fda05751eb62346f6e105ff1c61,2173eeb74a3af2ea95857ad6ad8d5963cdab904921d1d42abc96b9784bebe6d9,87c8f166174f846c75f6ec2170e031e3e34dff569e9edb99112c2ecd6da3ca06",
+    "compile_cache_hit": true,
+    "compile_wall_s": 2645.5270762899995,
+    "n_cases": 400,
+    "n_questions": 2000,
+    "n_answered": 1998,
+    "refusals": 2,
+    "quote_stripped": 0,
+    "accuracy": 0.5955,
+    "answered_accuracy": 0.5960960960960962,
+    "refusal_rate": 0.001,
+    "score_mae_answered": 0.6386642800000001,
+    "within_1_answered": 0.79625,
+    "refusal_samples": [
+     "data",
+     "observe"
+    ],
+    "latency_p50_ms": 65.167,
+    "latency_p99_ms": 143.836,
+    "latency_tail_support": 21,
+    "server_latency_p50_ms": null,
+    "determinism_ok": true,
+    "seconds": 158.784585083,
+    "cases_digest": "fnv1a64-6e37760ee2a5b6c9",
+    "latency_quotable": true,
+    "source_run": {
+     "git_sha": "0dc2c20",
+     "date_utc": "2026-10-03T17:14:24Z"
+    }
    }
   },
   {
@@ -3750,6 +3790,39 @@
     "source_run": {
      "git_sha": "e8328de",
      "date_utc": "2026-10-03T15:09:55Z"
+    }
+   },
+   "paw_local": {
+    "lane": "paw (local)",
+    "model": "paw-ft-bs48-20260530",
+    "posture": "local-subprocess",
+    "program_id": "35a7963d2d18aac54616",
+    "spec_file": "scripts/paw_specs/ag_news.txt",
+    "spec_blake3": "c5d5b475b88da357364a5f3ae3d87b02424a72bb4b16331fb9b59b0d1d543063",
+    "compile_cache_hit": true,
+    "compile_wall_s": 1.72005275,
+    "n_cases": 400,
+    "n_questions": 400,
+    "n_answered": 400,
+    "refusals": 0,
+    "quote_stripped": 0,
+    "accuracy": 0.7925,
+    "answered_accuracy": 0.7925,
+    "refusal_rate": 0.0,
+    "score_mae_answered": null,
+    "within_1_answered": null,
+    "refusal_samples": [],
+    "latency_p50_ms": 31.092,
+    "latency_p99_ms": 48.64,
+    "latency_tail_support": 5,
+    "server_latency_p50_ms": null,
+    "determinism_ok": true,
+    "seconds": 13.927686667,
+    "cases_digest": "fnv1a64-07eff23c06505584",
+    "latency_quotable": true,
+    "source_run": {
+     "git_sha": "0dc2c20",
+     "date_utc": "2026-10-03T17:15:01Z"
     }
    }
   },
@@ -5074,6 +5147,39 @@
      "git_sha": "8bbff09",
      "date_utc": "2026-09-28T10:13:40Z"
     }
+   },
+   "paw_local": {
+    "lane": "paw (local)",
+    "model": "paw-ft-bs48-20260530",
+    "posture": "local-subprocess",
+    "program_id": "703c4b3c3acf668f8ad8",
+    "spec_file": "scripts/paw_specs/emotion.txt",
+    "spec_blake3": "ab8a01c6e1d96ca06ce9d40c5c57bd491e7ab3d53b18a8b3e7d51ac8a794baf4",
+    "compile_cache_hit": true,
+    "compile_wall_s": 0.924536416,
+    "n_cases": 400,
+    "n_questions": 400,
+    "n_answered": 400,
+    "refusals": 0,
+    "quote_stripped": 0,
+    "accuracy": 0.49,
+    "answered_accuracy": 0.49,
+    "refusal_rate": 0.0,
+    "score_mae_answered": null,
+    "within_1_answered": null,
+    "refusal_samples": [],
+    "latency_p50_ms": 28.514,
+    "latency_p99_ms": 35.327,
+    "latency_tail_support": 5,
+    "server_latency_p50_ms": null,
+    "determinism_ok": true,
+    "seconds": 12.374872792,
+    "cases_digest": "fnv1a64-6feefd1c947dd008",
+    "latency_quotable": true,
+    "source_run": {
+     "git_sha": "0dc2c20",
+     "date_utc": "2026-10-03T17:15:33Z"
+    }
    }
   },
   {
@@ -6392,6 +6498,39 @@
      "git_sha": "e8328de",
      "date_utc": "2026-10-03T15:11:29Z"
     }
+   },
+   "paw_local": {
+    "lane": "paw (local)",
+    "model": "paw-ft-bs48-20260530",
+    "posture": "local-subprocess",
+    "program_id": "a0fb83a0afc58a1ce2b9",
+    "spec_file": "scripts/paw_specs/sst5.txt",
+    "spec_blake3": "03ec007949af34227f6e88bc5d008ac7c6825f6fde9f6aed344aa643493fa71f",
+    "compile_cache_hit": true,
+    "compile_wall_s": 0.942867667,
+    "n_cases": 600,
+    "n_questions": 600,
+    "n_answered": 600,
+    "refusals": 0,
+    "quote_stripped": 0,
+    "accuracy": 0.3983333333333333,
+    "answered_accuracy": 0.3983333333333333,
+    "refusal_rate": 0.0,
+    "score_mae_answered": 0.8816666666666667,
+    "within_1_answered": 0.815,
+    "refusal_samples": [],
+    "latency_p50_ms": 27.147,
+    "latency_p99_ms": 35.374,
+    "latency_tail_support": 7,
+    "server_latency_p50_ms": null,
+    "determinism_ok": true,
+    "seconds": 18.01071375,
+    "cases_digest": "fnv1a64-ad64a6cb0039e916",
+    "latency_quotable": true,
+    "source_run": {
+     "git_sha": "0dc2c20",
+     "date_utc": "2026-10-03T17:15:55Z"
+    }
    }
   },
   {
@@ -7583,7 +7722,7 @@
     "program_id": "d9cfba100af1e46f97cd",
     "spec_file": "scripts/paw_specs/prompt_injections.injection.txt",
     "spec_blake3": "13ef1026c9cecf47fc9b17a084855d57125af8862018ab6892ceda48275bd51a",
-    "compile_cache_hit": false,
+    "compile_cache_hit": true,
     "compile_wall_s": 77.575057042,
     "n_cases": 116,
     "n_questions": 116,
@@ -7596,13 +7735,17 @@
     "score_mae_answered": null,
     "within_1_answered": null,
     "refusal_samples": [],
-    "server_latency_p50_ms": 76.6,
+    "latency_p50_ms": 1043.931,
+    "latency_p99_ms": 1374.191,
+    "latency_tail_support": 2,
+    "server_latency_p50_ms": 76.9,
     "determinism_ok": true,
+    "seconds": 133.407218042,
     "cases_digest": "fnv1a64-5080803ec29f2423",
-    "latency_quotable": false,
+    "latency_quotable": true,
     "source_run": {
-     "git_sha": "9dc33da",
-     "date_utc": "2026-09-29T00:50:51Z"
+     "git_sha": "0dc2c20",
+     "date_utc": "2026-10-03T16:53:09Z"
     }
    },
    "bekko": {
@@ -7713,6 +7856,39 @@
       "git_sha": "e0440e3",
       "date_utc": "2026-10-01T18:51:14Z"
      }
+    }
+   },
+   "paw_local": {
+    "lane": "paw (local)",
+    "model": "paw-ft-bs48-20260530",
+    "posture": "local-subprocess",
+    "program_id": "d9cfba100af1e46f97cd",
+    "spec_file": "scripts/paw_specs/prompt_injections.injection.txt",
+    "spec_blake3": "13ef1026c9cecf47fc9b17a084855d57125af8862018ab6892ceda48275bd51a",
+    "compile_cache_hit": true,
+    "compile_wall_s": 77.575057042,
+    "n_cases": 116,
+    "n_questions": 116,
+    "n_answered": 116,
+    "refusals": 0,
+    "quote_stripped": 0,
+    "accuracy": 0.6379310344827587,
+    "answered_accuracy": 0.6379310344827587,
+    "refusal_rate": 0.0,
+    "score_mae_answered": null,
+    "within_1_answered": null,
+    "refusal_samples": [],
+    "latency_p50_ms": 24.36,
+    "latency_p99_ms": 38.947,
+    "latency_tail_support": 2,
+    "server_latency_p50_ms": null,
+    "determinism_ok": true,
+    "seconds": 4.005738959,
+    "cases_digest": "fnv1a64-5080803ec29f2423",
+    "latency_quotable": true,
+    "source_run": {
+     "git_sha": "0dc2c20",
+     "date_utc": "2026-10-03T17:09:51Z"
     }
    }
   },
@@ -8973,26 +9149,30 @@
     "program_id": "1949b801cf9746028d56",
     "spec_file": "scripts/paw_specs/xnli_en.relation.txt",
     "spec_blake3": "ead96a846bbe50430b7d9c6c635c17ecea8c59a2bd43e36210e93e7574d17c31",
-    "compile_cache_hit": false,
+    "compile_cache_hit": true,
     "compile_wall_s": 120.965073917,
     "n_cases": 300,
     "n_questions": 300,
     "n_answered": 300,
     "refusals": 0,
     "quote_stripped": 0,
-    "accuracy": 0.72,
-    "answered_accuracy": 0.72,
+    "accuracy": 0.7233333333333334,
+    "answered_accuracy": 0.7233333333333334,
     "refusal_rate": 0.0,
     "score_mae_answered": null,
     "within_1_answered": null,
     "refusal_samples": [],
-    "server_latency_p50_ms": 96.0,
+    "latency_p50_ms": 1048.078,
+    "latency_p99_ms": 2091.855,
+    "latency_tail_support": 4,
+    "server_latency_p50_ms": 96.1,
     "determinism_ok": true,
+    "seconds": 338.3810435,
     "cases_digest": "fnv1a64-b136750e5af1d412",
-    "latency_quotable": false,
+    "latency_quotable": true,
     "source_run": {
-     "git_sha": "9dc33da",
-     "date_utc": "2026-09-29T00:50:51Z"
+     "git_sha": "0dc2c20",
+     "date_utc": "2026-10-03T17:02:32Z"
     }
    },
    "encoder": {
@@ -9078,6 +9258,39 @@
     "source_run": {
      "git_sha": "e8328de",
      "date_utc": "2026-10-03T15:12:30Z"
+    }
+   },
+   "paw_local": {
+    "lane": "paw (local)",
+    "model": "paw-ft-bs48-20260530",
+    "posture": "local-subprocess",
+    "program_id": "1949b801cf9746028d56",
+    "spec_file": "scripts/paw_specs/xnli_en.relation.txt",
+    "spec_blake3": "ead96a846bbe50430b7d9c6c635c17ecea8c59a2bd43e36210e93e7574d17c31",
+    "compile_cache_hit": true,
+    "compile_wall_s": 120.965073917,
+    "n_cases": 300,
+    "n_questions": 300,
+    "n_answered": 300,
+    "refusals": 0,
+    "quote_stripped": 0,
+    "accuracy": 0.7133333333333334,
+    "answered_accuracy": 0.7133333333333334,
+    "refusal_rate": 0.0,
+    "score_mae_answered": null,
+    "within_1_answered": null,
+    "refusal_samples": [],
+    "latency_p50_ms": 35.877,
+    "latency_p99_ms": 44.891,
+    "latency_tail_support": 4,
+    "server_latency_p50_ms": null,
+    "determinism_ok": true,
+    "seconds": 10.9374175,
+    "cases_digest": "fnv1a64-b136750e5af1d412",
+    "latency_quotable": true,
+    "source_run": {
+     "git_sha": "0dc2c20",
+     "date_utc": "2026-10-03T17:10:22Z"
     }
    }
   },
@@ -10347,6 +10560,48 @@
       "git_sha": "e0440e3",
       "date_utc": "2026-10-01T17:58:51Z"
      }
+    }
+   },
+   "paw_local": {
+    "lane": "paw (local)",
+    "model": "paw-ft-bs48-20260530",
+    "posture": "local-subprocess",
+    "program_id": "1b5d4b654f60b508602c",
+    "spec_file": "scripts/paw_specs/massive_intent_en.intent.txt",
+    "spec_blake3": "10b2865efdaaeff8129e625e18a36b141e07fd7f5fea6407c759487c31096f17",
+    "compile_cache_hit": true,
+    "compile_wall_s": 88.633114917,
+    "n_cases": 300,
+    "n_questions": 300,
+    "n_answered": 182,
+    "refusals": 118,
+    "quote_stripped": 0,
+    "accuracy": 0.5133333333333333,
+    "answered_accuracy": 0.8461538461538461,
+    "refusal_rate": 0.3933333333333333,
+    "score_mae_answered": null,
+    "within_1_answered": null,
+    "refusal_samples": [
+     "qa_factoid",
+     "iot_hue_lightchange",
+     "iot_hue_sound",
+     "screen_query",
+     "iot_hue_lightdown",
+     "iot_hue_lightoff",
+     "iot_hub_power",
+     "toaster_query"
+    ],
+    "latency_p50_ms": 32.166,
+    "latency_p99_ms": 50.58,
+    "latency_tail_support": 4,
+    "server_latency_p50_ms": null,
+    "determinism_ok": true,
+    "seconds": 11.568108375,
+    "cases_digest": "fnv1a64-49390c8b80475849",
+    "latency_quotable": true,
+    "source_run": {
+     "git_sha": "0dc2c20",
+     "date_utc": "2026-10-03T17:11:20Z"
     }
    }
   },
@@ -11648,6 +11903,48 @@
       "date_utc": "2026-10-01T18:50:28Z"
      }
     }
+   },
+   "paw_local": {
+    "lane": "paw (local)",
+    "model": "paw-ft-bs48-20260530",
+    "posture": "local-subprocess",
+    "program_id": "ebbfe5a01ae044052526",
+    "spec_file": "scripts/paw_specs/banking77.txt",
+    "spec_blake3": "387c823cb86efe63d4cbba2e8b299f213f5a2487f3b7b049fe07315348ff2d43",
+    "compile_cache_hit": true,
+    "compile_wall_s": 0.975116792,
+    "n_cases": 500,
+    "n_questions": 500,
+    "n_answered": 323,
+    "refusals": 177,
+    "quote_stripped": 0,
+    "accuracy": 0.418,
+    "answered_accuracy": 0.6470588235294118,
+    "refusal_rate": 0.354,
+    "score_mae_answered": null,
+    "within_1_answered": null,
+    "refusal_samples": [
+     "locate my card",
+     "wrong exchange rate for foreign exchange",
+     "top up by day",
+     "exchange currency",
+     "contactless",
+     "pending gas",
+     "cancel transaction",
+     "top up limit"
+    ],
+    "latency_p50_ms": 38.986,
+    "latency_p99_ms": 60.087,
+    "latency_tail_support": 6,
+    "server_latency_p50_ms": null,
+    "determinism_ok": true,
+    "seconds": 20.905661667,
+    "cases_digest": "fnv1a64-dd8ab35333abb82a",
+    "latency_quotable": true,
+    "source_run": {
+     "git_sha": "0dc2c20",
+     "date_utc": "2026-10-03T17:17:16Z"
+    }
    }
   },
   {
@@ -12394,7 +12691,7 @@
     "program_id": "e5c9b00b49fb144810e4,1788474fc4e77eb38e3f",
     "spec_file": "scripts/paw_specs/code_fixtures.module.txt,scripts/paw_specs/code_fixtures.is_pub.txt",
     "spec_blake3": "c327469170449a2c0934e754ddc037222622be993bb9c76dff8112d5ddef6752,d1c6382cc8a44a44f96233d8e1afb318232c77a09a07997795f644e2295bdbb2",
-    "compile_cache_hit": false,
+    "compile_cache_hit": true,
     "compile_wall_s": 246.145184917,
     "n_cases": 16,
     "n_questions": 32,
@@ -12409,13 +12706,17 @@
     "refusal_samples": [
      "harness::families"
     ],
-    "server_latency_p50_ms": 77.0,
+    "latency_p50_ms": 1047.95,
+    "latency_p99_ms": 2188.291,
+    "latency_tail_support": 1,
+    "server_latency_p50_ms": 79.2,
     "determinism_ok": true,
+    "seconds": 58.08970025,
     "cases_digest": "fnv1a64-93583fda4fc64946",
-    "latency_quotable": false,
+    "latency_quotable": true,
     "source_run": {
-     "git_sha": "bb86069",
-     "date_utc": "2026-09-29T00:02:21Z"
+     "git_sha": "0dc2c20",
+     "date_utc": "2026-10-03T16:56:15Z"
     }
    },
    "encoder": {
@@ -12504,6 +12805,41 @@
     "source_run": {
      "git_sha": "e8328de",
      "date_utc": "2026-10-03T16:34:28Z"
+    }
+   },
+   "paw_local": {
+    "lane": "paw (local)",
+    "model": "paw-ft-bs48-20260530",
+    "posture": "local-subprocess",
+    "program_id": "e5c9b00b49fb144810e4,1788474fc4e77eb38e3f",
+    "spec_file": "scripts/paw_specs/code_fixtures.module.txt,scripts/paw_specs/code_fixtures.is_pub.txt",
+    "spec_blake3": "c327469170449a2c0934e754ddc037222622be993bb9c76dff8112d5ddef6752,d1c6382cc8a44a44f96233d8e1afb318232c77a09a07997795f644e2295bdbb2",
+    "compile_cache_hit": true,
+    "compile_wall_s": 246.145184917,
+    "n_cases": 16,
+    "n_questions": 32,
+    "n_answered": 31,
+    "refusals": 1,
+    "quote_stripped": 0,
+    "accuracy": 0.59375,
+    "answered_accuracy": 0.6129032258064516,
+    "refusal_rate": 0.03125,
+    "score_mae_answered": null,
+    "within_1_answered": null,
+    "refusal_samples": [
+     "harness::families"
+    ],
+    "latency_p50_ms": 36.757,
+    "latency_p99_ms": 93.955,
+    "latency_tail_support": 1,
+    "server_latency_p50_ms": null,
+    "determinism_ok": true,
+    "seconds": 2.958935709,
+    "cases_digest": "fnv1a64-93583fda4fc64946",
+    "latency_quotable": true,
+    "source_run": {
+     "git_sha": "0dc2c20",
+     "date_utc": "2026-10-03T17:17:19Z"
     }
    }
   },
@@ -15533,8 +15869,8 @@
       "cc": 0.4
      },
      "xnli_en": {
-      "acc": 0.72,
-      "cc": 0.58
+      "acc": 0.723333,
+      "cc": 0.585
      },
      "prompt_injections": {
       "acc": 0.637931,
@@ -15552,10 +15888,65 @@
     "areas": {
      "language": 0.53886,
      "sentiment": 0.321875,
-     "reasoning": 0.427931,
+     "reasoning": 0.430431,
      "decisions": 0.428737
     },
-    "index": 0.429351,
+    "index": 0.429976,
+    "coverage": {
+     "suites": 9,
+     "of": 9
+    },
+    "complete": true
+   },
+   "paw_local": {
+    "display": "paw (local)",
+    "color_key": "paw",
+    "kind": "compiled-program",
+    "per_suite": {
+     "ag_news": {
+      "acc": 0.7925,
+      "cc": 0.723333
+     },
+     "massive_intent_en": {
+      "acc": 0.513333,
+      "cc": 0.487719
+     },
+     "banking77": {
+      "acc": 0.418,
+      "cc": 0.410342
+     },
+     "sst5": {
+      "acc": 0.398333,
+      "cc": 0.247917
+     },
+     "emotion": {
+      "acc": 0.49,
+      "cc": 0.388
+     },
+     "xnli_en": {
+      "acc": 0.713333,
+      "cc": 0.57
+     },
+     "prompt_injections": {
+      "acc": 0.637931,
+      "cc": 0.275862
+     },
+     "typed_decisions": {
+      "acc": 0.5955,
+      "cc": 0.407326
+     },
+     "code_fixtures": {
+      "acc": 0.59375,
+      "cc": 0.409091
+     }
+    },
+    "areas": {
+     "language": 0.540465,
+     "sentiment": 0.317959,
+     "reasoning": 0.422931,
+     "decisions": 0.408208
+    },
+    "index": 0.422391,
     "coverage": {
      "suites": 9,
      "of": 9
@@ -15717,40 +16108,6 @@
     },
     "complete": false,
     "host": "4090-win"
-   },
-   "paw_local@4090-win": {
-    "display": "paw (local)",
-    "color_key": "paw",
-    "kind": "compiled-program",
-    "per_suite": {
-     "ag_news": {
-      "acc": 0.8,
-      "cc": 0.733333
-     },
-     "banking77": {
-      "acc": 0.412,
-      "cc": 0.404263
-     },
-     "sst5": {
-      "acc": 0.416667,
-      "cc": 0.270833
-     },
-     "emotion": {
-      "acc": 0.4875,
-      "cc": 0.385
-     }
-    },
-    "areas": {
-     "language": 0.568798,
-     "sentiment": 0.327916
-    },
-    "index": 0.448357,
-    "coverage": {
-     "suites": 4,
-     "of": 9
-    },
-    "complete": false,
-    "host": "4090-win"
    }
   },
   "timing": {
@@ -15826,12 +16183,22 @@
    },
    "paw": {
     "clock": "http",
-    "method": "HTTP round-trip to their hosted REST compile+answer service (accuracy cells only today \u2014 the published posture strips latency)",
+    "method": "HTTP round-trip to their hosted REST compile+answer service (curl subprocess per question; the cell also discloses their server-side latency separately)",
     "suites": 9,
-    "p50_geomean_ms": null,
-    "n_used": 0,
-    "n_unquotable": 5,
+    "p50_geomean_ms": 1046.6512,
+    "n_used": 3,
+    "n_unquotable": 2,
     "n_unjudged": 4,
+    "note": "population = the suites behind the lane's index; p50 geometric mean over latency_quotable cells only (unfit timing is shown in the tables, never plotted)"
+   },
+   "paw_local": {
+    "clock": "local-runtime",
+    "method": "Local llama.cpp runtime behind a Python subprocess (their programasweights paw.function; warm cache)",
+    "suites": 9,
+    "p50_geomean_ms": 34.1507,
+    "n_used": 9,
+    "n_unquotable": 0,
+    "n_unjudged": 0,
     "note": "population = the suites behind the lane's index; p50 geometric mean over latency_quotable cells only (unfit timing is shown in the tables, never plotted)"
    },
    "clm@4090-win": {
@@ -15862,16 +16229,6 @@
     "n_used": 0,
     "n_unquotable": 0,
     "n_unjudged": 8,
-    "note": "population = the suites behind the lane's index; p50 geometric mean over latency_quotable cells only (unfit timing is shown in the tables, never plotted)"
-   },
-   "paw_local@4090-win": {
-    "clock": "local-runtime",
-    "method": "Local llama.cpp runtime behind a Python subprocess (their programasweights paw.function; warm cache)",
-    "suites": 4,
-    "p50_geomean_ms": null,
-    "n_used": 0,
-    "n_unquotable": 0,
-    "n_unjudged": 4,
     "note": "population = the suites behind the lane's index; p50 geometric mean over latency_quotable cells only (unfit timing is shown in the tables, never plotted)"
    }
   },

@@ -735,8 +735,8 @@ LANE_TIMING = {
     "paw": {
         "clock": "http",
         "method": ("HTTP round-trip to their hosted REST compile+answer "
-                   "service (accuracy cells only today — the published "
-                   "posture strips latency)"),
+                   "service (curl subprocess per question; the cell also "
+                   "discloses their server-side latency separately)"),
     },
     "paw_local": {
         "clock": "local-runtime",

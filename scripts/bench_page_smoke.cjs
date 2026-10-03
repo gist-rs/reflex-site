@@ -276,6 +276,12 @@ const server = http.createServer((req, res) => {
       }
       if (s.openthai?.latency_p50_ms != null) visibleP50s.push(s.openthai.latency_p50_ms);
       if (s.bekko?.latency_p50_ms != null) visibleP50s.push(s.bekko.latency_p50_ms);
+      // paw/paw_local joined the visible-latency set at reflex bench 116
+      // (3 hosted cells ~1.0-1.2 s quotable; the local lane 24-65 ms). The
+      // remaining hosted cells were published acc-only (no latency fields),
+      // so the null check excludes them exactly as it does every other lane.
+      if (s.paw?.latency_p50_ms != null) visibleP50s.push(s.paw.latency_p50_ms);
+      if (s.paw_local?.latency_p50_ms != null) visibleP50s.push(s.paw_local.latency_p50_ms);
     }
     const expectedBreaks = visibleP50s.filter((v) => v > 500).length;
     const heroBreaks = await page.$$eval("#bench-hero .sz-break", (xs) => xs.length);
