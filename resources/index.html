@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reflex, Instinct, Rethink — the family explained</title>
+  <meta name="description" content="Three names, one idea: a free modelless decision engine that runs on your machine (Reflex), the specialist composition that upgrades it (Instinct), and the encoder tier served from our GPU hosts (Rethink).">
+  <link rel="stylesheet" href="/assets/style.css">
+</head>
+<body>
+
+<header class="site">
+  <div class="wrap">
+    <a class="brand" href="/">Reflex</a>
+    <nav>
+      <a href="/">Home</a>
+      <a href="/playground/">Playground</a>
+      <a href="/arena/">Arena</a>
+      <a href="/bench/">Benchmark</a>
+      <a href="/resources/" aria-current="page">Resources</a>
+      <a href="/#skill">For agents</a>
+      <a class="gh" href="https://github.com/gist-rs/riir-reflex" aria-label="Reflex on GitHub" title="github.com/gist-rs/riir-reflex"><svg viewBox="0 0 16 16" width="18" height="18" fill="currentColor" aria-hidden="true" focusable="false"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg></a>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="hero">
+    <p class="kicker">Resources · the education page</p>
+    <h1>One family. Three names.<br><em>The same idea, three rungs deep.</em></h1>
+    <p class="lead">
+      <strong>Reflex</strong> is the product you install. <strong>Instinct</strong> is the idea that upgrades it.
+      <strong>Rethink</strong> is that idea, served from our GPU hosts.
+    </p>
+    <div class="cta-row">
+      <a class="btn primary" href="#reflex">The free floor</a>
+      <a class="btn" href="#rethink">The encoder tier</a>
+      <a class="btn" href="#development">Build your own</a>
+    </div>
+    <div class="badges">
+      <span class="badge muted">Numbers law: every measured claim on this page is a <a href="/bench/">link into the benchmark</a> — none is typed.</span>
+    </div>
+  </div>
+
+  <section id="overview">
+    <h2><a class="hlink" href="#overview">What is this family?</a></h2>
+    <p class="sub">Two products and one idea. The products ship binaries; the idea is how they compose.</p>
+
+    <div class="pages">
+      <div class="page-card">
+        <h3>Reflex — the product</h3>
+        <p>The <b>modelless</b> [no neural network — no training run] decision engine. Open source, MIT,
+        installs on your machine, answers from documents you author. The free floor of the family.</p>
+        <a class="cta" href="#reflex">Read the Reflex section</a>
+      </div>
+      <div class="page-card">
+        <h3>Instinct — the idea</h3>
+        <p>When the free engine abstains, a specialist trained for exactly that domain scores the survivors —
+        composed on top, never instead. Embodied by the open teaching lane, and one rung deeper in Rethink.</p>
+        <a class="cta" href="#reflex">See it on top of Reflex</a>
+      </div>
+      <div class="page-card">
+        <h3>Rethink — the product</h3>
+        <p>The same composition idea at the encoder tier, served <b>HOSTED-ONLY</b> [weights that never leave
+        our servers — you call, we think] from our GPU hosts. Private by design.</p>
+        <a class="cta" href="#rethink">Read the Rethink section</a>
+      </div>
+    </div>
+
+    <figure class="figure">
+      <img src="/assets/decision_flow.svg" width="1517" height="610"
+        alt="The Reflex decision flow: state plus a typed question (choice, score, or yes/no) is embedded, routed to a domain, options scored corpus-is-the-model, calibrated by a sigmoid gate, then answered in microseconds with confidence or an honest abstain — loopback only, thresholds fitted offline from your own labeled data"
+        loading="lazy">
+      <figcaption>The free lane: <strong>Reflex</strong>'s decision flow — the same figure as the
+        <a href="/#flow">home page</a> (one asset, two readers). Write-up:
+        <a href="https://github.com/gist-rs/riir-reflex/blob/HEAD/.docs/03_decision_flow/decision_flow.md">decision_flow.md</a>.</figcaption>
+    </figure>
+
+    <figure class="figure">
+      <img src="/assets/instinct_flow.svg" width="1751" height="730"
+        alt="The Instinct composition flow in two bands: the top band is the question in — the same typed question runs Reflex's modelless engine first, and a confident fused-gate answer returns in microseconds with the specialist never paid; on abstain the bottom band takes over — top-k prune keeps the candidates, the sealed per-domain specialist scores them, an H1 cascade or H2 prior fusion calibrates the pick, and the answer ships with a decision receipt"
+        loading="lazy">
+      <figcaption>The composition: <strong>Instinct</strong>'s flow — the same figure as
+        <a href="/bench/#instinct">the benchmark's Instinct section</a>, in learning vocabulary instead of
+        measurement vocabulary. Write-up:
+        <a href="https://github.com/gist-rs/riir-instinct/blob/HEAD/.docs/03_decision_flow/instinct_flow.md">instinct_flow.md</a>.</figcaption>
+    </figure>
+
+    <h3>Where each lane runs.</h3>
+    <p class="sub">Structural facts only — a shipped artifact, a deploy shape, a design law. The measured side of
+      every claim is <a href="/bench/">one click away</a>.</p>
+    <div class="diffs" id="matrix">
+      <table>
+        <thead>
+          <tr><th>Runs on</th><th>Reflex (product)</th><th>Instinct (idea · open lane)</th><th>Rethink (product)</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Browser (wasm)</td><td>✅ <a href="/arena/">arena head</a> + <a href="/playground/">playground</a></td><td>— (a server-side lane)</td><td>— (hosted-only by law)</td></tr>
+          <tr><td>Mac / PC / Linux</td><td>✅ <a href="https://github.com/gist-rs/reflex#readme">release binaries</a></td><td>✅ serve bin (CPU hosts)</td><td>— (no public binary)</td></tr>
+          <tr><td>Mobile</td><td>via the browser (wasm)</td><td>via a hosted API</td><td>via a hosted API</td></tr>
+          <tr><td>Edge device (ESP32-class)</td><td>not shipped — possible in principle, no tested surface today <sup>³</sup></td><td>not shipped (a server-side lane)</td><td>not shipped (GPU hosts only)</td></tr>
+          <tr><td>Self-hosted server</td><td>✅ one static binary</td><td>✅ container image (CPU tier)</td><td>private deploy — our GPU hosts only</td></tr>
+          <tr><td>Hosted API</td><td>loopback-only by design <sup>¹</sup></td><td>✅ demo vessels after the open</td><td>✅ the product surface (HOSTED-ONLY)</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="sub"><sup>¹</sup> The engine listens on your machine and answers browser calls only from origins you
+      allow — see <a href="/#flow">how it works</a>. <sup>³</sup> An edge lane exists in the wider workspace but
+      serves a different product — the honest cell today is “not shipped” for every tier.</p>
+  </section>
+
+  <section id="reflex">
+    <h2><a class="hlink" href="#reflex">Reflex — the free floor.</a></h2>
+    <p class="sub">Reflex is the family's free floor — a modelless decision engine that runs on your machine,
+      answers from a corpus you author, and abstains by design when the evidence is thin.
+      [Modelless: no neural network — no training run. Corpus: your documents — the corpus is the model.
+      Abstain: the engine says “I don't know” instead of guessing.]</p>
+
+    <figure class="figure">
+      <img src="/assets/decision_flow.svg" width="1517" height="610"
+        alt="The Reflex decision flow: state plus a typed question (choice, score, or yes/no) is embedded, routed to a domain, options scored corpus-is-the-model, calibrated by a sigmoid gate, then answered in microseconds with confidence or an honest abstain — loopback only, thresholds fitted offline from your own labeled data"
+        loading="lazy">
+      <figcaption>The Reflex decision flow — the same figure as the <a href="/#flow">home page</a>
+        (one asset, two readers, no copy).</figcaption>
+    </figure>
+
+    <div class="teaser">
+      <div class="cell">
+        <span class="lbl">BEFORE · THE WORLD YOU KNOW</span>
+        <h3>Knowledge lives in someone else's training run.</h3>
+        <ol>
+          <li><b>Build:</b> a training run produces gigabyte-scale weights you download and trust.</li>
+          <li><b>Serve:</b> a model forward pass — it always answers, right or wrong.</li>
+          <li><b>Guard:</b> you threshold its confidence yourself, and hope.</li>
+        </ol>
+      </div>
+      <div class="cell">
+        <span class="lbl">AFTER · CORPUS-IS-THE-MODEL</span>
+        <h3>Knowledge lives in documents you wrote.</h3>
+        <ol>
+          <li><b>Build:</b> write docs per domain, label a small slice, refit — no GPU.</li>
+          <li><b>Serve:</b> microsecond-class answers, or an abstain when the question is off-corpus.</li>
+          <li><b>Guard:</b> the abstain is a designed output — the full distribution still rides with it.</li>
+        </ol>
+      </div>
+    </div>
+
+    <h3>Instinct — the idea on top.</h3>
+    <p class="sub">Instinct is the idea that upgrades Reflex without replacing it: when the free engine abstains,
+      a specialist trained for exactly that domain scores the survivors on top, never instead.</p>
+    <p>The <b>fused gate</b> [the confidence check that decides whether to consult a specialist] answers with
+      confidence and the specialist is never paid. On an abstain, the survivors are pruned to the top candidates
+      and a sealed per-domain specialist scores them. The answer carries a <b>receipt</b> — an audit trail of
+      what answered, from which lane, checksum-committed in both directions.</p>
+    <p>The idea is taught by the open lane
+      <a href="https://github.com/gist-rs/riir-instinct">gist-rs/riir-instinct</a> — and a specialist serves only
+      where it <a href="/bench/#instinct">strictly beat the free engine on a frozen test read</a>. A tie or a loss
+      sells nothing; the free engine keeps answering.</p>
+
+    <div class="faqs">
+      <details class="faq">
+        <summary>What does an abstain give my code?</summary>
+        <p>A typed answer — the full distribution rides with it, so your code decides what a no-answer is worth
+        instead of catching an exception. That is exactly the signal Instinct composes on: the abstain is the
+        moment a specialist earns its keep.</p>
+      </details>
+      <details class="faq">
+        <summary>Why does a free engine need a specialist at all?</summary>
+        <p>The corpus bounds it. Modelless answers are excellent inside the domain you authored and honest about
+        the edge of it. A specialist trained for exactly that hard domain covers the cases the corpus cannot —
+        paid only where it was needed, per the <a href="/bench/#instinct">winner law</a>.</p>
+      </details>
+      <details class="more">
+        <summary>Deep write-up</summary>
+        <p>The lane's own explainer, mirrored on this site:
+        <a href="/docs/reflex/resources.md">resources.md (local mirror)</a> ·
+        <a href="https://github.com/gist-rs/riir-reflex/blob/HEAD/.docs/05_resources/resources.md">on GitHub</a>.</p>
+      </details>
+    </div>
+  </section>
+
+  <section id="rethink">
+    <h2><a class="hlink" href="#rethink">Rethink — the same idea, one rung deeper.</a></h2>
+    <p class="sub">Rethink is the same Instinct idea one rung deeper: where a bag specialist is too coarse, a
+      trained encoder head thinks — served HOSTED-ONLY from our GPU servers, so the weights never leave
+      controlled hardware. [HOSTED-ONLY: weights that never leave our servers — you call, we think.]</p>
+
+    <figure class="figure">
+      <img src="/assets/rethink_flow.svg" width="1444" height="407"
+        alt="One rung deeper than the bag specialist: when the modelless engine abstains, hashed-bag specialists answer fast on CPU, and the harder cases rise to a trained encoder head served HOSTED-ONLY from our GPU hosts, so the weights never leave our servers"
+        loading="lazy">
+      <figcaption>The Rethink flow — from question to answer, with the rung model drawn in.
+        Write-up: <a href="/docs/rethink/resources.md">resources.md (mirrored — the source repo is private)</a>.</figcaption>
+    </figure>
+
+    <div class="teaser">
+      <div class="cell">
+        <span class="lbl">RUNG BELOW · BAG SPECIALISTS (INSTINCT)</span>
+        <h3>Hashed word-count features, scored on CPU.</h3>
+        <ol>
+          <li><b>Features:</b> the question becomes a bag of words — cheap and fast, but blind to word order
+            and nuance.</li>
+          <li><b>Think:</b> microsecond-class, per domain.</li>
+          <li><b>Where:</b> your machine or any CPU host.</li>
+        </ol>
+      </div>
+      <div class="cell">
+        <span class="lbl">THIS RUNG · THE ENCODER (RETHINK)</span>
+        <h3>A trained encoder head reads the question whole.</h3>
+        <ol>
+          <li><b>Features:</b> the full encoder substrate — context, order, nuance.</li>
+          <li><b>Think:</b> millisecond-class thoughts, on our GPU hosts.</li>
+          <li><b>Guard:</b> a HOSTED-ONLY vessel — checksum-sealed, tamper-evident, structurally unreadable
+            without the hosted reader.</li>
+        </ol>
+      </div>
+    </div>
+
+    <p>The free floor always answers first. Rethink is paid only where the free engine's confidence check
+      abstains — the same <b>fused gate</b> as Instinct, one tier deeper. Every answer carries a receipt, and the
+      seated cells are published either way: the <a href="/bench/">benchmark's Rethink rows</a> are the measured
+      side, live today.</p>
+
+    <div class="faqs">
+      <details class="faq">
+        <summary>Why hosted-only? Why not ship the weights?</summary>
+        <p>Because the class is structural, not a policy. The heads ship inside a HOSTED-ONLY vessel, and a build
+        without the hosted reader cannot open one at all — so the weights cannot land on hardware nobody
+        controls, not by accident and not by option.</p>
+      </details>
+      <details class="faq">
+        <summary>Can I run Rethink myself?</summary>
+        <p>No — and that is the honest answer by design. Rethink ships its own serve binary to our own GPU hosts
+        (private distribution, never a public download). The open lanes — <a href="#reflex">Reflex</a> and the
+        <a href="https://github.com/gist-rs/riir-instinct">Instinct teaching lane</a> — are the ones you can run.</p>
+      </details>
+      <details class="faq">
+        <summary>Where is the product surface?</summary>
+        <p>The storefront — <a href="https://rethink.gist.rs">rethink.gist.rs</a> — is incoming; the link may be
+        dark until it deploys. Until then, the <a href="/bench/">bench Rethink rows</a> are live and are the
+        measured side of everything this section claims.</p>
+      </details>
+    </div>
+  </section>
+
+  <section id="development">
+    <h2><a class="hlink" href="#development">Build your own.</a></h2>
+    <p class="sub">Three development flows, one per rung. The compact write-ups live in each lane's docs —
+      mirrored on this site, with the source of truth on GitHub for the public lanes.</p>
+
+    <h3>Reflex — author a lane.</h3>
+    <figure class="figure">
+      <img src="/assets/reflex_dev_flow.svg" width="1799" height="142"
+        alt="The Reflex development loop: author rules and grammar (state and options as sentences), label a small calibration slice, refit thresholds, serve on loopback, decide with an answer or an honest abstain, ship the binary"
+        loading="lazy">
+      <figcaption>Author your domain as closed-grammar sentences, label a small slice, refit, serve on loopback,
+        ship the binary. Write-up:
+        <a href="/docs/reflex/dev_flow.md">dev_flow.md (local mirror)</a> ·
+        <a href="https://github.com/gist-rs/riir-reflex/blob/HEAD/.docs/05_resources/dev_flow.md">on GitHub</a>.</figcaption>
+    </figure>
+
+    <h3>Instinct — train a specialist.</h3>
+    <figure class="figure">
+      <img src="/assets/instinct_dev_flow.svg" width="1554" height="118"
+        alt="The Instinct development build flow: a corpus is made from public data, a per-domain specialist is trained on it, a stratified holdout read applies the winner law so only a strict win over the free engine survives, the passing artifact is BLAKE3-sealed, registered as a manifest row, and served with decision receipts"
+        loading="lazy">
+      <figcaption>Make a corpus from public data, train one specialist per domain, apply the winner law on a
+        stratified holdout, seal the winner, register it, serve with receipts. Write-up:
+        <a href="/docs/instinct/dev_flow.md">dev_flow.md (local mirror)</a> ·
+        <a href="https://github.com/gist-rs/riir-instinct/blob/HEAD/.docs/05_resources/dev_flow.md">on GitHub</a>.</figcaption>
+    </figure>
+
+    <h3>Rethink — mint a head.</h3>
+    <figure class="figure">
+      <img src="/assets/rethink_dev_flow.svg" width="1444" height="118"
+        alt="The Rethink development flow: train the head on the trainer side, seal it, mint a HOSTED-ONLY vessel, deploy to our GPU hosts only, and serve decisions through the storefront"
+        loading="lazy">
+      <figcaption>Train the head on the trainer side, seal it, mint a HOSTED-ONLY vessel, deploy to our GPU hosts
+        only, serve through the storefront. No step ever places the weights on hardware nobody controls. Write-up:
+        <a href="/docs/rethink/dev_flow.md">dev_flow.md (local mirror — the source repo is private)</a>.</figcaption>
+    </figure>
+  </section>
+
+</div>
+
+<footer class="site">
+  <div class="wrap">
+    <div class="credit">
+      Built on <a href="https://github.com/katopz/katgpt-rs">KatGPT-RS</a> — the open modelless primitives under every Reflex engine.
+    </div>
+    <div class="fine">
+      Binaries: <a href="https://github.com/gist-rs/reflex">gist-rs/reflex</a> ·
+      engine: <a href="https://github.com/gist-rs/riir-reflex">gist-rs/riir-reflex</a> ·
+      rulebook engine: <a href="https://github.com/gist-rs/riir-reflexer">gist-rs/riir-reflexer</a> ·
+      site: <a href="https://github.com/gist-rs/reflex-site">gist-rs/reflex-site</a> ·
+      <a href="https://github.com/gist-rs/reflex/releases">Download</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

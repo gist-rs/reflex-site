@@ -8,6 +8,11 @@ static assets.
   disk-footprint chart (`/#sizes` — every lane priced in measured bytes), the
   how-it-works figure (a .docs-first SVG, mirrored to `assets/`), per-page
   cards, and the agent-skill section.
+- `/resources/` — the education page: the three-name family (Reflex the product, Instinct the idea,
+  Rethink the product) with both family flow figures, a qualitative target matrix, and the three
+  development flows. Content is DRY-sourced from each lane's `.docs/05_resources/` + decision-flow docs,
+  mirrored under `docs/<lane>/` + `assets/` by `scripts/sync_mirror.py`; every measured claim is a link
+  into `/bench/` (the numbers law — the render smoke enforces it on visible text).
 - `/playground/` — the playground (talks to the visitor's OWN engine on
   `127.0.0.1:7331`; nothing is uploaded) + the three-step start, and the
   **Reflexer** section: a Tetris position asked of the reflexer engine with

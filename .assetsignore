@@ -1,5 +1,6 @@
-# Served on purpose: index.html, assets/ (incl. arena_head.wasm), bench/,
-# data/bench.json, skills/
+# Served on purpose: index.html, resources/ (the education page), docs/ (the
+# mirrored lane docs), assets/ (incl. arena_head.wasm), bench/, data/bench.json,
+# skills/
 # Everything else is repo plumbing — never ship it as public assets.
 .git
 README.md
