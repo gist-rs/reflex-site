@@ -1,0 +1,24 @@
+{
+  "generated_by": "scripts/sync_mirror.py",
+  "note": "Source sha per mirrored file - cross-repo coupling by mirrored bytes with a recorded source sha (reflex-site BOUNDARY.md). Git refs are omitted on every row: one fixed shape, and riir-instinct is private until the 052 Phase-C flip. Owned by scripts/sync_mirror.py - not hand-edited.",
+  "files": [
+    {
+      "repo": "riir-reflex",
+      "src": ".docs/03_decision_flow/decision_flow.svg",
+      "dst": "assets/decision_flow.svg",
+      "sha256": "b2f6126a978cb7c9f7aa28c87d79cc3e75c9a28294830fda37aaf1ecd892b5d6"
+    },
+    {
+      "repo": "riir-reflex",
+      "src": ".docs/04_agent_skill/SKILL.md",
+      "dst": "skills/reflex-integration/SKILL.md",
+      "sha256": "b2b779986f049f722a281783b486b8fd0ebcbbf55b8cf70808f4412eb2772252"
+    },
+    {
+      "repo": "riir-instinct",
+      "src": ".docs/03_decision_flow/instinct_flow.svg",
+      "dst": "assets/instinct_flow.svg",
+      "sha256": "96a40d5f6111d6a84892e758483a427e62c2e219e4aea8cd3e269411504a382b"
+    }
+  ]
+}

@@ -502,3 +502,33 @@ record lives here). `publish_bench.py`'s RETIRED_SUITES comment records the
 removal; its quarantine gate still forbids the bench publisher from ever
 naming or ingesting that surface. Verified: the six suites render nowhere on
 the site, `/families/` answers the 404 path, all remaining smokes green.
+
+## 2026-10-03 — the instinct_flow.svg mirror pair managed (the Proposal 053 miss, pre-ratification)
+
+`assets/instinct_flow.svg` had been served on `/bench/#instinct` since the
+2026-09-29 owner pass but was NOT in `sync_mirror.py`'s table — the site's
+copy was unmanaged and could drift from
+`riir-instinct/.docs/03_decision_flow/instinct_flow.svg` silently (the live
+miss Proposal 053 files, riir-ai). Fixed ungated (the SVG is already public;
+nothing new ships): the pairs table is now per-pair source root —
+`riir-reflex` stays PRIMARY (absent → exit 2, the guard's loud-SKIP lane,
+contract unchanged for the reflex guard + `republish_bench.sh`), and the new
+`riir-instinct` root is a SECONDARY whose absent checkout is a LOUD per-root
+skip (never a silent green, never a red — the mirrors are committed files;
+deploys never need the private checkouts). The new coupling satisfies the
+BOUNDARY law at landing: `sync_mirror.py` now owns
+`assets/mirror_manifest.json` — per mirrored file: repo, src, dst, sha256
+(git refs deliberately omitted on EVERY row: one fixed shape, and
+riir-instinct is private until the 052 Phase-C flip — the same leak class
+Proposal 053's rounds 2–3 closed for Rethink rows). The manifest covers the
+two pre-existing reflex pairs too. Byte-identity of the two SVG copies was
+verified (sha256 `96a40d5f…` both sides) before the pair landed. Self-test
+grown to 9 arms (sync/check/drift/missing-source/missing-mirror/
+manifest-stale/manifest-unlisted/secondary-skip/primary-absent/no-shrink);
+all three postures verified live (3/3 rc=0 · absent-instinct skip-loud rc=0 ·
+absent-reflex rc=2). `render_tetris_flows.py` remains the PRODUCER of the
+instinct figure (writes both mirrors byte-identically); after a re-render,
+run `sync_mirror.py` to refresh the manifest — a stale manifest is a named
+`MANIFEST-STALE` finding, never silence. Proposal 053's page/nav/DRY-sources
+work itself still awaits owner ratification; this lands only its T1.4
+byte-identity confirmation + the mirror pair.

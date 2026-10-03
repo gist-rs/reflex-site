@@ -310,11 +310,24 @@ playwright posture as the bench smoke).
 
 ## Mirrored docs surfaces
 
-Two files on this site are MIRRORS of the riir-reflex `.docs` book — the
+Three files on this site are MIRRORS of the engines' `.docs` books — the
 source of truth lives THERE; edit the source, never the mirror:
 
 - `assets/decision_flow.svg` <- `../riir-reflex/.docs/03_decision_flow/decision_flow.svg`
 - `skills/reflex-integration/SKILL.md` <- `../riir-reflex/.docs/04_agent_skill/SKILL.md`
+- `assets/instinct_flow.svg` <- `../riir-instinct/.docs/03_decision_flow/instinct_flow.svg`
+  (produced by `scripts/render_tetris_flows.py`, which writes both mirrors;
+  this script is the drift detector between renders)
+
+`sync_mirror.py` carries a per-pair source root: the riir-reflex checkout is
+PRIMARY (absent → exit 2, the guard's loud-SKIP lane); a secondary checkout
+like riir-instinct absent is a LOUD per-root skip, never a silent green and
+never a red — the mirrors are committed files, so deploys never need the
+private checkouts.
+
+Every mirror's source sha is recorded in `assets/mirror_manifest.json`
+(the BOUNDARY law: cross-repo coupling by mirrored bytes with a recorded
+source sha). The script owns the manifest — never hand-edit it.
 
 After editing a source (or when riir-reflex's guard flags drift):
 

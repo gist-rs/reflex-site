@@ -25,6 +25,10 @@ conventions (no `@import`, every selector scoped to the SVG's own id,
     <reflex-site>/assets/<file>        what the page embeds (instinct figures;
                                        tetris figures also mirror to assets)
 
+After a re-render, run `scripts/sync_mirror.py` (default mode) in this repo —
+it owns `assets/mirror_manifest.json` (the recorded-source-sha manifest) and
+is the drift detector between renders.
+
 Modes:
     (default)  render + write both mirrors, print a byte report.
     --check    no network: exit 1 if any block's two mirrors differ or are
