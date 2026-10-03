@@ -141,9 +141,11 @@ if (!rethinkTag.some((t) => t.endsWith("↩5</span>"))) {
   process.exit(1);
 }
 // every lane keeps its slot: the unfit-only lane renders a presence row, the
-// unjudged lanes (4090) plot again with their disclosure
-if (!p50Html.includes("bekko: no verified timing") || /aria-label="bekko averaged/.test(p50Html)) {
-  console.error("FAIL[p50-family]: bekko must render a presence row with no value");
+// unjudged lanes (4090) plot again with their disclosure. The bekko label
+// carries the data-derived model size ("bekko 400M" — applyLaneSizes reads
+// the checkpoint id out of the cells; the bare form must NOT render).
+if (!p50Html.includes("bekko 400M: no verified timing") || p50Html.includes(">bekko<") || /aria-label="bekko(?! 400M) /.test(p50Html)) {
+  console.error("FAIL[p50-family]: bekko must render a presence row, sized-labeled, with no value");
   process.exit(1);
 }
 for (const back of ["paw", "clm", "gliner", "agentjev", "openthai"]) {
@@ -196,6 +198,67 @@ if (!/data-metric="cc"/.test(captured["summary"].innerHTML)) {
   process.exit(1);
 }
 console.log(`[cc] ${cc.bands} bands / ${cc.labels} lanes, note names the chance baseline`);
+
+// ── the shared-scope default (2026-10-03 user ask) ──────────────────────
+// The summary chart's DEFAULT plots every lane over the SAME suite set — the
+// areas block's curated bench, the equal basis the area radar rolls up — so
+// a 9-suite lane and an 8-suite lane share one denominator instead of each
+// averaging its own suites. The scope toggle flips to the per-lane
+// all-suites view and back. All counts are data-derived.
+(function summaryScopeArm() {
+  const die = (m) => { console.error(`FAIL[scope]: ${m}`); process.exit(1); };
+  const shell = () => captured["summary"].innerHTML;
+  // the stub does not parse children: render() writes the whole shell, so
+  // the body is read back OUT of the shell string (the metric handler, by
+  // contrast, writes .bc-summary-body directly — the final wiring check
+  // reads that object)
+  const body = () => {
+    const parts = shell().split('<div class="bc-summary-body">');
+    return parts.length > 1 ? parts[1] : "";
+  };
+  const nSuites = d.suites.length;
+  const sharedN = Object.keys((d.areas || {}).suites || {}).length;
+  if (!sharedN) die("bench.json carries no areas basis — the arm cannot run");
+  if (!shell().includes('data-scope="shared"') || !shell().includes('data-scope="all"')) die("the scope toggle did not render");
+  if (!shell().includes(`>shared ${sharedN}</button>`)) die(`the shared button must carry the data-derived count (${sharedN})`);
+  if (!shell().includes(`>all ${nSuites}</button>`)) die(`the all button must carry the data-derived count (${nSuites})`);
+  if (!body().includes(`Scoped to the ${sharedN} shared suites`)) die("the default note must disclose the shared scope");
+  if (!body().includes("bekko 400M")) die("the bekko label must carry the data-derived model size in the scoped rows");
+  // palette: the bare display form (instinct.js's best-lane ticks) and the
+  // sized label must resolve the SAME lane color
+  if (window.BenchLanes.color("bekko") !== window.BenchLanes.color("bekko 400M")) die("BenchLanes.color diverges between the bekko display forms");
+  // flip to all: per-lane denominators return, the note + legend flip. The
+  // denominator comparison runs at the ACC metric — cc can only ever plot
+  // the chance-baselined suites (a suite with no baseline is skipped, never
+  // guessed), so its denominators stay ≤ the shared count in both scopes.
+  captured[".bc-toggle"].handlers.click({
+    target: { closest: (s) => (s === "button[data-metric]" ? { dataset: { metric: "acc" } } : null) },
+  });
+  const scope = captured[".bc-scope"];
+  if (!scope || !scope.handlers.click) die("the scope toggle is not wired");
+  scope.handlers.click({ target: { closest: (s) => (s === "button[data-scope]" ? { dataset: { scope: "all" } } : null) } });
+  if (!body().includes(`Over ${nSuites} published suites`)) die("the all-scope note did not render");
+  if (!shell().includes("every published suite, one min–avg–max range per lane")) die("the all-scope legend did not render");
+  if (!/aria-label="Reflex · modelless averaged: .+ over \d+ suites/.test(body())) die("the reflex row lost its aria label in the all view");
+  // the denominators open up: some lane covers non-shared suites (Rethink's
+  // encoder cells ride the thai + s1mb suites), so the largest plotted n in
+  // the all view must EXCEED the shared count — data-derived, no hand-typed 14
+  const maxN = (html) => Math.max(0, ...[...html.matchAll(/averaged: .+? over (\d+) suites/g)].map((m) => +m[1]));
+  const nAll = maxN(body());
+  if (nAll <= sharedN) die(`all-scope max plotted denominator ${nAll} — expected more than the shared ${sharedN}`);
+  // back to shared: the equal-bench view restores
+  scope.handlers.click({ target: { closest: (s) => (s === "button[data-scope]" ? { dataset: { scope: "shared" } } : null) } });
+  if (!body().includes(`Scoped to the ${sharedN} shared suites`)) die("toggling back to shared did not restore the scoped note");
+  if (maxN(body()) > sharedN) die("a shared-scope row plots more suites than the shared basis");
+  // the metric wiring survives the shell re-render: the metric handler
+  // writes .bc-summary-body directly (the stub's parse-free innerHTML), so
+  // read that object back
+  captured[".bc-toggle"].handlers.click({
+    target: { closest: (s) => (s === "button[data-metric]" ? { dataset: { metric: "p50" } } : null) },
+  });
+  if (!captured[".bc-summary-body"].innerHTML.includes("geometric mean")) die("the metric toggle lost its wiring after a scope round-trip");
+  console.log(`[scope] default shared ${sharedN} (equal bench) → all ${nSuites} → shared; bekko 400M sized label on rows + radar legend; palette matches both forms`);
+})();
 
 // The area radar (the /bench/ decision-index cards): renders data.areas —
 // two cards (4 area spokes + 9 benchmark spokes), a polygon per lane,
@@ -257,6 +320,10 @@ if ((aHtml.match(/rd-polyline/g) || []).length !== expectedLines) {
   process.exit(1);
 }
 console.log(`[radar] ${polys} polygons, ${dots} dots, 2 cards, ${legends} legend rows, partial lane disclosed`);
+// the radar legend re-applies the data-derived model size to the rollup's
+// display form ("bekko" → "bekko 400M") so the two surfaces agree
+if (!aHtml.includes(">bekko 400M</b>")) die2("the radar legend must size-label the bekko rollup");
+function die2(m) { console.error(`FAIL[radar-size]: ${m}`); process.exit(1); }
 
 // Fallback spokes (2026-10-02, the served-product radar): a product lane's
 // derived tier-fallback cell rolls up MARKED and draws as a TRIANGLE

@@ -4,6 +4,26 @@ One hash-pinned line per removed issue (the fleet noise-reduction convention:
 an issue file is removed once its work is verifiably landed; this file is the
 durable record). Full narrative of each: `git log --follow -- .issues/<file>`.
 
+- **2026-10-03 — the home summary chart defaults to the SHARED bench (the equal basis) and the bekko label names its
+  size (owner ask: "top most graph acc … didn't mention what beko size is, i think 400M? also better scope to
+  intersected equal max bench which is 9/9").** Two pieces. (1) SCOPE: a `shared 9 / all 14` toggle beside the metric
+  buttons; the DEFAULT plots every lane over the SAME suite set — the areas block's curated bench, the equal basis
+  the area radar rolls up — so a 9-suite lane and an 8-suite lane finally share one denominator instead of each
+  averaging its own suites (the "all" view keeps the old per-lane semantics and its caveat note; both notes and the
+  legend disclose the denominator; cc's denominators stay ≤ 9 in both scopes because a suite with no chance baseline
+  is skipped, never guessed). Data-derived throughout: the toggle renders only when the data carries the areas basis,
+  and the counts on the buttons are the filtered suite counts, never typed. A lane with no cell on the plotted suites
+  keeps a presence row (the no-vanishing law) instead of silently dropping out of the shared view. (2) SIZE LABEL:
+  `applyLaneSizes` derives "bekko 400M" from the cells' own checkpoint id (`hotchpotch/bekko-system-one-v0-400m`) —
+  a hand-typed size on the site is a defect, same law as every number here — applied at the two data-entry seams
+  (setLogDomain on both pages; BenchFilter.init on /bench/, which runs first, so the filter chips agree too), and
+  `sizedDisplay` re-applies the suffix to the areas rollup's display form so the radar legend agrees. A seat move
+  (the 68M era) re-derives on the next publish; disagreeing sizes keep the bare label. `BenchLanes.color` matches
+  bekko by prefix so the bare display form (instinct.js's best-lane ticks) still resolves the rose slot. Gates:
+  chart_render_smoke (+ the scope arm: default shared → all → shared, denominators open up only at the acc metric,
+  bekko 400M on rows + radar legend, palette matches both forms, metric wiring survives the shell re-render),
+  home_page_smoke, bench_page_smoke, public_copy_gate — all green.
+
 - **2026-10-03 — the size chart grew the model-stack sub-bar + tap-to-expand details; the home summary bars expand
   too (owner ask: "Instinct · trained specialists and Rethink · encoder arm bar need special stack of model in sub
   bar … each graph need extras line under it to expand to show like current tooltip so in mobile user can click

@@ -74,7 +74,11 @@
     // soft-rose slot — distinct from all existing hues under the same
     // dark-surface ≥3:1 contrast rule (disclosed: not ΔE-validated with the
     // founding slots' rigor; the next palette pass re-checks all-pairs).
-    { key: "bekko", label: "bekko", color: "#e57373", match: (l) => l.lane === "bekko (reference)" },
+    // sizeFromModel: the label discloses the checkpoint size, derived from
+    // the lane's own cell `model` ids at data load (applyLaneSizes below) —
+    // "bekko" alone read as any-size (2026-10-03 user ask); the data's
+    // bekko-system-one-v0-400m carries the answer, so the site never types it.
+    { key: "bekko", label: "bekko", color: "#e57373", sizeFromModel: true, match: (l) => l.lane === "bekko (reference)" },
     // The PAW comparison lanes (reflex .issues/033): ProgramAsWeights — the
     // hosted and local postures share ONE palette slot and ONE filter chip
     // (same lane, two serving postures); the table row label carries the
@@ -99,8 +103,13 @@
     reflex: LANES.find((x) => x.key === "katgpt").color,
     color(label) {
       const s = String(label).replace(/ \(reference\)$/, "");
+      // bekko matches by prefix: the lane label carries the data-derived
+      // model size ("bekko 400M") while callers pass the display form
+      // ("bekko" — instinct.js's best-lane ticks), so exact equality would
+      // silently drop those marks to the OTHER gray.
       const hit = LANES.find((x) => x.key === "katgpt" ? (s === "Reflex" || s === "KatGPT")
         : x.key === "paw" ? s.startsWith("paw")
+        : x.key === "bekko" ? s.startsWith("bekko")
         : s === x.label);
       return (hit || OTHER).color;
     },
@@ -125,6 +134,11 @@
   // Derive the ordered key/label list from the DATA (every lane the page
   // would render, primary + extra-host, in first-seen order).
   function init(d) {
+    // Sized labels FIRST (applyLaneSizes is idempotent): the filter chips
+    // render lane labels from this walk, and on /bench/ init runs before
+    // hero()'s setLogDomain — without this the chip said "bekko" while every
+    // chart row said "bekko 400M".
+    applyLaneSizes(d || {});
     // The areas block rides the filter state (plan 001 tasks 1b+5): the
     // chips carry each lane's kind + cc index + coverage from the PUBLISHED
     // rollups — a chip is the one place every reader looks first, so the
@@ -324,6 +338,50 @@
 
   // One log domain for EVERY latency bar on the page, so a bar in one suite is
   // comparable with a bar in another. Snapped to whole decades.
+  // ── model-size disclosure (the lane label names the checkpoint size) ────
+  // "bekko" on a chart row read as any-size; the checkpoint id in the data
+  // (model: "hotchpotch/bekko-system-one-v0-400m") carries the size, so the
+  // label derives it — a hand-typed size on the site is a defect, same law
+  // as every number here. Applied once per data load (setLogDomain — the one
+  // seam both pages call before any render) by mutating the LANES label;
+  // sizedDisplay() re-applies the same suffix to DATA-side display forms
+  // (the areas rollups' `display`) so every surface agrees. A lane whose
+  // cells disagree on a size (or name none) keeps its bare label — it never
+  // guesses. The size token comes off the model id's trailing "-400m"-shaped
+  // run (digit(s) + m, not followed by an identifier character), rendered
+  // "400M"; a future seat move re-derives on the next publish.
+  const SIZE_TOKEN_RE = /(\d+(?:\.\d+)?)m(?![a-z0-9])/i;
+  let laneSize = null;
+  function laneCells(d, lane) {
+    const out = [];
+    for (const s of d.suites || [])
+      for (const l of [...allLanes(s), ...extraLanes(s).map((p) => p[0])])
+        if (laneOf(l) === lane) out.push(l);
+    return out;
+  }
+  function applyLaneSizes(d) {
+    laneSize = null;
+    for (const lane of LANES) {
+      if (!lane.sizeFromModel) continue;
+      const toks = new Set();
+      for (const l of laneCells(d, lane)) {
+        const m = SIZE_TOKEN_RE.exec(String(l.model || ""));
+        if (m) toks.add(m[1] + "M");
+      }
+      if (toks.size !== 1) continue;
+      laneSize = [...toks][0];
+      lane.label = lane.label.replace(/\s+\d+(?:\.\d+)?M$/i, "") + " " + laneSize;
+    }
+  }
+  function sizedDisplay(form) {
+    const s = String(form);
+    if (!laneSize) return s;
+    for (const lane of LANES)
+      if (lane.sizeFromModel && lane.label.startsWith(s + " "))
+        return s.includes(laneSize) ? s : s + " " + laneSize;
+    return s;
+  }
+
   let logDomain = [-3, 3];
   // ── the broken latency axis (the /#sizes break-sign idiom) ──────────────
   // BREAK_AT is a design threshold (the owner's "past 500 ms earns the break
@@ -340,6 +398,7 @@
   let latBroken = false, latMax = BREAK_AT;
   function setLogDomain(d) {
     areasBlock = (d && d.areas) || null;
+    applyLaneSizes(d || {});
     const vs = [];
     for (const s of d.suites || [])
       for (const [l] of scopedPairs(s)) if (num(l.latency_p50_ms) && l.latency_p50_ms > 0) vs.push(l.latency_p50_ms);
@@ -810,12 +869,31 @@
   // the landing page defaults to the speed story — the reason Reflex exists;
   // /bench/'s hero keeps its own accuracy default
   let summaryData = null, summaryMetric = "p50";
+  // The summary chart's suite scope. "shared" (default) plots every lane
+  // over the SAME suite set — the areas block's curated bench, the equal
+  // basis the area radar rolls up — so a 9-suite lane and an 8-suite lane
+  // finally share one denominator (the 2026-10-03 user ask: per-lane
+  // averages over their OWN suites compared different question sets).
+  // "all" is the older per-lane view (every published suite, each lane its
+  // own coverage). Data-derived: the toggle renders only when the data
+  // carries the areas basis; without it the chart is the all view.
+  let summaryScope = "shared";
+  function sharedBasis() {
+    const sm = areasBlock && areasBlock.suites;
+    if (!sm) return null;
+    const names = Object.keys(sm);
+    return names.length ? names : null;
+  }
+  function scopedSuites(d) {
+    const basis = summaryScope === "shared" ? sharedBasis() : null;
+    return basis ? (d.suites || []).filter((s) => basis.includes(s.name)) : (d.suites || []);
+  }
 
-  function laneStats(d, m, lane) {
+  function laneStats(d, m, lane, suites) {
     const vals = [], perSuite = [];
     const hosts = new Set();
     let seen = 0, unfit = 0, served = 0, unverified = 0;
-    for (const s of d.suites || []) {
+    for (const s of suites || []) {
       // pick() returns [lane, host] — host names the extra-host cell when the
       // primary host never ran this lane (the comparison-lane fallback)
       const picked = pick(s, lane);
@@ -865,11 +943,17 @@
     // PRESENCE row in place — the 2026-10-03 user report: hiding lanes
     // (first the family lanes wholesale, then the unfit ones) read as
     // results being lost. No lane ever vanishes from this chart.
-    const total = (d.suites || []).length;
-    const stats = LANES.map((lane) => [lane, laneStats(d, m, lane)]);
+    const suitesNow = scopedSuites(d);
+    const total = suitesNow.length;
+    const stats = LANES.map((lane) => [lane, laneStats(d, m, lane, suitesNow)]);
     const ranked = stats.filter(([, a]) => a && !a.zero)
       .sort(([, x], [, y]) => (M.log ? x.value - y.value : y.value - x.value));
     const zeroStats = stats.filter(([, a]) => a && a.zero);
+    // a lane with NO cell on the plotted suites keeps its slot with the
+    // reason (the no-vanishing law, 2026-10-03) — in the shared scope that
+    // is a lane the equal bench never measured
+    const absent = stats.filter(([, a]) => !a);
+    const scopedNote = summaryScope === "shared" && sharedBasis();
     const rows = ranked.map(([lane, a]) => {
       const fLo = frac(m, a.min), fHi = frac(m, a.max), fAv = frac(m, a.value);
       const how = M.log ? "geometric mean" : "macro-average";
@@ -919,8 +1003,15 @@
         `<div class="bc-hlabel"><i class="bc-sw" style="background:${lane.color}"></i>${esc(lane.label)}</div>` +
         `<div class="bc-htrack">` +
         `<div class="bc-hbar bc-none" data-tip="${esc(`${lane.label}: every timed cell failed the box-state check (loaded box at run time) — ${a.unfit} unfit cell(s) excluded; the values sit in the benchmark tables`)}" aria-label="${esc(`${lane.label}: no verified timing`)}">timing failed the loaded-box check — re-run pending, values on /bench/</div></div>`
+      ).join("") +
+      absent.map(([lane]) =>
+        `<div class="bc-hlabel"><i class="bc-sw" style="background:${lane.color}"></i>${esc(lane.label)}</div>` +
+        `<div class="bc-htrack"><div class="bc-hbar bc-none" aria-label="${esc(`${lane.label}: no cell on the plotted suites`)}">${scopedNote ? "not run on the shared suites — switch the scope to all" : "no published cell"}</div></div>`
       ).join("");
     const anyServed = ranked.some(([, a]) => a.served);
+    const scopeNote = scopedNote
+      ? `Scoped to the ${total} shared suites — the equal bench, one denominator for every row (the same suites the area radar rolls up on /bench/). `
+      : `Over ${total} published suites — the count beside a lane is its plotted suites, and each lane averages its own suites — the like-for-like view is the benchmark page's area radar. `;
     const note = (M.log
       ? (latBroken
         ? `Band = min → max suite p50; tick = geometric mean; log to ${lat(BREAK_AT)}, then a compressed tail past the break sign — exact values on the tooltip. Shorter is faster. `
@@ -929,7 +1020,8 @@
         ? "Band = min → max suite chance-corrected accuracy; tick = macro-average; 0% = random guessing on that suite's option count (the same scale as the area radar), so suites compare — bars clip at the 0% chance line, tooltips carry exact values. "
         : "Band = min → max suite accuracy; tick = macro-average; chance differs per suite — compare lanes, not suites. ") +
       `Rows sorted ${M.log ? "fastest" : "best"} average first. ` +
-      `Over ${total} published suites — hover a bar for per-suite values (tap or click a bar to expand them under the row); the count beside a lane is its plotted suites, and each lane averages its own suites — the like-for-like view is the benchmark page's area radar.` +
+      scopeNote +
+      `Hover a bar for per-suite values (tap or click a bar to expand them under the row).` +
       (M.log
         ? (anyServed ? " ↩k = k suites answered by the base lane — the served product (Rethink ≈ Reflex where the encoder declines). " : "") +
           " Unfit timing (a loaded-box run) never plots — those lanes carry the reason in place; unverified = the run's host has no box-state probes."
@@ -937,39 +1029,66 @@
     return `<div class="bc-hgrid"><div></div>${axis(m)}${rows}<div></div>${axis(m)}</div><p class="bc-note">${esc(note)}</p>`;
   }
 
+  function summaryShell(d) {
+    const basis = sharedBasis();
+    const scopedNow = summaryScope === "shared" && basis;
+    const sharedN = basis ? scopedSuites(d).length : 0;
+    const btns = Object.entries(METRICS).map(([k, M]) =>
+      `<button type="button" data-metric="${k}" aria-pressed="${k === summaryMetric}">${esc(M.label)}${M.log ? " (log)" : ""}</button>`).join("");
+    const scopeBtns = basis
+      ? `<div class="bc-toggle bc-scope" role="group" aria-label="suite scope">` +
+        `<button type="button" data-scope="shared" aria-pressed="${scopedNow}">shared ${sharedN}</button>` +
+        `<button type="button" data-scope="all" aria-pressed="${!scopedNow}">all ${(d.suites || []).length}</button></div>`
+      : "";
+    const legend = scopedNow
+      ? `the ${sharedN} shared suites, one min–avg–max range per lane — the equal basis of <a href="/bench/">the full benchmark</a>'s area radar`
+      : `every published suite, one min–avg–max range per lane — the same data as <a href="/bench/">the full benchmark</a>`;
+    return `<div class="bc-bar"><div class="bc-legend"><span>${legend}</span></div>` +
+      `<div class="bc-toggle" role="group" aria-label="metric">${btns}</div>${scopeBtns}</div><div class="bc-summary-body">${summaryBody()}</div>`;
+  }
+
   function summary(d, el) {
     if (!el || !d || !d.suites) return;
     summaryData = d;
     setPrimaryHost(d.meta && d.meta.host);
     tooltip();
-    const btns = Object.entries(METRICS).map(([k, M]) =>
-      `<button type="button" data-metric="${k}" aria-pressed="${k === summaryMetric}">${esc(M.label)}${M.log ? " (log)" : ""}</button>`).join("");
-    el.innerHTML = `<div class="bc-bar"><div class="bc-legend"><span>every published suite, one min–avg–max range per lane — the same data as <a href="/bench/">the full benchmark</a></span></div>` +
-      `<div class="bc-toggle" role="group" aria-label="metric">${btns}</div></div><div class="bc-summary-body">${summaryBody()}</div>`;
-    // tap-to-expand: a bar toggles its under-row detail (property
-    // assignment on the persisting body element — the metric toggle only
-    // swaps innerHTML, so the wiring survives re-renders)
-    const body = el.querySelector(".bc-summary-body");
-    const toggleDetail = (bar) => {
-      const det = document.getElementById(bar.getAttribute("aria-controls"));
-      if (!det) return;
-      det.hidden = !det.hidden;
-      bar.setAttribute("aria-expanded", String(!det.hidden));
+    // one render path for the shell AND both toggles: a scope switch
+    // re-renders the legend + note + rows together (they all disclose the
+    // denominator), while a metric switch keeps the shell and swaps the body
+    const render = () => {
+      el.innerHTML = summaryShell(d);
+      // tap-to-expand: a bar toggles its under-row detail (property
+      // assignment on the fresh body element — the wiring rides every render)
+      const body = el.querySelector(".bc-summary-body");
+      const toggleDetail = (bar) => {
+        const det = document.getElementById(bar.getAttribute("aria-controls"));
+        if (!det) return;
+        det.hidden = !det.hidden;
+        bar.setAttribute("aria-expanded", String(!det.hidden));
+      };
+      const hit = (e) => e.target && e.target.closest && e.target.closest(".bc-hbar[aria-controls]");
+      body.onclick = (e) => { const bar = hit(e); if (bar && body.contains(bar)) toggleDetail(bar); };
+      body.onkeydown = (e) => {
+        if (e.key !== "Enter" && e.key !== " ") return;
+        const bar = hit(e);
+        if (bar && body.contains(bar)) { e.preventDefault(); toggleDetail(bar); }
+      };
+      el.querySelector(".bc-toggle").addEventListener("click", (e) => {
+        const b = e.target.closest("button[data-metric]");
+        if (!b) return;
+        summaryMetric = b.dataset.metric;
+        for (const x of el.querySelectorAll("button[data-metric]")) x.setAttribute("aria-pressed", x === b);
+        el.querySelector(".bc-summary-body").innerHTML = summaryBody();
+      });
+      const scope = el.querySelector(".bc-scope");
+      if (scope) scope.addEventListener("click", (e) => {
+        const b = e.target.closest("button[data-scope]");
+        if (!b || b.dataset.scope === summaryScope) return;
+        summaryScope = b.dataset.scope;
+        render();
+      });
     };
-    const hit = (e) => e.target && e.target.closest && e.target.closest(".bc-hbar[aria-controls]");
-    body.onclick = (e) => { const bar = hit(e); if (bar && body.contains(bar)) toggleDetail(bar); };
-    body.onkeydown = (e) => {
-      if (e.key !== "Enter" && e.key !== " ") return;
-      const bar = hit(e);
-      if (bar && body.contains(bar)) { e.preventDefault(); toggleDetail(bar); }
-    };
-    el.querySelector(".bc-toggle").addEventListener("click", (e) => {
-      const b = e.target.closest("button[data-metric]");
-      if (!b) return;
-      summaryMetric = b.dataset.metric;
-      for (const x of el.querySelectorAll("button[data-metric]")) x.setAttribute("aria-pressed", x === b);
-      el.querySelector(".bc-summary-body").innerHTML = summaryBody();
-    });
+    render();
   }
 
   // ── suite-table sort control (rendered once above the tables) ────────────
@@ -1021,7 +1140,7 @@
     return Object.entries(A.lanes).map(([key, ld]) => {
       const meta = LANES.find((x) => x.key === areaPaletteKey(key)) || OTHER;
       const host = ld.host ? " · " + (RIG_LABELS[ld.host] || ld.host) : "";
-      return { key, meta, label: (ld.display || meta.label) + host, color: meta.color, data: ld };
+      return { key, meta, label: sizedDisplay(ld.display || meta.label) + host, color: meta.color, data: ld };
     }).filter((l) => !(window.BenchFilter && window.BenchFilter.ready()) || window.BenchFilter.visibleKey(l.meta.key));
   }
 
