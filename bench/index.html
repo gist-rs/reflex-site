@@ -353,7 +353,11 @@
         <strong>paw</strong> — the external ProgramAsWeights compile-a-classifier lane (MIT SDK, not affiliated): one neural program compiled
         per question shape from our committed spec, answered over their hosted REST — or through their local llama.cpp runtime as the
         <code>paw (local)</code> posture — a comparison lane, never a product lane (free-text answers under the exact-match law, so it
-        carries no confidence columns).</p>
+        carries no confidence columns).
+        <strong>clef (local)</strong> — Cloudflare's Clef decision model (not affiliated), measured as their open weights rather than their
+        hosted API: the community 4-bit quant of their 9B (<code>mlx-community/clef-flash-4bit</code>) served on our box behind a loopback
+        shim — a comparison lane, never a product lane. Accuracy publishes only for now (the local run's box state was not quotable; a
+        quiet-box re-read lands latency, and the hosted 27B posture is a future owner-gated cell).</p>
       </details>
       <details class="faq">
         <summary>Tell me more about the clm lane</summary>
@@ -544,6 +548,9 @@
       <li>paw reference: <a href="https://programasweights.com">ProgramAsWeights</a> (MIT) ·
         Python SDK <a href="https://github.com/programasweights/programasweights-python">programasweights-python</a> ·
         <a href="https://programasweights.readthedocs.io">docs</a></li>
+      <li>clef reference: Cloudflare's Clef · the local posture runs the community quant
+        <a href="https://huggingface.co/mlx-community/clef-flash-4bit">mlx-community/clef-flash-4bit</a>
+        (4-bit, their 9B) — never pooled with the hosted cell</li>
       <li>Instinct / Rethink — our lanes (Instinct open source; Rethink hosted at
         <a href="https://rethink.gist.rs/">rethink.gist.rs</a>, private source): <strong>Instinct</strong> is the trained-specialist
         hybrid composed over Reflex; <strong>Rethink</strong> is the encoder arm (record-only so far). Described in the
@@ -745,6 +752,12 @@ function suiteSection(s) {
     // + local postures — same questions, their compiled-program answers.
     if (s.paw) lanes.push(s.paw);
     if (s.paw_local) lanes.push(s.paw_local);
+    // The Clef comparison lane (reflex plan 011 / Bench 113): Cloudflare's
+    // Clef over a LOCAL clef-flash-4bit (community 4-bit quant of their
+    // 9B, loopback shim on the m3) — same questions, their scoring model;
+    // acc-only (the local run's box state was not quotable; the hosted
+    // 27B posture is owner-gated).
+    if (s.clef) lanes.push(s.clef);
     // The instinct HYBRID lane (riir-instinct .issues/003): the trained
     // specialist composed with Reflex over the same seat — the registered
     // arm's frozen test read, published per suite where a hybrid arm won
@@ -766,6 +779,7 @@ function suiteSection(s) {
       if (hl.openthai) extraRows.push([hl.openthai, host]);
       if (hl.paw) extraRows.push([hl.paw, host]);
       if (hl.paw_local) extraRows.push([hl.paw_local, host]);
+      if (hl.clef) extraRows.push([hl.clef, host]);
       if (hl.hybrid) extraRows.push([hl.hybrid, host]);
       if (hl.encoder) extraRows.push([hl.encoder, host]);
     }

@@ -277,6 +277,13 @@ LANE_DISPLAY = {
     # (the agentjev/clm family law: their stack serves, our Rust
     # measures), so the display name carries the (reference) qualifier.
     "openthai": "openthai (reference)",
+    # reflex Plan 011 (Bench 113): the Clef comparison lane. The cells on
+    # the board are the LOCAL posture — mlx-community/clef-flash-4bit (a
+    # community 4-bit quant of their 9B) served on the m3 behind a
+    # loopback HTTP shim — so the display name carries the posture like
+    # the paw pair. The hosted 27B cell (the C4 deciding read) stays
+    # owner-gated on Workers AI creds.
+    "clef": "clef (local)",
 }
 
 # The hand-maintained DISCLOSURE table (2026-10-02, the full-coverage
@@ -450,6 +457,7 @@ def rename_lanes(d):
             + ([s["encoder"]] if s.get("encoder") else [])
             + ([s["paw"]] if s.get("paw") else [])
             + ([s["paw_local"]] if s.get("paw_local") else [])
+            + ([s["clef"]] if s.get("clef") else [])
             + ([s["openthai"]] if s.get("openthai") else [])
         )
         for l in lanes:
@@ -642,6 +650,7 @@ AREA_LANES = (
     ("openthai", "openthai", "openthai"),
     ("paw", "paw (hosted)", "paw"),
     ("paw_local", "paw (local)", "paw"),
+    ("clef", "clef (local)", "clef"),
 )
 
 # ── Lane classification (plan 001 task 5; the Jev Index's entrant
@@ -668,6 +677,7 @@ LANE_KIND = {
     "openthai": "http-oracle",
     "paw": "compiled-program",
     "paw_local": "compiled-program",
+    "clef": "http-oracle",
 }
 
 # ── Per-lane timing-method disclosure (plan 001 task 4; their per-engine
@@ -743,6 +753,13 @@ LANE_TIMING = {
         "method": ("Local llama.cpp runtime behind a Python subprocess "
                    "(their programasweights paw.function; warm cache)"),
     },
+    "clef": {
+        "clock": "http",
+        "method": ("HTTP round-trip to a local clef-flash-4bit (community "
+                   "4-bit quant of their 9B) served on the m3 behind a "
+                   "loopback shim; the hosted 27B posture is owner-gated "
+                   "— never pooled with these cells"),
+    },
 }
 
 # ── Edition (plan 001 task 7; their edition label + auditability) ─────
@@ -758,7 +775,7 @@ LANE_TIMING = {
 # the guard's refusal), point EDITION at it, freeze the outgoing table
 # (the publisher archives it automatically, on BOTH the publish and the
 # --rederive paths), and add a data/changes.json row.
-EDITION = "2026-10"
+EDITION = "2026-10-2"
 
 
 def _basis_payload():
@@ -784,6 +801,11 @@ def edition_basis_digest():
 
 EDITIONS = {
     "2026-10": "0133fc49a0baec3b3293f51324b5416b",
+    # 2026-10-2 (plan 011 C3): the Clef comparison lane joins the lane set
+    # (clef (local) — the community 4-bit 9B on the m3, plan 011's owner
+    # ask; latency acc-only until a quiet-box re-read, hosted 27B
+    # owner-gated).
+    "2026-10-2": "4672c8b939b600e7965a402b4f2a4b7c",
 }
 
 
@@ -1610,6 +1632,19 @@ def merge(primary, extras):
                 updated_lanes["bekko"] = True
             elif ebk:
                 skipped_variant_lanes.append(f"bekko@{ehost}")
+            # The Clef comparison lane (reflex plan 011 / Bench 113): the
+            # same carry law — their model, our measurement, per-host. The
+            # board's cells are the LOCAL posture (clef-flash-4bit on a
+            # loopback shim); the hosted 27B cell lands through this same
+            # slot when plan 011 A6 unblocks, never pooled silently with
+            # these (the lane's model field names the posture).
+            ecl = s.get("clef")
+            if ecl and not device_variant:
+                stamp_cell(ecl, s, emeta)
+                entry["clef"] = ecl
+                updated_lanes["clef"] = True
+            elif ecl:
+                skipped_variant_lanes.append(f"clef@{ehost}")
             # The Issue-024 leak block (T4): a slice property of the
             # DATASETS + registry caps, not of the host — the latest
             # run's scan is the published one (a doc without it never
@@ -2228,7 +2263,7 @@ def _carry_into(lane, incumbent):
 # the inventory expands it per checkpoint key, because a publish that drops
 # one checkpoint drops published cells even though the class survives.
 LANE_CLASSES = ("modelless", "laya", "clm", "gliner", "bekko", "agentjev",
-                "hybrid", "encoder", "paw", "paw_local", "openthai")
+                "hybrid", "encoder", "paw", "paw_local", "openthai", "clef")
 
 
 def lane_inventory(d):

@@ -85,6 +85,12 @@
     // posture ("paw (hosted)" / "paw (local)"). Lime slot, added under the
     // same dark-surface contrast rule.
     { key: "paw", label: "paw", color: "#cddc39", match: (l) => String(l.lane).startsWith("paw") },
+    // The Clef comparison lane (reflex plan 011 / Bench 113): Cloudflare's
+    // decision model measured as their open weights (local 4-bit quant).
+    // Warm-taupe slot — the free family between bekko's rose and the neutral
+    // grays; same disclosure as bekko (not ΔE-validated with the founding
+    // slots' rigor; the next palette pass re-checks all-pairs).
+    { key: "clef", label: "clef", color: "#a1887f", match: (l) => l.lane === "clef (local)" },
   ];
   const OTHER = { key: "other", label: "other", color: "#69718a" };
   const laneOf = (l) => LANES.find((x) => x.match(l)) || OTHER;
@@ -462,6 +468,7 @@
     if (s.openthai) out.push(s.openthai);
     if (s.paw) out.push(s.paw);
     if (s.paw_local) out.push(s.paw_local);
+    if (s.clef) out.push(s.clef);
     if (s.hybrid) out.push(s.hybrid);
     if (s.encoder) out.push(s.encoder);
     return out;
@@ -478,6 +485,7 @@
       if (hl.openthai) out.push([hl.openthai, host]);
       if (hl.paw) out.push([hl.paw, host]);
       if (hl.paw_local) out.push([hl.paw_local, host]);
+      if (hl.clef) out.push([hl.clef, host]);
       if (hl.hybrid) out.push([hl.hybrid, host]);
       if (hl.encoder) out.push([hl.encoder, host]);
     }

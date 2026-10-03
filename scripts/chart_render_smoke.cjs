@@ -149,14 +149,27 @@ if (!rethinkTag.some((t) => t.endsWith("↩5</span>"))) {
 // the checkpoint id out of the cells; the bare form must NOT render).
 // Since reflex bench 115 (2026-10-03) bekko's 9 cells are latency_quotable,
 // so the lane plots a real bar — the presence-row shape it wore while the
-// timing was unfit must be gone.
+// timing was unfit must be gone. The presence-row STATE itself is the
+// designed rendering for a lane whose timing is legitimately pending —
+// clef wears it now (acc-only cells, the quiet-box re-read pending); the
+// pin names WHO wears it, never that nobody does (a lane in that state
+// with no row is the vanishing this check exists for).
 if (!/aria-label="bekko 400M averaged: /.test(p50Html) || p50Html.includes(">bekko<") || /aria-label="bekko(?! 400M) /.test(p50Html)) {
   console.error("FAIL[p50-family]: bekko must plot a real bar, sized-labeled");
   process.exit(1);
 }
-if (p50Html.includes("no verified timing")) {
-  console.error("FAIL[p50-family]: a presence row survived — every lane now has plottable or disclosed timing");
-  process.exit(1);
+{
+  const presence = [...p50Html.matchAll(/aria-label="([^"]*?)\s*(?::\s*)?no verified timing[^"]*"/g)].map((m) => m[1].trim());
+  const pending = new Set(["clef", "clef (local)"]);
+  const unexpected = presence.filter((l) => !pending.has(l));
+  if (unexpected.length) {
+    console.error(`FAIL[p50-family]: a presence row survived beyond the pending-timing lanes (clef) — got [${unexpected.join(", ")}]`);
+    process.exit(1);
+  }
+  if (!presence.some((l) => l.startsWith("clef"))) {
+    console.error("FAIL[p50-family]: clef (acc-only, re-read pending) must keep its presence row — lanes never vanish");
+    process.exit(1);
+  }
 }
 for (const back of ["paw", "clm", "gliner", "agentjev", "openthai"]) {
   if (!new RegExp(`aria-label="${back} averaged`).test(p50Html)) {

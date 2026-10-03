@@ -103,10 +103,6 @@
      "paw_local": {
       "git_sha": "0dc2c20",
       "date_utc": "2026-10-03T17:14:24Z"
-     },
-     "clef": {
-      "git_sha": "50d340d",
-      "date_utc": "2026-10-03T07:16:56Z"
      }
     },
     "head_posture": "OFF (head_scale 0 \u2014 the published baseline posture)"
@@ -180,7 +176,7 @@
    }
   ],
   "head_posture": "OFF (head_scale 0 \u2014 the published baseline posture)",
-  "edition": "2026-10-2"
+  "edition": "2026-10"
  },
  "suites": [
   {
@@ -2475,96 +2471,6 @@
     "source_run": {
      "git_sha": "0dc2c20",
      "date_utc": "2026-10-03T17:14:24Z"
-    }
-   },
-   "clef": {
-    "lane": "clef (local)",
-    "model": "clef-flash-4bit",
-    "hard": {
-     "n": 2000,
-     "accuracy": 0.6955,
-     "macro_f1": 0.674190133619508,
-     "ece": 0.0214991500000001,
-     "brier": 0.4010809480199996,
-     "nll": 0.703460507964248,
-     "aurc": 0.15453834199524571,
-     "mean_confidence": 0.6938984499999992,
-     "acc_at_50_coverage": 0.861,
-     "acc_at_80_coverage": 0.749375
-    },
-    "readout_ece": 0.0214991500000001,
-    "raw_abstain": null,
-    "calibrated_abstain": null,
-    "abstain_causes": null,
-    "readout_ece_raw": null,
-    "readout_ece_calibrated": null,
-    "floor_ece": null,
-    "g1_pass": null,
-    "g1_verdict": null,
-    "by_question_type": {
-     "choice": {
-      "n": 600,
-      "accuracy": 0.68,
-      "macro_f1": 0.6654819049959715,
-      "ece": 0.043095666666666685,
-      "brier": 0.4278200046333323,
-      "nll": 0.7826123445028398,
-      "aurc": 0.16201834458694875,
-      "mean_confidence": 0.6941556666666667,
-      "acc_at_50_coverage": 0.8333333333333334,
-      "acc_at_80_coverage": 0.7270833333333333
-     },
-     "noul": {
-      "n": 600,
-      "accuracy": 0.79,
-      "macro_f1": 0.7895416685225602,
-      "ece": 0.05168566666666666,
-      "brier": 0.2857085801333334,
-      "nll": 0.45048747196241257,
-      "aurc": 0.09918285591452777,
-      "mean_confidence": 0.8146023333333334,
-      "acc_at_50_coverage": 0.9233333333333333,
-      "acc_at_80_coverage": 0.8583333333333333
-     },
-     "score": {
-      "n": 800,
-      "accuracy": 0.63625,
-      "macro_f1": 0.6135190738880458,
-      "ece": 0.043644624999999944,
-      "brier": 0.4675559314749991,
-      "nll": 0.8338264075616842,
-      "aurc": 0.20723428476578787,
-      "mean_confidence": 0.6031776249999998,
-      "acc_at_50_coverage": 0.7675,
-      "acc_at_80_coverage": 0.678125
-     }
-    },
-    "soft_acc": 0.5150087633859379,
-    "brier_soft": 0.11176883383455492,
-    "score_mae": 0.2956587900000002,
-    "within_1": 0.975,
-    "determinism_ok": true,
-    "determinism_n": 10,
-    "n_cases": 400,
-    "n_questions": 2000,
-    "score_threshold": null,
-    "distance_threshold": null,
-    "threshold_recommendation": null,
-    "corpus_cap": null,
-    "head_selection": null,
-    "nb_selection": null,
-    "oc_selection": null,
-    "ridge_selection": null,
-    "genome_selection": null,
-    "transductive": null,
-    "confusion": null,
-    "pair_head_ab": null,
-    "jdi_chance": 0.2925,
-    "jdi_skill": 0.5696113074204947,
-    "cases_digest": "fnv1a64-6e37760ee2a5b6c9",
-    "source_run": {
-     "git_sha": "50d340d",
-     "date_utc": "2026-10-03T07:16:56Z"
     }
    }
   },
@@ -12039,59 +11945,6 @@
      "git_sha": "0dc2c20",
      "date_utc": "2026-10-03T17:17:16Z"
     }
-   },
-   "clef": {
-    "lane": "clef (local)",
-    "model": "clef-flash-4bit",
-    "hard": {
-     "n": 500,
-     "accuracy": 0.954,
-     "macro_f1": 0.9536241896631502,
-     "ece": 0.034862000000000185,
-     "brier": 0.07688410772000609,
-     "nll": 0.22256338872472112,
-     "aurc": 0.010036258534506482,
-     "mean_confidence": 0.9304940000000004,
-     "acc_at_50_coverage": 0.988,
-     "acc_at_80_coverage": 0.985
-    },
-    "readout_ece": 0.034862000000000185,
-    "raw_abstain": null,
-    "calibrated_abstain": null,
-    "abstain_causes": null,
-    "readout_ece_raw": null,
-    "readout_ece_calibrated": null,
-    "floor_ece": null,
-    "g1_pass": null,
-    "g1_verdict": null,
-    "by_question_type": null,
-    "soft_acc": null,
-    "brier_soft": null,
-    "score_mae": null,
-    "within_1": null,
-    "determinism_ok": true,
-    "determinism_n": 10,
-    "n_cases": 500,
-    "n_questions": 500,
-    "score_threshold": null,
-    "distance_threshold": null,
-    "threshold_recommendation": null,
-    "corpus_cap": null,
-    "head_selection": null,
-    "nb_selection": null,
-    "oc_selection": null,
-    "ridge_selection": null,
-    "genome_selection": null,
-    "transductive": null,
-    "confusion": null,
-    "pair_head_ab": null,
-    "jdi_chance": 0.014,
-    "jdi_skill": 0.9533468559837728,
-    "cases_digest": "fnv1a64-dd8ab35333abb82a",
-    "source_run": {
-     "git_sha": "2290415",
-     "date_utc": "2026-10-03T07:00:40Z"
-    }
    }
   },
   {
@@ -15486,7 +15339,7 @@
  ],
  "areas": {
   "version": 4,
-  "edition": "2026-10-2",
+  "edition": "2026-10",
   "chance_digest": "9b08e3970c7a38a566ddeba3f37ad8d7",
   "scale": "chance-corrected accuracy: cc = (acc - chance) / (1 - chance); 0 = random guessing, 1 = every question right; per-suite chance = the mean per-question random-pick probability of the harness's own option construction (a dataset fact, not a measurement); values below 0 are BELOW CHANCE and stay negative on purpose \u2014 a lane scoring under random guessing must read that way, and negatives pull area means and the index down by design",
   "suites": {
@@ -16100,31 +15953,6 @@
     },
     "complete": true
    },
-   "clef": {
-    "display": "clef (local)",
-    "color_key": "clef",
-    "kind": "http-oracle",
-    "per_suite": {
-     "banking77": {
-      "acc": 0.954,
-      "cc": 0.953395
-     },
-     "typed_decisions": {
-      "acc": 0.6955,
-      "cc": 0.553846
-     }
-    },
-    "areas": {
-     "language": 0.953395,
-     "decisions": 0.553846
-    },
-    "index": 0.753621,
-    "coverage": {
-     "suites": 2,
-     "of": 9
-    },
-    "complete": false
-   },
    "clm@4090-win": {
     "display": "clm",
     "color_key": "clm",
@@ -16371,16 +16199,6 @@
     "n_used": 9,
     "n_unquotable": 0,
     "n_unjudged": 0,
-    "note": "population = the suites behind the lane's index; p50 geometric mean over latency_quotable cells only (unfit timing is shown in the tables, never plotted)"
-   },
-   "clef": {
-    "clock": "http",
-    "method": "HTTP round-trip to a local clef-flash-4bit (community 4-bit quant of their 9B) served on the m3 behind a loopback shim; the hosted 27B posture is owner-gated \u2014 never pooled with these cells",
-    "suites": 2,
-    "p50_geomean_ms": null,
-    "n_used": 0,
-    "n_unquotable": 0,
-    "n_unjudged": 2,
     "note": "population = the suites behind the lane's index; p50 geometric mean over latency_quotable cells only (unfit timing is shown in the tables, never plotted)"
    },
    "clm@4090-win": {

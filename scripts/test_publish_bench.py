@@ -2197,9 +2197,11 @@ def case_chance_digest_and_edition_pin():
     a = pb.compute_areas(area_doc())
     assert a["chance_digest"] == pb.chance_digest()
     assert a["edition"] == pb.EDITION
-    # the 2026-10 digest is FROZEN HERE as a literal — a silent basis edit
+    # the 2026-10-2 digest is FROZEN HERE as a literal — a silent basis edit
     # changes the computed digest and reds this line before any publish
-    assert pb.edition_basis_digest() == "0133fc49a0baec3b3293f51324b5416b"
+    # (2026-10's frozen literal was 0133fc49a0baec3b3293f51324b5416b; the
+    # 2026-10-2 bump added the clef lane — plan 011 C3)
+    assert pb.edition_basis_digest() == "4672c8b939b600e7965a402b4f2a4b7c"
     # ledger shape: EDITION is the last key; digests pairwise distinct
     assert list(pb.EDITIONS)[-1] == pb.EDITION
     assert len(set(pb.EDITIONS.values())) == len(pb.EDITIONS)
@@ -2377,17 +2379,19 @@ def case_rederive_archives_on_edition_bump():
     pb.finalize(published)
     saved_edition = pb.EDITION
     try:
-        pb.EDITION = "2026-11"   # the code bumped; the file still says 2026-10
+        pb.EDITION = "2026-11"   # the code bumped; the file still says the
+        # ledger's last edition (whatever the CURRENT one is — the archive
+        # name derives from it, never a hardcoded literal)
         with tempfile.TemporaryDirectory() as td:
             pub = Path(td) / "bench.json"
             pub.write_text(json.dumps(published), encoding="utf-8")
             assert pb.rederive(pub) == 0
             after = json.loads(pub.read_text(encoding="utf-8"))
             assert after["meta"]["edition"] == "2026-11"
-            arch = Path(td) / "archive" / "bench-2026-10.json"
+            arch = Path(td) / "archive" / f"bench-{saved_edition}.json"
             assert arch.is_file(), "the outgoing edition must freeze on a rederive bump"
             frozen = json.loads(arch.read_text(encoding="utf-8"))
-            assert frozen["meta"]["edition"] == "2026-10"
+            assert frozen["meta"]["edition"] == saved_edition
             # a second rederive archives nothing (the archive exists)
             assert pb.rederive(pub) == 0
     finally:

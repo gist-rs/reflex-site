@@ -114,6 +114,15 @@ const server = http.createServer((req, res) => {
   if (pawRows !== expectedPaw) fail(`paw rows ${pawRows} != data ${expectedPaw}`);
   else console.log(`ok: ${pawRows} paw table rows (data-derived)`);
 
+  // 3e) clef rows (the Clef comparison lane, acc-only cells): the same
+  //     data-derived law — the cells are acc-only (latency stripped under
+  //     the Issue-021 wall until the quiet-box re-read), so a zero here is
+  //     the invisible-lane class again, never an honest absence.
+  const clefRows = await page.$$eval("#tables tr", (trs) => trs.filter((t) => { const c = t.querySelector("td"); return c && /^clef \(local\)/.test(c.textContent); }).length);
+  const expectedClef = expectedLaneRows("clef");
+  if (clefRows !== expectedClef || expectedClef < 1) fail(`clef rows ${clefRows} != data ${expectedClef}`);
+  else console.log(`ok: ${clefRows} clef table rows (data-derived)`);
+
   // 4) hero bars: a lane's not-run bars must be EXACTLY the suites the
   //    lane never measured (read from the data — the suite set grows over
   //    time; the reflex Bench 074 Thai suites joined without clm/gliner/
@@ -133,7 +142,7 @@ const server = http.createServer((req, res) => {
   // "Instinct — not run" / "Rethink — not run" on every family row beside
   // a verdict card counting the same cells as family arms (2026-10-02
   // user report) — a not-run on a suite WITH a cell, this exact class.
-  for (const [key, label] of [["gliner", "gliner"], ["agentjev", "agentjev"], ["openthai", "openthai"], ["paw", "paw"], ["hybrid", "Instinct"], ["encoder", "Rethink"]]) {
+  for (const [key, label] of [["gliner", "gliner"], ["agentjev", "agentjev"], ["openthai", "openthai"], ["paw", "paw"], ["clef", "clef"], ["hybrid", "Instinct"], ["encoder", "Rethink"]]) {
     const expected = benchData.suites.filter((s) => !laneHasCell(s, key)).length;
     const got = notRun.filter((t) => t.startsWith(label)).length;
     if (got !== expected) fail(`${label}: ${got} hero not-run bars vs ${expected} suites without a ${label} cell — a not-run on a measured suite means the extra-host fallback failed`);
