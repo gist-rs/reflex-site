@@ -33,7 +33,8 @@ built elsewhere? YES → here. NO → another repo; file there.
 | Concern | Correct home |
 |---|---|
 | The modelless engine, heads, corpus recipe, bench harness and its measurements | riir-reflex — fed here via `publish_bench.py` and `scripts/sync_mirror.py` |
-| The Instinct lane's decision-flow figure | riir-instinct — `assets/instinct_flow.svg` is a MIRROR (`scripts/sync_mirror.py`; recorded sha in `assets/mirror_manifest.json`, produced by `scripts/render_tetris_flows.py`); never edit it here |
+| The Instinct lane's decision-flow figure + education docs | riir-instinct — `assets/instinct_flow.svg`, `docs/instinct/*`, `assets/instinct_dev_flow.svg` are MIRRORS (`scripts/sync_mirror.py`; recorded sha in `assets/mirror_manifest.json`, figures produced by `scripts/render_tetris_flows.py`); never edit them here |
+| The Rethink lane's decision-flow figure + education docs (the repo is PRIVATE forever — education pairs ONLY) | riir-rethink — `assets/rethink_flow.svg`, `docs/rethink/*`, `assets/rethink_dev_flow.svg` are MIRRORS under the mirror fence (`scripts/sync_mirror.py` layers 1-2: pair-shape + content scan, violations RED; the PUBLIC BY MIRROR banner is layer 3, source-side); recorded sha in `assets/mirror_manifest.json` (sha-only rows — never a git ref); never edit them here |
 | The rulebook engine and its wasm build | riir-reflexer — `assets/reflexer*` are MIRRORS built by `../riir-reflexer/cloudflare/reflexer-worker/build.sh --site .`; never edit them here |
 | The stateless demo Worker (`reflexer.gist.rs`) | riir-reflexer |
 | Public substrate (board sim, lookahead, reference genome) | katgpt-rs (Issue-893 module) — `wasm-head` is a port pinned by a BLAKE3 fixture, not a dependency |

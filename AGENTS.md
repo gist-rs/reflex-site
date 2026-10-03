@@ -17,8 +17,8 @@ output, screenshots or notes to the root — use the gitignored `scripts/out/`.
 | `scripts/republish_bench.sh` | the whole publish flow in one wrapper (self-test → publish → mirror check) |
 | `scripts/publish_sizes.py` / `scripts/publish_sizes.sh` | measured disk sizes → `data/sizes.json` |
 | `scripts/test_publish_sizes.py` | its self-test |
-| `scripts/sync_mirror.py` | copy/verify the riir-reflex + riir-instinct doc/SVG mirrors (`--check` = verify only; owns `assets/mirror_manifest.json`) |
-| `scripts/render_tetris_flows.py` | render the tetris flow figures from their source doc |
+| `scripts/sync_mirror.py` | copy/verify the riir-reflex + riir-instinct + riir-rethink doc/SVG mirrors — 13 pairs, 3 roots (`--check` = verify only; owns `assets/mirror_manifest.json`; carries the Rethink mirror fence: pair-shape + content scan, violations RED) |
+| `scripts/render_tetris_flows.py` | render the flow figures from their source docs (tetris + instinct + the three lanes' dev-flow figures; rename map keeps site filenames unique; `--check` = no-network mirror diff) |
 | `scripts/wasm_head_check.sh` | the `wasm-head` lane: clippy both arms, tests, shipped wasm = source build (`--write` refreshes) |
 | `scripts/arena_head_parity.mjs` | the shipped wasm's decisions vs the recorded walks — must PASS before any ship |
 | `scripts/*_smoke.*`, `scripts/arena_demo_check.mjs` | page render smokes and the no-engine demo replay check |

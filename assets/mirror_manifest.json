@@ -1,6 +1,6 @@
 {
   "generated_by": "scripts/sync_mirror.py",
-  "note": "Source sha per mirrored file - cross-repo coupling by mirrored bytes with a recorded source sha (reflex-site BOUNDARY.md). Git refs are omitted on every row: one fixed shape, and riir-instinct is private until the 052 Phase-C flip. Owned by scripts/sync_mirror.py - not hand-edited.",
+  "note": "Source sha per mirrored file - cross-repo coupling by mirrored bytes with a recorded source sha (reflex-site BOUNDARY.md). Git refs are omitted on every row - ONE fixed shape: riir-rethink is private forever and a ref on any row would publish commit hashes into a public repo (Proposal 053 rounds 2-3). Owned by scripts/sync_mirror.py - not hand-edited.",
   "files": [
     {
       "repo": "riir-reflex",
@@ -15,10 +15,70 @@
       "sha256": "b2b779986f049f722a281783b486b8fd0ebcbbf55b8cf70808f4412eb2772252"
     },
     {
+      "repo": "riir-reflex",
+      "src": ".docs/05_resources/resources.md",
+      "dst": "docs/reflex/resources.md",
+      "sha256": "c25adb9ccb11a97540ce41bafd13fa38f8c258810aac127d8682a2ccee81d87e"
+    },
+    {
+      "repo": "riir-reflex",
+      "src": ".docs/05_resources/dev_flow.md",
+      "dst": "docs/reflex/dev_flow.md",
+      "sha256": "c03b50bdefa4e9dc31bfe591d8ca3159db6ce6df61fc33cfd51c5c8f526c82e5"
+    },
+    {
+      "repo": "riir-reflex",
+      "src": ".docs/05_resources/dev_flow.svg",
+      "dst": "assets/reflex_dev_flow.svg",
+      "sha256": "8fce609f47f22cb51c63d4d95ef94520835b784fbb959c196708635a4d04d805"
+    },
+    {
       "repo": "riir-instinct",
       "src": ".docs/03_decision_flow/instinct_flow.svg",
       "dst": "assets/instinct_flow.svg",
       "sha256": "96a40d5f6111d6a84892e758483a427e62c2e219e4aea8cd3e269411504a382b"
+    },
+    {
+      "repo": "riir-instinct",
+      "src": ".docs/05_resources/resources.md",
+      "dst": "docs/instinct/resources.md",
+      "sha256": "eafce7b706b5ede25b7b11a511d1c7b333fde52fb5c2fd7f0a4a205825bf748d"
+    },
+    {
+      "repo": "riir-instinct",
+      "src": ".docs/05_resources/dev_flow.md",
+      "dst": "docs/instinct/dev_flow.md",
+      "sha256": "580e2fc593dfe2f68f73bd4222c7d08cf24e87355c2551bd7d5daad6f5228072"
+    },
+    {
+      "repo": "riir-instinct",
+      "src": ".docs/05_resources/dev_flow.svg",
+      "dst": "assets/instinct_dev_flow.svg",
+      "sha256": "324a4a679ab70372a3bc12f52b0b92e0bb799b49dd7c4096506b061c832c3819"
+    },
+    {
+      "repo": "riir-rethink",
+      "src": ".docs/03_decision_flow/rethink_flow.svg",
+      "dst": "assets/rethink_flow.svg",
+      "sha256": "ac78a3a85e2b866fd8218b60788d749522c140a3482fb4256bf6d687aa5b899e"
+    },
+    {
+      "repo": "riir-rethink",
+      "src": ".docs/05_resources/resources.md",
+      "dst": "docs/rethink/resources.md",
+      "sha256": "0aa32d9d08db71ab3c1b32882347f35c1cbbe063cbb01f7f52451abcd1ab645a"
+    },
+    {
+      "repo": "riir-rethink",
+      "src": ".docs/05_resources/dev_flow.md",
+      "dst": "docs/rethink/dev_flow.md",
+      "sha256": "c00f6bcf592996c5484bb667c660ddb0f644eed6ea5fb3f1318518a456e22abb"
+    },
+    {
+      "repo": "riir-rethink",
+      "src": ".docs/05_resources/dev_flow.svg",
+      "dst": "assets/rethink_dev_flow.svg",
+      "sha256": "befba1996aa5905f9b8f921a499628d7bd2d18bf37c72a6bf5c8bddd5b10e1b8"
     }
   ]
 }

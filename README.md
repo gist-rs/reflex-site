@@ -310,30 +310,65 @@ playwright posture as the bench smoke).
 
 ## Mirrored docs surfaces
 
-Three files on this site are MIRRORS of the engines' `.docs` books — the
-source of truth lives THERE; edit the source, never the mirror:
+Thirteen files on this site are MIRRORS of the engines' `.docs` books —
+the source of truth lives THERE; edit the source, never the mirror:
 
 - `assets/decision_flow.svg` <- `../riir-reflex/.docs/03_decision_flow/decision_flow.svg`
 - `skills/reflex-integration/SKILL.md` <- `../riir-reflex/.docs/04_agent_skill/SKILL.md`
+- `docs/reflex/resources.md` + `docs/reflex/dev_flow.md` <- `../riir-reflex/.docs/05_resources/`
+- `assets/reflex_dev_flow.svg` <- `../riir-reflex/.docs/05_resources/dev_flow.svg`
 - `assets/instinct_flow.svg` <- `../riir-instinct/.docs/03_decision_flow/instinct_flow.svg`
-  (produced by `scripts/render_tetris_flows.py`, which writes both mirrors;
-  this script is the drift detector between renders)
+- `docs/instinct/resources.md` + `docs/instinct/dev_flow.md` <- `../riir-instinct/.docs/05_resources/`
+- `assets/instinct_dev_flow.svg` <- `../riir-instinct/.docs/05_resources/dev_flow.svg`
+- `assets/rethink_flow.svg` <- `../riir-rethink/.docs/03_decision_flow/rethink_flow.svg`
+- `docs/rethink/resources.md` + `docs/rethink/dev_flow.md` <- `../riir-rethink/.docs/05_resources/`
+- `assets/rethink_dev_flow.svg` <- `../riir-rethink/.docs/05_resources/dev_flow.svg`
 
-`sync_mirror.py` carries a per-pair source root: the riir-reflex checkout is
-PRIMARY (absent → exit 2, the guard's loud-SKIP lane); a secondary checkout
-like riir-instinct absent is a LOUD per-root skip, never a silent green and
-never a red — the mirrors are committed files, so deploys never need the
-private checkouts.
+The flow figures are PRODUCED by `scripts/render_tetris_flows.py` (which
+writes both mirrors byte-identically — several repos emit a doc-side
+`dev_flow.svg`, so the site copy is renamed per lane and the SVG's internal
+id follows the SITE name); this script is the drift detector between
+renders.
+
+`sync_mirror.py` carries a per-source-root table (`MIRROR_SOURCES`): the
+riir-reflex checkout is PRIMARY (absent → exit 2, the guard's loud-SKIP
+lane); a secondary checkout (riir-instinct, riir-rethink) absent is a LOUD
+per-root skip, never a silent green and never a red — the mirrors are
+committed files, so deploys never need the private checkouts.
+
+**The mirror fence (riir-rethink only).** riir-rethink is PRIVATE forever;
+only its two education folders (`.docs/03_decision_flow/`,
+`.docs/05_resources/`) are public-by-mirror, and the fence enforces the
+narrowness at both ends:
+
+- layer 1 — pair shape: every Rethink source path must sit under `.docs/`
+  and end `.md` or `.svg` (asserted every run + a self-test arm);
+- layer 2 — content scan at sync AND `--check` time over every Rethink
+  source, violations RED (sync refuses the pair, the committed mirror stays
+  intact, the run exits 1): non-mermaid code fences, `src/` path
+  references, manifest filenames, 64-hex digest-shaped strings, and
+  digit-heavy measured claims — the WHOLE text is scanned including inside
+  mermaid fences (rendered label text), and SVGs are scanned over their
+  visible text (CSS blocks excluded);
+- layer 3 — SOURCE-SIDE, not here: the first-line PUBLIC BY MIRROR banner
+  in every mirrored Rethink md + the `riir-rethink/BOUNDARY.md` row. The
+  scan does NOT check the banner; the source repo owns that guard.
 
 Every mirror's source sha is recorded in `assets/mirror_manifest.json`
 (the BOUNDARY law: cross-repo coupling by mirrored bytes with a recorded
-source sha). The script owns the manifest — never hand-edit it.
+source sha). Rows are sha-only — git refs are omitted on EVERY row (one
+fixed shape; a ref on any row would publish a private repo's commit hashes
+into this public repo), and the check fails any row carrying a key outside
+`{repo, src, dst, sha256}`. The script owns the manifest — never hand-edit
+it.
 
 After editing a source (or when riir-reflex's guard flags drift):
 
 ```sh
 python3 scripts/sync_mirror.py          # copy + report (default)
-python3 scripts/sync_mirror.py --check  # verify only; exit 1 = drift, 2 = no sibling checkout
+python3 scripts/sync_mirror.py --check  # verify only; exit 1 = drift, 2 = no primary checkout
+python3 scripts/sync_mirror.py --self-test
+python3 scripts/render_tetris_flows.py --check   # figures: mirrors differ?
 ```
 
 riir-reflex's `ci_feature_guard.sh` runs `--check` as a layer (skipping

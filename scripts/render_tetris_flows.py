@@ -4,7 +4,7 @@
 SOURCES OF TRUTH — one doc per owning repo, each ```mermaid block carrying
 two header comments:
 
-    %% file: <name>.svg      the output name
+    %% file: <name>.svg      the output name in the DOC directory
     %% aria: <one sentence>  the SVG's aria-label
 
   1. katgpt-rs `.docs/06_game_arenas/tetris_lane_flows.md` — the Tetris lane
@@ -13,6 +13,22 @@ two header comments:
   2. riir-instinct `.docs/03_decision_flow/instinct_flow.md` — the Instinct
      composition figure embedded on reflex-site /bench/#instinct (the site
      is Reflex's; the trained add-on's diagram lives with its repo).
+  3. riir-reflex `.docs/05_resources/dev_flow.md` — the Reflex development
+     loop figure for the /resources education page (ai Proposal 053).
+  4. riir-instinct `.docs/05_resources/dev_flow.md` — the Instinct dev
+     build flow figure for the same page.
+  5. riir-rethink `.docs/03_decision_flow/rethink_flow.md` — the Rethink
+     composition figure (one rung deeper), and `.docs/05_resources/
+     dev_flow.md` — the Rethink dev flow; both ride the PUBLIC-BY-MIRROR
+     fence (sync_mirror.py layer 2 scans the mirrored bytes; the md sources
+     carry the source-side banner, layer 3).
+
+Each source carries a RENAME MAP {doc_filename: site_filename} (default {} =
+identity): several repos emit a doc-side `dev_flow.svg`, so the SITE copy is
+renamed per lane (`reflex_dev_flow.svg`, `instinct_dev_flow.svg`,
+`rethink_dev_flow.svg`) and the SVG's internal id is derived from the SITE
+name — three figures sharing one doc-side filename must not share one id on
+the page.
 
 This renders every block through mermaid.ink (the same service + palette the
 riir-reflex hero `decision_flow.svg` uses: theme `base`, `#241410` node fill,
@@ -21,13 +37,13 @@ transparent background, monospace), post-processes per the Issue-131
 conventions (no `@import`, every selector scoped to the SVG's own id,
 `role="img"` + the aria sentence), and writes the SAME bytes to both mirrors:
 
-    <owning repo>/<doc dir>/<file>     beside the doc
-    <reflex-site>/assets/<file>        what the page embeds (instinct figures;
-                                       tetris figures also mirror to assets)
+    <owning repo>/<doc dir>/<doc filename>     beside the doc
+    <reflex-site>/assets/<site filename>       what the page embeds
 
 After a re-render, run `scripts/sync_mirror.py` (default mode) in this repo —
-it owns `assets/mirror_manifest.json` (the recorded-source-sha manifest) and
-is the drift detector between renders.
+it owns `assets/mirror_manifest.json` (the recorded-source-sha manifest), is
+the drift detector between renders, and runs the Rethink mirror fence over
+the mirrored bytes.
 
 Modes:
     (default)  render + write both mirrors, print a byte report.
@@ -35,8 +51,14 @@ Modes:
                missing (a stale mirror ships a stale figure). Never a silent
                green: a source with zero blocks is a finding.
 
+An absent checkout (Cargo.toml probe, the sync_mirror convention) is a LOUD
+per-source SKIP — the figures are committed files, so deploys never need the
+private checkouts — never a red. A present checkout with a missing doc is a
+✗ finding.
+
 Checkouts: $KATGPT_RS_CHECKOUT else ../katgpt-rs; $INSTINCT_CHECKOUT else
-../riir-instinct, both beside this repo.
+../riir-instinct; $REFLEX_CHECKOUT else ../riir-reflex; $RETHINK_CHECKOUT
+else ../riir-rethink, all beside this repo.
 """
 
 import argparse
@@ -45,6 +67,7 @@ import json
 import os
 import re
 import sys
+import time
 import urllib.request
 import zlib
 from pathlib import Path
@@ -62,10 +85,24 @@ def instinct_root() -> Path:
     env = os.environ.get("INSTINCT_CHECKOUT")
     return Path(env).expanduser().resolve() if env else (SITE.parent / "riir-instinct").resolve()
 
-# (root resolver, doc rel path) per owning repo, in render order.
+def reflex_root() -> Path:
+    env = os.environ.get("REFLEX_CHECKOUT")
+    return Path(env).expanduser().resolve() if env else (SITE.parent / "riir-reflex").resolve()
+
+def rethink_root() -> Path:
+    env = os.environ.get("RETHINK_CHECKOUT")
+    return Path(env).expanduser().resolve() if env else (SITE.parent / "riir-rethink").resolve()
+
+# (root resolver, doc rel path, rename map {doc_filename: site_filename}) per
+# owning repo, in render order. An empty map is the identity: the doc-side
+# filename and the site-side assets/ filename agree.
 SOURCES = (
-    (katgpt_root, ".docs/06_game_arenas/tetris_lane_flows.md"),
-    (instinct_root, ".docs/03_decision_flow/instinct_flow.md"),
+    (katgpt_root, ".docs/06_game_arenas/tetris_lane_flows.md", {}),
+    (instinct_root, ".docs/03_decision_flow/instinct_flow.md", {}),
+    (reflex_root, ".docs/05_resources/dev_flow.md", {"dev_flow.svg": "reflex_dev_flow.svg"}),
+    (instinct_root, ".docs/05_resources/dev_flow.md", {"dev_flow.svg": "instinct_dev_flow.svg"}),
+    (rethink_root, ".docs/03_decision_flow/rethink_flow.md", {}),
+    (rethink_root, ".docs/05_resources/dev_flow.md", {"dev_flow.svg": "rethink_dev_flow.svg"}),
 )
 
 THEME = {
@@ -117,8 +154,10 @@ def render(code: str) -> str:
     raise SystemExit(f"mermaid.ink unreachable after 4 attempts: {last}")
 
 
-def postprocess(svg: str, file: str, aria: str) -> str:
-    sid = file.removesuffix(".svg").replace("_", "-")
+def postprocess(svg: str, sid_name: str, aria: str) -> str:
+    # sid_name is the SITE filename: the internal id must be unique per
+    # site figure, and several repos emit a doc-side `dev_flow.svg`.
+    sid = sid_name.removesuffix(".svg").replace("_", "-")
     m = re.search(r'<svg[^>]*\bid="([^"]+)"', svg)
     if not m:
         raise SystemExit(f"{file}: rendered SVG has no root id")
@@ -139,8 +178,12 @@ def main() -> int:
     ap.add_argument("--check", action="store_true")
     args = ap.parse_args()
     bad = 0
-    for root_fn, rel in SOURCES:
-        doc = root_fn() / rel
+    for root_fn, rel, rename in SOURCES:
+        root = root_fn()
+        if not (root / "Cargo.toml").exists():
+            print(f"SKIP (loud): {root.name} checkout absent - {rel} UNCHECKED this run")
+            continue
+        doc = root / rel
         if not doc.exists():
             print(f"✗ source missing: {doc}")
             bad += 1
@@ -151,21 +194,24 @@ def main() -> int:
             bad += 1
             continue
         for file, aria, code in items:
-            a, b = doc.parent / file, SITE / "assets" / file
+            site_name = rename.get(file, file)
+            a, b = doc.parent / file, SITE / "assets" / site_name
             if args.check:
                 if not a.exists() or not b.exists():
-                    print(f"✗ {file}: missing mirror ({'doc' if not a.exists() else 'site'})")
+                    missing = "doc" if not a.exists() else "site"
+                    print(f"✗ {file} -> assets/{site_name}: missing mirror ({missing})")
                     bad += 1
                 elif a.read_bytes() != b.read_bytes():
-                    print(f"✗ {file}: mirrors differ — re-render")
+                    print(f"✗ {file} -> assets/{site_name}: mirrors differ — re-render")
                     bad += 1
                 else:
-                    print(f"✓ {file} ({b.stat().st_size} B)")
+                    print(f"✓ {file} -> assets/{site_name} ({b.stat().st_size} B)")
                 continue
-            svg = postprocess(render(code), file, aria)
+            svg = postprocess(render(code), site_name, aria)
             for dst in (a, b):
                 dst.write_text(svg, encoding="utf-8", newline="\n")
-            print(f"✓ rendered {file} ({len(svg)} B) → both mirrors")
+            print(f"✓ rendered {file} -> assets/{site_name} ({len(svg)} B) → both mirrors")
+            time.sleep(3)  # politeness: mermaid.ink 503s on a back-to-back burst
     if args.check:
         print(("✗ " if bad else "✓ ") + (f"{bad} figure problem(s)" if bad else "all figures in sync"))
     return 1 if bad else 0
