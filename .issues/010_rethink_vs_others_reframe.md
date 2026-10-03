@@ -64,6 +64,23 @@ Rethink is the promoted product:
 - [x] Smokes green: `bench_page_smoke.cjs` + `public_copy_gate.cjs` + a
       rendered-DOM probe (tie = rgb(251,191,36) yellow, wins green, deltas
       and heads data-derived).
+- [x] Verdict round 2 (two more labels fixed):
+      (a) row 1's five zero-delta suites all have `hybrid.serves === "A0"`
+      (the seated arm IS the free floor — riir-instinct serving_topology),
+      so "the specialists tied on 5" was Reflex matching itself AGAIN;
+      they now render as their own grey "floor-seated (A0 — no specialist
+      earned a seat) on 5" segment/legend entry, KEPT in the denominator
+      (the mark stays warn at 7/12, no softening); suiteLine gained the
+      `a0` class + hover; the smoke classifies on `serves === "A0"` from
+      the data, never the suite name.
+      (b) row 2's "the SERVED rung stack" was false on the 4 suites where
+      the best family cell is the record-only Rethink encoder read (its
+      own serves string says the incumbent arm serves) — reworded to
+      "the rung stack (Reflex → Instinct → Rethink; Rethink reads
+      record-only until its serving deploy)"; the computation is
+      unchanged (the 017 T5 display law — a measured cell the board hides
+      reads as no progress — and the violet record-only fill disclose it
+      per line).
 - [x] Commit + push + wrangler deploy + live verify.
 
 ## Notes

@@ -606,6 +606,15 @@ const server = http.createServer((req, res) => {
       const h = cells(s).filter((l) => l.lane === "Instinct" || l.lane === "Instinct (hybrid)");
       return h.length ? Math.max(...h.map(accOf)) : null;
     };
+    // The best hybrid cell's `serves` — A0 means the free floor answered
+    // (no specialist earned a seat): the page greys those out as
+    // floor-seated instead of counting them as specialist ties (verdict
+    // round 2, issue 010). Classified from the DATA, not the suite name.
+    const hybServesOf = (s) => {
+      const h = cells(s).filter((l) => l.lane === "Instinct" || l.lane === "Instinct (hybrid)");
+      if (!h.length) return null;
+      return h.reduce((a, b) => (accOf(b) > accOf(a) ? b : a)).serves || null;
+    };
     const kmOf = (s) => Math.max(...cells(s).filter((l) => l.lane === "KatGPT" || l.model === "modelless").map(accOf));
     // The comparator pool refuses DERIVED tier-fallback rows wearing the
     // Rethink name — they carry the family's own number, so counting them
@@ -620,8 +629,16 @@ const server = http.createServer((req, res) => {
     else console.log(`ok: instinct chip ${chip} matches the data (${armed.length} armed suites)`);
     const verdict = await page.textContent("#instinct-verdict");
     if (!/Reflex vs Instinct · trained specialists \(encoderless\), accuracy/.test(verdict)) fail("the vs-Reflex row (encoderless specialists) is missing");
-    if (!/Rethink vs Others, accuracy/.test(verdict)) fail("the Rethink-vs-Others row (the served rung stack) is missing");
+    if (!/Rethink vs Others, accuracy/.test(verdict)) fail("the Rethink-vs-Others row (the rung stack) is missing");
     if (!/no specialist arm yet/.test(verdict)) fail("the no-specialist-arm disclosure is missing");
+    // A0-seated suites render as floor-seated, never as specialist ties —
+    // the count is data-derived (serves === "A0" on the best hybrid cell).
+    const hybArmed = armed.filter((s) => hybOf(s) != null);
+    const a0N = hybArmed.filter((s) => hybServesOf(s) === "A0").length;
+    if (a0N > 0 && !new RegExp(`floor-seated \\(A0 — no specialist earned a seat\\) on ${a0N}`).test(verdict))
+      fail(`floor-seated disclosure missing or wrong (data says A0 on ${a0N} suites)`);
+    else if (a0N > 0) console.log(`ok: floor-seated (A0) disclosure matches the data (${a0N} suites)`);
+    if (!/Rethink reads record-only until its serving deploy/.test(verdict)) fail("the record-only qualifier on the rung-stack row is missing");
     // Both row marks follow the MAJORITY law (owner call, the Reflex-vs-laya
     // rule one lane over): green everywhere, YELLOW on a strict majority,
     // red on a minority — re-derived here from the same bench.json. Row 1's
@@ -632,7 +649,6 @@ const server = http.createServer((req, res) => {
       return li ? li.className : null;
     }, label);
     const markOf = (wins, n) => (wins === n ? "ok" : wins * 2 > n ? "warn" : "gap");
-    const hybArmed = armed.filter((s) => hybOf(s) != null);
     const vsReflexWins = hybArmed.filter((s) => hybOf(s) > kmOf(s)).length;
     const expectReflex = markOf(vsReflexWins, hybArmed.length);
     if ((await rowMark("Reflex vs Instinct")) !== expectReflex)

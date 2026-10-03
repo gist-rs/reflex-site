@@ -75,9 +75,12 @@
   .iv-seg i { min-width: 3px; }
   .iv-seg .up { background: var(--ok); }
   .iv-seg .down { background: var(--ember); }
+  .iv-seg .a0 { background: var(--muted); }
   /* the verdict color law (issue 010): green ahead · yellow tied · red
-     behind — ties take the warn yellow, and the within-noise trails (also
-     a behind) read ember with their ≈ glyph so the two yellows never blur */
+     behind — ties take the warn yellow, floor-seated (A0) suites stay grey
+     (the floor matching itself is not a tie), and the within-noise trails
+     (also a behind) read ember with their ≈ glyph so the two yellows never
+     blur */
   .iv-seg .eq { background: var(--warn); }
   .iv-seg .none { background: repeating-linear-gradient(45deg, transparent 0 3px, var(--line) 3px 5px); min-width: 0; }
   .iv-legend { font-size: 11.5px; color: var(--muted); margin: 2px 0 6px; }
@@ -101,6 +104,7 @@
   .iv-delta { display: table-cell; width: 3.2em; text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; vertical-align: middle; }
   .iv-delta.up { color: var(--ok); }
   .iv-delta.down { color: var(--ember); }
+  .iv-delta.a0 { color: var(--muted); font-weight: 400; }
   .iv-delta.eq { color: var(--warn); font-weight: 400; }
   .iv-delta.noise { color: var(--ember); }
   @media (max-width: 760px) {

@@ -118,12 +118,13 @@ const ivEsc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": 
 
 // The segmented "remain" bar: one segment per state, flex = the count, so
 // the bar IS the fraction (how many won / tied / remain / have no arm yet).
-function segBar(parent, up, eq, down, none, noneLabel) {
+function segBar(parent, up, eq, down, none, noneLabel, a0) {
   const seg = (cls, n, title) => n > 0 || cls === "none"
     ? `<i class="${cls}" style="flex:${Math.max(n, 0.0001)}" title="${ivEsc(title)}"></i>` : "";
   const d = document.createElement("div");
   d.className = "iv-seg";
   d.innerHTML = seg("up", up, `${up} won`) + seg("eq", eq, `${eq} tied`) +
+    seg("a0", a0 || 0, `${a0 || 0} floor-seated (A0 — the free floor answered; no specialist earned a seat)`) +
     seg("down", down, `${down} to take`) +
     (none > 0 ? seg("none", none, `${none} of the published suites ${noneLabel || "have no family arm yet"}`) : "");
   parent.appendChild(d);
@@ -146,6 +147,13 @@ function suiteLine(L, r, cmp, opts = {}) {
   if (opts.noise && d != null && d < -1e-9) {
     cls = "noise"; delta = `≈ −${(Math.abs(d) * 100).toFixed(1)}`;
     title = ` within noise at this arm's n=${r.instN} (the Bench-068 Wilson screen)`;
+  }
+  // A0-seated suites (verdict round 2, issue 010): the seated arm IS the
+  // free floor, so a zero delta is Reflex matching itself — grey + hover,
+  // never a yellow "tie" that reads as a specialist matching the floor.
+  if (opts.a0 && d != null && Math.abs(d) <= 1e-9) {
+    cls = "a0";
+    title = " A0 — the free floor answered on this suite; no specialist earned a seat, so the number is the floor's own";
   }
   const cmpColor = L.color(cmp.lane);
   // The contributing family arm's color: Instinct magenta (serving) or
@@ -224,6 +232,7 @@ function render(bench) {
     armed.push({
       name: s.name, inst, km, kmN: nOf(kmCell && kmCell[0]), instN: nOf(famCell[0]),
       hyb: hybCell ? accOf(hybCell[0]) : null, hybN: nOf(hybCell && hybCell[0]),
+      hybServes: hybCell ? (hybCell[0].serves || null) : null,
       viaEncoder, viaFallback, servedBy: famCell[0].served_by,
       bestLane: String(best[0].lane).replace(/ \(reference\)$/, "") === "KatGPT" ? "Reflex" : String(best[0].lane).replace(/ \(reference\)$/, ""),
       bestModel: best[0].model, bestAcc: accOf(best[0]), bestHost: best[1],
@@ -254,6 +263,12 @@ function render(bench) {
     const notAhead = hyb.filter((r) => r.km == null || r.hyb <= r.km)
       .sort((a, b) => ((b.km ?? b.hyb) - b.hyb) - ((a.km ?? a.hyb) - a.hyb));
     const tied = notAhead.filter((r) => r.km != null && Math.abs(r.hyb - r.km) <= 1e-9);
+    // A0-seated suites (verdict round 2, issue 010): the seated arm IS the
+    // free floor (riir-instinct serving_topology: A0 = the modelless engine),
+    // so those zero deltas are Reflex matching itself — never a specialist
+    // tie. Split out, kept in the denominator (the mark must not soften).
+    const floorSeated = tied.filter((r) => r.hybServes === "A0");
+    const tiedReal = tied.filter((r) => r.hybServes !== "A0");
     const gaps = notAhead
       .filter((r) => r.km != null && r.km > r.hyb)
       .map((r) => ({ name: r.name, gap: r.km - r.hyb, acc: r.hyb, n: r.hybN }))
@@ -269,18 +284,20 @@ function render(bench) {
       `<div class="iv-head"><b>Reflex vs Instinct \u00b7 trained specialists (encoderless), accuracy</b> — the specialists ahead on <b>${ahead.length}/${hyb.length}</b> suites with an arm` +
       (gapsReal.length + gapsNoise.length ? ` · behind on ${gapsReal.length + gapsNoise.length}` +
         (gapsNoise.length ? ` (${gapsNoise.length} ≈ within noise)` : "") : "") +
-      (tied.length ? ` · tied on ${tied.length}` : "") +
+      (tiedReal.length ? ` · tied on ${tiedReal.length}` : "") +
+      (floorSeated.length ? ` · floor-seated (A0 — no specialist earned a seat) on ${floorSeated.length}` : "") +
       (hybNoArm > 0 ? ` · no specialist arm yet on ${hybNoArm} of ${suites.length} published suites.` : ".") +
       ` <a href="https://rethink.gist.rs/">Rethink goes one rung deeper — the trained encoder for what the specialists miss →</a>`);
     const main = li.querySelector(".iv-main");
-    segBar(main, ahead.length, tied.length, gapsReal.length + gapsNoise.length, hybNoArm,
-      "have no specialist arm yet");
+    segBar(main, ahead.length, tiedReal.length, gapsReal.length + gapsNoise.length, hybNoArm,
+      "have no specialist arm yet", floorSeated.length);
     // Row-1 lines compare the HYBRID cell to the floor; the shim keeps
     // suiteLine's shape (no encoder tag, no fallback badge on this row).
     const hr = (r) => ({ name: r.name, inst: r.hyb, instN: r.hybN, viaEncoder: false, viaFallback: false });
     const lines = [
       ...ahead.map((r) => suiteLine(L, hr(r), { acc: r.km, lane: "Reflex", host: null })),
-      ...tied.map((r) => suiteLine(L, hr(r), { acc: r.km, lane: "Reflex", host: null })),
+      ...tiedReal.map((r) => suiteLine(L, hr(r), { acc: r.km, lane: "Reflex", host: null })),
+      ...floorSeated.map((r) => suiteLine(L, hr(r), { acc: r.km, lane: "Reflex", host: null }, { a0: true })),
       ...notAhead.filter((r) => r.km != null && r.km > r.hyb).map((r) =>
         suiteLine(L, hr(r), { acc: r.km, lane: "Reflex", host: null },
           { noise: gapsNoise.some((g) => g.name === r.name) })),
@@ -316,7 +333,7 @@ function render(bench) {
     const vsBestState = strictlyAll ? true
       : best.length * 2 > armed.length ? "warn" : false;
     const li = row(vsBestState,
-      `<div class="iv-head"><b>Rethink vs Others, accuracy</b> — the served rung stack (Reflex → Instinct → Rethink): best lane on <b>${best.length}/${armed.length}</b> suites` +
+      `<div class="iv-head"><b>Rethink vs Others, accuracy</b> — the rung stack (Reflex → Instinct → Rethink; Rethink reads record-only until its serving deploy): best lane on <b>${best.length}/${armed.length}</b> suites` +
       (trailing.length ? ` · ${trailing.length} to take` : "") +
       (tied.length ? ` · ${tied.length} level` : "") + ".");
     const main = li.querySelector(".iv-main");
@@ -339,7 +356,7 @@ function render(bench) {
     const legend = document.createElement("p");
     legend.className = "iv-legend";
     legend.innerHTML =
-      `per suite: <i class="iv-sw" style="background:${L.instinct}"></i>bar = the contributing family arm (Instinct magenta, Rethink violet = record-only) · <i class="iv-tickdemo"></i>tick = the compared lane (its lane color) · dim span = the gap · the delta reads the verdict: <b style="color:var(--ok)">green ahead</b> · <b style="color:var(--warn)">yellow tied</b> · <b style="color:var(--ember)">red behind</b> (≈ = within noise) · grey hatch = no arm yet · ↩ = the rung fallback — a lower rung answered and is served (by design)`;
+      `per suite: <i class="iv-sw" style="background:${L.instinct}"></i>bar = the contributing family arm (Instinct magenta, Rethink violet = record-only) · <i class="iv-tickdemo"></i>tick = the compared lane (its lane color) · dim span = the gap · the delta reads the verdict: <b style="color:var(--ok)">green ahead</b> · <b style="color:var(--warn)">yellow tied</b> · <b style="color:var(--muted)">grey floor-seated (A0 — the floor answered; no specialist seated)</b> · <b style="color:var(--ember)">red behind</b> (≈ = within noise) · grey hatch = no arm yet · ↩ = the rung fallback — a lower rung answered and is served (by design)`;
     box.append(legend, ul);
   } else {
     box.append(ul);
