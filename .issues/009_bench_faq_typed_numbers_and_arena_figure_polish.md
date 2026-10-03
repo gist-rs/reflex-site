@@ -2,6 +2,11 @@
 
 **Status:** OPEN — T1/T2/T5 DONE 2026-10-03; T3/T4 (arena figure work) remain (web-family restyle follow-up, riir-ai Issue 1028)
 
+T1/T2/T5 landed `2fc29eb`, deployed `a83f9c66` (curl-verified: bound FAQ spans, Guard "not yet the serving
+path", skill `LAYA_WEIGHTS_DIR`, sizes "six winner files"). Pre-deploy smokes green; note `home_page_smoke.cjs`
+hard-codes port 8793 and fails with a 30 s timeout when another process holds 127.0.0.1:8793 (it loads the
+other server) — run it on a free port.
+
 Found during the family restyle (`b9416c7`, `e97247b`; deployed `2e4098bb`).
 
 ## Gaps
