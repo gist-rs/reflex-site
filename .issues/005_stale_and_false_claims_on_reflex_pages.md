@@ -1,5 +1,5 @@
 # Issue 005 — reflex.gist.rs: stale / false statements (private-repo claim, Rethink "incoming", attribution, install lines)
-**Status:** MOSTLY RESOLVED — T1–T5b landed in `e97247b` (+ riir-reflex `50d340d`), deployed 2026-10-03; T6 OPEN (owner-repo follow-up in the riir-reflex dist / gist-rs/reflex). Filed 2026-10-03 (web trust audit, riir-ai Issue 1028)
+**Status:** MOSTLY RESOLVED — T1–T5b landed in `e97247b` (+ riir-reflex `50d340d`), deployed 2026-10-03; T6a done (gist-rs/reflex `adaa0aa`, scoop-bucket `caacf62`); T6b OPEN, owner-gated (licence terms: MIT vs MIT OR Apache-2.0). Filed 2026-10-03 (web trust audit, riir-ai Issue 1028)
 
 **Priority:** P0 — statements a reader can disprove in one click.
 **Audience:** developer + buyer.
@@ -37,7 +37,13 @@ T1–T4 are text edits; T5 needs one test on a Homebrew 6 box; T6/T7 are owner-r
 - [x] T4 TL;DR names its 9-of-11 suite basis; Instinct latency row explained or moved to /bench
 - [x] T5 verify `brew install riir-reflex` on Homebrew 6; align with cargo-refine (`brew trust`) and add the platform note
 - [x] T5b SKILL.md: binary name `reflex`, version line + wire captures refreshed against the current release (skill version bump)
-- [ ] T6 (riir-reflex dist) LICENSE in gist-rs/reflex; README Scoop line updated — still open (not this site's repo)
+- [x] T6a gist-rs/reflex README Scoop line → the real install (`scoop bucket add gist-rs …` + `scoop install riir-reflex`),
+      gist-rs/reflex `adaa0aa`. Manifest `bucket/riir-reflex.json` = 0.2.3, its hash `931be16d…` matches the release's
+      `SHA256SUMS` (checked 2026-10-03). Bucket README named only `cargo-heal`: now names cargo-refine + riir-reflex,
+      gist-rs/scoop-bucket `caacf62`.
+- [ ] T6b LICENSE file in gist-rs/reflex — **OWNER-GATED (licence terms)**, and the terms disagree today: the dist
+      README's §License says the binary is "MIT OR Apache-2.0", while riir-reflex `Cargo.toml` says `license = "MIT"`
+      and its `LICENSE` is MIT only. Decide one; then the LICENSE file(s) + README § follow.
 
 ## Resolution notes (2026-10-03, `e97247b`)
 
