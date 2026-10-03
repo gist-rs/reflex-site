@@ -299,9 +299,12 @@ h1.page-title { font-size: var(--fs-5); margin: var(--s-6) 0 var(--s-2); }
 .sz-total { text-align: right; font-variant-numeric: tabular-nums; }
 .sz-stack { height: 8px; gap: 0; }
 .sz-bar { display: flex; height: 100%; }
-.sz-stack i { border-radius: 0; outline: none; min-width: 2px; position: relative; overflow: hidden; }
+/* the 3px floor + 1px separator guarantee every sliver shows ≥2px of its own
+   color after the gap — a 0.5%-share stack component (the Rethink heads)
+   must still read as color on the bar, not vanish into its separator */
+.sz-stack i { border-radius: 0; outline: none; min-width: 3px; position: relative; overflow: hidden; }
 .sz-stack i:last-child { border-radius: 0 3px 3px 0; }
-.sz-stack i + i { box-shadow: inset 2px 0 0 var(--bg2); }
+.sz-stack i + i { box-shadow: inset 1px 0 0 var(--bg2); }
 /* the break sign: a slanted cut through the bar at the 1 GB line (size-charts.js BREAK_AT).
    height:auto matters: `.bc-hbar i` (the same element) sets height:100%, and an abs-positioned
    box with top+height set ignores `bottom` - so the sign rode 4px high, covering only the

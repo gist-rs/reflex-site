@@ -37,7 +37,10 @@ durable record). Full narrative of each: `git log --follow -- .issues/<file>`.
   `#a98bfa` (the Rethink lane hue), trained specialist magenta `#f472b6` (Instinct), trained head cyan `#22d3ee`,
   plain weights keep the model green; unknown kinds hash-pick a fallback slot so the same kind is always the same
   color. The chart legend gains every split kind the data actually carries, never a hand-typed set. (3) UI: the
-  model segment splits into its colored sub-segments (byte share, the 2px sliver floor kept); the per-segment
+  model segment splits into its colored sub-segments (byte share, a 3px sliver floor + 1px separator — every
+  sliver shows ≥2px of its own color after the gap; the shipped-then-fixed history: the first cut kept the old
+  2px floor + 2px separator, and the 2px dark separator ate a 2–4px head sliver whole — the user's "can't see
+  substack bar" live report, `fix` commit); the per-segment
   tooltip is now the FULL STACK as color-labeled bullets (swatch + label + bytes + the what-line, total, source
   tags) instead of one segment's prose; and every bar — on BOTH home charts (size rows and the summary's per-lane
   rows) — toggles a detail block UNDER its row (click/tap/Enter, `role=button` + `aria-expanded`/`aria-controls`,
