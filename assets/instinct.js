@@ -223,7 +223,7 @@ function render(bench) {
     ` · single frozen test read per registered arm.`;
   const ul = document.createElement("ul");
   const L = window.BenchLanes ||
-    { instinct: "#e06ab4", reflex: "#d95926", color: () => "#8a7468" };
+    { instinct: "#f472b6", reflex: "#ff8a3d", color: () => "#69718a" };
   const noArmTotal = suites.length - armed.length; // a suite with no Reflex row is also unsold (thai_*)
 
   // ── row 1: vs Reflex (the floor) — the moved arena law ──────────────

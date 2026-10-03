@@ -1,18 +1,28 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-product="reflex">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Reflex, Instinct, Rethink — the family explained</title>
   <meta name="description" content="Three names, one idea: a free modelless decision engine that runs on your machine (Reflex), the specialist composition that upgrades it (Instinct), and the encoder tier served from our GPU hosts (Rethink).">
+  <link rel="stylesheet" href="/assets/family.css">
   <link rel="stylesheet" href="/assets/style.css">
 </head>
 <body>
 
-<header class="site">
+<nav class="gf-bar" aria-label="gist.rs family"><div class="wrap">
+  <a class="gf-home" href="https://ai.gist.rs/">gist.rs</a>
+  <a class="gf-p gf-reflex"  href="https://reflex.gist.rs/" aria-current="page">Reflex</a>
+  <a class="gf-p gf-rethink" href="https://rethink.gist.rs/">Rethink</a>
+  <a class="gf-p gf-refine"  href="https://refine.gist.rs/">Refine</a>
+  <a class="gf-p gf-ai"      href="https://ai.gist.rs/">Network</a>
+  <span class="gf-tag">one account · private by default</span>
+</div></nav>
+
+<header class="site gf-head">
   <div class="wrap">
-    <a class="brand" href="/">Reflex</a>
-    <nav>
+    <a class="gf-brand" href="/"><b>Reflex</b></a>
+    <nav class="gf-nav" aria-label="Reflex">
       <a href="/">Home</a>
       <a href="/playground/">Playground</a>
       <a href="/arena/">Arena</a>
@@ -34,7 +44,8 @@
       <strong>Rethink</strong> is that idea, served from our GPU hosts.
     </p>
     <div class="cta-row">
-      <a class="btn primary" href="#reflex">The free floor</a>
+      <a class="btn primary" href="#learn">How Jev works</a>
+      <a class="btn" href="#reflex">The free floor</a>
       <a class="btn" href="#rethink">The encoder tier</a>
       <a class="btn" href="#development">Build your own</a>
     </div>
@@ -42,6 +53,172 @@
       <span class="badge muted">Numbers law: every measured claim on this page is a <a href="/bench/">link into the benchmark</a> — none is typed.</span>
     </div>
   </div>
+
+  <section id="learn">
+    <p class="gf-kicker">New here? Start with this</p>
+    <h2><a class="hlink" href="#learn">How Jev works — and how Reflex goes further</a></h2>
+    <p class="sub">A two-minute primer on decision models, the wire they speak, the numbers that judge them —
+      and where a free local engine changes the picture.</p>
+
+    <h3>What is a decision model?</h3>
+    <p>Think of a triage nurse with a clipboard. You describe the situation; the clipboard has a few fixed
+      questions — <em>how urgent?</em>, <em>which ward?</em>, <em>needs a specialist, yes or no?</em> The nurse
+      does not write you an essay. They tick one box per question and tell you how sure they are.</p>
+    <p>A <b>decision model</b> is that nurse, as software: it takes a <b>state</b> (the situation, as text or
+      structured data) plus a set of <b>typed questions</b>, and returns one typed answer per question with a
+      probability for every option — never free text. <b>Jev</b>, by TypeSafe AI, is the best-known example: a
+      hosted model you call over the internet. The request shape it uses — the <b>Jev wire</b> — has become
+      a common language: Cloudflare's open <b>Clef</b> models speak it too, and Reflex speaks the same vocabulary.</p>
+
+    <div class="gf-callout learn-gloss">
+      <dl class="gf-gloss">
+        <dt>decision model</dt><dd>Software that answers typed questions about a situation with probabilities,
+          instead of writing free text.</dd>
+        <dt>Jev</dt><dd>TypeSafe AI's hosted decision model, and the request shape (the <b>Jev wire</b>) many
+          decision models now share.</dd>
+        <dt>state</dt><dd>The situation under decision — a paragraph of text, or a JSON object.</dd>
+        <dt>questions</dt><dd>What you want decided, each with an id and a <b>type</b>. The answer space is part of
+          the request, not baked into a model.</dd>
+        <dt>noul</dt><dd>A typed yes/no question; the answer is the probability of “yes”.</dd>
+        <dt>choice</dt><dd>Pick one option from a list you supply.</dd>
+        <dt>score</dt><dd>Pick a level on an ordered scale you supply (lowest first), e.g. routine → critical.</dd>
+        <dt>criteria</dt><dd>The options themselves: a map of option → description for <code>choice</code>, a list
+          of levels for <code>score</code>. <code>noul</code> needs none.</dd>
+        <dt>prefill</dt><dd>A neural model reading the whole input in one forward pass, before it produces
+          anything.</dd>
+        <dt>autoregressive</dt><dd>Generating an answer one token at a time, each step feeding the next — how
+          chatbots write. Slow for decisions, and the text still has to be parsed.</dd>
+        <dt>non-autoregressive</dt><dd>Scoring every option in parallel straight from the prefill — no text is
+          generated. This is what decision models like Clef do, per Cloudflare.</dd>
+        <dt>calibration</dt><dd>Whether stated confidence matches reality: of all answers given “eight in ten”
+          confidence, about eight in ten should be right.</dd>
+        <dt>ECE</dt><dd>Expected calibration error — the average gap between confidence and accuracy, measured in
+          confidence buckets. Lower is better; zero is perfectly calibrated.</dd>
+        <dt>Brier score</dt><dd>The mean squared distance between the predicted probabilities and the true answer.
+          Lower is better; it punishes being confidently wrong.</dd>
+        <dt>abstain</dt><dd>Saying <em>I'm not sure</em> instead of guessing. In Reflex it is a designed output:
+          the full probability distribution still comes back with it.</dd>
+        <dt>coverage</dt><dd>The share of questions a system actually answered (did not abstain on, did not
+          error on).</dd>
+        <dt>chance-corrected skill</dt><dd><code>(score − chance) / (1 − chance)</code>: zero means no better than
+          random guessing on that task, one means perfect. It lets a two-option task and a many-option task
+          share one scale.</dd>
+        <dt>macro-F1</dt><dd>Accuracy-like score computed per label and then averaged, so rare labels count as
+          much as common ones.</dd>
+        <dt>JDI</dt><dd>The Jev Decision Index — a community leaderboard that scores Jev-wire models on one frozen
+          suite of typed-decision benchmarks: chance-corrected, with an unanswered question counted as wrong, and
+          calibration published per entrant.</dd>
+      </dl>
+    </div>
+
+    <h3>The workflow</h3>
+    <p><b>Inputs</b> (a state + typed questions) → <b>the decision model</b> (reads it all, scores every option)
+      → <b>typed outputs</b> (one answer per question, each with probabilities). Your code reads the answer and,
+      if it is careful, the confidence.</p>
+
+    <h3>One request, one response</h3>
+    <p class="sub">A security-incident triage, in the Jev wire shape Cloudflare documents for Clef. Three
+      questions, one of each type.</p>
+    <div class="wire">
+      <figure class="gf-fig wire-pane">
+        <figcaption class="wire-h">request</figcaption>
+<pre><code>{
+  "state": "Login failures spiked overnight; an admin account then created a new API key.",
+  "questions": {
+    "severity": {
+      "type": "score",
+      "instructions": "How severe is this incident?",
+      "criteria": ["routine", "needs attention", "critical"]
+    },
+    "action": {
+      "type": "choice",
+      "instructions": "What should happen next?",
+      "criteria": {
+        "page_oncall": "Wake the on-call responder now",
+        "open_ticket": "File a ticket for business hours",
+        "ignore": "No action needed"
+      }
+    },
+    "rotate_keys": {
+      "type": "noul",
+      "instructions": "Should every API key be rotated?"
+    }
+  }
+}</code></pre>
+      </figure>
+      <figure class="gf-fig wire-pane">
+        <figcaption class="wire-h">response</figcaption>
+<pre><code>{
+  "answers": {
+    "severity": {
+      "type": "score",
+      "probabilities": { "0": p₀, "1": p₁, "2": p₂ },
+      "score": Σ i·pᵢ,
+      "confidence": max(p₀, p₁, p₂)
+    },
+    "action": {
+      "type": "choice",
+      "choice": "page_oncall",
+      "probabilities": {
+        "page_oncall": q₁, "open_ticket": q₂, "ignore": q₃
+      },
+      "confidence": q₁
+    },
+    "rotate_keys": {
+      "type": "noul",
+      "noul": P(true)
+    }
+  }
+}</code></pre>
+      </figure>
+    </div>
+    <p class="faint wire-note">The <code>p</code> and <code>q</code> values are placeholders, not results: each is a probability
+      between zero and one, and one question's probabilities add up to one. A <code>score</code> answer keys its
+      levels by position (lowest first) and reports the expected level; envelopes and extra fields
+      (<code>model</code>, <code>usage</code>) are trimmed here, and field spellings vary slightly by server; Reflex's own spelling (a list of questions with <code>kind</code>, <code>prompt</code> and
+      <code>options</code>) is in the <a href="/skills/reflex-integration/SKILL.md">integration skill</a>.</p>
+
+    <h3>How Reflex differs</h3>
+    <p>Same questions, same typed answers — different place and different honesty. Jev is a hosted model: every
+      decision is a network round-trip to someone else's GPU, and it always returns an answer. Reflex is a
+      <b>modelless</b> engine (no neural network, no training run) on your own machine: it answers from a corpus
+      you author, in microseconds, and when the evidence is thin it <b>abstains</b> instead of guessing. Only those
+      abstained questions need to go anywhere else — to a hosted <b>Rethink</b> head, paid only where Reflex was
+      not sure.</p>
+    <figure class="gf-fig fig-scroll">
+      <img src="/assets/jev_vs_reflex_flow.svg" width="960" height="450"
+        alt="Two ways to answer the same typed question. Jev: your app sends the state and typed questions over a network round-trip to a hosted model, which always returns a typed answer with probabilities, even when unsure. Reflex: your app asks the same questions over loopback on your own machine; the modelless Reflex floor answers from your corpus in microseconds; if it is sure it returns a typed answer with calibrated confidence, if not it abstains with the full distribution attached and only then escalates to a hosted Rethink head, paid only for those questions"
+        loading="lazy">
+      <figcaption><span class="scroll-hint">Swipe the figure sideways. </span>Jev (top) always answers, from a hosted model. Reflex (bottom) answers locally when it is sure and
+        abstains honestly when it is not — the abstain is what makes paying for a hosted head optional rather than
+        constant. Not affiliated with TypeSafe AI or Cloudflare; their products are named only to compare.</figcaption>
+    </figure>
+
+    <div class="gf-grid learn-diff">
+      <div class="gf-card"><h3>Where it runs</h3><p>Jev: their cloud. Reflex: <code>localhost</code> — nothing
+        leaves your machine unless you escalate.</p></div>
+      <div class="gf-card"><h3>When it is unsure</h3><p>Jev: answers anyway; thresholding is your job. Reflex:
+        abstains, distribution attached, so your code can route the hard case.</p></div>
+      <div class="gf-card"><h3>How it is judged</h3><p>Accuracy, chance-corrected skill and calibration —
+        every lane, losses included, on <a href="/bench/">the benchmark</a>.</p></div>
+    </div>
+
+    <div class="gf-callout clef-note" id="clef">
+      <p><span class="gf-chip warn">coming</span> <b>Clef is coming to the board.</b> Cloudflare's
+        <a href="https://blog.cloudflare.com/clef-decision-models/">Clef and Clef-flash</a> are open decision
+        models that speak the Jev wire. We are adding a Clef comparison lane to <a href="/bench/">the benchmark</a>,
+        measured by the same harness as every other lane. No numbers here until that lane publishes — the
+        <a href="https://huggingface.co/spaces/multimodalart/jev-decision-index">Jev Decision Index</a> is the
+        community board in the meantime.</p>
+    </div>
+
+    <h3>Try it</h3>
+    <div class="cta-row">
+      <a class="btn primary" href="/playground/">Ask your own engine</a>
+      <a class="btn" href="/arena/">Watch it decide live</a>
+      <a class="btn" href="/bench/">Read the numbers</a>
+    </div>
+  </section>
 
   <section id="overview">
     <h2><a class="hlink" href="#overview">What is this family?</a></h2>
@@ -79,7 +256,7 @@
 
     <figure class="figure">
       <img src="/assets/instinct_flow.svg" width="1751" height="730"
-        alt="The Instinct composition flow in two bands: the top band is the question in — the same typed question runs Reflex's modelless engine first, and a confident fused-gate answer returns in microseconds with the specialist never paid; on abstain the bottom band takes over — top-k prune keeps the candidates, the sealed per-domain specialist scores them, an H1 cascade or H2 prior fusion calibrates the pick, and the answer ships with a decision receipt"
+        alt="The Instinct composition flow in two bands: the top band is the question in — the same typed question runs Reflex's modelless engine first, and a confident fused-gate answer returns in microseconds with the specialist never paid; on abstain the bottom band takes over — top-k prune keeps the candidates, the locked per-domain specialist scores them, an H1 cascade or H2 prior fusion calibrates the pick, and the answer ships with a decision receipt"
         loading="lazy">
       <figcaption>The composition: <strong>Instinct</strong>'s flow — the same figure as
         <a href="/bench/#instinct">the benchmark's Instinct section</a>, in learning vocabulary instead of
@@ -151,7 +328,7 @@
       a specialist trained for exactly that domain scores the survivors on top, never instead.</p>
     <p>The <b>fused gate</b> [the confidence check that decides whether to consult a specialist] answers with
       confidence and the specialist is never paid. On an abstain, the survivors are pruned to the top candidates
-      and a sealed per-domain specialist scores them. The answer carries a <b>receipt</b> — an audit trail of
+      and a locked per-domain specialist scores them. The answer carries a <b>receipt</b> — an audit trail of
       what answered, from which lane, checksum-committed in both directions.</p>
     <p>The idea is taught by the open lane
       <a href="https://github.com/gist-rs/riir-instinct">gist-rs/riir-instinct</a> — and a specialist serves only
@@ -211,7 +388,7 @@
         <ol>
           <li><b>Features:</b> the full encoder substrate — context, order, nuance.</li>
           <li><b>Think:</b> millisecond-class thoughts, on our GPU hosts.</li>
-          <li><b>Guard:</b> a HOSTED-ONLY vessel — checksum-sealed, tamper-evident, structurally unreadable
+          <li><b>Guard:</b> a HOSTED-ONLY vessel — BLAKE3-locked (hashed and signed), tamper-evident, structurally unreadable
             without the hosted reader.</li>
         </ol>
       </div>
@@ -263,10 +440,10 @@
     <h3>Instinct — train a specialist.</h3>
     <figure class="figure">
       <img src="/assets/instinct_dev_flow.svg" width="1554" height="118"
-        alt="The Instinct development build flow: a corpus is made from public data, a per-domain specialist is trained on it, a stratified holdout read applies the winner law so only a strict win over the free engine survives, the passing artifact is BLAKE3-sealed, registered as a manifest row, and served with decision receipts"
+        alt="The Instinct development build flow: a corpus is made from public data, a per-domain specialist is trained on it, a stratified holdout read applies the winner law so only a strict win over the free engine survives, the passing artifact is BLAKE3-locked, registered as a manifest row, and served with decision receipts"
         loading="lazy">
       <figcaption>Make a corpus from public data, train one specialist per domain, apply the winner law on a
-        stratified holdout, seal the winner, register it, serve with receipts. Write-up:
+        stratified holdout, lock the winner, register it, serve with receipts. Write-up:
         <a href="/docs/instinct/dev_flow.md">dev_flow.md (local mirror)</a> ·
         <a href="https://github.com/gist-rs/riir-instinct/blob/HEAD/.docs/05_resources/dev_flow.md">on GitHub</a>.</figcaption>
     </figure>
@@ -274,9 +451,9 @@
     <h3>Rethink — mint a head.</h3>
     <figure class="figure">
       <img src="/assets/rethink_dev_flow.svg" width="1444" height="118"
-        alt="The Rethink development flow: train the head on the trainer side, seal it, mint a HOSTED-ONLY vessel, deploy to our GPU hosts only, and serve decisions through the storefront"
+        alt="The Rethink development flow: train the head on the trainer side, lock it, mint a HOSTED-ONLY vessel, deploy to our GPU hosts only, and serve decisions through the storefront"
         loading="lazy">
-      <figcaption>Train the head on the trainer side, seal it, mint a HOSTED-ONLY vessel, deploy to our GPU hosts
+      <figcaption>Train the head on the trainer side, lock it, mint a HOSTED-ONLY vessel, deploy to our GPU hosts
         only, serve through the storefront. No step ever places the weights on hardware nobody controls. Write-up:
         <a href="/docs/rethink/dev_flow.md">dev_flow.md (local mirror — the source repo is private)</a>.</figcaption>
     </figure>
@@ -284,17 +461,29 @@
 
 </div>
 
-<footer class="site">
+<footer class="site gf-foot">
   <div class="wrap">
-    <div class="credit">
+    <div class="gf-grid">
+      <div><h4>Reflex</h4><a href="https://reflex.gist.rs/">Free decision engine</a><br>
+        <a href="https://reflex.gist.rs/bench/">Benchmark</a> · <a href="https://reflex.gist.rs/resources/">Learn</a></div>
+      <div><h4>Rethink</h4><a href="https://rethink.gist.rs/">Hosted trained decisions</a><br>
+        <a href="https://rethink.gist.rs/#how">How it works</a></div>
+      <div><h4>Refine</h4><a href="https://refine.gist.rs/">The code fixer that learns</a><br>
+        <a href="https://ai.gist.rs/leaderboard">Leaderboard</a></div>
+      <div><h4>Network</h4><a href="https://ai.gist.rs/">One account · KAT · TUNA</a><br>
+        <a href="https://ai.gist.rs/explorer">Explorer</a> · <a href="https://ai.gist.rs/health">Status</a></div>
+    </div>
+    <div class="gf-legal">
+      <div class="credit">
       Built on <a href="https://github.com/katopz/katgpt-rs">KatGPT-RS</a> — the open modelless primitives under every Reflex engine.
     </div>
-    <div class="fine">
+      <div class="fine">
       Binaries: <a href="https://github.com/gist-rs/reflex">gist-rs/reflex</a> ·
       engine: <a href="https://github.com/gist-rs/riir-reflex">gist-rs/riir-reflex</a> ·
       rulebook engine: <a href="https://github.com/gist-rs/riir-reflexer">gist-rs/riir-reflexer</a> ·
       site: <a href="https://github.com/gist-rs/reflex-site">gist-rs/reflex-site</a> ·
       <a href="https://github.com/gist-rs/reflex/releases">Download</a>
+    </div>
     </div>
   </div>
 </footer>

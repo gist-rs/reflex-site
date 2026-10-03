@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 450" width="960" height="450" role="img" aria-label="Two ways to answer the same typed question. Top band, Jev: your app sends the state and typed questions over a network round-trip to a hosted model in the vendor's cloud, which reads everything in one pass and always returns a typed answer with probabilities, even when it is unsure. Bottom band, Reflex: your app asks the same questions over loopback on your own machine; the modelless Reflex floor answers from the corpus you author in microseconds; if it is sure it returns a typed answer with calibrated confidence, and if not it abstains, says I am not sure with the full distribution attached, and only then escalates to a hosted Rethink head, which is paid only for those questions.">
+  <defs>
+    <marker id="jvr-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#9299ab"/></marker>
+    <marker id="jvr-o" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#ff8a3d"/></marker>
+    <marker id="jvr-v" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#a98bfa"/></marker>
+    <style>
+      .t{font:600 16px ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;fill:#e9ecf2}
+      .s{font:400 14px ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;fill:#c3c8d4}
+      .k{font:600 14px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:.06em}
+      .l{font:500 13px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;fill:#9299ab}
+      .box{fill:#1c212c;stroke:#343b4b;stroke-width:1.5}
+    </style>
+  </defs>
+
+  <!-- band A: Jev -->
+  <rect x="8" y="8" width="944" height="160" rx="14" fill="#161a23" stroke="#272d3a" stroke-width="1.5"/>
+  <text class="k" x="28" y="36" fill="#9299ab">JEV · A HOSTED DECISION MODEL</text>
+
+  <rect class="box" x="28" y="56" width="170" height="86" rx="10"/>
+  <text class="t" x="113" y="92" text-anchor="middle">your app</text>
+  <text class="s" x="113" y="116" text-anchor="middle">state + typed questions</text>
+
+  <path d="M198,99 H326" stroke="#9299ab" stroke-width="1.8" fill="none" marker-end="url(#jvr-a)"/>
+  <text class="l" x="262" y="84" text-anchor="middle">network</text>
+  <text class="l" x="262" y="122" text-anchor="middle">round-trip</text>
+
+  <rect class="box" x="330" y="56" width="270" height="86" rx="10"/>
+  <text class="t" x="465" y="92" text-anchor="middle">a hosted model, their cloud</text>
+  <text class="s" x="465" y="116" text-anchor="middle">reads everything in one pass</text>
+
+  <path d="M600,99 H664" stroke="#9299ab" stroke-width="1.8" fill="none" marker-end="url(#jvr-a)"/>
+
+  <rect class="box" x="668" y="56" width="264" height="86" rx="10"/>
+  <text class="t" x="800" y="92" text-anchor="middle">typed answer + probabilities</text>
+  <text class="s" x="800" y="116" text-anchor="middle">always answers — even when unsure</text>
+
+  <!-- band B: Reflex -->
+  <rect x="8" y="184" width="944" height="258" rx="14" fill="#161a23" stroke="#ff8a3d" stroke-opacity=".45" stroke-width="1.5"/>
+  <text class="k" x="28" y="212" fill="#ff8a3d">REFLEX · LOCAL, MODELLESS</text>
+
+  <rect class="box" x="28" y="236" width="170" height="86" rx="10"/>
+  <text class="t" x="113" y="272" text-anchor="middle">your app</text>
+  <text class="s" x="113" y="296" text-anchor="middle">the same questions</text>
+
+  <path d="M198,279 H326" stroke="#ff8a3d" stroke-width="1.8" fill="none" marker-end="url(#jvr-o)"/>
+  <text class="l" x="262" y="264" text-anchor="middle">loopback</text>
+  <text class="l" x="262" y="302" text-anchor="middle">same machine</text>
+
+  <rect x="330" y="236" width="230" height="86" rx="10" fill="#2a1d14" stroke="#ff8a3d" stroke-width="1.5"/>
+  <text class="t" x="445" y="268" text-anchor="middle">Reflex floor</text>
+  <text class="s" x="445" y="290" text-anchor="middle">answers from your corpus</text>
+  <text class="s" x="445" y="310" text-anchor="middle">free · microseconds</text>
+
+  <path d="M560,279 H600" stroke="#ff8a3d" stroke-width="1.8" fill="none" marker-end="url(#jvr-o)"/>
+  <polygon points="644,239 684,279 644,319 604,279" fill="#1c212c" stroke="#ff8a3d" stroke-width="1.5"/>
+  <text class="t" x="644" y="285" text-anchor="middle">sure?</text>
+
+  <path d="M684,279 H724" stroke="#4ade80" stroke-width="1.8" fill="none" marker-end="url(#jvr-o)"/>
+  <text class="l" x="704" y="270" text-anchor="middle" fill="#4ade80">yes</text>
+  <rect class="box" x="728" y="246" width="204" height="66" rx="10"/>
+  <text class="t" x="830" y="274" text-anchor="middle">typed answer</text>
+  <text class="s" x="830" y="296" text-anchor="middle">+ calibrated confidence</text>
+
+  <path d="M644,319 V346" stroke="#fbbf24" stroke-width="1.8" fill="none" marker-end="url(#jvr-o)"/>
+  <text class="l" x="656" y="338" fill="#fbbf24">no</text>
+  <rect x="540" y="350" width="208" height="74" rx="10" fill="#1c212c" stroke="#fbbf24" stroke-opacity=".7" stroke-width="1.5"/>
+  <text class="t" x="644" y="380" text-anchor="middle">abstain</text>
+  <text class="s" x="644" y="404" text-anchor="middle">“not sure” + distribution</text>
+
+  <path d="M748,387 H786" stroke="#a98bfa" stroke-width="1.8" stroke-dasharray="5 4" fill="none" marker-end="url(#jvr-v)"/>
+  <rect x="790" y="350" width="142" height="74" rx="10" fill="#1d1830" stroke="#a98bfa" stroke-width="1.5"/>
+  <text class="t" x="861" y="380" text-anchor="middle">Rethink head</text>
+  <text class="s" x="861" y="404" text-anchor="middle">hosted · paid here</text>
+
+  <text class="s" x="28" y="372">Nothing leaves your machine</text>
+  <text class="s" x="28" y="394">unless Reflex abstains and you</text>
+  <text class="s" x="28" y="416">choose to escalate.</text>
+</svg>

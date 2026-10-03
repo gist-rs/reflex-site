@@ -21,7 +21,7 @@ output, screenshots or notes to the root — use the gitignored `scripts/out/`.
 | `scripts/render_tetris_flows.py` | render the flow figures from their source docs (tetris + instinct + the three lanes' dev-flow figures; rename map keeps site filenames unique; `--check` = no-network mirror diff) |
 | `scripts/wasm_head_check.sh` | the `wasm-head` lane: clippy both arms, tests, shipped wasm = source build (`--write` refreshes) |
 | `scripts/arena_head_parity.mjs` | the shipped wasm's decisions vs the recorded walks — must PASS before any ship |
-| `scripts/resources_page_smoke.cjs` | the `/resources` education page: render smoke (sections, framing sentences verbatim, every figure resolves, matrix shape, the moat law — no riir-rethink link) + the numbers law on visible text (tags stripped first; the same digit patterns as `sync_mirror.py`'s fence) |
+| `scripts/resources_page_smoke.cjs` | the `/resources` education page: render smoke (sections incl. the #learn Jev primer first — glossary terms, valid request JSON, the figure, the Clef note digit-free; family chrome; no "seal"; framing sentences verbatim, every figure resolves, matrix shape, the moat law — no riir-rethink link) + the numbers law on visible text and on the primer figure's SVG text (tags stripped first; the same digit patterns as `sync_mirror.py`'s fence) |
 | `scripts/*_smoke.*`, `scripts/arena_demo_check.mjs` | page render smokes and the no-engine demo replay check |
 
 ## Before a deploy

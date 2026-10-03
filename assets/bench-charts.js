@@ -14,7 +14,7 @@
 // checkbox set never changes under a rig switch.
 //
 // Palette: three categorical slots validated all-pairs on the site's dark
-// surfaces (#140b08 and #1d110c) — CVD ΔE 9.4, normal-vision ΔE 20.9, all
+// surfaces (the family ink #0d0f14 and #11141b) — CVD ΔE 9.4, normal-vision ΔE 20.9, all
 // ≥ 3:1 contrast. Color follows the LANE, never its rank.
 (function () {
   "use strict";
@@ -35,11 +35,20 @@
   const PRODUCT_LANE_SPELLINGS = new Set([
     "Instinct", "Instinct (hybrid)", "Rethink", "Rethink (encoder)", "Instinct (encoder)",
   ]);
+  // Family product lanes read their color from the gist-family tokens
+  // (assets/family.css --c-reflex / --c-instinct / --c-rethink) so a chart
+  // series named after a product wears that product's color on every site;
+  // the hex fallbacks are the v1 token values (a page without family.css).
+  const tok = (name, fb) => {
+    try { return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fb; } catch (_) { return fb; }
+  };
   const LANES = [
-    { key: "katgpt", label: "Reflex · modelless", color: "#d95926", match: (l) => l.lane === "KatGPT" || (l.model === "modelless" && !PRODUCT_LANE_SPELLINGS.has(l.lane)) },
+    { key: "katgpt", label: "Reflex · modelless", color: tok("--c-reflex", "#ff8a3d"), match: (l) => l.lane === "KatGPT" || (l.model === "modelless" && !PRODUCT_LANE_SPELLINGS.has(l.lane)) },
     { key: "rust", label: "laya (rust)", color: "#3987e5", match: (l) => l.lane === "laya (rust)" },
     { key: "python", label: "laya (python)", color: "#199e70", match: (l) => l.lane === "laya (python)" },
-    { key: "clm", label: "clm", color: "#b39ddb", match: (l) => l.lane === "clm (reference)" },
+    // clm moved off lavender (2026-10-03): it collided with the family
+    // Rethink violet; pale slate keeps it distinct on the ink surfaces.
+    { key: "clm", label: "clm", color: "#cfd8dc", match: (l) => l.lane === "clm (reference)" },
     { key: "gliner", label: "gliner", color: "#4dd0c4", match: (l) => l.lane === "gliner (reference)" },
     { key: "agentjev", label: "agentjev", color: "#d9a62e", match: (l) => l.lane === "agentjev (reference)" },
     // The instinct hybrid (riir-instinct): magenta slot, distinct from all
@@ -48,7 +57,7 @@
     // name means is disclosed in the page's Notes/FAQ; the legacy
     // qualified spelling still matches so an un-re-published bench.json
     // renders.
-    { key: "instinct", label: "Instinct", color: "#e06ab4", match: (l) => l.lane === "Instinct" || l.lane === "Instinct (hybrid)" },
+    { key: "instinct", label: "Instinct", color: tok("--c-instinct", "#f472b6"), match: (l) => l.lane === "Instinct" || l.lane === "Instinct (hybrid)" },
     // riir-instinct issue 014 C1: the record-only encoder arm — a paler
     // magenta beside the Instinct slot (the same instinct family, the
     // measured-but-refused read: serve ✗). Product name "Rethink" per
@@ -56,10 +65,10 @@
     // owner call 2026-10-01; both legacy spellings still match so an
     // un-re-published bench.json renders. Its results are partial
     // (coverage data-derived on the radar legends — never a typed count).
-    { key: "instinct-encoder", label: "Rethink", color: "#b895d0", match: (l) => l.lane === "Rethink" || l.lane === "Rethink (encoder)" || l.lane === "Instinct (encoder)" },
+    { key: "instinct-encoder", label: "Rethink", color: tok("--c-rethink", "#a98bfa"), match: (l) => l.lane === "Rethink" || l.lane === "Rethink (encoder)" || l.lane === "Instinct (encoder)" },
     // The OpenThai comparison lane (reflex Plan 003): red slot, distinct
     // from the seven existing hues under the same dark-surface ≥3:1
-    // contrast rule (~5:1 measured against #140b08 / #1d110c).
+    // contrast rule (~5:1 measured against the old #140b08 / #1d110c surfaces).
     { key: "openthai", label: "openthai", color: "#7e57c2", match: (l) => l.lane === "openthai (reference)" },
     // The Bekko comparison lane (reflex Bench 103, owner call 2026-10-01):
     // soft-rose slot — distinct from all existing hues under the same
@@ -73,7 +82,7 @@
     // same dark-surface contrast rule.
     { key: "paw", label: "paw", color: "#cddc39", match: (l) => String(l.lane).startsWith("paw") },
   ];
-  const OTHER = { key: "other", label: "other", color: "#8a7468" };
+  const OTHER = { key: "other", label: "other", color: "#69718a" };
   const laneOf = (l) => LANES.find((x) => x.match(l)) || OTHER;
   // display form of the data's lane name — the "(reference)" qualifier
   // stays in the data (it drives laneOf matching) but never renders

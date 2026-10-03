@@ -19,12 +19,18 @@
 
 import * as T from "./games/tetris.js";
 
+// The Reflex lane wears the family product color (assets/family.css
+// --c-reflex); the fallback is the v1 token value.
+function tok(name, fb) {
+  try { return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fb; } catch (_) { return fb; }
+}
+
 export const CHART_LANES = [
   { key: "rulebook", label: "Reflex · rulebook", walk: "tetris_rulebook_walk", meta: "tetris_rulebook", color: "#c4579e" },
   { key: "laya", label: "laya (Rust)", walk: "tetris_walk", meta: "tetris_laya", color: "#3987e5" },
   { key: "python", label: "laya (Python)", walk: "tetris_python_walk", meta: "tetris_python", color: "#199e70" },
-  { key: "modelless", label: "Reflex · modelless", walk: "tetris_head_walk", meta: "tetris_head", color: "#d95926" },
-  { key: "raw", label: "raw baseline", walk: "tetris_raw_walk", meta: "tetris_raw", color: "#8a7468" },
+  { key: "modelless", label: "Reflex · modelless", walk: "tetris_head_walk", meta: "tetris_head", color: tok("--c-reflex", "#ff8a3d") },
+  { key: "raw", label: "raw baseline", walk: "tetris_raw_walk", meta: "tetris_raw", color: "#69718a" },
 ];
 
 const LINE_SCORE = [0, 40, 100, 300, 1200];

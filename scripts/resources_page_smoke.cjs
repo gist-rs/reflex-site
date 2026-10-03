@@ -6,6 +6,13 @@
 //      resolves (the mermaid-<img> embedding law) with a non-empty alt,
 //      the target matrix has its shape, the collapses are present, and
 //      Rethink carries NO link to its private repo (the moat law).
+//   1b. the #learn primer (web-family restyle, 2026-10-03): the section
+//      leads the page, carries its Clef-structured sub-sections, a
+//      dl.gf-gloss glossary that defines every required term, the
+//      request/response example, the Jev-vs-Reflex figure (resolves; its
+//      SVG visible text passes the numbers law too), and the Clef note
+//      marked "coming" with no figure attached; plus the family chrome
+//      (gf-bar first in <body> with Reflex current, gf-foot family map).
 //   2. numbers law — on VISIBLE TEXT only (tags/scripts/styles stripped
 //      first, per the proposal caveat: raw-HTML grep would flag version
 //      strings and svg attributes), the digit patterns from
@@ -90,9 +97,9 @@ function digitFindings(text, label, fail) {
   if (errs.length) fail("page errors: " + errs.join("; "));
   else console.log("ok: no page errors");
 
-  // 2. the four sections exist with self-linked titles
+  // 2. the five sections exist with self-linked titles (#learn first)
   const sections = await page.evaluate(() =>
-    ["overview", "reflex", "rethink", "development"].map((id) => {
+    ["learn", "overview", "reflex", "rethink", "development"].map((id) => {
       const sec = document.getElementById(id);
       const a = sec && sec.querySelector("h2 a.hlink");
       return { id, ok: !!sec, href: a && a.getAttribute("href") };
@@ -102,7 +109,76 @@ function digitFindings(text, label, fail) {
     if (!s.ok) fail(`missing section #${s.id}`);
     else if (s.href !== `#${s.id}`) fail(`#${s.id} title not self-linked (href=${s.href})`);
   }
-  if (sections.every((s) => s.ok && s.href === `#${s.id}`)) console.log("ok: all four sections present, titles self-linked");
+  if (sections.every((s) => s.ok && s.href === `#${s.id}`)) console.log("ok: all five sections present, titles self-linked");
+
+  // 2b. the #learn primer: first section on the page, its sub-headings, the
+  //     glossary, the wire example, the figure, the Clef "coming" note
+  const learn = await page.evaluate(() => {
+    const first = document.querySelector("section");
+    const sec = document.getElementById("learn");
+    if (!sec) return null;
+    const h3 = [...sec.querySelectorAll("h3")].map((h) => h.textContent.trim());
+    const terms = [...sec.querySelectorAll("dl.gf-gloss dt")].map((d) => d.textContent.trim().toLowerCase());
+    const dds = [...sec.querySelectorAll("dl.gf-gloss dd")].filter((d) => d.textContent.trim().length > 20).length;
+    const pres = [...sec.querySelectorAll(".wire pre")].map((p) => p.textContent);
+    const clef = document.getElementById("clef");
+    return {
+      first: first && first.id, h3, terms, dds, pres,
+      figImg: !!sec.querySelector("figure img[src='/assets/jev_vs_reflex_flow.svg']"),
+      clefText: clef ? clef.textContent : "",
+      clefChip: clef ? (clef.querySelector(".gf-chip") || {}).textContent : null,
+    };
+  });
+  if (!learn) fail("#learn section missing");
+  else {
+    if (learn.first !== "learn") fail(`#learn must be the first section, got #${learn.first}`);
+    for (const h of ["What is a decision model?", "The workflow", "One request, one response", "How Reflex differs", "Try it"]) {
+      if (!learn.h3.includes(h)) fail(`#learn sub-heading missing: ${h}`);
+    }
+    const need = ["decision model", "jev", "state", "questions", "noul", "choice", "score", "criteria", "prefill", "autoregressive",
+      "non-autoregressive", "calibration", "ece", "brier score", "abstain", "coverage", "chance-corrected skill",
+      "macro-f1", "jdi"];
+    const missing = need.filter((t) => !learn.terms.includes(t));
+    if (missing.length) fail(`glossary terms missing: ${missing.join(", ")}`);
+    if (learn.dds !== learn.terms.length) fail(`every glossary term needs a real definition (${learn.dds}/${learn.terms.length})`);
+    if (learn.pres.length !== 2) fail(`expected request + response panes, got ${learn.pres.length}`);
+    else {
+      const [req, resp] = learn.pres;
+      try {
+        const r = JSON.parse(req);
+        const types = Object.values(r.questions || {}).map((q) => q.type).sort().join(",");
+        if (typeof r.state !== "string" || types !== "choice,noul,score") fail(`request example must parse with state + one question of each type, got ${types}`);
+      } catch (e) { fail("request example is not valid JSON: " + e.message); }
+      if (!/"answers"/.test(resp) || !/"probabilities"/.test(resp)) fail("response example lacks answers/probabilities");
+    }
+    if (!learn.figImg) fail("#learn figure (jev_vs_reflex_flow.svg) missing");
+    if (!/coming/i.test(learn.clefChip || "") || !/Clef/.test(learn.clefText)) fail("Clef note must exist and be marked coming");
+    if (/\d/.test(learn.clefText)) fail(`Clef note must carry no digits until the lane publishes: ${JSON.stringify(learn.clefText.match(/\S*\d\S*/g))}`);
+    if (process.exitCode !== 1) console.log(`ok: #learn primer — first section, ${learn.h3.length} sub-headings, ${learn.terms.length} glossary terms, wire example, figure, Clef note (coming, digit-free)`);
+  }
+
+  // 2c. the figure asset's own visible text obeys the numbers law
+  const svgText = fs.readFileSync(path.join(ROOT, "assets", "jev_vs_reflex_flow.svg"), "utf8")
+    .replace(/<style\b[\s\S]*?<\/style>/gi, " ").replace(/<[^>]+>/g, " ");
+  digitFindings(svgText, "jev_vs_reflex_flow.svg visible text", fail);
+  if (/\bseal/i.test(svgText) || /\bseal/i.test(await page.evaluate(() => document.body.textContent))) fail("banned word: seal (design guide §5 — use lock/locked)");
+  else console.log("ok: vocabulary — no \"seal\" on the page or the figure");
+
+  // 2d. family chrome: the gf-bar is the first element in <body> with Reflex
+  //     current, and the gf-foot family map links all four sites
+  const chrome = await page.evaluate(() => ({
+    firstIsBar: document.body.firstElementChild && document.body.firstElementChild.classList.contains("gf-bar"),
+    current: [...document.querySelectorAll(".gf-bar a[aria-current]")].map((a) => a.textContent.trim()),
+    product: document.documentElement.getAttribute("data-product"),
+    foot: [...document.querySelectorAll("footer.gf-foot a")].map((a) => new URL(a.href).host),
+  }));
+  const hosts = ["reflex.gist.rs", "rethink.gist.rs", "refine.gist.rs", "ai.gist.rs"];
+  if (!chrome.firstIsBar) fail("gf-bar must be the first element in <body>");
+  if (chrome.current.join() !== "Reflex") fail(`gf-bar current must be Reflex, got ${JSON.stringify(chrome.current)}`);
+  if (chrome.product !== "reflex") fail(`<html data-product> must be reflex, got ${chrome.product}`);
+  const missHost = hosts.filter((h) => !chrome.foot.includes(h));
+  if (missHost.length) fail(`family footer misses ${missHost.join(", ")}`);
+  if (chrome.firstIsBar && chrome.current.join() === "Reflex" && chrome.product === "reflex" && !missHost.length) console.log("ok: family chrome (bar first, Reflex current, footer maps all four sites)");
 
   // 3. the framing sentences VERBATIM on the page (textContent, not
   //    innerText — collapsed <details> text is hidden from innerText but is
@@ -134,15 +210,16 @@ function digitFindings(text, label, fail) {
   const noAlt = imgs.filter((i) => !i.alt);
   if (noAlt.length) fail(`images without alt text: ${JSON.stringify(noAlt.map((i) => i.src))}`);
   const wanted = [
+    "/assets/jev_vs_reflex_flow.svg",
     "/assets/decision_flow.svg", "/assets/instinct_flow.svg", "/assets/rethink_flow.svg",
     "/assets/reflex_dev_flow.svg", "/assets/instinct_dev_flow.svg", "/assets/rethink_dev_flow.svg",
   ];
   for (const w of wanted) {
     if (!imgs.some((i) => i.src === w)) fail(`expected image missing: ${w}`);
   }
-  if (imgs.length !== 7) fail(`expected 7 <img> (decision_flow reused in overview + reflex), got ${imgs.length}`);
-  if (!broken.length && !noAlt.length && imgs.length === 7 && wanted.every((w) => imgs.some((i) => i.src === w))) {
-    console.log(`ok: all 7 images resolve with alts (6 unique assets, decision_flow reused)`);
+  if (imgs.length !== 8) fail(`expected 8 <img> (decision_flow reused in overview + reflex), got ${imgs.length}`);
+  if (!broken.length && !noAlt.length && imgs.length === 8 && wanted.every((w) => imgs.some((i) => i.src === w))) {
+    console.log(`ok: all 8 images resolve with alts (7 unique assets, decision_flow reused)`);
   }
 
   // 5. the target matrix: 4 columns, header + 6 rows

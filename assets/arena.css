@@ -29,7 +29,7 @@
   border-radius: 8px; padding: 8px 18px; font-size: 15px; cursor: pointer;
 }
 .tab:hover { color: var(--text); }
-.tab.on { background: var(--rust); border-color: var(--rust); color: #fff; font-weight: 600; }
+.tab.on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 600; }
 
 .game { display: none; }
 .game.on { display: block; }
@@ -68,7 +68,7 @@
   border-radius: 8px; padding: 8px 20px; font-size: 15px; cursor: pointer;
 }
 .ctl:hover { background: var(--rust); }
-.ctl.primary { background: var(--rust); border-color: var(--rust); color: #fff; font-weight: 600; }
+.ctl.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 600; }
 .ctl.primary:disabled { opacity: 0.5; cursor: wait; }
 
 /* Two boards per row: laya (Python) | laya (Rust), then KatGPT modelless |
@@ -276,7 +276,7 @@ svg.fw-on .edgeLabel:not(.fw-edge-active) { opacity: 0.25; }
   font-size: 14px; line-height: 1; cursor: pointer;
 }
 .fw-btn:hover { border-color: var(--ember); color: var(--ember); }
-.fw-btn.fw-playing { background: var(--rust); border-color: var(--rust); color: #fff; }
+.fw-btn.fw-playing { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
 .fw-dots { display: inline-flex; gap: 7px; align-items: center; margin: 0 4px; }
 .fw-dot {
   width: 11px; height: 11px; border-radius: 50%; padding: 0;

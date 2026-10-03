@@ -1,19 +1,29 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-product="reflex">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Arena · live games · Reflex</title>
   <meta name="description" content="Watch Reflex play Tetris, Flappy and three-lanes live against an open-weights model — same seeded game, nothing scripted.">
+  <link rel="stylesheet" href="/assets/family.css">
   <link rel="stylesheet" href="/assets/style.css">
   <link rel="stylesheet" href="/assets/arena.css">
   <link rel="stylesheet" href="/assets/latcap.css">
 </head>
 <body>
-  <header class="site">
-    <div class="wrap">
-      <a class="brand" href="/">Reflex <span>· arena</span></a>
-      <nav>
+  <nav class="gf-bar" aria-label="gist.rs family"><div class="wrap">
+  <a class="gf-home" href="https://ai.gist.rs/">gist.rs</a>
+  <a class="gf-p gf-reflex"  href="https://reflex.gist.rs/" aria-current="page">Reflex</a>
+  <a class="gf-p gf-rethink" href="https://rethink.gist.rs/">Rethink</a>
+  <a class="gf-p gf-refine"  href="https://refine.gist.rs/">Refine</a>
+  <a class="gf-p gf-ai"      href="https://ai.gist.rs/">Network</a>
+  <span class="gf-tag">one account · private by default</span>
+</div></nav>
+
+<header class="site gf-head">
+  <div class="wrap">
+    <a class="gf-brand" href="/"><b>Reflex</b> <span>· arena</span></a>
+    <nav class="gf-nav" aria-label="Reflex">
         <a href="/">Home</a>
         <a href="/playground/">Playground</a>
         <a href="/arena/" aria-current="page">Arena</a>
@@ -332,12 +342,24 @@
     </section>
   </main>
 
-  <footer class="site">
+  <footer class="site gf-foot">
     <div class="wrap">
-      <div class="credit">Built on <a href="https://github.com/katopz/katgpt-rs">KatGPT-RS</a> — the open modelless primitives under every Reflex engine.</div>
-      <div class="fine">Binaries: <a href="https://github.com/gist-rs/reflex">gist-rs/reflex</a> ·
+    <div class="gf-grid">
+      <div><h4>Reflex</h4><a href="https://reflex.gist.rs/">Free decision engine</a><br>
+        <a href="https://reflex.gist.rs/bench/">Benchmark</a> · <a href="https://reflex.gist.rs/resources/">Learn</a></div>
+      <div><h4>Rethink</h4><a href="https://rethink.gist.rs/">Hosted trained decisions</a><br>
+        <a href="https://rethink.gist.rs/#how">How it works</a></div>
+      <div><h4>Refine</h4><a href="https://refine.gist.rs/">The code fixer that learns</a><br>
+        <a href="https://ai.gist.rs/leaderboard">Leaderboard</a></div>
+      <div><h4>Network</h4><a href="https://ai.gist.rs/">One account · KAT · TUNA</a><br>
+        <a href="https://ai.gist.rs/explorer">Explorer</a> · <a href="https://ai.gist.rs/health">Status</a></div>
+    </div>
+      <div class="gf-legal">
+        <div class="credit">Built on <a href="https://github.com/katopz/katgpt-rs">KatGPT-RS</a> — the open modelless primitives under every Reflex engine.</div>
+        <div class="fine">Binaries: <a href="https://github.com/gist-rs/reflex">gist-rs/reflex</a> ·
         rulebook engine: <a href="https://github.com/gist-rs/riir-reflexer">gist-rs/riir-reflexer</a> ·
         <a href="https://github.com/gist-rs/reflex/releases">Download</a></div>
+      </div>
     </div>
   </footer>
 

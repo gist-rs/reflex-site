@@ -8,7 +8,11 @@ static assets.
   disk-footprint chart (`/#sizes` — every lane priced in measured bytes), the
   how-it-works figure (a .docs-first SVG, mirrored to `assets/`), per-page
   cards, and the agent-skill section.
-- `/resources/` — the education page: the three-name family (Reflex the product, Instinct the idea,
+- `/resources/` — the education page. It opens with **#learn**, the Jev primer
+  (what a decision model is, the Jev wire, a glossary of every term, one
+  request/response example, the Jev-vs-Reflex figure `assets/jev_vs_reflex_flow.svg`
+  — a site-owned asset, not a mirror — and the Clef "coming" note, digit-free
+  until the Clef lane publishes); then the three-name family (Reflex the product, Instinct the idea,
   Rethink the product) with both family flow figures, a qualitative target matrix, and the three
   development flows. Content is DRY-sourced from each lane's `.docs/05_resources/` + decision-flow docs,
   mirrored under `docs/<lane>/` + `assets/` by `scripts/sync_mirror.py`; every measured claim is a link
@@ -392,5 +396,14 @@ No secrets, no bindings, no KV — the worker serves files and nothing else.
 
 ## Theme
 
-Dark red rust (`#B7410E` / `#7C1D05` family) — the owner's explicit color
-call. No yellow anywhere.
+The gist.rs web family (adopted 2026-10-03): `assets/family.css` is a
+byte-identical copy of `riir-ai/.docs/13_web_family/family.css` (re-copy it
+when the source moves — never fork a token here) and loads before
+`assets/style.css`; every page sets `<html data-product="reflex">` (accent =
+the family Reflex orange), opens with the family bar (`.gf-bar`, Reflex
+current) and closes with the family footer (`.gf-foot`). `style.css` keeps its
+historical variable names as ALIASES onto the family tokens, so the charts,
+arena and playground rules re-theme without a rewrite; chart series named
+after a product read `--c-reflex` / `--c-instinct` / `--c-rethink`. Rules:
+`riir-ai/.docs/13_web_family/design_guide.md` (390 px never scrolls sideways;
+no "seal" vocabulary — "lock/locked").

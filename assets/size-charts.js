@@ -23,7 +23,7 @@
 //                               provenance.
 //
 // Palette: the engine segment follows the runtime's ENVIRONMENT — rust env =
-// the site's ember (#d95926), python env = the laya lane blue (#3987e5);
+// the site accent (family --accent, #ff8a3d), python env = the laya lane blue (#3987e5);
 // model = the founding palette's green (#199e70). All three are the founding
 // trio, validated all-pairs on the dark surfaces. Each segment carries its
 // own tooltip (data-sztip, this module's own handler — never
@@ -31,7 +31,10 @@
 (function () {
   "use strict";
 
-  const RUST_COLOR = "#d95926";   // rust env — the site's ember
+  // rust env — the site's accent (the family --accent token; Reflex orange)
+  const RUST_COLOR = (function () {
+    try { return getComputedStyle(document.documentElement).getPropertyValue("--accent").trim() || "#ff8a3d"; } catch (_) { return "#ff8a3d"; }
+  })();
   const PYTHON_COLOR = "#3987e5"; // python env — the laya lane blue
   const MODEL_COLOR = "#199e70";  // model / weights — the founding palette's green
 

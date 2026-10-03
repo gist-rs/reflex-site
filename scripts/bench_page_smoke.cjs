@@ -196,10 +196,10 @@ const server = http.createServer((req, res) => {
     }
   };
   const heroNote = () => page.$eval("#bench-hero .bc-note", (n) => n.textContent);
-  // accuracy, all lanes visible → key = Reflex · modelless (#d95926)
+  // accuracy, all lanes visible → key = Reflex · modelless (#ff8a3d)
   await page.click('#bench-hero button[data-sort="value"]');
   await page.waitForTimeout(100);
-  let widths = await heroKeyWidths("#d95926");
+  let widths = await heroKeyWidths("#ff8a3d");
   assertOrdered(widths, "acc · modelless key", false);
   let note = await heroNote();
   if (!note.includes("Rows sorted by accuracy, best first on the Reflex · modelless lane")) fail(`sort note should name the modelless lane, got: ${note}`);
@@ -218,7 +218,7 @@ const server = http.createServer((req, res) => {
   await page.waitForTimeout(100);
   await page.click('#bench-hero button[data-metric="p50"]');
   await page.waitForTimeout(100);
-  widths = await heroKeyWidths("#d95926");
+  widths = await heroKeyWidths("#ff8a3d");
   assertOrdered(widths, "lat · modelless key", true);
   note = await heroNote();
   if (!note.includes("Rows sorted by p50 latency, fastest first on the Reflex · modelless lane")) fail(`latency sort note wrong, got: ${note}`);
@@ -264,14 +264,14 @@ const server = http.createServer((req, res) => {
   {
     await page.click('#bench-hero button[data-metric="acc50"]');
     await page.waitForTimeout(100);
-    widths = await heroKeyWidths("#d95926");
+    widths = await heroKeyWidths("#ff8a3d");
     assertOrdered(widths, "acc50 · modelless key", false);
     note = await heroNote();
     if (!note.includes("Rows sorted by acc@50% coverage, best first")) fail(`acc50 sort note wrong, got: ${note}`);
     else console.log(`ok: hero by-value sorts by acc@50% coverage (${widths.filter((x) => x !== null).length} keyed rows, ${widths.filter((x) => x === null).length} not-run last)`);
     await page.click('#bench-hero button[data-metric="cc"]');
     await page.waitForTimeout(100);
-    widths = await heroKeyWidths("#d95926");
+    widths = await heroKeyWidths("#ff8a3d");
     assertOrdered(widths, "cc · modelless key", false);
     note = await heroNote();
     if (!note.includes("Rows sorted by chance-corrected acc, best first")) fail(`cc sort note wrong, got: ${note}`);

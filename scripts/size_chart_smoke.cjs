@@ -119,9 +119,9 @@ const fail = (msg) => { console.error("FAIL: " + msg); process.exit(1); };
     const segColors = [...inner.matchAll(/background:([^"]+)"/g)].map((m) => m[1]);
     labels.forEach(([, col], k) => { if (col !== segColors[k]) fail(`bar ${i} label ${k} color ${col} != segment ${segColors[k]}`); });
     // the color law: the engine segment follows the runtime env from the
-    // data (engine_kind) — rust #d95926 / python #3987e5 — and every model
+    // data (engine_kind) — rust #ff8a3d / python #3987e5 — and every model
     // segment is the green slot
-    const wantEngine = c.engine_kind === "python" ? "#3987e5" : "#d95926";
+    const wantEngine = c.engine_kind === "python" ? "#3987e5" : "#ff8a3d";
     if (c.engine_bytes > 0 && segColors[0] !== wantEngine)
       fail(`bar ${i} (${c.key}) engine segment ${segColors[0]} != ${wantEngine} (engine_kind ${c.engine_kind})`);
     if (c.model_bytes > 0 && segColors[segColors.length - 1] !== "#199e70")
