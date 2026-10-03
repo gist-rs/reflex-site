@@ -600,45 +600,50 @@ const server = http.createServer((req, res) => {
     };
     const armed = bench.suites.filter((s) => accOf(s.modelless) != null && cells(s).some(isFamily));
     const famOf = (s) => Math.max(...cells(s).filter(isFamily).map(accOf));
-    const strictlyAll = armed.length > 0 && armed.every((s) => {
-      const fam = famOf(s);
-      const bestOther = Math.max(...cells(s).filter((l) => !isFamily(l) && l.model !== "multilingual").map(accOf));
-      return fam - bestOther > 1e-9;
-    });
+    // Row 1 is the ENCODERLESS claim (reflex-site issue 010): hybrid cells
+    // only, mirroring the page's isHybrid filter exactly.
+    const hybOf = (s) => {
+      const h = cells(s).filter((l) => l.lane === "Instinct" || l.lane === "Instinct (hybrid)");
+      return h.length ? Math.max(...h.map(accOf)) : null;
+    };
+    const kmOf = (s) => Math.max(...cells(s).filter((l) => l.lane === "KatGPT" || l.model === "modelless").map(accOf));
+    // The comparator pool refuses DERIVED tier-fallback rows wearing the
+    // Rethink name — they carry the family's own number, so counting them
+    // as "others" compares the stack against itself (the false-tie bug
+    // reflex-site issue 010 fixes; mirrored from the page).
+    const bestOtherOf = (s) => Math.max(...cells(s)
+      .filter((l) => !isFamily(l) && !(l.derived && (l.lane === "Rethink" || l.lane === "Rethink (encoder)")) && l.model !== "multilingual")
+      .map(accOf));
+    const strictlyAll = armed.length > 0 && armed.every((s) => famOf(s) - bestOtherOf(s) > 1e-9);
     const chip = await page.$eval("#instinct-verdict .chip", (x) => x.className);
     if (chip !== (strictlyAll ? "chip ok" : "chip poc")) fail(`instinct chip "${chip}" but the data says ${strictlyAll ? "chip ok" : "chip poc"}`);
     else console.log(`ok: instinct chip ${chip} matches the data (${armed.length} armed suites)`);
     const verdict = await page.textContent("#instinct-verdict");
-    if (!/Instinct · Rethink vs Reflex, accuracy/.test(verdict)) fail("the vs-Reflex row (moved law) is missing");
-    if (!/Instinct · Rethink vs best lane, accuracy/.test(verdict)) fail("the vs-best-lane row (the raised bar) is missing");
-    if (!/no family arm yet/.test(verdict)) fail("the no-arm disclosure is missing");
+    if (!/Reflex vs Instinct · trained specialists \(encoderless\), accuracy/.test(verdict)) fail("the vs-Reflex row (encoderless specialists) is missing");
+    if (!/Rethink vs Others, accuracy/.test(verdict)) fail("the Rethink-vs-Others row (the served rung stack) is missing");
+    if (!/no specialist arm yet/.test(verdict)) fail("the no-specialist-arm disclosure is missing");
     // Both row marks follow the MAJORITY law (owner call, the Reflex-vs-laya
     // rule one lane over): green everywhere, YELLOW on a strict majority,
-    // red on a minority — re-derived here from the same bench.json.
+    // red on a minority — re-derived here from the same bench.json. Row 1's
+    // population is the suites with a HYBRID arm (the encoderless claim);
+    // row 2's is every suite with a family arm (the rung stack).
     const rowMark = (label) => page.$eval("#instinct-verdict ul", (ul, l) => {
       const li = [...ul.querySelectorAll("li")].find((x) => x.textContent.includes(l));
       return li ? li.className : null;
     }, label);
     const markOf = (wins, n) => (wins === n ? "ok" : wins * 2 > n ? "warn" : "gap");
-    const vsReflexWins = armed.filter((s) => {
-      const fam = famOf(s);
-      const km = Math.max(...cells(s).filter((l) => l.lane === "KatGPT" || l.model === "modelless").map(accOf));
-      return fam > km;
-    }).length;
-    const expectReflex = markOf(vsReflexWins, armed.length);
-    if ((await rowMark("Instinct · Rethink vs Reflex")) !== expectReflex)
-      fail(`vs-Reflex mark ${await rowMark("Instinct · Rethink vs Reflex")} but majority rule says ${expectReflex} (${vsReflexWins}/${armed.length} ahead)`);
-    else console.log(`ok: vs-Reflex mark ${expectReflex} (${vsReflexWins}/${armed.length} ahead)`);
-    const vsBestWins = armed.filter((s) => {
-      const fam = famOf(s);
-      const bestOther = Math.max(...cells(s).filter((l) => !isFamily(l) && l.model !== "multilingual").map(accOf));
-      return fam - bestOther > 1e-9;
-    }).length;
+    const hybArmed = armed.filter((s) => hybOf(s) != null);
+    const vsReflexWins = hybArmed.filter((s) => hybOf(s) > kmOf(s)).length;
+    const expectReflex = markOf(vsReflexWins, hybArmed.length);
+    if ((await rowMark("Reflex vs Instinct")) !== expectReflex)
+      fail(`vs-Reflex mark ${await rowMark("Reflex vs Instinct")} but majority rule says ${expectReflex} (${vsReflexWins}/${hybArmed.length} specialists ahead)`);
+    else console.log(`ok: vs-Reflex mark ${expectReflex} (${vsReflexWins}/${hybArmed.length} specialists ahead)`);
+    const vsBestWins = armed.filter((s) => famOf(s) - bestOtherOf(s) > 1e-9).length;
     const expectBest = markOf(vsBestWins, armed.length);
-    if ((await rowMark("Instinct · Rethink vs best lane")) !== expectBest)
-      fail(`vs-best mark ${await rowMark("Instinct · Rethink vs best lane")} but majority rule says ${expectBest} (${vsBestWins}/${armed.length} strictly best)`);
+    if ((await rowMark("Rethink vs Others")) !== expectBest)
+      fail(`vs-best mark ${await rowMark("Rethink vs Others")} but majority rule says ${expectBest} (${vsBestWins}/${armed.length} strictly best)`);
     else console.log(`ok: vs-best mark ${expectBest} (${vsBestWins}/${armed.length} strictly best)`);
-    if (!process.exitCode) console.log("ok: instinct verdict rows render (vs Reflex + vs best lane + no-arm)");
+    if (!process.exitCode) console.log("ok: instinct verdict rows render (Reflex vs specialists + Rethink vs Others + no-arm)");
   }
 
   // ── plan 001 (2026-10-02): the Jev-distill UI. All counts DATA-DERIVED

@@ -1,34 +1,38 @@
 /* instinct.js — the Instinct verdict block on /bench/#instinct, rendered
    from data/bench.json at load (the site's number law: never hand-typed).
 
-   Two verdict groups, told from Instinct's side, each = a short headline
-   (the majority-law mark) + a segmented "remain" bar + ONE LINE PER SUITE
-   (owner ask 2026-09-29: the prose rows were unreadable):
+   Two verdict groups, each = a short headline (the majority-law mark) + a
+   segmented "remain" bar + ONE LINE PER SUITE (owner ask 2026-09-29: the
+   prose rows were unreadable). Reframed 2026-10-03 (reflex-site issue 010,
+   owner call: the fallback is the design — Rethink races OTHERS, never its
+   own rungs; wording consolidated with rethink.gist.rs/#why):
 
-   1. "Instinct vs Reflex" — the row law MOVED here from the arena TL;DR
-      (owner call 2026-09-29): the arena stays Reflex's; Reflex is free, so
-      Instinct must EARN its place. The MARK follows the majority law (the
-      same one the Reflex-vs-laya row uses): green ✓ only when ahead on
-      EVERY suite with an arm, YELLOW ✓ on a strict majority, red ✗ on a
-      minority or a tie-heavy board — a tie is still no reason to pay.
-      The Bench-068 Wilson screen marks within-noise trailing suites ≈ on
-      their own lines instead of enumerating them in prose.
+   1. "Reflex vs Instinct · trained specialists (encoderless)" — the
+      ENCODERLESS rung only (hybrid cells): what the trained specialists add
+      over the free floor. Reflex is free, so the specialist must EARN its
+      place. The MARK follows the majority law: green ✓ only when ahead on
+      EVERY suite with a hybrid arm, YELLOW ✓ on a strict majority, red ✗
+      otherwise — the Bench-068 Wilson screen marks within-noise trails ≈
+      on their own lines. Carries the Rethink CTA (the encoder rung, one
+      level deeper).
 
-   2. "Instinct vs best lane" — the RAISED bar (instinct .issues/008
-      amendment, 2026-09-29): free Reflex is the floor, not the bar. The
-      competitor is the best published lane per suite — every comparison
-      lane included (laya's best non-multilingual checkpoint, clm, gliner,
-      agentjev, openthai, paw), any host (accuracy is box-independent, the
-      same law the charts' pick() uses). Same majority mark: green only
-      when strictly best everywhere (the GOAT chip flips with it).
+   2. "Rethink vs Others" — the SERVED RUNG STACK (Reflex → Instinct →
+      Rethink; where the encoder has no arm of its own, a lower rung's
+      answer is what gets served — the ↩ badge) against the best OTHER
+      published lane per suite — every comparison lane included (laya's
+      best non-multilingual checkpoint, clm, gliner, agentjev, openthai,
+      paw), any host (accuracy is box-independent, the same law the charts'
+      pick() uses). Same majority mark. The to-go arithmetic counts TIES
+      (GOAT = strictly best on every covered suite): "B to take · T level".
 
-   Per-suite line: a loading bar — fill = Instinct (its lane color), a
-   tick at the compared lane's accuracy (THAT lane's palette color, one
-   home: BenchLanes in bench-charts.js), the dim span between = the gap
-   (what remains). Colors follow the LANE, never the verdict, so a line
-   reads the same as the charts above it.
+   Per-suite line: a loading bar — fill = the contributing arm (Instinct
+   magenta, Rethink violet = record-only), a tick at the compared lane's
+   accuracy (THAT lane's palette color, one home: BenchLanes in
+   bench-charts.js), the dim span between = the gap. Bar and tick follow
+   the LANE; the delta follows the VERDICT: green ahead · yellow tied ·
+   red behind (≈ = behind within noise).
 
-   Status chip: "PoC" until Instinct is strictly ahead of every other lane
+   Status chip: "PoC" until the stack is strictly ahead of every other lane
    on every suite it covers; when that flips, the chip reads GOAT and the
    row may return to the arena TL;DR (owner call at that point — instinct
    .issues/008 T9). */
@@ -94,6 +98,13 @@ function cellsOf(s) {
 const isHybrid = (l) => l.lane === "Instinct" || l.lane === "Instinct (hybrid)";
 const isEncoder = (l) => !l.derived && (l.lane === "Rethink" || l.lane === "Rethink (encoder)" || l.lane === "Instinct (encoder)");
 const isFamily = (l) => isHybrid(l) || isEncoder(l);
+// A DERIVED tier-fallback row wearing the Rethink name carries the SERVING
+// tier's number (isEncoder refuses it as a family MEASUREMENT — the ↩ law).
+// It must never enter the comparator pool either, or the rung stack gets
+// compared against ITSELF: the fallback row carries the family's own best,
+// so every suite with a fallback row read as a false "tie" (banking77,
+// prompt_injections) instead of the real win over the other lanes.
+const isFamilyServing = (l) => isFamily(l) || (!!l.derived && (l.lane === "Rethink" || l.lane === "Rethink (encoder)"));
 
 function row(state, text) {
   const li = document.createElement("li");
@@ -107,14 +118,14 @@ const ivEsc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": 
 
 // The segmented "remain" bar: one segment per state, flex = the count, so
 // the bar IS the fraction (how many won / tied / remain / have no arm yet).
-function segBar(parent, up, eq, down, none) {
+function segBar(parent, up, eq, down, none, noneLabel) {
   const seg = (cls, n, title) => n > 0 || cls === "none"
     ? `<i class="${cls}" style="flex:${Math.max(n, 0.0001)}" title="${ivEsc(title)}"></i>` : "";
   const d = document.createElement("div");
   d.className = "iv-seg";
   d.innerHTML = seg("up", up, `${up} won`) + seg("eq", eq, `${eq} tied`) +
-    seg("down", down, `${down} remain`) +
-    (none > 0 ? seg("none", none, `${none} of the published suites have no family arm yet`) : "");
+    seg("down", down, `${down} to take`) +
+    (none > 0 ? seg("none", none, `${none} of the published suites ${noneLabel || "have no family arm yet"}`) : "");
   parent.appendChild(d);
 }
 
@@ -201,10 +212,18 @@ function render(bench) {
     const inst = accOf(famCell[0]);
     const kmCell = cells.find(([l]) => isModelless(l));
     const km = kmCell ? accOf(kmCell[0]) : null;
-    const others = cells.filter(([l]) => !isFamily(l) && l.model !== "multilingual");
+    const others = cells.filter(([l]) => !isFamilyServing(l) && l.model !== "multilingual");
     const best = others.reduce((a, b) => (accOf(b[0]) > accOf(a[0]) ? b : a));
+    // Row 1 is the ENCODERLESS claim (issue 010): its cell is the best HYBRID
+    // arm only — an encoder read must never be credited to "trained
+    // specialists (encoderless)". Suites measured only by the encoder show
+    // in row 2 (the rung stack) alone.
+    const hybCells = cells.filter(([l]) => isHybrid(l));
+    const hybCell = hybCells.length
+      ? hybCells.reduce((a, b) => (accOf(b[0]) > accOf(a[0]) ? b : a)) : null;
     armed.push({
       name: s.name, inst, km, kmN: nOf(kmCell && kmCell[0]), instN: nOf(famCell[0]),
+      hyb: hybCell ? accOf(hybCell[0]) : null, hybN: nOf(hybCell && hybCell[0]),
       viaEncoder, viaFallback, servedBy: famCell[0].served_by,
       bestLane: String(best[0].lane).replace(/ \(reference\)$/, "") === "KatGPT" ? "Reflex" : String(best[0].lane).replace(/ \(reference\)$/, ""),
       bestModel: best[0].model, bestAcc: accOf(best[0]), bestHost: best[1],
@@ -226,46 +245,52 @@ function render(bench) {
     { instinct: "#f472b6", reflex: "#ff8a3d", color: () => "#69718a" };
   const noArmTotal = suites.length - armed.length; // a suite with no Reflex row is also unsold (thai_*)
 
-  // ── row 1: vs Reflex (the floor) — the moved arena law ──────────────
+  // ── row 1: Reflex vs the ENCODERLESS specialists (hybrid cells only) ──
   if (armed.length) {
-    const ahead = armed.filter((r) => r.km != null && r.inst > r.km)
-      .sort((a, b) => (b.inst - b.km) - (a.inst - a.km));
-    const notAhead = armed.filter((r) => r.km == null || r.inst <= r.km)
-      .sort((a, b) => ((b.km ?? b.inst) - b.inst) - ((a.km ?? a.inst) - a.inst));
-    const tied = notAhead.filter((r) => r.km != null && Math.abs(r.inst - r.km) <= 1e-9);
+    const hyb = armed.filter((r) => r.hyb != null);
+    const hybNoArm = suites.length - hyb.length;
+    const ahead = hyb.filter((r) => r.km != null && r.hyb > r.km)
+      .sort((a, b) => (b.hyb - b.km) - (a.hyb - a.km));
+    const notAhead = hyb.filter((r) => r.km == null || r.hyb <= r.km)
+      .sort((a, b) => ((b.km ?? b.hyb) - b.hyb) - ((a.km ?? a.hyb) - a.hyb));
+    const tied = notAhead.filter((r) => r.km != null && Math.abs(r.hyb - r.km) <= 1e-9);
     const gaps = notAhead
-      .filter((r) => r.km != null && r.km > r.inst)
-      .map((r) => ({ name: r.name, gap: r.km - r.inst, acc: r.inst, n: r.instN }))
+      .filter((r) => r.km != null && r.km > r.hyb)
+      .map((r) => ({ name: r.name, gap: r.km - r.hyb, acc: r.hyb, n: r.hybN }))
       .sort((a, b) => b.gap - a.gap);
     const gapsReal = gaps.filter((r) => !inWilson(r.acc, r.n, r.acc + r.gap));
     const gapsNoise = gaps.filter((r) => inWilson(r.acc, r.n, r.acc + r.gap));
-    const noArm = noArmTotal;
     // The majority mark (owner call, matching the Reflex-vs-laya row):
     // green ✓ only when ahead EVERYWHERE, YELLOW ✓ on a strict majority,
     // red ✗ on a minority or a tie-heavy board — the lines name every gap.
     const vsReflexState = notAhead.length === 0 ? true
-      : ahead.length * 2 > armed.length ? "warn" : false;
+      : ahead.length * 2 > hyb.length ? "warn" : false;
     const li = row(vsReflexState,
-      `<div class="iv-head"><b>Instinct \u00b7 Rethink vs Reflex, accuracy</b> — ahead on <b>${ahead.length}/${armed.length}</b> suites with an arm` +
+      `<div class="iv-head"><b>Reflex vs Instinct \u00b7 trained specialists (encoderless), accuracy</b> — the specialists ahead on <b>${ahead.length}/${hyb.length}</b> suites with an arm` +
       (gapsReal.length + gapsNoise.length ? ` · behind on ${gapsReal.length + gapsNoise.length}` +
         (gapsNoise.length ? ` (${gapsNoise.length} ≈ within noise)` : "") : "") +
       (tied.length ? ` · tied on ${tied.length}` : "") +
-      (noArm > 0 ? ` · no family arm yet on ${noArm} of ${suites.length} published suites.` : "."));
+      (hybNoArm > 0 ? ` · no specialist arm yet on ${hybNoArm} of ${suites.length} published suites.` : ".") +
+      ` <a href="https://rethink.gist.rs/">Rethink goes one rung deeper — the trained encoder for what the specialists miss →</a>`);
     const main = li.querySelector(".iv-main");
-    segBar(main, ahead.length, tied.length, gapsReal.length + gapsNoise.length, noArm);
+    segBar(main, ahead.length, tied.length, gapsReal.length + gapsNoise.length, hybNoArm,
+      "have no specialist arm yet");
+    // Row-1 lines compare the HYBRID cell to the floor; the shim keeps
+    // suiteLine's shape (no encoder tag, no fallback badge on this row).
+    const hr = (r) => ({ name: r.name, inst: r.hyb, instN: r.hybN, viaEncoder: false, viaFallback: false });
     const lines = [
-      ...ahead.map((r) => suiteLine(L, r, { acc: r.km, lane: "Reflex", host: null })),
-      ...tied.map((r) => suiteLine(L, r, { acc: r.km, lane: "Reflex", host: null })),
-      ...notAhead.filter((r) => r.km != null && r.km > r.inst).map((r) =>
-        suiteLine(L, r, { acc: r.km, lane: "Reflex", host: null },
+      ...ahead.map((r) => suiteLine(L, hr(r), { acc: r.km, lane: "Reflex", host: null })),
+      ...tied.map((r) => suiteLine(L, hr(r), { acc: r.km, lane: "Reflex", host: null })),
+      ...notAhead.filter((r) => r.km != null && r.km > r.hyb).map((r) =>
+        suiteLine(L, hr(r), { acc: r.km, lane: "Reflex", host: null },
           { noise: gapsNoise.some((g) => g.name === r.name) })),
-      ...notAhead.filter((r) => r.km == null).map((r) => suiteLine(L, r, { acc: null, lane: "Reflex", host: null })),
+      ...notAhead.filter((r) => r.km == null).map((r) => suiteLine(L, hr(r), { acc: null, lane: "Reflex", host: null })),
     ];
     main.appendChild(linesUl(lines));
     ul.appendChild(li);
   }
 
-  // ── row 2: vs the best published lane (the bar) ────────────────────────
+  // ── row 2: the served rung stack vs every OTHER published lane ────────
   let chip;
   if (armed.length) {
     const best = armed.filter((r) => r.edge > 1e-9).sort((a, b) => b.edge - a.edge);
@@ -274,11 +299,16 @@ function render(bench) {
     const strictlyAll = best.length === armed.length;
     chip = document.createElement("p");
     chip.style.cssText = "margin:0 0 8px";
+    // The fallback to a lower rung is the DESIGN (issue 010 — the rung
+    // model at rethink.gist.rs/#why), so the open race is the stack against
+    // the other published lanes; ties count toward the to-go (GOAT needs
+    // strictly best everywhere).
     chip.innerHTML = `<span class="chip ${strictlyAll ? "ok" : "poc"}">${strictlyAll ? "GOAT" : "PoC"}</span> ` +
       (strictlyAll
-        ? `strictly ahead of every published lane on every suite it covers — the bar for leaving this section is met.`
-        : `not yet the best lane on every suite it covers: strictly best on <b>${best.length}/${armed.length}</b>, ` +
-          `tied on ${tied.length}, trailing on ${trailing.length} — listed below, never hidden. The arena TL;DR stays Reflex's until this flips.`);
+        ? `strictly best of every published lane on every suite it covers — the bar for leaving this section is met.`
+        : `the rung model, measured in the open — the fallback to Reflex/Instinct is by design: you pay for thinking only where the floor abstains. ` +
+          `The open race is <b>Rethink vs Others</b>: best lane on <b>${best.length}/${armed.length}</b> · ` +
+          `${tied.length + trailing.length} to go (${trailing.length} behind · ${tied.length} level) — every line below, never hidden.`);
     // Same majority law, one lane wider: the bar is EVERY published lane,
     // so the mark is green only when strictly best everywhere (the GOAT
     // chip flips with it), YELLOW on a strict majority, red ✗ on a
@@ -286,11 +316,12 @@ function render(bench) {
     const vsBestState = strictlyAll ? true
       : best.length * 2 > armed.length ? "warn" : false;
     const li = row(vsBestState,
-      `<div class="iv-head"><b>Instinct \u00b7 Rethink vs best lane, accuracy</b> — strictly best on <b>${best.length}/${armed.length}</b> suites with an arm` +
-      (trailing.length ? ` · trails the best on ${trailing.length}` : "") +
-      (tied.length ? ` · tied on ${tied.length} (a tie sells nothing)` : "") + ".");
+      `<div class="iv-head"><b>Rethink vs Others, accuracy</b> — the served rung stack (Reflex → Instinct → Rethink): best lane on <b>${best.length}/${armed.length}</b> suites` +
+      (trailing.length ? ` · ${trailing.length} to take` : "") +
+      (tied.length ? ` · ${tied.length} level` : "") + ".");
     const main = li.querySelector(".iv-main");
-    segBar(main, best.length, tied.length, trailing.length, noArmTotal);
+    segBar(main, best.length, tied.length, trailing.length, noArmTotal,
+      "have no family arm yet");
     const cmpOf = (r) => ({ acc: r.bestAcc, lane: r.bestLane, host: r.bestHost });
     main.appendChild(linesUl([
       ...best.map((r) => suiteLine(L, r, cmpOf(r))),
@@ -308,7 +339,7 @@ function render(bench) {
     const legend = document.createElement("p");
     legend.className = "iv-legend";
     legend.innerHTML =
-      `per suite: <i class="iv-sw" style="background:${L.instinct}"></i>bar = the contributing family arm (Instinct magenta, Rethink violet = record-only) · <i class="iv-tickdemo"></i>tick = the compared lane (its lane color) · dim span = the gap · ≈ = within noise · grey hatch = no family arm yet · ↩ = the served fallback (the modelless tier answered — no family arm measured)`;
+      `per suite: <i class="iv-sw" style="background:${L.instinct}"></i>bar = the contributing family arm (Instinct magenta, Rethink violet = record-only) · <i class="iv-tickdemo"></i>tick = the compared lane (its lane color) · dim span = the gap · the delta reads the verdict: <b style="color:var(--ok)">green ahead</b> · <b style="color:var(--warn)">yellow tied</b> · <b style="color:var(--ember)">red behind</b> (≈ = within noise) · grey hatch = no arm yet · ↩ = the rung fallback — a lower rung answered and is served (by design)`;
     box.append(legend, ul);
   } else {
     box.append(ul);

@@ -75,7 +75,10 @@
   .iv-seg i { min-width: 3px; }
   .iv-seg .up { background: var(--ok); }
   .iv-seg .down { background: var(--ember); }
-  .iv-seg .eq { background: var(--muted); opacity: .4; }
+  /* the verdict color law (issue 010): green ahead · yellow tied · red
+     behind — ties take the warn yellow, and the within-noise trails (also
+     a behind) read ember with their ≈ glyph so the two yellows never blur */
+  .iv-seg .eq { background: var(--warn); }
   .iv-seg .none { background: repeating-linear-gradient(45deg, transparent 0 3px, var(--line) 3px 5px); min-width: 0; }
   .iv-legend { font-size: 11.5px; color: var(--muted); margin: 2px 0 6px; }
   .iv-legend .iv-sw { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 4px; }
@@ -98,8 +101,8 @@
   .iv-delta { display: table-cell; width: 3.2em; text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; vertical-align: middle; }
   .iv-delta.up { color: var(--ok); }
   .iv-delta.down { color: var(--ember); }
-  .iv-delta.eq { color: var(--muted); font-weight: 400; }
-  .iv-delta.noise { color: var(--warn); }
+  .iv-delta.eq { color: var(--warn); font-weight: 400; }
+  .iv-delta.noise { color: var(--ember); }
   @media (max-width: 760px) {
     .iv-lines, .iv-line, .iv-line tbody { display: block; }
     .iv-line { position: relative; padding-right: 3.4em; }
@@ -294,9 +297,10 @@
     <div class="instinct">
       <p class="sub"><strong>Instinct</strong> (<a href="https://github.com/gist-rs/riir-instinct">gist-rs/riir-instinct</a>) is Reflex's trained sibling: per-domain
         specialist models — distilled, pinned by a BLAKE3 digest checked at every load, hot-swapped as whole artifacts — composed <em>on top of</em> the free engine, never instead of it.
-        Reflex always answers first and answers free; the specialist is consulted only where Reflex's calibrated gate declines, and it pays off only
-        where it measured ahead. Until it is the best published lane on <em>every</em> suite it covers, it is a promising PoC and lives here on the
-        benchmark page — the arena TL;DR stays Reflex's.</p>
+        That is the family's rung model: each rung answers only what the rung below is not confident about — you pay for thinking, never for re-answering what the
+        free floor already knows — so a fallback to Reflex or Instinct is the design, not a miss. <strong>Rethink</strong> is the same family's hosted rung
+        (<a href="https://rethink.gist.rs/">rethink.gist.rs</a>) one level deeper; its open race is against the <em>other</em> published lanes, and wins, ties and
+        losses all stay visible below. The arena TL;DR stays Reflex's until the rung stack is the best published lane on every suite it covers.</p>
       <p class="sub"><strong>Naming:</strong> the lane names carry no qualifier — <strong>Instinct</strong> is the hybrid
         (serving) lane, <strong>Rethink</strong> the encoder arm — Rethink is the separate hosted product
         (<a href="https://rethink.gist.rs/">rethink.gist.rs</a>; its source is private). Rethink is measured on a subset of suites so far (record-only: the encoder
