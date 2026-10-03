@@ -131,8 +131,9 @@
             actually served there — the cheaper tier's answer — marked ↩ in tables and ▲ on the radar.</dd>
           <dt>encoder head</dt><dd>A small trained layer on top of a text encoder that turns the encoder's reading
             of the question into option probabilities.</dd>
-          <dt>vessel</dt><dd>The locked package a hosted head ships in. Only the hosted reader can open it, so the
-            weights never leave our servers.</dd>
+          <dt>vessel</dt><dd>The package a hosted head is built to ship in: hashed, signed and encrypted, so only the
+            hosted reader can open it. The format is built but not yet the serving path — today's specialists are
+            files checked against a pinned BLAKE3 digest, run on our servers.</dd>
           <dt>rung</dt><dd>One step on the ladder: free local Reflex first; a hosted head only when the step below
             abstains.</dd>
         </dl>
@@ -416,8 +417,9 @@
         <ol>
           <li><b>Features:</b> the full encoder substrate — context, order, nuance.</li>
           <li><b>Think:</b> millisecond-class thoughts, on our GPU hosts.</li>
-          <li><b>Guard:</b> a HOSTED-ONLY vessel — BLAKE3-locked (hashed and signed), tamper-evident, structurally unreadable
-            without the hosted reader.</li>
+          <li><b>Guard:</b> a HOSTED-ONLY vessel — hashed, signed and encrypted, unreadable without the hosted
+            reader. <i>Planned:</i> the format is built; until the hosted lane opens, heads are checked against a pinned
+            BLAKE3 digest.</li>
         </ol>
       </div>
     </div>

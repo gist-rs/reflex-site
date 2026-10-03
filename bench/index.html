@@ -224,8 +224,9 @@
             actually served there — the cheaper tier's answer — marked ↩ in tables and ▲ on the radar.</dd>
           <dt>encoder head</dt><dd>A small trained layer on top of a text encoder that turns the encoder's reading
             of the question into option probabilities.</dd>
-          <dt>vessel</dt><dd>The locked package a hosted head ships in. Only the hosted reader can open it, so the
-            weights never leave our servers.</dd>
+          <dt>vessel</dt><dd>The package a hosted head is built to ship in: hashed, signed and encrypted, so only the
+            hosted reader can open it. The format is built but not yet the serving path — today's specialists are
+            files checked against a pinned BLAKE3 digest, run on our servers.</dd>
           <dt>rung</dt><dd>One step on the ladder: free local Reflex first; a hosted head only when the step below
             abstains.</dd>
         </dl>
@@ -271,7 +272,7 @@
     <h2 id="instinct" style="margin-top:40px"><a class="hlink" href="#instinct">Instinct — the trained add-on (PoC)</a></h2>
     <div class="instinct">
       <p class="sub"><strong>Instinct</strong> (<a href="https://github.com/gist-rs/riir-instinct">gist-rs/riir-instinct</a>) is Reflex's trained sibling: per-domain
-        specialist models — distilled, BLAKE3-locked, hot-swapped as whole artifacts — composed <em>on top of</em> the free engine, never instead of it.
+        specialist models — distilled, pinned by a BLAKE3 digest checked at every load, hot-swapped as whole artifacts — composed <em>on top of</em> the free engine, never instead of it.
         Reflex always answers first and answers free; the specialist is consulted only where Reflex's calibrated gate declines, and it pays off only
         where it measured ahead. Until it is the best published lane on <em>every</em> suite it covers, it is a promising PoC and lives here on the
         benchmark page — the arena TL;DR stays Reflex's.</p>
@@ -311,7 +312,7 @@
         their gliner2 package answers the same candidate-label questions — a comparison lane, never a product lane.
         <strong>agentjev</strong> — the external AgentJev-0.6B typed-decision specialist (Apache-2.0, not affiliated, Qwen3-0.6B backbone):
         their service answers over HTTP, measured gold-label on our split — a comparison lane, never a product lane.
-        <strong>Instinct</strong> — the trained-specialist hybrid (open source: riir-instinct): a BLAKE3-locked distilled specialist composed with
+        <strong>Instinct</strong> — the trained-specialist hybrid (open source: riir-instinct): a distilled specialist (pinned by a BLAKE3 digest checked at load) composed with
         Reflex — the modelless lane's fused gate decides when to consult it; the cell is the registered arm's single frozen test read
         over the same seat and protocol as every other lane (per suite, only where a hybrid arm won pre-registration).
         <strong>Rethink</strong> — the same family's encoder arm, served by the hosted Rethink product (record-only: the encoder class is refused at serve, so it is
@@ -380,13 +381,14 @@
         own outputs per suite. What differs is latency — and the python figure includes the subprocess round-trip (IPC).</p>
       </details>
       <details class="faq">
-        <summary>Why is the openthai massive_intent_en row ~1.7 s on <code>@m3-max-metal</code> but ~95 ms on <code>@4090-win</code>?</summary>
+        <summary>Why is the openthai massive_intent_en row so much slower on <code>@m3-max-metal</code> than on <code>@4090-win</code>?</summary>
       <p>The openthai model reads every option as prompt text — the input template
         inlines each option (<code>&lt;|ts_opt_i|&gt; option: description</code>) and one forward scores all 256 slots at the
         answer position, so per-question cost scales with option count. massive carries <strong>59 options
-        (~203 tokens/question)</strong> vs xnli's 3, and on MPS fp32 that prices at ~29 ms per option
-        (~1.7 s/question). The 4090 prices the identical prompts at ~95 ms — same design, same accuracy
-        (0.9200 byte-identical across both hosts), ~18× cheaper tokens. Verified as real, not box contamination:
+        (~203 tokens/question)</strong> vs xnli's 3, and on MPS fp32 that prices at <span data-ot="per_opt">—</span> per option
+        (<span data-ot="m3">—</span>/question, p50). The 4090 prices the identical prompts at <span data-ot="w">—</span> — same design, same accuracy
+        (<span data-ot="acc">—</span> on both hosts), <span data-ot="ratio">—</span> cheaper tokens. Every figure here is read from the
+        massive_intent_en openthai cells in the table above. Verified as real, not box contamination:
         a preflight-passed exclusive-GPU re-read reproduced the number within 5% and made every
         <code>@m3-max-metal</code> openthai cell quotable from its own run.</p>
       </details>
@@ -925,6 +927,30 @@ function render(d) {
     else if (typeof v === "string") { proto.push(`<p class="protocol"><strong>${k}:</strong> ${v}</p>`); }
   }
   document.getElementById("protocol").innerHTML = proto.join("");
+  fillOpenthaiFaq(d);
+}
+
+// The openthai FAQ's figures come from the same cells the table renders —
+// never typed into copy (the numbers law). Absent cells leave the fallbacks.
+function fillOpenthaiFaq(d) {
+  const s = (d.suites || []).find((x) => x.name === "massive_intent_en");
+  const m3 = s && s.openthai;
+  const w = s && ((s.extra_host_lanes || {})["4090-win"] || {}).openthai;
+  if (!m3 || !w || !m3.latency_p50_ms || !w.latency_p50_ms) return;
+  const ms = (v) => (v >= 1000 ? (v / 1000).toFixed(1) + " s" : Math.round(v) + " ms");
+  const acc = (c) => (c.hard && c.hard.accuracy != null ? c.hard.accuracy.toFixed(4) : null);
+  const accText = acc(m3) === acc(w) ? acc(m3) : `${acc(m3)} vs ${acc(w)}`;
+  const vals = {
+    m3: ms(m3.latency_p50_ms),
+    w: ms(w.latency_p50_ms),
+    per_opt: ms(m3.latency_p50_ms / 59),
+    acc: accText,
+    ratio: Math.round(m3.latency_p50_ms / w.latency_p50_ms) + "×",
+  };
+  for (const el of document.querySelectorAll("[data-ot]")) {
+    const v = vals[el.dataset.ot];
+    if (v != null) el.textContent = v;
+  }
 }
 
 fetch("/data/bench.json", { cache: "no-store" })

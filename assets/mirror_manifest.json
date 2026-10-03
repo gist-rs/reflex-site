@@ -12,7 +12,7 @@
       "repo": "riir-reflex",
       "src": ".docs/04_agent_skill/SKILL.md",
       "dst": "skills/reflex-integration/SKILL.md",
-      "sha256": "f2998521a565a7de48543364df20a2df570c15115a794cae8d320876637565c0"
+      "sha256": "c07af3b1421ccde3776e8fcae36968aa5e5c7d719d487daef37df780d6a41277"
     },
     {
       "repo": "riir-reflex",
@@ -48,7 +48,7 @@
       "repo": "riir-instinct",
       "src": ".docs/05_resources/dev_flow.md",
       "dst": "docs/instinct/dev_flow.md",
-      "sha256": "b187853920d4bafece0177c83fa1c560266d954b1c688dcabd3a6d30303d430c"
+      "sha256": "46f355284985c0f97c0300343b12c12c32bdf51321012c3b8a5490e04426fc34"
     },
     {
       "repo": "riir-instinct",
@@ -66,13 +66,13 @@
       "repo": "riir-rethink",
       "src": ".docs/05_resources/resources.md",
       "dst": "docs/rethink/resources.md",
-      "sha256": "0aa32d9d08db71ab3c1b32882347f35c1cbbe063cbb01f7f52451abcd1ab645a"
+      "sha256": "c9022b994e997d41dd90145a326914be3fa8672ed0e0d9ab14b841fe596c04cc"
     },
     {
       "repo": "riir-rethink",
       "src": ".docs/05_resources/dev_flow.md",
       "dst": "docs/rethink/dev_flow.md",
-      "sha256": "fe1013d2bba79818294cf00cb89a97fb1882e51b462b6e6cd160ae46df4f3869"
+      "sha256": "5c613ba9b8b00cfe66fc9ffb63ba575f24dd31ddda5673b2f42afdcc0bb3a0c1"
     },
     {
       "repo": "riir-rethink",

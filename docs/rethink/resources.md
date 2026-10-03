@@ -6,17 +6,20 @@ Rethink is the same Instinct idea one rung deeper: where a bag specialist is too
 
 ## What Rethink is
 
-Rethink is a **product**, not a research note: it serves typed decisions
-[structured questions that deserve a structured answer, not free text]
-over the same wire the open lanes use, and every answer carries a receipt
-[a signed summary of exactly what produced the answer]. It is also
+Rethink is a **product**, not a research note: it is built to serve typed
+decisions [structured questions that deserve a structured answer, not free
+text] over the same wire the open lanes use, and every answer carries a
+receipt [a hashed record of exactly what produced the answer]. The hosted
+lane is not open yet — rethink.gist.rs marks each step live, test network
+or planned. It is also
 **private forever** — the source stays ours, and so do the trained heads.
 
-The heads themselves ship inside a **HOSTED-ONLY vessel** [weights that
-never leave our servers — you call, we think]. That class is structural,
-not a policy: a build without the hosted reader cannot open a hosted
-vessel at all, so the heads cannot land on hardware we do not control —
-not by accident, not by option.
+The heads are built to ship inside a **HOSTED-ONLY vessel** [weights that
+never leave our servers — you call, we think]: hashed, signed and
+encrypted, so a build without the hosted reader cannot open one at all.
+That class is structural, not a policy. The vessel format is built but is
+not the serving path yet; until it is, heads are plain files checked
+against a pinned BLAKE3 digest, and they still run only on our hosts.
 
 ## The rung model
 
@@ -36,8 +39,8 @@ thinks, on our GPU hosts.
 On **our GPU hosts only**. Rethink ships its own serve binary to our own
 servers — private distribution, never a public download. There is no
 binary to fetch, and by design there never will be: the encoder lane does
-not compile into a public build, and the heads ride vessels the public
-reader refuses. "Can I run this myself?" has an honest answer: no — and
+not compile into a public build, and the heads are to ride vessels the
+public reader refuses. "Can I run this myself?" has an honest answer: no — and
 that is the whole point of the class.
 
 ## How to see it

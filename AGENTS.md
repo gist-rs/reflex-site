@@ -22,7 +22,7 @@ output, screenshots or notes to the root — use the gitignored `scripts/out/`.
 | `scripts/wasm_head_check.sh` | the `wasm-head` lane: clippy both arms, tests, shipped wasm = source build (`--write` refreshes) |
 | `scripts/arena_head_parity.mjs` | the shipped wasm's decisions vs the recorded walks — must PASS before any ship |
 | `scripts/resources_page_smoke.cjs` | the `/resources` education page: render smoke (sections incl. the #learn Jev primer first — glossary terms, valid request JSON, the figure, the Clef note digit-free; family chrome; no "seal"; framing sentences verbatim, every figure resolves, matrix shape, the moat law — no riir-rethink link) + the numbers law on visible text and on the primer figure's SVG text (tags stripped first; the same digit patterns as `sync_mirror.py`'s fence) |
-| `scripts/public_copy_gate.cjs` | every served page rendered (details open): no internal record ids (`Plan/Proposal/Issue/Bench N`, `N-era`, `pre-N`), no "seal" (also over the served md/svg mirrors), the family chrome, and no sideways scroll at 390 px |
+| `scripts/public_copy_gate.cjs` | every served page rendered (details open): no internal record ids (`Plan/Proposal/Issue/Bench N`, `N-era`, `pre-N`), no "seal" (also over the served md/svg mirrors), no typed figure in FAQ copy (bind it to `data/bench.json` via `[data-ot]`, or allow it with a reason in `FAQ_FIGURE_ALLOW` — a stale allow row reds too), the family chrome, and no sideways scroll at 390 px |
 | `scripts/*_smoke.*`, `scripts/arena_demo_check.mjs` | page render smokes and the no-engine demo replay check |
 
 ## Before a deploy

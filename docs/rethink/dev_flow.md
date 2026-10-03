@@ -2,8 +2,10 @@ PUBLIC BY MIRROR — this file ships to reflex.gist.rs; keep it concept-level (n
 
 # Rethink — the development flow
 
-How a Rethink head travels from training to serving. The head is trained
-on the trainer side, locked [hashed and signed — made tamper-evident and checksum-verified],
+How a Rethink head is planned to travel from training to serving — the
+hosted lane is not open yet, so this is the design, not today's path. The
+head is trained on the trainer side, locked [hashed and signed — made
+tamper-evident and checksum-verified],
 minted into a HOSTED-ONLY vessel [weights that never leave our servers —
 you call, we think], deployed to our GPU hosts, and served through the
 storefront. No step ever places the weights on hardware we do not

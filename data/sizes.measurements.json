@@ -67,7 +67,7 @@
   {
    "key": "instinct_winner_vessels",
    "bytes": 20320298,
-   "what": "the six locked winner vessels (BLAKE3 + ed25519, HOSTED-ONLY): ag_news 524,381 \u00b7 emotion 786,545 \u00b7 sst5 655,460 \u00b7 massive_intent_en 7,865,749 \u00b7 banking77 10,094,864 \u00b7 xnli_en 393,299",
+   "what": "the six winner files (BLAKE3-pinned in the manifest): ag_news 524,381 \u00b7 emotion 786,545 \u00b7 sst5 655,460 \u00b7 massive_intent_en 7,865,749 \u00b7 banking77 10,094,864 \u00b7 xnli_en 393,299",
    "host": "m3-max-metal",
    "date_utc": "2026-09-27",
    "how": "sum of lstat sizes over ../riir-train/data/instinct_specialists/{ag_news,emotion,sst5,massive_intent_en,banking77,xnli_en}_winner_v1.bin (the deploy.yaml files: rows)"

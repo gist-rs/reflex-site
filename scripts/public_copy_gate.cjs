@@ -27,6 +27,20 @@ const MIME = { ".html": "text/html", ".js": "text/javascript", ".mjs": "text/jav
 
 const ID_RE = /\b(?:Plan|Proposal|Issue|Bench)\s+\d+|\b\d+-era\b|\bpre-\d+\b/g;
 const SEAL_RE = /\bseal(?:ed|s|ing)?\b/gi;
+// FAQ figures (Issue 009 T1, the numbers law): a measured figure in FAQ copy
+// must be BOUND — rendered into a [data-ot] / [data-bind] element from
+// data/bench.json — never typed. The scan reads each opened <details class=
+// "faq"> with its bound elements removed. What is left that looks like a
+// measurement must be an ALLOWED constant below, each with its reason; a new
+// typed figure reds, and so does an allow row nothing matches any more.
+const FIG_RE = /~?\d+(?:\.\d+)?\s?(?:ms|µs|s\b|×|%)|\b0\.\d{3,}\b/g;
+const FAQ_FIGURE_ALLOW = new Map([
+  ["9×", "a THIRD PARTY's published claim, quoted and attributed (Jev's own speedup)"],
+  ["99.9%", "the parity gate's threshold — a policy constant, not a measurement"],
+  ["5%", "the re-read tolerance the methodology states — a policy constant"],
+  ["10×", "the log axis's gridline step — a chart-design constant"],
+  ["500 ms", "the log axis's range — a chart-design constant"],
+]);
 
 const server = http.createServer((req, res) => {
   let rel = decodeURIComponent(req.url.split("?")[0]);
@@ -58,6 +72,7 @@ function served(rel) {
   await new Promise((r) => server.listen(PORT, "127.0.0.1", r));
   const browser = await chromium.launch();
   let checked = 0;
+  const faqAllowSeen = new Set();
   for (const url of PAGES) {
     for (const vp of [{ width: 1280, height: 900 }, { width: 390, height: 844 }]) {
       const page = await browser.newPage({ viewport: vp });
@@ -65,6 +80,11 @@ function served(rel) {
       await page.waitForTimeout(600);
       await page.evaluate(() => document.querySelectorAll("details").forEach((d) => { d.open = true; }));
       await page.waitForTimeout(200);
+      const faqText = await page.evaluate(() => [...document.querySelectorAll("details.faq")].map((d) => {
+        const c = d.cloneNode(true);
+        c.querySelectorAll("[data-ot],[data-bind]").forEach((e) => e.remove());
+        return c.innerText;
+      }).join("\n"));
       const r = await page.evaluate(() => ({
         text: document.body.innerText,
         product: document.documentElement.getAttribute("data-product"),
@@ -80,6 +100,11 @@ function served(rel) {
         if (ids.length) fail(`${tag}: internal ids in rendered copy: ${JSON.stringify([...new Set(ids)].slice(0, 8))}`);
         const seals = r.text.match(SEAL_RE) || [];
         if (seals.length) fail(`${tag}: banned word "seal" in rendered copy (${seals.length}×)`);
+        for (const f of faqText.match(FIG_RE) || []) {
+          const k = f.replace(/^~/, "");
+          if (FAQ_FIGURE_ALLOW.has(k)) faqAllowSeen.add(k);
+          else fail(`${tag}: typed figure ${JSON.stringify(f)} in FAQ copy — bind it to data/bench.json ([data-ot]) or allow it with a reason`);
+        }
         if (r.product !== "reflex") fail(`${tag}: <html data-product> = ${r.product}`);
         if (!r.firstIsBar) fail(`${tag}: gf-bar is not the first element in <body>`);
         if (r.current !== "Reflex") fail(`${tag}: gf-bar current = ${JSON.stringify(r.current)}`);
@@ -101,6 +126,9 @@ function served(rel) {
     const t = fs.readFileSync(path.join(ROOT, f), "utf8");
     const m = t.match(SEAL_RE);
     if (m) { seal++; fail(`served ${f}: banned word "seal" (${m.length}×)`); }
+  }
+  for (const k of FAQ_FIGURE_ALLOW.keys()) {
+    if (!faqAllowSeen.has(k)) fail(`FAQ allow row ${JSON.stringify(k)} matches nothing any more — remove it`);
   }
   if (files.length < 10) fail(`walked only ${files.length} served md/svg files — the walk went blind`);
   await browser.close();
