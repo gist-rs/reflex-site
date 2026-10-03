@@ -903,10 +903,14 @@
         : `left:${(fAv * 100).toFixed(2)}%;transform:translate(calc(-100% - 5px),-50%);`;
       const brk = M.log && latBroken && a.max > BREAK_AT
         ? `<i class="sz-break" aria-hidden="true" style="left:${(LIN_SPAN * 100).toFixed(2)}%"></i>` : "";
+      // tap-to-expand: the same tip content renders under the row (hidden
+      // until the bar is clicked/tapped — hover has no touch equivalent)
+      const did = `bcd-${lane.key}`;
       return `<div class="bc-hlabel"><i class="bc-sw" style="background:${lane.color}"></i>${esc(lane.label)}${cov}${fbTag}</div>` +
         `<div class="bc-htrack">${grid(m)}` +
-        `<div class="bc-hbar" tabindex="0" data-tip="${esc(tip)}" aria-label="${esc(`${lane.label} averaged: ${f(a.value)} over ${a.n} suites (min ${f(a.min)}, max ${f(a.max)})`)}">` +
-        `${band}${brk}<i class="bc-mark" style="left:${(fAv * 100).toFixed(2)}%;background:${lane.color}"></i><span class="bc-val" style="${valStyle}">${f(a.value)}</span></div></div>`;
+        `<div class="bc-hbar" tabindex="0" role="button" aria-expanded="false" aria-controls="${did}" data-tip="${esc(tip)}" aria-label="${esc(`${lane.label} averaged: ${f(a.value)} over ${a.n} suites (min ${f(a.min)}, max ${f(a.max)})`)}">` +
+        `${band}${brk}<i class="bc-mark" style="left:${(fAv * 100).toFixed(2)}%;background:${lane.color}"></i><span class="bc-val" style="${valStyle}">${f(a.value)}</span></div></div>` +
+        `<div class="bc-detail" id="${did}" hidden>${tip}</div>`;
     }).join("") +
       zeroStats.map(([lane, a]) =>
         // presence row: the lane keeps its slot on the chart with the REASON
@@ -925,7 +929,7 @@
         ? "Band = min → max suite chance-corrected accuracy; tick = macro-average; 0% = random guessing on that suite's option count (the same scale as the area radar), so suites compare — bars clip at the 0% chance line, tooltips carry exact values. "
         : "Band = min → max suite accuracy; tick = macro-average; chance differs per suite — compare lanes, not suites. ") +
       `Rows sorted ${M.log ? "fastest" : "best"} average first. ` +
-      `Over ${total} published suites — hover a bar for per-suite values; the count beside a lane is its plotted suites, and each lane averages its own suites — the like-for-like view is the benchmark page's area radar.` +
+      `Over ${total} published suites — hover a bar for per-suite values (tap or click a bar to expand them under the row); the count beside a lane is its plotted suites, and each lane averages its own suites — the like-for-like view is the benchmark page's area radar.` +
       (M.log
         ? (anyServed ? " ↩k = k suites answered by the base lane — the served product (Rethink ≈ Reflex where the encoder declines). " : "") +
           " Unfit timing (a loaded-box run) never plots — those lanes carry the reason in place; unverified = the run's host has no box-state probes."
@@ -942,6 +946,23 @@
       `<button type="button" data-metric="${k}" aria-pressed="${k === summaryMetric}">${esc(M.label)}${M.log ? " (log)" : ""}</button>`).join("");
     el.innerHTML = `<div class="bc-bar"><div class="bc-legend"><span>every published suite, one min–avg–max range per lane — the same data as <a href="/bench/">the full benchmark</a></span></div>` +
       `<div class="bc-toggle" role="group" aria-label="metric">${btns}</div></div><div class="bc-summary-body">${summaryBody()}</div>`;
+    // tap-to-expand: a bar toggles its under-row detail (property
+    // assignment on the persisting body element — the metric toggle only
+    // swaps innerHTML, so the wiring survives re-renders)
+    const body = el.querySelector(".bc-summary-body");
+    const toggleDetail = (bar) => {
+      const det = document.getElementById(bar.getAttribute("aria-controls"));
+      if (!det) return;
+      det.hidden = !det.hidden;
+      bar.setAttribute("aria-expanded", String(!det.hidden));
+    };
+    const hit = (e) => e.target && e.target.closest && e.target.closest(".bc-hbar[aria-controls]");
+    body.onclick = (e) => { const bar = hit(e); if (bar && body.contains(bar)) toggleDetail(bar); };
+    body.onkeydown = (e) => {
+      if (e.key !== "Enter" && e.key !== " ") return;
+      const bar = hit(e);
+      if (bar && body.contains(bar)) { e.preventDefault(); toggleDetail(bar); }
+    };
     el.querySelector(".bc-toggle").addEventListener("click", (e) => {
       const b = e.target.closest("button[data-metric]");
       if (!b) return;

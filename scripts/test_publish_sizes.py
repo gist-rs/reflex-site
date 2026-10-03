@@ -6,6 +6,7 @@ Exit 0 = green; a failing case prints its name before asserting.
 """
 
 import importlib.util
+import json
 import sys
 from pathlib import Path
 
@@ -71,7 +72,7 @@ FAKE_RECORDED = {k: {"key": k, "bytes": v, "what": f"{k} fake", "host": "fake-ho
                      "clm_repo": 77_000_000,
                      "instinct_serve_binary": 1_800_000,
                      "instinct_datasets_t20k": 20_000_000,
-                     "instinct_winner_vessels": 20_000_000,
+                     "instinct_winner_vessels": 20_320_298,
                      "rethink_serve_binary": 8_000_000,
                      "laya_english_q8_artifact": 450_000_000,
                      "rethink_encoder_heads": 9_000_000,
@@ -79,6 +80,21 @@ FAKE_RECORDED = {k: {"key": k, "bytes": v, "what": f"{k} fake", "host": "fake-ho
                      "openthai_venv": 700_000_000,
                      "bekko_venv": 660_000_000,
                  }.items()}
+# the two recorded_files records carry their per-file values (the real
+# entries restate the same measurement's lstat values; sums asserted)
+FAKE_RECORDED["instinct_winner_vessels"]["files"] = [
+    {"label": "ag_news specialist", "bytes": 524_381},
+    {"label": "emotion specialist", "bytes": 786_545},
+    {"label": "sst5 specialist", "bytes": 655_460},
+    {"label": "massive_intent_en specialist", "bytes": 7_865_749},
+    {"label": "banking77 specialist", "bytes": 10_094_864},
+    {"label": "xnli_en specialist", "bytes": 393_299},
+]
+FAKE_RECORDED["rethink_encoder_heads"]["files"] = [
+    {"label": "sst5 head (t6_s0)", "bytes": 3_000_000},
+    {"label": "xnli_en head", "bytes": 3_000_000},
+    {"label": "ag_news head", "bytes": 3_000_000},
+]
 
 FAILURES = []
 
@@ -141,6 +157,15 @@ def _():
         assert c["model_bytes"] >= 0, c["key"]
         if c["model_bytes"] == 0:
             assert "none" in c["model_what"], c["key"]
+            assert "model_stack" not in c, f"{c['key']}: a no-weights row carries no stack"
+        else:
+            # every weights row carries its component split; the leaves sum
+            # to model_bytes by construction (the sub-bar + bullet contract)
+            st = c.get("model_stack")
+            assert isinstance(st, list) and st, f"{c['key']}: no model_stack"
+            assert sum(f["bytes"] for f in st) == c["model_bytes"], c["key"]
+            for f in st:
+                assert f.get("label") and f.get("kind") and f["bytes"] > 0, (c["key"], f)
 
 
 @case("sorted ascending by engine+model total")
@@ -187,18 +212,30 @@ def _():
     assert by["reflex_laya_typed"]["model_bytes"] == 813_501_000, by["reflex_laya_typed"]["model_bytes"]
     assert by["agentjev"]["model_bytes"] == 2_300_000_000 + 1_500_000_000
     assert by["clm"]["model_bytes"] == 16_000_000_000 + 75_000_000
+    # a lone leaf names itself (stack_label) — the tooltip bullet is the
+    # component, never a generic "model / weights" where a name is known
+    assert by["reflex_laya_typed"]["model_stack"] == [
+        {"label": "typed-decisions checkpoint", "kind": "weights", "bytes": 813_501_000}
+    ], by["reflex_laya_typed"]["model_stack"]
+    assert by["clm"]["model_stack"][0]["label"] == "Qwen3-8B + CLM head"
 
 
-@case("instinct resolves: recorded_sum engine + recorded model")
+@case("instinct resolves: recorded_sum engine + recorded_files model (the six specialists)")
 def _():
     d = patched_build()
     by = {c["key"]: c for c in d["candidates"]}
     h = by["instinct_hybrid"]
     assert h["engine_bytes"] == 1_800_000 + 20_000_000, h["engine_bytes"]
-    assert h["model_bytes"] == 20_000_000, h["model_bytes"]
+    assert h["model_bytes"] == 20_320_298, h["model_bytes"]
     assert h["model_provenance"]["source"] == "recorded measurement", h["model_provenance"]
     assert h["engine_provenance"]["source"] == "recorded measurement (sum)", h["engine_provenance"]
     assert h["model_what"], h["key"]
+    st = h["model_stack"]
+    assert [f["label"] for f in st] == [
+        "ag_news specialist", "emotion specialist", "sst5 specialist",
+        "massive_intent_en specialist", "banking77 specialist", "xnli_en specialist"], st
+    assert all(f["kind"] == "specialist" for f in st), st
+    assert sum(f["bytes"] for f in st) == 20_320_298, st
 
 
 @case("bekko resolves: recorded venv engine + hf_total model tree")
@@ -213,7 +250,7 @@ def _():
     assert b["model_provenance"]["source"] == "huggingface.co tree API (exact bytes)", b["model_provenance"]
 
 
-@case("rethink resolves: recorded_sum engine + summed RECORDED model (q8 artifact + heads)")
+@case("rethink resolves: recorded_sum engine + summed RECORDED model (q8 artifact + heads, 4-leaf stack)")
 def _():
     d = patched_build()
     by = {c["key"]: c for c in d["candidates"]}
@@ -226,6 +263,10 @@ def _():
     for needle in ("laya_english_q8_artifact fake", "rethink_encoder_heads fake"):
         assert needle in r["model_provenance"]["detail"], r["model_provenance"]
     assert r["engine_provenance"]["source"] == "recorded measurement (sum)", r["engine_provenance"]
+    st = r["model_stack"]
+    assert [f["kind"] for f in st] == ["encoder", "head", "head", "head"], st
+    assert st[0]["label"] == "laya-english encoder · Q8_0", st
+    assert sum(f["bytes"] for f in st) == r["model_bytes"], st
 
 
 @case("hf_subtree_diff resolves and refuses an empty result")
@@ -234,10 +275,11 @@ def _():
     orig = ps.hf_tree_bytes
     ps.hf_tree_bytes = fake_hf
     try:
-        n, prov = ps.resolve_model(
+        n, prov, st = ps.resolve_model(
             ("hf_subtree_diff", "convaiinnovations/laya", ["multilingual/", "typed-decisions/"]), {})
         assert n == 800_000_000 + 3_000_000, n
         assert "whole tree minus" in prov["detail"], prov
+        assert len(st) == 1 and st[0]["kind"] == "weights", st
         try:
             ps.resolve_model(("hf_subtree_diff", "convaiinnovations/laya", ["", ""]), {})
             raise AssertionError("hf_subtree_diff published an empty tree")
@@ -245,6 +287,24 @@ def _():
             pass
     finally:
         ps.hf_tree_bytes = orig
+
+
+@case("recorded_files refuses a missing or drifted files array")
+def _():
+    no_files = {k: v for k, v in FAKE_RECORDED.items()}
+    no_files["instinct_winner_vessels"] = {k: v for k, v in FAKE_RECORDED["instinct_winner_vessels"].items() if k != "files"}
+    try:
+        ps.resolve_model(("recorded_files", "instinct_winner_vessels"), no_files)
+        raise AssertionError("recorded_files accepted a record with no files array")
+    except SystemExit:
+        pass
+    drifted = json.loads(json.dumps(FAKE_RECORDED))
+    drifted["rethink_encoder_heads"]["files"][0]["bytes"] += 1
+    try:
+        ps.resolve_model(("recorded_files", "rethink_encoder_heads"), drifted)
+        raise AssertionError("recorded_files accepted a drifted files sum")
+    except SystemExit:
+        pass
 
 
 @case("a recorded key missing inside a sum refuses loudly")

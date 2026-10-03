@@ -75,6 +75,38 @@
     "source": "recorded measurement",
     "detail": "the six winner files (BLAKE3-pinned in the manifest): ag_news 524,381 \u00b7 emotion 786,545 \u00b7 sst5 655,460 \u00b7 massive_intent_en 7,865,749 \u00b7 banking77 10,094,864 \u00b7 xnli_en 393,299 \u2014 measured 2026-09-27 on m3-max-metal: sum of lstat sizes over ../riir-train/data/instinct_specialists/{ag_news,emotion,sst5,massive_intent_en,banking77,xnli_en}_winner_v1.bin (the deploy.yaml files: rows)"
    },
+   "model_stack": [
+    {
+     "label": "ag_news specialist",
+     "kind": "specialist",
+     "bytes": 524381
+    },
+    {
+     "label": "emotion specialist",
+     "kind": "specialist",
+     "bytes": 786545
+    },
+    {
+     "label": "sst5 specialist",
+     "kind": "specialist",
+     "bytes": 655460
+    },
+    {
+     "label": "massive_intent_en specialist",
+     "kind": "specialist",
+     "bytes": 7865749
+    },
+    {
+     "label": "banking77 specialist",
+     "kind": "specialist",
+     "bytes": 10094864
+    },
+    {
+     "label": "xnli_en specialist",
+     "kind": "specialist",
+     "bytes": 393299
+    }
+   ],
    "targets": [
     "container (cf-container)",
     "hosted serving"
@@ -98,6 +130,28 @@
     "source": "sum of measured sources",
     "detail": "447,729,135 B (recorded measurement: the laya-english checkpoint as the derived Q8_0 artifact (the ADOPTED serving encoding \u2014 LAYA_WEIGHTS_VARIANT=q8, riir-infer plan 616 Phases 1\u20132; 53.1% of the 842,609,210-byte F16 file) \u2014 the weights the Rethink encoder serving lane loads resident from boot \u2014 measured 2026-10-02 on m3-max-metal: lstat over ~/.cache/riir-reflex/laya/english/derived/model.q8.safetensors (stat -f %z \u2192 447729135); the model.q8.safetensors.blake3 sidecar sits beside it \u2014 digest NOT re-verified at record time (no blake3 CLI on the box)) + 7,994,976 B (recorded measurement: the three locked NLEH encoder heads the serving lane serves (english-checkpoint paired): sst5 t6_s0.bin 3,197,988 \u00b7 xnli_en_encoder_v1.bin 2,131,996 \u00b7 ag_news_encoder_v1.bin 2,664,992. The typed v2 head (typed_encoder_v2.bin, 1,066,004 \u2014 same dir) is NOT in this posture: it is trained over the TYPED checkpoint (encoder_serve hardcodes Checkpoint::English; 'a head trained on the typed cache is meaningless over the english encoder') and rides the arena's record-only measurement lane \u2014 measured 2026-10-01 on m3-max-metal: sum of lstat sizes over ../riir-train/.raw/t599/{t6_s0.bin,xnli_en_encoder_v1.bin,ag_news_encoder_v1.bin} (the .blake3 sidecars excluded))"
    },
+   "model_stack": [
+    {
+     "label": "laya-english encoder \u00b7 Q8_0",
+     "kind": "encoder",
+     "bytes": 447729135
+    },
+    {
+     "label": "sst5 head (t6_s0)",
+     "kind": "head",
+     "bytes": 3197988
+    },
+    {
+     "label": "xnli_en head",
+     "kind": "head",
+     "bytes": 2131996
+    },
+    {
+     "label": "ag_news head",
+     "kind": "head",
+     "bytes": 2664992
+    }
+   ],
    "targets": [
     "GPU host (Metal/CUDA)",
     "record-only today"
@@ -121,6 +175,13 @@
     "source": "huggingface.co tree API (exact bytes)",
     "detail": "convaiinnovations/laya \u00b7 typed-decisions/ subtree sum"
    },
+   "model_stack": [
+    {
+     "label": "typed-decisions checkpoint",
+     "kind": "weights",
+     "bytes": 846195716
+    }
+   ],
    "targets": [
     "macOS (Metal)",
     "Linux",
@@ -146,6 +207,13 @@
     "source": "huggingface.co tree API (exact bytes)",
     "detail": "hotchpotch/bekko-system-one-v0-68m"
    },
+   "model_stack": [
+    {
+     "label": "bekko-68m model tree",
+     "kind": "weights",
+     "bytes": 476225680
+    }
+   ],
    "targets": [
     "python env",
     "CPU (FP32 reference posture)"
@@ -169,6 +237,13 @@
     "source": "huggingface.co tree API (exact bytes)",
     "detail": "convaiinnovations/laya \u00b7 typed-decisions/ subtree sum"
    },
+   "model_stack": [
+    {
+     "label": "typed-decisions checkpoint",
+     "kind": "weights",
+     "bytes": 846195716
+    }
+   ],
    "targets": [
     "python env",
     "GPU (MPS/CUDA)"
@@ -192,6 +267,13 @@
     "source": "huggingface.co tree API (exact bytes)",
     "detail": "iapp/OpenThai-SystemOne"
    },
+   "model_stack": [
+    {
+     "label": "Qwen3.5-0.8B + decision head",
+     "kind": "weights",
+     "bytes": 1540237483
+    }
+   ],
    "targets": [
     "python env",
     "GPU (MPS/CUDA)"
@@ -215,6 +297,13 @@
     "source": "huggingface.co tree API (exact bytes)",
     "detail": "hotchpotch/bekko-system-one-v0-400m"
    },
+   "model_stack": [
+    {
+     "label": "bekko-400m model tree",
+     "kind": "weights",
+     "bytes": 3012643664
+    }
+   ],
    "targets": [
     "python env",
     "CPU (FP32 reference posture)"
@@ -238,6 +327,13 @@
     "source": "huggingface.co tree API (exact bytes)",
     "detail": "fastino/GLiNER2.5-Decide"
    },
+   "model_stack": [
+    {
+     "label": "model + tokenizer tree",
+     "kind": "weights",
+     "bytes": 1954840997
+    }
+   ],
    "targets": [
     "python env",
     "GPU (CUDA)"
@@ -261,6 +357,13 @@
     "source": "huggingface.co tree API (exact bytes)",
     "detail": "aimeigaoshou/agent-jev + Qwen/Qwen3-0.6B"
    },
+   "model_stack": [
+    {
+     "label": "agent-jev + Qwen3-0.6B",
+     "kind": "weights",
+     "bytes": 3925763870
+    }
+   ],
    "targets": [
     "python env",
     "GPU (CUDA)"
@@ -284,6 +387,13 @@
     "source": "huggingface.co tree API (exact bytes)",
     "detail": "Qwen/Qwen3-8B + Contrastive-LM/CLM-v0.1-8B"
    },
+   "model_stack": [
+    {
+     "label": "Qwen3-8B + CLM head",
+     "kind": "weights",
+     "bytes": 16473292630
+    }
+   ],
    "targets": [
     "docker container",
     "GPU (CUDA)"

@@ -1,7 +1,7 @@
 {
  "meta": {
   "recorded_utc": "2026-09-25T09:30:00Z",
-  "law": "box-specific footprint facts, measured once per bench window with the command in `how` recorded verbatim; the live half of the size report (release archives, HF model trees, local wasm) refreshes in data/sizes.json on every publish_sizes run. A recorded row is a MEASUREMENT, never an estimate.",
+  "law": "box-specific footprint facts, measured once per bench window with the command in `how` recorded verbatim; the live half of the size report (release archives, HF model trees, local wasm) refreshes in data/sizes.json on every publish_sizes run. A recorded row is a MEASUREMENT, never an estimate. A `files` array on a record restates that record's own per-file lstat values in structured form (same measurement, no new numbers); `publish_sizes.py` recorded_files turns it into the row's model_stack and asserts the sum against the record total.",
   "hosts": {
    "m3-max-metal": "Apple M3 Max, macOS \u2014 the host that runs the modelless + laya (rust) + laya (python) lanes",
    "4090-win": "RTX 4090, Windows \u2014 the host that runs the gliner / agentjev / clm comparison lanes"
@@ -70,7 +70,33 @@
    "what": "the six winner files (BLAKE3-pinned in the manifest): ag_news 524,381 \u00b7 emotion 786,545 \u00b7 sst5 655,460 \u00b7 massive_intent_en 7,865,749 \u00b7 banking77 10,094,864 \u00b7 xnli_en 393,299",
    "host": "m3-max-metal",
    "date_utc": "2026-09-27",
-   "how": "sum of lstat sizes over ../riir-train/data/instinct_specialists/{ag_news,emotion,sst5,massive_intent_en,banking77,xnli_en}_winner_v1.bin (the deploy.yaml files: rows)"
+   "how": "sum of lstat sizes over ../riir-train/data/instinct_specialists/{ag_news,emotion,sst5,massive_intent_en,banking77,xnli_en}_winner_v1.bin (the deploy.yaml files: rows)",
+   "files": [
+    {
+     "label": "ag_news specialist",
+     "bytes": 524381
+    },
+    {
+     "label": "emotion specialist",
+     "bytes": 786545
+    },
+    {
+     "label": "sst5 specialist",
+     "bytes": 655460
+    },
+    {
+     "label": "massive_intent_en specialist",
+     "bytes": 7865749
+    },
+    {
+     "label": "banking77 specialist",
+     "bytes": 10094864
+    },
+    {
+     "label": "xnli_en specialist",
+     "bytes": 393299
+    }
+   ]
   },
   {
    "key": "openthai_venv",
@@ -94,7 +120,21 @@
    "what": "the three locked NLEH encoder heads the serving lane serves (english-checkpoint paired): sst5 t6_s0.bin 3,197,988 \u00b7 xnli_en_encoder_v1.bin 2,131,996 \u00b7 ag_news_encoder_v1.bin 2,664,992. The typed v2 head (typed_encoder_v2.bin, 1,066,004 \u2014 same dir) is NOT in this posture: it is trained over the TYPED checkpoint (encoder_serve hardcodes Checkpoint::English; 'a head trained on the typed cache is meaningless over the english encoder') and rides the arena's record-only measurement lane",
    "host": "m3-max-metal",
    "date_utc": "2026-10-01",
-   "how": "sum of lstat sizes over ../riir-train/.raw/t599/{t6_s0.bin,xnli_en_encoder_v1.bin,ag_news_encoder_v1.bin} (the .blake3 sidecars excluded)"
+   "how": "sum of lstat sizes over ../riir-train/.raw/t599/{t6_s0.bin,xnli_en_encoder_v1.bin,ag_news_encoder_v1.bin} (the .blake3 sidecars excluded)",
+   "files": [
+    {
+     "label": "sst5 head (t6_s0)",
+     "bytes": 3197988
+    },
+    {
+     "label": "xnli_en head",
+     "bytes": 2131996
+    },
+    {
+     "label": "ag_news head",
+     "bytes": 2664992
+    }
+   ]
   },
   {
    "key": "laya_english_q8_artifact",

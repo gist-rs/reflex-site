@@ -107,6 +107,58 @@ const server = http.createServer((req, res) => {
   if (heroBars < 5) fail(`hero bench chart bars ${heroBars} — regression?`);
   else console.log(`ok: hero bench chart still rendering (${heroBars} bars)`);
 
+  // 4c. tap-to-expand on BOTH home charts: clicking a bar opens its
+  // under-row detail (the touch path — hover tooltips have no mobile
+  // equivalent), the model-stack sub-bar renders its colored components,
+  // and the stack legend names the published kinds
+  {
+    const before = await page.evaluate(() => ({
+      detailHidden: document.querySelector("#size-report .sz-detail").hidden,
+      expanded: document.querySelector("#size-report .sz-stack").getAttribute("aria-expanded"),
+      stackSegs: document.querySelectorAll("#size-report .sz-stack .sz-seg").length,
+    }));
+    if (!before.detailHidden || before.expanded !== "false") fail(`size detail not hidden by default (${JSON.stringify(before)})`);
+    await page.click("#size-report .sz-stack");
+    const after = await page.evaluate(() => ({
+      detailHidden: document.querySelector("#size-report .sz-detail").hidden,
+      expanded: document.querySelector("#size-report .sz-stack").getAttribute("aria-expanded"),
+      open: document.querySelector("#size-report .sz-row").classList.contains("sz-open"),
+      bullets: document.querySelectorAll("#size-report .sz-detail ul.sz-tip li").length,
+    }));
+    if (after.detailHidden || after.expanded !== "true" || !after.open) fail(`size bar click did not expand the detail (${JSON.stringify(after)})`);
+    if (after.bullets < 1) fail("expanded detail carries no stack bullets");
+    else console.log(`ok: tapping a size bar expands its detail (${after.bullets} stack bullets)`);
+    await page.click("#size-report .sz-stack"); // collapses again
+    const stackRows = await page.evaluate(() => {
+      const stacks = [...document.querySelectorAll("#size-report")].length;
+      // rows whose model side split into >1 colored components
+      let split = 0;
+      for (const row of document.querySelectorAll("#size-report .sz-stack .sz-bar")) {
+        const segs = row.querySelectorAll(".sz-seg").length;
+        if (segs > 2) split++; // engine + 2+ model components
+      }
+      return { stacks, split };
+    });
+    const data = JSON.parse(fs.readFileSync(path.join(ROOT, "data", "sizes.json"), "utf8"));
+    const wantSplit = data.candidates.filter((c) => Array.isArray(c.model_stack) && c.model_stack.length > 1).length;
+    if (stackRows.split !== wantSplit) fail(`stacked sub-bars ${stackRows.split} != data ${wantSplit}`);
+    else console.log(`ok: ${stackRows.split} model stacks render as colored sub-bars (data-derived)`);
+    const legend = await page.textContent("#size-report .sz-head");
+    for (const k of ["encoder checkpoint", "trained specialist", "trained head"])
+      if (!legend.includes(k)) fail(`legend missing the ${k} slot`);
+    console.log("ok: the stack legend names the published kinds");
+    // summary chart: same toggle law
+    const sBefore = await page.evaluate(() => document.querySelector("#bench-summary .bc-detail").hidden);
+    await page.click("#bench-summary .bc-hbar");
+    const sAfter = await page.evaluate(() => ({
+      hidden: document.querySelector("#bench-summary .bc-detail").hidden,
+      expanded: document.querySelector("#bench-summary .bc-hbar").getAttribute("aria-expanded"),
+    }));
+    if (!sBefore || sAfter.hidden || sAfter.expanded !== "true") fail(`summary bar click did not expand (${JSON.stringify(sAfter)})`);
+    else console.log("ok: tapping a summary bar expands its per-lane detail");
+    await page.click("#bench-summary .bc-hbar");
+  }
+
   // 4b. every section title self-links to its own anchor
   const hlinks = await page.evaluate(() =>
     [...document.querySelectorAll("section[id]")].map((sec) => {

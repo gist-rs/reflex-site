@@ -227,7 +227,7 @@ footer.site .credit { color: var(--text-2); }
 .bc-hbar, .bc-cell { outline: none; }
 .bc-hbar.bc-none { height: 6px; font-size: 9.5px; line-height: 6px; color: var(--muted); opacity: .7; }
 .bc-val { font-size: 11.5px; color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
-.bc-grid { position: absolute; top: -4px; bottom: -4px; width: 1px; background: var(--line); opacity: .7; }
+.bc-grid { position: absolute; top: -4px; bottom: -4px; width: 1px; background: var(--line); opacity: .7; pointer-events: none; }
 .bc-hbar .bc-range { position: absolute; top: 0; bottom: 0; border: 1px solid; border-radius: 3px; }
 .bc-hbar .bc-mark { position: absolute; top: -3px; bottom: -3px; width: 2px; transform: translateX(-1px); border-radius: 1px; }
 .bc-summary-body .bc-hbar { height: 18px; }
@@ -316,6 +316,20 @@ h1.page-title { font-size: var(--fs-5); margin: var(--s-6) 0 var(--s-2); }
 .sz-lbl { background: var(--bg); padding: 0 2px; font-size: 11px; line-height: 1.2; white-space: nowrap; font-variant-numeric: tabular-nums; }
 .sz-stack:hover i { filter: none; }
 .sz-stack i:hover, .sz-stack i:focus { filter: brightness(1.25); }
+/* tap-to-expand: the bar is the row's toggle (hover tooltips have no touch
+   equivalent — the detail block carries the tooltip's full content under
+   the row); the caret in the totals column marks it */
+.sz-stack[role="button"] { cursor: pointer; }
+.sz-stack[role="button"]:focus-visible { outline: 1px solid var(--muted); outline-offset: 2px; }
+.sz-caret { display: inline-block; font-size: 9px; color: var(--muted); transition: transform .15s ease; }
+.sz-open .sz-caret { transform: rotate(180deg); }
+.sz-open .sz-total { color: var(--text); }
+.sz-detail, .bc-detail { grid-column: 1 / -1; border: 1px solid var(--line); border-radius: 8px; background: var(--panel);
+  padding: 10px 12px; margin: 2px 0 8px; font-size: 12px; line-height: 1.55; color: var(--text); overflow-wrap: anywhere; }
+.sz-detail[hidden], .bc-detail[hidden] { display: none; }
+.sz-detail ul.sz-tip, .bc-detail ul.sz-tip, .bc-tip ul.sz-tip { list-style: none; margin: 6px 0; padding: 0; }
+.sz-detail ul.sz-tip li, .bc-detail ul.sz-tip li, .bc-tip ul.sz-tip li { margin: 4px 0; }
+.sz-prov { color: var(--muted); font-size: 11.5px; margin: 5px 0 0; }
 .sz-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
 .sz-axis { align-self: end; margin-bottom: -6px; }
 @media (max-width: 720px) {

@@ -4,6 +4,32 @@ One hash-pinned line per removed issue (the fleet noise-reduction convention:
 an issue file is removed once its work is verifiably landed; this file is the
 durable record). Full narrative of each: `git log --follow -- .issues/<file>`.
 
+- **2026-10-03 — the size chart grew the model-stack sub-bar + tap-to-expand details; the home summary bars expand
+  too (owner ask: "Instinct · trained specialists and Rethink · encoder arm bar need special stack of model in sub
+  bar … each graph need extras line under it to expand to show like current tooltip so in mobile user can click
+  instead of hover").** Three pieces. (1) DATA: `publish_sizes.py` emits `model_stack` — the model's component
+  split as `{label, kind, bytes}` leaves — backed by a new `recorded_files` source kind that turns a record's own
+  `files` array (the same measurement's per-file lstat values, structured; sums asserted against the record total,
+  a drifted split refuses loudly) into per-file components. Instinct splits into its six specialist files, Rethink
+  into the q8 encoder checkpoint + its three trained heads; lone-model rows name themselves (`stack_label`).
+  data/sizes.json hand-synced with the generator-emitted fields — byte counts untouched (110 added lines, zero
+  removed). (2) COLORS: a stable stack palette beside the founding env/weights trio — encoder checkpoint violet
+  `#a98bfa` (the Rethink lane hue), trained specialist magenta `#f472b6` (Instinct), trained head cyan `#22d3ee`,
+  plain weights keep the model green; unknown kinds hash-pick a fallback slot so the same kind is always the same
+  color. The chart legend gains every split kind the data actually carries, never a hand-typed set. (3) UI: the
+  model segment splits into its colored sub-segments (byte share, the 2px sliver floor kept); the per-segment
+  tooltip is now the FULL STACK as color-labeled bullets (swatch + label + bytes + the what-line, total, source
+  tags) instead of one segment's prose; and every bar — on BOTH home charts (size rows and the summary's per-lane
+  rows) — toggles a detail block UNDER its row (click/tap/Enter, `role=button` + `aria-expanded`/`aria-controls`,
+  caret in the totals column) carrying the tooltip's content plus the full provenance lines and framework/note —
+  the touch path hover never had. En-route: `.bc-grid` gridlines carry `pointer-events:none` (a 1px line over a
+  bar stole the hover). Gates: publish_sizes self-test (+3 arms: the six-specialist stack, the 4-leaf rethink
+  stack, recorded_files refusing a missing/drifted files array), size_chart_smoke (data-derived segment counts,
+  per-kind color law via the exposed `SizeCharts.stackColor`, stack-widths-sum law, bullet labels in the escaped
+  attribute, legend slots, 12 tap-to-expand wirings), chart_render_smoke (tap-to-expand wiring on every summary
+  row, all metrics), home_page_smoke (real clicks: size bar expands + collapses, 2 stacked sub-bars = the data's
+  count, summary bar expands), bench_page_smoke, public_copy_gate — all green.
+
 - **2026-10-03 — the home latency chart replotted as the SERVED product; no lane ever vanishes (`4b7fe65`,
   CF `e4466d52`).** The strict quotable-only pass (`6ed8f8a`) traded the wholesale hide for three new user
   reports the same day: comparison lanes' p50 bars vanished ("we got all latency p50 before"), bekko's top

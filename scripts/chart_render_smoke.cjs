@@ -84,7 +84,15 @@ function checkMetric(metric, bodySel) {
       process.exit(1);
     }
   }
-  return { bands: bands.length, labels: labels.length };
+  // tap-to-expand: every plotted row carries a hidden under-row detail with
+  // the tooltip's content, and the bar toggles it (role=button + wiring ids)
+  const details = (html.match(/class="bc-detail" id="bcd-[^"]+" hidden/g) || []).length;
+  const toggles = (html.match(/aria-expanded="false" aria-controls="bcd-/g) || []).length;
+  if (details !== avgs.length || toggles !== avgs.length) {
+    console.error(`FAIL[${metric}]: tap-to-expand wiring incomplete — ${details} details / ${toggles} toggles for ${avgs.length} rows`);
+    process.exit(1);
+  }
+  return { bands: bands.length, labels: labels.length, details };
 }
 
 const p50 = checkMetric("p50", "summary");
@@ -103,7 +111,7 @@ const p50Rows = (p50Html.match(/class="bc-hbar"/g) || []).length;
 // count must equal the row count — a grid that lost the break tick reds here
 if (p50Rows < 2 || p50GridBreaks !== p50Rows) { console.error(`FAIL[p50-break]: expected a break gridline on every row track (${p50Rows}), got ${p50GridBreaks}`); process.exit(1); }
 if (!/style="left:80\.00%">500 ms<\/span>/.test(p50Html)) { console.error("FAIL[p50-break]: the axis does not name the 500 ms break tick"); process.exit(1); }
-console.log(`[p50-break] 1 break sign, ${p50GridBreaks} break gridlines (one per row track), axis names the 500 ms break`);
+console.log(`[p50-break] 1 break sign, ${p50GridBreaks} break gridlines (one per row track), axis names the 500 ms break, ${p50.details} tap-to-expand rows`);
 
 // The family lanes plot on the speed chart, and NO lane ever vanishes from
 // it (the 2026-10-03 user reports: hiding the family lanes wholesale read as

@@ -14,7 +14,11 @@ generated data, never hand-typed. Three source classes:
 
   RECORDED — data/sizes.measurements.json, box-specific facts measured
     once per bench window (venvs, the docker image, the python oracle's
-    import closure), each with host + command provenance.
+    import closure), each with host + command provenance. A record may
+    carry a `files` array — the same measurement's per-file values,
+    structured — which `recorded_files` turns into the row's `model_stack`
+    (the sub-bar + tooltip-bullet split); the split sum is asserted against
+    the record total, so a drifted files list refuses loudly.
 
 Refuses loudly (exit 1) when any LIVE source fails or any RECORDED key is
 missing: a partial size report must never render as a confident complete
@@ -84,7 +88,8 @@ CANDIDATES = [
         "engine_kind": "rust",
         "engine": ("release_installed",),
         "engine_what": "the same installed binary",
-        "model": ("hf_subtree", "convaiinnovations/laya", "typed-decisions/"),
+        "model": ("hf_subtree", "convaiinnovations/laya", "typed-decisions/",
+                   {"label": "typed-decisions checkpoint"}),
         "model_what": "the typed-decisions specialist checkpoint (SHA-256-pinned, downloaded at first boot)",
         "targets": ["macOS (Metal)", "Linux", "Windows (CUDA)", "container"],
         "note": None,  # english/multilingual sizes appended at generate time (LIVE facts)
@@ -96,7 +101,10 @@ CANDIDATES = [
         "engine_kind": "rust",
         "engine": ("recorded_sum", "instinct_serve_binary", "instinct_datasets_t20k"),
         "engine_what": "the serve binary + the six t20k dataset suites (the Reflex half's corpora and question seats)",
-        "model": ("recorded", "instinct_winner_vessels"),
+        # recorded_files: the model stack splits into the record's own per-file
+        # lstat values (sizes.measurements.json files:) — one sub-bar segment
+        # per trained specialist, each pinned by the same BLAKE3 manifest.
+        "model": ("recorded_files", "instinct_winner_vessels", {"kind": "specialist"}),
         "model_what": "the six winner files (each pinned by a BLAKE3 digest in the manifest, checked at load — the signed HOSTED-ONLY vessel is not yet the serving path)",
         "targets": ["container (cf-container)", "hosted serving"],
         "note": "the trained sibling lane: the specialists serve six text suites; game spots answer through its Reflex half. The three-product naming is Reflex / Instinct / Rethink — Instinct is the open teaching lane (052); Rethink is the private moat",
@@ -109,8 +117,9 @@ CANDIDATES = [
         "engine": ("recorded_sum", "rethink_serve_binary", "instinct_datasets_t20k"),
         "engine_what": "the serve binary (the encoder lane's GPU-host build) + the six t20k dataset suites (the seats the ENC lanes boot from)",
         "model": ("sum",
-                  ("recorded", "laya_english_q8_artifact"),
-                  ("recorded", "rethink_encoder_heads")),
+                  ("recorded", "laya_english_q8_artifact",
+                   {"label": "laya-english encoder · Q8_0", "kind": "encoder"}),
+                  ("recorded_files", "rethink_encoder_heads", {"kind": "head"})),
         "model_what": "the laya-english checkpoint as the derived Q8_0 artifact (the adopted encoding — LAYA_WEIGHTS_VARIANT=q8; 53.1% of the F16 file) + the three locked NLEH heads (sst5 · xnli_en · ag_news v1)",
         "targets": ["GPU host (Metal/CUDA)", "record-only today"],
         "note": "the adopted q8 serving posture (riir-infer plan 616 Phases 1–2): 348.8 MiB device-resident q8 weights vs 1,654.9 MiB at the widened-F32 posture (4.74×) and 1,492 MiB whole-process RSS vs 4,825 MiB at the F16 host-widen posture — measured 2026-10-02 on m3-max-metal (AC). the lane is record-only today (GPU-host targets: the encoder class is refused at the CPU-only deploy shape, so nothing ships until a GPU serving deploy exists) — the serving lane loads the english checkpoint only; the typed cell is record-only (its v2 head is paired to the typed checkpoint through the arena's measurement lane, so that checkpoint + the typed full-pool corpus are recorded separately, not part of this posture) and serves only after a head retrained over english encodes or a typed serve lane; pre-adoption reference: the F16 english checkpoint tree was 848,195,504 B on HF — the row's model bytes before the q8 adoption",
@@ -122,7 +131,8 @@ CANDIDATES = [
         "engine_kind": "python",
         "engine": ("recorded", "laya_python_runtime"),
         "engine_what": "the oracle's python import closure + the pinned .raw/laya checkout",
-        "model": ("hf_subtree", "convaiinnovations/laya", "typed-decisions/"),
+        "model": ("hf_subtree", "convaiinnovations/laya", "typed-decisions/",
+                  {"label": "typed-decisions checkpoint"}),
         "model_what": "the same typed checkpoint, loaded by the original reference",
         "targets": ["python env", "GPU (MPS/CUDA)"],
         "note": "measurement-only lane — the reference is never shipped; footprint measured on the bench host that runs it",
@@ -134,7 +144,8 @@ CANDIDATES = [
         "engine_kind": "python",
         "engine": ("recorded", "gliner_venv"),
         "engine_what": "the gliner2 venv (torch-cu + transformers + peft + accelerate)",
-        "model": ("hf_total", "fastino/GLiNER2.5-Decide"),
+        "model": ("hf_total", "fastino/GLiNER2.5-Decide",
+                  {"label": "model + tokenizer tree"}),
         "model_what": "their model + tokenizer tree (HF, exact bytes)",
         "targets": ["python env", "GPU (CUDA)"],
         "note": None,
@@ -146,7 +157,8 @@ CANDIDATES = [
         "engine_kind": "python",
         "engine": ("recorded", "agentjev_venv"),
         "engine_what": "their service venv (torch-cu + deps)",
-        "model": ("hf_total", "aimeigaoshou/agent-jev", "Qwen/Qwen3-0.6B"),
+        "model": ("hf_total", "aimeigaoshou/agent-jev", "Qwen/Qwen3-0.6B",
+                  {"label": "agent-jev + Qwen3-0.6B"}),
         "model_what": "their agent-jev tensors + the Qwen3-0.6B backbone their service loads at boot",
         "targets": ["python env", "GPU (CUDA)"],
         "note": "their boot loads BOTH the agent-jev checkpoint and the Qwen3-0.6B base from the HF cache — both counted",
@@ -158,7 +170,8 @@ CANDIDATES = [
         "engine_kind": "python",
         "engine": ("recorded", "openthai_venv"),
         "engine_what": "their service venv (torch + transformers + fastapi/uvicorn + their openthai_systemone package)",
-        "model": ("hf_total", "iapp/OpenThai-SystemOne"),
+        "model": ("hf_total", "iapp/OpenThai-SystemOne",
+                  {"label": "Qwen3.5-0.8B + decision head"}),
         "model_what": "their model tree (Qwen3.5-0.8B text tower + the 256-slot decision head, safetensors + tokenizer)",
         "targets": ["python env", "GPU (MPS/CUDA)"],
         "note": "the bench board's Thai-capability lane (Apache-2.0) — served on loopback, measured by our harness",
@@ -170,7 +183,8 @@ CANDIDATES = [
         "engine_kind": "python",
         "engine": ("recorded", "bekko_venv"),
         "engine_what": "the bekko lane venv (python 3.12: torch + transformers + sentence-transformers — the card's runtime pins)",
-        "model": ("hf_total", "hotchpotch/bekko-system-one-v0-400m"),
+        "model": ("hf_total", "hotchpotch/bekko-system-one-v0-400m",
+                  {"label": "bekko-400m model tree"}),
         "model_what": "their 400M model tree (fp32 safetensors + tokenizer + the browser ONNX export, the card's pinned release revision 4aeb85b) — the tree a consumer downloads incl. onnx_browser/",
         "targets": ["python env", "CPU (FP32 reference posture)"],
         "note": "the bench board's bekko comparison lane — the seat moved 68M→400M (reflex Bench 107, Plan 617 A6: the 400M beats the 68M on all 9 suites); MIT (verified 2026-10-02); subprocess oracle on loopback, measured by our harness",
@@ -182,7 +196,8 @@ CANDIDATES = [
         "engine_kind": "python",
         "engine": ("recorded", "bekko_venv"),
         "engine_what": "the bekko lane venv (python 3.12: torch + transformers + sentence-transformers — the card's runtime pins)",
-        "model": ("hf_total", "hotchpotch/bekko-system-one-v0-68m"),
+        "model": ("hf_total", "hotchpotch/bekko-system-one-v0-68m",
+                  {"label": "bekko-68m model tree"}),
         "model_what": "their 68M model tree (fp32 safetensors + tokenizer + the browser ONNX export, the card's pinned release revision 6eb1bae2) — the tree a consumer downloads incl. onnx_browser/",
         "targets": ["python env", "CPU (FP32 reference posture)"],
         "note": "the lane's PRIOR seat (reflex Bench 103/104 era), superseded by the 400M on the board (Bench 107) — kept because it stays reachable: reflex pins resolve BEKKO_MODEL=bekko-system-one-v0-68m to it by name; the 68M-teacher distill record (riir-train Issue 608) reproduces against it; MIT (verified 2026-10-02)",
@@ -194,7 +209,8 @@ CANDIDATES = [
         "engine_kind": "python",  # vLLM is a Python serving stack — the image is a python env
         "engine": ("recorded_sum", "clm_docker", "clm_repo"),
         "engine_what": "the vLLM serving image + their CLM repo/head checkout",
-        "model": ("hf_total", "Qwen/Qwen3-8B", "Contrastive-LM/CLM-v0.1-8B"),
+        "model": ("hf_total", "Qwen/Qwen3-8B", "Contrastive-LM/CLM-v0.1-8B",
+                  {"label": "Qwen3-8B + CLM head"}),
         "model_what": "the Qwen3-8B encoder weights + the trained head (CLM_v0.1-8B.pt)",
         "targets": ["docker container", "GPU (CUDA)"],
         "note": None,
@@ -293,50 +309,106 @@ def local_bytes(rel: str) -> int:
 
 # ── model-source resolution ──────────────────────────────────────────────
 
-def resolve_model(spec: tuple, recorded: dict) -> tuple[int, dict]:
-    """One model spec tuple → (bytes, provenance). `sum` composes child
-    specs (any kinds, recursively) so one row can carry a LIVE HF tree AND
-    a RECORDED artifact side by side — the Rethink lane's checkpoints plus
-    its locked heads."""
-    mk = spec[0]
+# A stack LEAF: the shape the size chart splits the model segment into.
+# `what`/provenance stay row-level; the leaf carries only what a bar
+# segment and a tooltip bullet need.
+def _leaf(label: str, kind: str, bytes_: int) -> dict:
+    return {"label": label, "kind": kind, "bytes": bytes_}
+
+
+def _opts(spec: tuple) -> tuple[tuple, dict]:
+    """A leaf spec may end with an optional {label, kind} override dict —
+    everything before it is the source tuple proper."""
+    if spec and isinstance(spec[-1], dict):
+        return spec[:-1], spec[-1]
+    return spec, {}
+
+
+def resolve_model(spec: tuple, recorded: dict) -> tuple[int, dict, list]:
+    """One model spec tuple → (bytes, provenance, stack). The stack is the
+    model's COMPONENT list in composition order — one leaf per measured
+    part — which the chart renders as sub-bar segments and tooltip bullets.
+    `sum` composes child specs (any kinds, recursively) so one row can
+    carry a LIVE HF tree AND a RECORDED artifact side by side — the Rethink
+    lane's checkpoints plus its locked heads.
+
+    Conservative contract: only recorded leaves split into per-file
+    components (via `recorded_files`, backed by the record's own `files`
+    array — the same lstat values, structured). Every other shape is ONE
+    leaf, so a committed row and its generator output can never disagree
+    about granularity."""
+    src, opts = _opts(spec)
+    mk = src[0]
     if mk == "hf_subtree":
-        _, repo, prefix = spec
-        return hf_tree_bytes(repo, prefix=prefix), {
+        _, repo, prefix = src
+        total = hf_tree_bytes(repo, prefix=prefix)
+        return total, {
             "source": "huggingface.co tree API (exact bytes)",
-            "detail": f"{repo} · {prefix or '(repo root)'} subtree sum"}
+            "detail": f"{repo} · {prefix or '(repo root)'} subtree sum"}, [
+            _leaf(opts.get("label", "model / weights"), opts.get("kind", "weights"), total)]
     if mk == "hf_subtree_diff":
-        _, repo, excludes = spec
+        _, repo, excludes = src
         total = hf_tree_bytes(repo) - sum(hf_tree_bytes(repo, prefix=p) for p in excludes)
         if total <= 0:
             die(f"{repo} whole-minus-{excludes} summed to {total} — refusing to publish an empty tree")
         return total, {
             "source": "huggingface.co tree API (exact bytes)",
-            "detail": f"{repo} · whole tree minus {' + '.join(excludes)} (the root-level english checkpoint)"}
+            "detail": f"{repo} · whole tree minus {' + '.join(excludes)} (the root-level english checkpoint)"}, [
+            _leaf(opts.get("label", "model / weights"), opts.get("kind", "weights"), total)]
     if mk == "hf_total":
-        repos = spec[1:]
-        return sum(hf_tree_bytes(r) for r in repos), {
+        repos = src[1:]
+        total = sum(hf_tree_bytes(r) for r in repos)
+        return total, {
             "source": "huggingface.co tree API (exact bytes)",
-            "detail": " + ".join(repos)}
+            "detail": " + ".join(repos)}, [
+            _leaf(opts.get("label", "model / weights"), opts.get("kind", "weights"), total)]
     if mk == "recorded":
-        m = recorded.get(spec[1])
+        m = recorded.get(src[1])
         if m is None:
-            die(f"recorded measurement {spec[1]!r} (model) missing from sizes.measurements.json")
+            die(f"recorded measurement {src[1]!r} (model) missing from sizes.measurements.json")
         return m["bytes"], {
             "source": "recorded measurement",
-            "detail": f"{m['what']} \u2014 measured {m['date_utc']} on {m['host']}: {m['how']}"}
+            "detail": f"{m['what']} — measured {m['date_utc']} on {m['host']}: {m['how']}"}, [
+            _leaf(opts.get("label", "model / weights"), opts.get("kind", "weights"), m["bytes"])]
+    if mk == "recorded_files":
+        # The recorded entry's own `files` array (the same record's per-file
+        # lstat values, structured) becomes the stack. The sum is ASSERTED
+        # against the record's total — a drifted files list refuses loudly,
+        # never renders as a confident split.
+        m = recorded.get(src[1])
+        if m is None:
+            die(f"recorded measurement {src[1]!r} (model) missing from sizes.measurements.json")
+        files = m.get("files")
+        if not isinstance(files, list) or not files:
+            die(f"recorded measurement {src[1]!r} carries no files array — "
+                f"recorded_files needs the record's per-file values")
+        leaf_kind = opts.get("kind", "weights")
+        stack = [_leaf(str(f.get("label", "component")), f.get("kind", leaf_kind),
+                       int(f["bytes"])) for f in files]
+        s = sum(f["bytes"] for f in stack)
+        if s != m["bytes"]:
+            die(f"recorded measurement {src[1]!r}: files sum to {s:,} but the "
+                f"record says {m['bytes']:,} — refusing a drifted split")
+        return m["bytes"], {
+            "source": "recorded measurement",
+            "detail": f"{m['what']} — measured {m['date_utc']} on {m['host']}: {m['how']}"}, stack
     if mk == "recorded_sum":
-        missing_keys = [k for k in spec[1:] if k not in recorded]
+        missing_keys = [k for k in src[1:] if k not in recorded]
         if missing_keys:
             die(f"recorded measurements missing for model: {missing_keys}")
-        parts = [recorded[k] for k in spec[1:]]
-        return sum(p["bytes"] for p in parts), {
+        parts = [recorded[k] for k in src[1:]]
+        return (sum(p["bytes"] for p in parts), {
             "source": "recorded measurement (sum)",
-            "detail": " + ".join(f"{p['bytes']:,} B ({p['what']}, {p['date_utc']} on {p['host']})" for p in parts)}
+            "detail": " + ".join(f"{p['bytes']:,} B ({p['what']}, {p['date_utc']} on {p['host']})" for p in parts)},
+            [_leaf(opts.get("label", "model / weights"), opts.get("kind", "weights"),
+                   sum(p["bytes"] for p in parts))])
     if mk == "sum":
-        parts = [resolve_model(child, recorded) for child in spec[1:]]
-        return sum(b for b, _ in parts), {
+        parts = [resolve_model(child, recorded) for child in src[1:]]
+        total = sum(b for b, _, _ in parts)
+        stack = [leaf for _, _, st in parts for leaf in st]
+        return total, {
             "source": "sum of measured sources",
-            "detail": " + ".join(f"{b:,} B ({p['source']}: {p['detail']})" for b, p in parts)}
+            "detail": " + ".join(f"{b:,} B ({p['source']}: {p['detail']})" for b, p, _ in parts)}, stack
     die(f"unknown model source kind {mk!r}")
 
 
@@ -375,9 +447,9 @@ def build(release: dict, recorded: dict) -> dict:
         else:
             die(f"unknown engine source kind {kind!r}")
 
-        model_bytes, model_prov = 0, None
+        model_bytes, model_prov, model_stack = 0, None, []
         if spec["model"] is not None:
-            model_bytes, model_prov = resolve_model(spec["model"], recorded)
+            model_bytes, model_prov, model_stack = resolve_model(spec["model"], recorded)
 
         note = spec.get("note")
         if spec["key"] == "reflex_native":
@@ -399,6 +471,10 @@ def build(release: dict, recorded: dict) -> dict:
             "model_bytes": model_bytes,
             "model_what": spec["model_what"],
             "model_provenance": model_prov,
+            # the model's component split (the sub-bar + tooltip bullets);
+            # every row with weights carries one — a lone leaf names itself
+            # (stack_label), a split sums to model_bytes by construction
+            **({"model_stack": model_stack} if model_bytes > 0 else {}),
             "targets": spec["targets"],
             "note": note,
         })
