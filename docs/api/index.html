@@ -1,0 +1,502 @@
+<!doctype html>
+<html lang="en" data-product="reflex">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reflex HTTP API — routes, schema, errors, limits</title>
+  <meta name="description" content="The Reflex engine's HTTP API: three routes on loopback JSON, the three question types, the abstain answer, errors and limits — with real request and response bytes from the release binary. Any language with HTTP; no SDK.">
+  <link rel="stylesheet" href="/assets/family.css">
+  <link rel="stylesheet" href="/assets/style.css">
+</head>
+<body>
+
+<nav class="gf-bar" aria-label="gist.rs family"><div class="wrap">
+  <a class="gf-home" href="https://ai.gist.rs/">gist.rs</a>
+  <a class="gf-p gf-reflex"  href="https://reflex.gist.rs/" aria-current="page">Reflex</a>
+  <a class="gf-p gf-rethink" href="https://rethink.gist.rs/">Rethink</a>
+  <a class="gf-p gf-refine"  href="https://refine.gist.rs/">Refine</a>
+  <a class="gf-p gf-ai"      href="https://ai.gist.rs/">Network</a>
+  <span class="gf-tag">one account · private by default</span>
+</div></nav>
+
+<header class="site gf-head">
+  <div class="wrap">
+    <a class="gf-brand" href="/"><b>Reflex</b></a>
+    <nav class="gf-nav" aria-label="Reflex">
+      <a href="/">Home</a>
+      <a href="/playground/">Playground</a>
+      <a href="/arena/">Arena</a>
+      <a href="/bench/">Benchmark</a>
+      <a href="/resources/">Resources</a>
+      <a href="/docs/api/" aria-current="page">API</a>
+      <a href="/#skill">For agents</a>
+      <a class="gh" href="https://github.com/gist-rs/riir-reflex" aria-label="Reflex on GitHub" title="github.com/gist-rs/riir-reflex"><svg viewBox="0 0 16 16" width="18" height="18" fill="currentColor" aria-hidden="true" focusable="false"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg></a>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="hero">
+    <p class="kicker">API · the HTTP wire</p>
+    <h1>Three routes. JSON in, JSON out.<br><em>Any language with HTTP.</em></h1>
+    <p class="lead">
+      <code>reflex</code> is one binary that serves the decision engine on your own machine. You send a state and
+      typed questions, and you get an answer or an honest abstain. You need no SDK and no API key, and nothing leaves the loopback address.
+    </p>
+    <p class="sub">Every request and response on this page was sent to and returned by the release binary named
+      in the footer. A script records them; none is typed by hand.</p>
+  </div>
+
+  <section id="quickstart">
+    <h2><a class="hlink" href="#quickstart">Quick start</a></h2>
+    <p class="sub">Install it (see <a href="/#install">Install</a>), then start the engine. It serves until you stop it.
+      You need no config file or daemon.</p>
+    <div class="cmd"><span class="os">start</span><code>reflex</code><button data-copy="reflex">copy</button></div>
+    <div class="cmd"><span class="os">another port</span><code>RIIR_REFLEX_BIND=127.0.0.1:9400 reflex</code><button data-copy="RIIR_REFLEX_BIND=127.0.0.1:9400 reflex">copy</button></div>
+    <p class="sub">Then ask it something. This question is one the built-in Tetris head answers:</p>
+    <!-- wire:case answered --><div class="wire-pair" data-wire-case="answered"><div class="wire-pane"><div class="wire-h">Request<button data-copy="curl -s -X POST http://127.0.0.1:7331/decide \
+  -H 'Content-Type: application/json' \
+  -d '{
+  &quot;state&quot;: &quot;The piece leaves no holes under it on the left edge, sits flat on the surface, and the stack stays low.&quot;,
+  &quot;questions&quot;: [
+    {&quot;id&quot;: &quot;clean&quot;, &quot;kind&quot;: &quot;noul&quot;, &quot;prompt&quot;: &quot;Does the stack look clean?&quot;}
+  ]
+}'">copy</button></div><pre><code>curl -s -X POST http://127.0.0.1:7331/decide \
+  -H 'Content-Type: application/json' \
+  -d '{
+  &quot;state&quot;: &quot;The piece leaves no holes under it on the left edge, sits flat on the surface, and the stack stays low.&quot;,
+  &quot;questions&quot;: [
+    {&quot;id&quot;: &quot;clean&quot;, &quot;kind&quot;: &quot;noul&quot;, &quot;prompt&quot;: &quot;Does the stack look clean?&quot;}
+  ]
+}'</code></pre></div><div class="wire-pane"><div class="wire-h">Response · HTTP 200</div><pre><code>{
+  &quot;answers&quot;: [
+    {
+      &quot;question_id&quot;: &quot;clean&quot;,
+      &quot;outcome&quot;: {&quot;noul&quot;: {&quot;yes&quot;: true}},
+      &quot;probabilities&quot;: [0.51988834],
+      &quot;confidence&quot;: 0.51988834
+    }
+  ],
+  &quot;routing&quot;: {
+    &quot;lane&quot;: &quot;modelless&quot;,
+    &quot;reason&quot;: &quot;game-head/tetris (corpus-fitted, Bench 881 decoded arm)&quot;
+  },
+  &quot;calibration&quot;: {&quot;method&quot;: &quot;none&quot;, &quot;temperature&quot;: 1.0}
+}</code></pre></div></div><!-- /wire:case -->
+  </section>
+
+  <section id="routes">
+    <h2><a class="hlink" href="#routes">Routes</a></h2>
+    <div class="gf-table api-ref"><table>
+      <thead><tr><th>Route</th><th>Body</th><th>What it does</th></tr></thead>
+      <tbody>
+        <tr><td><code>POST /decide</code></td><td>decision request</td><td>Answers every question in the request, or abstains on it.</td></tr>
+        <tr><td><code>POST /feedback</code></td><td><code>{"p", "outcome"}</code></td><td>Reports whether a past answer was right; the engine recalibrates once it has enough reports.</td></tr>
+        <tr><td><code>GET /healthz</code></td><td>none</td><td>Liveness, which lanes are ready, and which game heads loaded.</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section id="request">
+    <h2><a class="hlink" href="#request">The request</a></h2>
+    <p class="sub">The answer space is part of the request: you define the options when you ask, and nothing is pretrained on them.</p>
+    <div class="gf-table api-ref"><table>
+      <thead><tr><th>Field</th><th>Type</th><th>Meaning</th></tr></thead>
+      <tbody>
+        <tr><td><code>state</code></td><td>string</td><td>The situation to decide about. Put the facts and constraints here, not just a subject line.</td></tr>
+        <tr><td><code>questions</code></td><td>array</td><td>The questions about that state. An empty array is legal and returns no answers.</td></tr>
+        <tr><td><code>questions[].id</code></td><td>string</td><td>Your id for the question, echoed back as <code>question_id</code>. Ids must be unique within a request.</td></tr>
+        <tr><td><code>questions[].kind</code></td><td>string</td><td><code>choice</code>, <code>score</code> or <code>noul</code> (see below).</td></tr>
+        <tr><td><code>questions[].prompt</code></td><td>string</td><td>The question itself. It must not be empty.</td></tr>
+        <tr><td><code>questions[].options</code></td><td>string array</td><td>The answers you would act on, in the order you will index them back. Optional for <code>noul</code>, which must not carry any.</td></tr>
+        <tr><td><code>questions[].criteria</code></td><td>string, optional</td><td>What decides between the options, for example which team's runbook the situation matches.</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section id="types">
+    <h2><a class="hlink" href="#types">Question types</a></h2>
+    <p class="sub">The site says "yes/no"; the wire says <code>noul</code>. They are the same type.</p>
+    <div class="gf-table api-ref"><table>
+      <thead><tr><th>On the site</th><th>Wire <code>kind</code></th><th>Options</th><th>Answer <code>outcome</code></th></tr></thead>
+      <tbody>
+        <tr><td>choice</td><td><code>choice</code></td><td>2 or more</td><td><code>{"choice": {"index": i}}</code>, an index into <code>options</code></td></tr>
+        <tr><td>score</td><td><code>score</code></td><td>2 or more levels, lowest first</td><td><code>{"score": {"level": i}}</code>, where 0 is the lowest level</td></tr>
+        <tr><td>yes/no</td><td><code>noul</code></td><td>none</td><td><code>{"noul": {"yes": true}}</code> or <code>false</code></td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section id="response">
+    <h2><a class="hlink" href="#response">The response</a></h2>
+    <div class="gf-table api-ref"><table>
+      <thead><tr><th>Field</th><th>Meaning</th></tr></thead>
+      <tbody>
+        <tr><td><code>answers[].question_id</code></td><td>The <code>id</code> you sent.</td></tr>
+        <tr><td><code>answers[].outcome</code></td><td>The answer, shaped per type as above. <code>null</code> means the engine abstained.</td></tr>
+        <tr><td><code>answers[].probabilities</code></td><td>One probability per option, in option order. A <code>noul</code> question gets exactly one, p(yes). They come back even on an abstain.</td></tr>
+        <tr><td><code>answers[].confidence</code></td><td>The number to put your own threshold on.</td></tr>
+        <tr><td><code>routing.lane</code></td><td>Which lane answered. Scope any speed or determinism claim to that lane.</td></tr>
+        <tr><td><code>routing.reason</code></td><td>Why that lane or head answered, including the per-domain corpus hit counts.</td></tr>
+        <tr><td><code>calibration</code></td><td><code>method</code> and <code>temperature</code>. <code>"none"</code> with <code>1.0</code> means raw numbers; both change after feedback recalibrates the engine.</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section id="abstain">
+    <h2><a class="hlink" href="#abstain">Abstain is an answer</a></h2>
+    <p class="sub">The text engine in the release binary carries a small demo corpus with two teams, deploy operations and billing
+      support. It abstains rather than guess, and out of the box it abstains on these questions. Treat
+      <code>"outcome": null</code> as a branch in your code, not an error. The probabilities still lean: this ticket leans to
+      <code>deploy-ops</code>.</p>
+    <!-- wire:case abstained --><div class="wire-pair" data-wire-case="abstained"><div class="wire-pane"><div class="wire-h">Request<button data-copy="curl -s -X POST http://127.0.0.1:7331/decide \
+  -H 'Content-Type: application/json' \
+  -d '{
+  &quot;state&quot;: &quot;The staging deploy of release candidate 4.2 finished but the error budget is down to 12 percent and two health endpoints are flapping after the rollout. Rollback is one command. Decide what happens next.&quot;,
+  &quot;questions&quot;: [
+    {
+      &quot;id&quot;: &quot;route&quot;,
+      &quot;kind&quot;: &quot;choice&quot;,
+      &quot;prompt&quot;: &quot;Route this ticket to the team that owns it.&quot;,
+      &quot;options&quot;: [&quot;deploy-ops&quot;, &quot;billing-support&quot;]
+    },
+    {
+      &quot;id&quot;: &quot;promote&quot;,
+      &quot;kind&quot;: &quot;noul&quot;,
+      &quot;prompt&quot;: &quot;Should the rollout be promoted to production right now?&quot;
+    },
+    {
+      &quot;id&quot;: &quot;severity&quot;,
+      &quot;kind&quot;: &quot;score&quot;,
+      &quot;prompt&quot;: &quot;How severe is this situation?&quot;,
+      &quot;options&quot;: [&quot;routine&quot;, &quot;needs-attention&quot;, &quot;critical&quot;]
+    }
+  ]
+}'">copy</button></div><pre><code>curl -s -X POST http://127.0.0.1:7331/decide \
+  -H 'Content-Type: application/json' \
+  -d '{
+  &quot;state&quot;: &quot;The staging deploy of release candidate 4.2 finished but the error budget is down to 12 percent and two health endpoints are flapping after the rollout. Rollback is one command. Decide what happens next.&quot;,
+  &quot;questions&quot;: [
+    {
+      &quot;id&quot;: &quot;route&quot;,
+      &quot;kind&quot;: &quot;choice&quot;,
+      &quot;prompt&quot;: &quot;Route this ticket to the team that owns it.&quot;,
+      &quot;options&quot;: [&quot;deploy-ops&quot;, &quot;billing-support&quot;]
+    },
+    {
+      &quot;id&quot;: &quot;promote&quot;,
+      &quot;kind&quot;: &quot;noul&quot;,
+      &quot;prompt&quot;: &quot;Should the rollout be promoted to production right now?&quot;
+    },
+    {
+      &quot;id&quot;: &quot;severity&quot;,
+      &quot;kind&quot;: &quot;score&quot;,
+      &quot;prompt&quot;: &quot;How severe is this situation?&quot;,
+      &quot;options&quot;: [&quot;routine&quot;, &quot;needs-attention&quot;, &quot;critical&quot;]
+    }
+  ]
+}'</code></pre></div><div class="wire-pane"><div class="wire-h">Response · HTTP 200</div><pre><code>{
+  &quot;answers&quot;: [
+    {
+      &quot;question_id&quot;: &quot;route&quot;,
+      &quot;outcome&quot;: null,
+      &quot;probabilities&quot;: [0.52583224, 0.47416782],
+      &quot;confidence&quot;: 0.0019263625
+    },
+    {
+      &quot;question_id&quot;: &quot;promote&quot;,
+      &quot;outcome&quot;: null,
+      &quot;probabilities&quot;: [0.5135249],
+      &quot;confidence&quot;: 0.00052791834
+    },
+    {
+      &quot;question_id&quot;: &quot;severity&quot;,
+      &quot;outcome&quot;: null,
+      &quot;probabilities&quot;: [0.36018527, 0.2878931, 0.35192162],
+      &quot;confidence&quot;: 0.0043790936
+    }
+  ],
+  &quot;routing&quot;: {
+    &quot;lane&quot;: &quot;modelless&quot;,
+    &quot;reason&quot;: &quot;modelless corpus routing: ops=3 support=0; fused abstain (score+distance) armed&quot;
+  },
+  &quot;calibration&quot;: {&quot;method&quot;: &quot;none&quot;, &quot;temperature&quot;: 1.0}
+}</code></pre></div></div><!-- /wire:case -->
+    <p class="sub">A question far from the corpus abstains too, with probabilities close to even:</p>
+    <!-- wire:case off_corpus --><div class="wire-pair" data-wire-case="off_corpus"><div class="wire-pane"><div class="wire-h">Request<button data-copy="curl -s -X POST http://127.0.0.1:7331/decide \
+  -H 'Content-Type: application/json' \
+  -d '{
+  &quot;state&quot;: &quot;My sourdough starter stopped rising after I moved it to a colder kitchen.&quot;,
+  &quot;questions&quot;: [
+    {
+      &quot;id&quot;: &quot;route&quot;,
+      &quot;kind&quot;: &quot;choice&quot;,
+      &quot;prompt&quot;: &quot;Route this ticket to the team that owns it.&quot;,
+      &quot;options&quot;: [&quot;deploy-ops&quot;, &quot;billing-support&quot;]
+    }
+  ]
+}'">copy</button></div><pre><code>curl -s -X POST http://127.0.0.1:7331/decide \
+  -H 'Content-Type: application/json' \
+  -d '{
+  &quot;state&quot;: &quot;My sourdough starter stopped rising after I moved it to a colder kitchen.&quot;,
+  &quot;questions&quot;: [
+    {
+      &quot;id&quot;: &quot;route&quot;,
+      &quot;kind&quot;: &quot;choice&quot;,
+      &quot;prompt&quot;: &quot;Route this ticket to the team that owns it.&quot;,
+      &quot;options&quot;: [&quot;deploy-ops&quot;, &quot;billing-support&quot;]
+    }
+  ]
+}'</code></pre></div><div class="wire-pane"><div class="wire-h">Response · HTTP 200</div><pre><code>{
+  &quot;answers&quot;: [
+    {
+      &quot;question_id&quot;: &quot;route&quot;,
+      &quot;outcome&quot;: null,
+      &quot;probabilities&quot;: [0.52577484, 0.4742252],
+      &quot;confidence&quot;: 0.0019177794
+    }
+  ],
+  &quot;routing&quot;: {
+    &quot;lane&quot;: &quot;modelless&quot;,
+    &quot;reason&quot;: &quot;modelless corpus routing: ops=0 support=1; fused abstain (score+distance) armed&quot;
+  },
+  &quot;calibration&quot;: {&quot;method&quot;: &quot;none&quot;, &quot;temperature&quot;: 1.0}
+}</code></pre></div></div><!-- /wire:case -->
+    <p class="sub">Fit your own threshold on <code>confidence</code> from labeled examples of your task rather than guessing one.
+      The <a href="/skills/reflex-integration/SKILL.md">integration guide</a> walks through it.</p>
+  </section>
+
+  <section id="lanes">
+    <h2><a class="hlink" href="#lanes">Lanes</a></h2>
+    <p class="sub">The optional <code>X-Reflex-Lane</code> request header picks the lane for <code>/decide</code>.</p>
+    <div class="gf-table api-ref"><table>
+      <thead><tr><th>Header value</th><th>What answers</th></tr></thead>
+      <tbody>
+        <tr><td>none, or <code>modelless</code></td><td>The built-in game heads first, when the question matches one of their exact shapes. Otherwise the corpus engine answers.</td></tr>
+        <tr><td><code>raw</code></td><td>The corpus engine only, skipping the game heads. It is useful as a baseline.</td></tr>
+        <tr><td><code>laya</code></td><td>The opt-in accuracy lane, which uses downloadable weights. Start the engine with <code>RIIR_REFLEX_LAYA=1</code>; otherwise it refuses with a 503 and never falls back.</td></tr>
+      </tbody>
+    </table></div>
+    <p class="sub">The same Tetris spot as the quick start, on the <code>raw</code> lane. The corpus engine abstains:</p>
+    <!-- wire:case raw_lane --><div class="wire-pair" data-wire-case="raw_lane"><div class="wire-pane"><div class="wire-h">Request<button data-copy="curl -s -X POST http://127.0.0.1:7331/decide \
+  -H 'Content-Type: application/json' \
+  -H 'X-Reflex-Lane: raw' \
+  -d '{
+  &quot;state&quot;: &quot;The piece leaves no holes under it on the left edge, sits flat on the surface, and the stack stays low.&quot;,
+  &quot;questions&quot;: [
+    {&quot;id&quot;: &quot;clean&quot;, &quot;kind&quot;: &quot;noul&quot;, &quot;prompt&quot;: &quot;Does the stack look clean?&quot;}
+  ]
+}'">copy</button></div><pre><code>curl -s -X POST http://127.0.0.1:7331/decide \
+  -H 'Content-Type: application/json' \
+  -H 'X-Reflex-Lane: raw' \
+  -d '{
+  &quot;state&quot;: &quot;The piece leaves no holes under it on the left edge, sits flat on the surface, and the stack stays low.&quot;,
+  &quot;questions&quot;: [
+    {&quot;id&quot;: &quot;clean&quot;, &quot;kind&quot;: &quot;noul&quot;, &quot;prompt&quot;: &quot;Does the stack look clean?&quot;}
+  ]
+}'</code></pre></div><div class="wire-pane"><div class="wire-h">Response · HTTP 200</div><pre><code>{
+  &quot;answers&quot;: [
+    {
+      &quot;question_id&quot;: &quot;clean&quot;,
+      &quot;outcome&quot;: null,
+      &quot;probabilities&quot;: [0.4931789],
+      &quot;confidence&quot;: 0.00013428926
+    }
+  ],
+  &quot;routing&quot;: {
+    &quot;lane&quot;: &quot;modelless&quot;,
+    &quot;reason&quot;: &quot;modelless corpus routing: ops=0 support=1; fused abstain (score+distance) armed&quot;
+  },
+  &quot;calibration&quot;: {&quot;method&quot;: &quot;none&quot;, &quot;temperature&quot;: 1.0}
+}</code></pre></div></div><!-- /wire:case -->
+  </section>
+
+  <section id="feedback">
+    <h2><a class="hlink" href="#feedback">Feedback</a></h2>
+    <p class="sub">When you learn whether an answer was right, send back the engine's own confidence for that case as
+      <code>p</code> and the result as <code>outcome</code>. Never invent <code>p</code>: false reports train the
+      calibration toward them. <code>refit</code> stays <code>false</code> until the engine holds enough reports to recalibrate.</p>
+    <!-- wire:case feedback --><div class="wire-pair" data-wire-case="feedback"><div class="wire-pane"><div class="wire-h">Request<button data-copy="curl -s -X POST http://127.0.0.1:7331/feedback \
+  -H 'Content-Type: application/json' \
+  -d '{&quot;p&quot;: 0.51988834, &quot;outcome&quot;: true}'">copy</button></div><pre><code>curl -s -X POST http://127.0.0.1:7331/feedback \
+  -H 'Content-Type: application/json' \
+  -d '{&quot;p&quot;: 0.51988834, &quot;outcome&quot;: true}'</code></pre></div><div class="wire-pane"><div class="wire-h">Response · HTTP 200</div><pre><code>{&quot;refit&quot;: false}</code></pre></div></div><!-- /wire:case -->
+  </section>
+
+  <section id="health">
+    <h2><a class="hlink" href="#health">Health</a></h2>
+    <!-- wire:case healthz --><div class="wire-pair" data-wire-case="healthz"><div class="wire-pane"><div class="wire-h">Request<button data-copy="curl -s http://127.0.0.1:7331/healthz">copy</button></div><pre><code>curl -s http://127.0.0.1:7331/healthz</code></pre></div><div class="wire-pane"><div class="wire-h">Response · HTTP 200</div><pre><code>{
+  &quot;status&quot;: &quot;ok&quot;,
+  &quot;lanes&quot;: {&quot;modelless&quot;: &quot;ready&quot;, &quot;raw&quot;: &quot;ready&quot;, &quot;laya&quot;: &quot;off&quot;},
+  &quot;heads&quot;: {&quot;tetris&quot;: true, &quot;lanes&quot;: true, &quot;flappy&quot;: true}
+}</code></pre></div></div><!-- /wire:case -->
+  </section>
+
+  <section id="errors">
+    <h2><a class="hlink" href="#errors">Errors</a></h2>
+    <p class="sub">An error body is always <code>{"error": "…"}</code>, and the message says what to fix.</p>
+    <div class="gf-table api-ref"><table>
+      <thead><tr><th>Status</th><th>When</th></tr></thead>
+      <tbody>
+        <tr><td>400</td><td>The body is not valid JSON for the request shape, or <code>X-Reflex-Lane</code> names an unknown lane.</td></tr>
+        <tr><td>422</td><td>The JSON parsed but a question breaks a rule: an empty prompt, a duplicate id, fewer than 2 options on <code>choice</code> or <code>score</code>, or options on <code>noul</code>.</td></tr>
+        <tr><td>404</td><td>An unknown route. There is no version prefix.</td></tr>
+        <tr><td>413</td><td>The declared body is over the size ceiling. The engine refuses on the header, before reading the body.</td></tr>
+        <tr><td>503</td><td>The <code>laya</code> lane was asked for but is not enabled or not ready.</td></tr>
+      </tbody>
+    </table></div>
+    <h3 class="wire-cap">A question that breaks a rule</h3>
+    <!-- wire:case err_too_few_options --><div class="wire-pair" data-wire-case="err_too_few_options"><div class="wire-pane"><div class="wire-h">Request<button data-copy="curl -s -X POST http://127.0.0.1:7331/decide \
+  -H 'Content-Type: application/json' \
+  -d '{
+  &quot;state&quot;: &quot;&quot;,
+  &quot;questions&quot;: [
+    {&quot;id&quot;: &quot;q&quot;, &quot;kind&quot;: &quot;choice&quot;, &quot;prompt&quot;: &quot;Pick one.&quot;, &quot;options&quot;: [&quot;only&quot;]}
+  ]
+}'">copy</button></div><pre><code>curl -s -X POST http://127.0.0.1:7331/decide \
+  -H 'Content-Type: application/json' \
+  -d '{
+  &quot;state&quot;: &quot;&quot;,
+  &quot;questions&quot;: [
+    {&quot;id&quot;: &quot;q&quot;, &quot;kind&quot;: &quot;choice&quot;, &quot;prompt&quot;: &quot;Pick one.&quot;, &quot;options&quot;: [&quot;only&quot;]}
+  ]
+}'</code></pre></div><div class="wire-pane"><div class="wire-h">Response · HTTP 422</div><pre><code>{
+  &quot;error&quot;: &quot;request invalid: decision_wire: choice/score question 0 needs ≥2 options, got 1&quot;
+}</code></pre></div></div><!-- /wire:case -->
+    <!-- wire:case err_noul_with_options --><div class="wire-pair" data-wire-case="err_noul_with_options"><div class="wire-pane"><div class="wire-h">Request<button data-copy="curl -s -X POST http://127.0.0.1:7331/decide \
+  -H 'Content-Type: application/json' \
+  -d '{
+  &quot;state&quot;: &quot;&quot;,
+  &quot;questions&quot;: [
+    {
+      &quot;id&quot;: &quot;q&quot;,
+      &quot;kind&quot;: &quot;noul&quot;,
+      &quot;prompt&quot;: &quot;Ship it?&quot;,
+      &quot;options&quot;: [&quot;yes&quot;, &quot;no&quot;]
+    }
+  ]
+}'">copy</button></div><pre><code>curl -s -X POST http://127.0.0.1:7331/decide \
+  -H 'Content-Type: application/json' \
+  -d '{
+  &quot;state&quot;: &quot;&quot;,
+  &quot;questions&quot;: [
+    {
+      &quot;id&quot;: &quot;q&quot;,
+      &quot;kind&quot;: &quot;noul&quot;,
+      &quot;prompt&quot;: &quot;Ship it?&quot;,
+      &quot;options&quot;: [&quot;yes&quot;, &quot;no&quot;]
+    }
+  ]
+}'</code></pre></div><div class="wire-pane"><div class="wire-h">Response · HTTP 422</div><pre><code>{
+  &quot;error&quot;: &quot;request invalid: decision_wire: noul question 0 must not carry options&quot;
+}</code></pre></div></div><!-- /wire:case -->
+    <h3 class="wire-cap">A body that is not JSON</h3>
+    <!-- wire:case err_malformed --><div class="wire-pair" data-wire-case="err_malformed"><div class="wire-pane"><div class="wire-h">Request<button data-copy="curl -s -X POST http://127.0.0.1:7331/decide \
+  -H 'Content-Type: application/json' \
+  -d 'not json'">copy</button></div><pre><code>curl -s -X POST http://127.0.0.1:7331/decide \
+  -H 'Content-Type: application/json' \
+  -d 'not json'</code></pre></div><div class="wire-pane"><div class="wire-h">Response · HTTP 400</div><pre><code>{&quot;error&quot;: &quot;expected ident at line 1 column 2&quot;}</code></pre></div></div><!-- /wire:case -->
+    <h3 class="wire-cap">An unknown lane</h3>
+    <!-- wire:case err_unknown_lane --><div class="wire-pair" data-wire-case="err_unknown_lane"><div class="wire-pane"><div class="wire-h">Request<button data-copy="curl -s -X POST http://127.0.0.1:7331/decide \
+  -H 'Content-Type: application/json' \
+  -H 'X-Reflex-Lane: fast' \
+  -d '{&quot;state&quot;: &quot;&quot;, &quot;questions&quot;: []}'">copy</button></div><pre><code>curl -s -X POST http://127.0.0.1:7331/decide \
+  -H 'Content-Type: application/json' \
+  -H 'X-Reflex-Lane: fast' \
+  -d '{&quot;state&quot;: &quot;&quot;, &quot;questions&quot;: []}'</code></pre></div><div class="wire-pane"><div class="wire-h">Response · HTTP 400</div><pre><code>{&quot;error&quot;: &quot;unknown lane \&quot;fast\&quot; (supported: modelless, raw, laya)&quot;}</code></pre></div></div><!-- /wire:case -->
+    <h3 class="wire-cap">The laya lane, not enabled</h3>
+    <!-- wire:case err_laya_off --><div class="wire-pair" data-wire-case="err_laya_off"><div class="wire-pane"><div class="wire-h">Request<button data-copy="curl -s -X POST http://127.0.0.1:7331/decide \
+  -H 'Content-Type: application/json' \
+  -H 'X-Reflex-Lane: laya' \
+  -d '{
+  &quot;state&quot;: &quot;The staging deploy of release candidate 4.2 finished but the error budget is down to 12 percent and two health endpoints are flapping after the rollout. Rollback is one command. Decide what happens next.&quot;,
+  &quot;questions&quot;: [
+    {
+      &quot;id&quot;: &quot;route&quot;,
+      &quot;kind&quot;: &quot;choice&quot;,
+      &quot;prompt&quot;: &quot;Route this ticket to the team that owns it.&quot;,
+      &quot;options&quot;: [&quot;deploy-ops&quot;, &quot;billing-support&quot;]
+    }
+  ]
+}'">copy</button></div><pre><code>curl -s -X POST http://127.0.0.1:7331/decide \
+  -H 'Content-Type: application/json' \
+  -H 'X-Reflex-Lane: laya' \
+  -d '{
+  &quot;state&quot;: &quot;The staging deploy of release candidate 4.2 finished but the error budget is down to 12 percent and two health endpoints are flapping after the rollout. Rollback is one command. Decide what happens next.&quot;,
+  &quot;questions&quot;: [
+    {
+      &quot;id&quot;: &quot;route&quot;,
+      &quot;kind&quot;: &quot;choice&quot;,
+      &quot;prompt&quot;: &quot;Route this ticket to the team that owns it.&quot;,
+      &quot;options&quot;: [&quot;deploy-ops&quot;, &quot;billing-support&quot;]
+    }
+  ]
+}'</code></pre></div><div class="wire-pane"><div class="wire-h">Response · HTTP 503</div><pre><code>{
+  &quot;error&quot;: &quot;laya lane is not enabled — restart the engine with RIIR_REFLEX_LAYA=1&quot;
+}</code></pre></div></div><!-- /wire:case -->
+    <h3 class="wire-cap">An unknown route</h3>
+    <!-- wire:case err_not_found --><div class="wire-pair" data-wire-case="err_not_found"><div class="wire-pane"><div class="wire-h">Request<button data-copy="curl -s http://127.0.0.1:7331/v1/decide">copy</button></div><pre><code>curl -s http://127.0.0.1:7331/v1/decide</code></pre></div><div class="wire-pane"><div class="wire-h">Response · HTTP 404</div><pre><code>{&quot;error&quot;: &quot;not found&quot;}</code></pre></div></div><!-- /wire:case -->
+    <h3 class="wire-cap">A body over the ceiling</h3>
+    <!-- wire:case err_too_large --><div class="wire-pair" data-wire-case="err_too_large"><div class="wire-pane"><div class="wire-h">Request</div><pre><code># a POST /decide whose Content-Length header declares 4194305 bytes</code></pre></div><div class="wire-pane"><div class="wire-h">Response · HTTP 413</div><pre><code>{&quot;error&quot;: &quot;body too large&quot;}</code></pre></div></div><!-- /wire:case -->
+  </section>
+
+  <section id="limits">
+    <h2><a class="hlink" href="#limits">Limits and behaviour</a></h2>
+    <ul class="notes-list">
+      <li><b>Body size.</b> One request body may be up to 4 MiB; anything declared larger gets the 413 above. There is no
+        separate cap on the number of questions or options.</li>
+      <li><b>Concurrency.</b> Each connection gets its own thread. Decisions on the corpus engine run one at a time
+        behind a single lock, so heavy parallel load queues instead of failing. Measured per-decision latency is on the
+        <a href="/bench/">benchmark page</a>.</li>
+      <li><b>Determinism.</b> On the modelless lane, the same request returns byte-identical bytes. Each recording run
+        checks this by sending one request twice.</li>
+      <li><b>Connections.</b> Every response closes its connection. A client that stalls in the middle of a request is
+        disconnected.</li>
+      <li><b>Browsers.</b> CORS is closed by default, so no web page can reach the engine. To let one page in, start the
+        engine with <code>RIIR_REFLEX_ALLOWED_ORIGIN=https://your.site</code>; it accepts a comma-separated list.</li>
+      <li><b>Privacy.</b> The engine listens on <code>127.0.0.1:7331</code> by default and sends no telemetry.</li>
+    </ul>
+  </section>
+
+  <section id="versions">
+    <h2><a class="hlink" href="#versions">Versions</a></h2>
+    <p class="sub">The wire ships inside the binary, so it has no separate API version and no version prefix in the
+      routes. This page is recorded from the release named in the footer. <code>reflex --version</code> prints the one
+      you are running; if they differ, check that release's notes.</p>
+    <div class="cmd"><span class="os">your version</span><code>reflex --version</code><button data-copy="reflex --version">copy</button></div>
+  </section>
+
+</div>
+
+<footer class="site gf-foot">
+  <div class="wrap">
+    <div class="gf-grid">
+      <div><h4>Reflex</h4><a href="https://reflex.gist.rs/">Free decision engine</a><br>
+        <a href="https://reflex.gist.rs/bench/">Benchmark</a> · <a href="https://reflex.gist.rs/resources/">Learn</a></div>
+      <div><h4>Rethink</h4><a href="https://rethink.gist.rs/">Hosted trained decisions</a><br>
+        <a href="https://rethink.gist.rs/#how">How it works</a></div>
+      <div><h4>Refine</h4><a href="https://refine.gist.rs/">The code fixer that learns</a><br>
+        <a href="https://ai.gist.rs/leaderboard">Leaderboard</a></div>
+      <div><h4>Network</h4><a href="https://ai.gist.rs/">One account · KAT · TUNA</a><br>
+        <a href="https://ai.gist.rs/explorer">Explorer</a> · <a href="https://ai.gist.rs/health">Status</a></div>
+    </div>
+    <div class="gf-legal">
+      <div class="credit">
+      Built on <a href="https://github.com/katopz/katgpt-rs">KatGPT-RS</a> — the open modelless primitives under every Reflex engine.
+    </div>
+      <div class="fine">
+      Binaries: <a href="https://github.com/gist-rs/reflex">gist-rs/reflex</a> ·
+      engine: <a href="https://github.com/gist-rs/riir-reflex">gist-rs/riir-reflex</a> ·
+      rulebook engine: <a href="https://github.com/gist-rs/riir-reflexer">gist-rs/riir-reflexer</a> ·
+      site: <a href="https://github.com/gist-rs/reflex-site">gist-rs/reflex-site</a> ·
+      <a href="https://github.com/gist-rs/reflex/releases">Download</a> ·
+      <!-- wire:version --><span data-wire-version>engine <a href="https://github.com/gist-rs/reflex/releases/tag/v0.2.3">reflex 0.2.3 · release notes</a></span><!-- /wire:version -->
+    </div>
+    </div>
+  </div>
+</footer>
+
+<script src="/assets/app.js"></script>
+</body>
+</html>

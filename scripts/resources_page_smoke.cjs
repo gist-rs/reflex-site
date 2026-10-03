@@ -50,8 +50,12 @@ const UNIT_RE = /\d+\s?(?:ms|µs|us|s|tok\/s|%)/;
 // Raw-file visible text: drop script/style blocks, strip tags, decode the
 // entities the page actually uses. This is the static half; the rendered
 // innerText below is the live half.
+// The footer engine stamp ([data-wire-version], rendered by render_wire.mjs)
+// is a release identifier, not a figure — the ONE element both halves skip.
+const WIRE_VERSION_RAW = /<span data-wire-version>[\s\S]*?<\/a><\/span>/g;
 function visibleTextOfRawHtml(html) {
   return html
+    .replace(WIRE_VERSION_RAW, " ")
     .replace(/<script\b[\s\S]*?<\/script>/gi, " ")
     .replace(/<style\b[\s\S]*?<\/style>/gi, " ")
     .replace(/<[^>]+>/g, " ")
@@ -251,7 +255,18 @@ function digitFindings(text, label, fail) {
   // 8. the numbers law on RENDERED visible text (the live half; innerText —
   //    not textContent — is the visible surface, the raw-file half above is
   //    the superset)
-  digitFindings(await page.evaluate(() => document.body.innerText), "rendered innerText", fail);
+  digitFindings(
+    await page.evaluate(() => {
+      const b = document.body.cloneNode(true);
+      b.querySelectorAll("[data-wire-version]").forEach((e) => e.remove());
+      document.body.appendChild(b); // innerText needs a rendered node
+      const t = b.innerText;
+      b.remove();
+      return t;
+    }),
+    "rendered innerText",
+    fail,
+  );
 
   // 9. the storefront is LIVE (rethink.gist.rs deployed 2026-10-03 — the old
   //    "incoming / may be dark" wording is a stale claim, web trust audit

@@ -1,5 +1,5 @@
 # Issue 006 — reflex.gist.rs: no copy-paste request/response, no API reference, no "first corpus" path on the site
-**Status:** OPEN — 2026-10-03 (web trust audit, riir-ai Issue 1028)
+**Status:** OPEN — T1/T2/T5 LANDED 2026-10-03 (wire captured from the release binary, `/docs/api/`, footer engine stamp); T3 owner-gated; T4 BLOCKED on riir-reflex Issue 063 (the shipped binary cannot serve a user corpus). Filed 2026-10-03 (web trust audit, riir-ai Issue 1028)
 
 **Priority:** P1 — the developer row of design guide §7 ("install command, a working
 request/response example, what runs locally vs hosted, limits, source link") is half met.
@@ -45,8 +45,34 @@ request/response example, what runs locally vs hosted, limits, source link") is 
 
 ## Tasks
 
-- [ ] T1 generated request/response block on the home page (answer + abstain)
-- [ ] T2 `/docs/api/` reference page (routes, schema, type names, errors, limits, versioning, "HTTP-only, any language")
+- [x] T1 generated request/response block on the home page (answer + abstain) — `/#try-it`
+- [x] T2 `/docs/api/` reference page (routes, schema, type names, errors, limits, versioning, "HTTP-only, any language")
 - [ ] T3 decide: stateless hosted text-wire demo for the playground (owner)
-- [ ] T4 5-minute first-corpus walkthrough with a sample corpus
-- [ ] T5 current engine version + release-notes link on every page
+- [ ] T4 5-minute first-corpus walkthrough with a sample corpus — BLOCKED: riir-reflex Issue 063
+- [x] T5 current engine version + release-notes link on every page (footer `[data-wire-version]`)
+
+## Landed (2026-10-03)
+
+- `scripts/capture_wire.mjs` starts the INSTALLED `reflex` on a free loopback port (refuses a STALE
+  build stamp), sends 13 fixed cases and writes the verbatim bytes to `data/wire.json`. It asserts
+  each caption's claim (answered / abstained / exact status) and that a repeated request returns
+  byte-identical bytes, so a release that changes behaviour fails here, not on the page.
+- `scripts/render_wire.mjs [--check]` fills `<!-- wire:case NAME -->` and `<!-- wire:version -->`
+  blocks in 7 pages. Numbers keep their source text (`1.0` stays `1.0`); the renderer refuses if
+  re-serialising would change the engine's bytes.
+- Measured while capturing (reflex 0.2.3):
+  - The stock binary answers on the text wire only through the Tetris game head; every text
+    question to the demo corpus abstains, even verbatim corpus text. The home block says so —
+    "It answers" uses the Tetris head, "It abstains" the deploy ticket.
+  - Question-level violations are **422**, not 400 — the agent skill said 400. Fixed at the
+    source (riir-reflex `22532e5`), mirror re-synced.
+  - The release binary's unknown-lane message lists `modelless, raw, laya` — no `laya-ane`, which
+    engine HEAD has. The page documents the release, not HEAD.
+  - The Tetris head's `routing.reason` carried `Bench 881` onto the public wire. Fixed at the
+    source (riir-reflex Issue 062, `193e462`); the copy gate allows that one id inside captured
+    wire blocks by name until the next release is re-captured (a stale row reds).
+- Issue 005 #10 (yes/no vs `noul`): the API page's type table maps the site name to the wire name,
+  and the home block names `noul` beside "yes/no".
+- `public_copy_gate.cjs`: covers `/docs/api/`; its id scan is now case-insensitive (innerText applies
+  CSS `text-transform`, so an id in an uppercased kicker read `PLAN 12` and was never seen). That
+  surfaced two live leaks in `data/changes.json` ("plan 001", "issue 057"), reworded.

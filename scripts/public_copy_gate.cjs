@@ -22,10 +22,12 @@ const path = require("path");
 
 const ROOT = path.resolve(__dirname, "..");
 const PORT = 8797;
-const PAGES = ["/", "/playground/", "/arena/", "/bench/", "/resources/", "/404.html"];
+const PAGES = ["/", "/playground/", "/arena/", "/bench/", "/resources/", "/docs/api/", "/404.html"];
 const MIME = { ".html": "text/html", ".js": "text/javascript", ".mjs": "text/javascript", ".css": "text/css", ".json": "application/json", ".svg": "image/svg+xml", ".md": "text/markdown", ".wasm": "application/wasm" };
 
-const ID_RE = /\b(?:Plan|Proposal|Issue|Bench)\s+\d+|\b\d+-era\b|\bpre-\d+\b/g;
+// Case-INSENSITIVE: innerText applies CSS text-transform, so an id inside an
+// uppercased kicker reads "PLAN 12" and a case-sensitive scan never saw it.
+const ID_RE = /\b(?:Plan|Proposal|Issue|Bench)\s+\d+|\b\d+-era\b|\bpre-\d+\b/gi;
 const SEAL_RE = /\bseal(?:ed|s|ing)?\b/gi;
 // FAQ figures (Issue 009 T1, the numbers law): a measured figure in FAQ copy
 // must be BOUND — rendered into a [data-ot] / [data-bind] element from
@@ -41,6 +43,17 @@ const FAQ_FIGURE_ALLOW = new Map([
   ["10×", "the log axis's gridline step — a chart-design constant"],
   ["500 ms", "the log axis's range — a chart-design constant"],
 ]);
+
+// Wire captures (`.wire-pair`, rendered by scripts/render_wire.mjs from
+// data/wire.json) are the engine's VERBATIM bytes — the site cannot reword
+// them without lying about what the binary returns. An internal id inside one
+// is an ENGINE defect, fixed at the source and allowed here by name until the
+// next release is re-captured; an id in ordinary copy is never allowed, and a
+// row no capture carries any more reds (the recapture forces its removal).
+const WIRE_ID_ALLOW = new Map([
+  ["Bench 881", "reflex 0.2.3's Tetris-head routing.reason; dropped at the source (riir-reflex 193e462) — re-capture after the next release, then delete this row"],
+]);
+const wireIdSeen = new Set();
 
 const server = http.createServer((req, res) => {
   let rel = decodeURIComponent(req.url.split("?")[0]);
@@ -87,6 +100,15 @@ function served(rel) {
       }).join("\n"));
       const r = await page.evaluate(() => ({
         text: document.body.innerText,
+        wire: [...document.querySelectorAll(".wire-pair")].map((w) => w.innerText).join("\n"),
+        copy: (() => {
+          const b = document.body.cloneNode(true);
+          b.querySelectorAll(".wire-pair").forEach((w) => w.remove());
+          document.body.appendChild(b); // innerText needs a rendered node
+          const t = b.innerText;
+          b.remove();
+          return t;
+        })(),
         product: document.documentElement.getAttribute("data-product"),
         firstIsBar: !!(document.body.firstElementChild && document.body.firstElementChild.classList.contains("gf-bar")),
         current: [...document.querySelectorAll(".gf-bar a[aria-current]")].map((a) => a.textContent.trim()).join(),
@@ -96,8 +118,12 @@ function served(rel) {
       }));
       const tag = `${url} @${vp.width}`;
       if (vp.width === 1280) {
-        const ids = r.text.match(ID_RE) || [];
+        const ids = r.copy.match(ID_RE) || [];
         if (ids.length) fail(`${tag}: internal ids in rendered copy: ${JSON.stringify([...new Set(ids)].slice(0, 8))}`);
+        for (const id of new Set(r.wire.match(ID_RE) || [])) {
+          if (WIRE_ID_ALLOW.has(id)) wireIdSeen.add(id);
+          else fail(`${tag}: internal id ${JSON.stringify(id)} in a captured wire example — fix the engine string at the source, or allow it by name with a reason`);
+        }
         const seals = r.text.match(SEAL_RE) || [];
         if (seals.length) fail(`${tag}: banned word "seal" in rendered copy (${seals.length}×)`);
         for (const f of faqText.match(FIG_RE) || []) {
@@ -126,6 +152,9 @@ function served(rel) {
     const t = fs.readFileSync(path.join(ROOT, f), "utf8");
     const m = t.match(SEAL_RE);
     if (m) { seal++; fail(`served ${f}: banned word "seal" (${m.length}×)`); }
+  }
+  for (const k of WIRE_ID_ALLOW.keys()) {
+    if (!wireIdSeen.has(k)) fail(`wire allow row ${JSON.stringify(k)} matches no captured example any more — remove it`);
   }
   for (const k of FAQ_FIGURE_ALLOW.keys()) {
     if (!faqAllowSeen.has(k)) fail(`FAQ allow row ${JSON.stringify(k)} matches nothing any more — remove it`);

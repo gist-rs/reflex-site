@@ -38,12 +38,12 @@
 .cmd code { white-space: nowrap; flex: 1; min-width: 0; overflow-x: auto; }
 .cmd .os, .cmd button { flex: none; }
 .cmd .os { color: var(--muted); min-width: 118px; }
-.cmd button {
+.cmd button, .wire-h button {
   margin-left: auto; background: var(--accent-soft); color: var(--text);
   border: 1px solid var(--accent-line); border-radius: var(--r-1); padding: 6px 12px; min-height: 32px;
   cursor: pointer; font: 600 var(--fs-0) var(--mono);
 }
-.cmd button:hover { background: var(--accent); color: var(--accent-ink); }
+.cmd button:hover, .wire-h button:hover { background: var(--accent); color: var(--accent-ink); }
 
 .badges { display: flex; flex-wrap: wrap; gap: 8px; margin: 22px 0 0; }
 .badge {
@@ -464,3 +464,16 @@ main > section:first-child, .wrap > section:first-child { border-top: 0; }
 }
 .gloss-box > .learn-gloss { margin-top: var(--s-3); }
 .gloss-more { margin: var(--s-3) 0 0; font-size: var(--fs-0); }
+
+/* Captured wire examples (scripts/render_wire.mjs fills them from
+   data/wire.json): request | response side by side, stacked on a phone.
+   min-width:0 keeps a long line scrolling INSIDE its pane, never the page. */
+.wire-cap { font-size: var(--fs-2); margin: var(--s-5) 0 var(--s-1); }
+.wire-pair { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; margin: 10px 0 var(--s-4); }
+.wire-pane { min-width: 0; display: flex; flex-direction: column; }
+.wire-h { display: flex; align-items: center; gap: 8px; font: 600 var(--fs-0) var(--mono); color: var(--muted); margin: 0 0 6px; min-height: 32px; }
+.wire-pane pre { margin: 0; flex: 1; font-size: 13px; }
+/* wrap long strings inside the pane: the copy button carries the exact command */
+.wire-pane pre code { white-space: pre-wrap; overflow-wrap: anywhere; }
+@media (max-width: 900px) { .wire-pair { grid-template-columns: minmax(0, 1fr); } }
+.api-ref td:last-child { white-space: normal; min-width: 16rem; }

@@ -12,7 +12,7 @@
       "repo": "riir-reflex",
       "src": ".docs/04_agent_skill/SKILL.md",
       "dst": "skills/reflex-integration/SKILL.md",
-      "sha256": "c07af3b1421ccde3776e8fcae36968aa5e5c7d719d487daef37df780d6a41277"
+      "sha256": "7650f02a7708f27d7e835e5603c273cabb2190343a00ccc96d79139ea6c1bd2d"
     },
     {
       "repo": "riir-reflex",

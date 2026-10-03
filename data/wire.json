@@ -1,0 +1,114 @@
+{
+  "_meta": {
+    "generator": "scripts/capture_wire.mjs",
+    "engine": "reflex 0.2.3",
+    "version": "0.2.3",
+    "features": "default laya-riir laya-riir-metal modelless",
+    "release_notes": "https://github.com/gist-rs/reflex/releases/tag/v0.2.3",
+    "captured": "2026-10-03",
+    "deterministic_repeat": true,
+    "note": "every request below was sent to a fresh engine; responses are verbatim bytes"
+  },
+  "cases": {
+    "healthz": {
+      "method": "GET",
+      "path": "/healthz",
+      "status": 200,
+      "response": "{\"status\":\"ok\",\"lanes\":{\"modelless\":\"ready\",\"raw\":\"ready\",\"laya\":\"off\"},\"heads\":{\"tetris\":true,\"lanes\":true,\"flappy\":true}}"
+    },
+    "answered": {
+      "method": "POST",
+      "path": "/decide",
+      "request": "{\"state\":\"The piece leaves no holes under it on the left edge, sits flat on the surface, and the stack stays low.\",\"questions\":[{\"id\":\"clean\",\"kind\":\"noul\",\"prompt\":\"Does the stack look clean?\"}]}",
+      "status": 200,
+      "response": "{\"answers\":[{\"question_id\":\"clean\",\"outcome\":{\"noul\":{\"yes\":true}},\"probabilities\":[0.51988834],\"confidence\":0.51988834}],\"routing\":{\"lane\":\"modelless\",\"reason\":\"game-head/tetris (corpus-fitted, Bench 881 decoded arm)\"},\"calibration\":{\"method\":\"none\",\"temperature\":1.0}}"
+    },
+    "abstained": {
+      "method": "POST",
+      "path": "/decide",
+      "request": "{\"state\":\"The staging deploy of release candidate 4.2 finished but the error budget is down to 12 percent and two health endpoints are flapping after the rollout. Rollback is one command. Decide what happens next.\",\"questions\":[{\"id\":\"route\",\"kind\":\"choice\",\"prompt\":\"Route this ticket to the team that owns it.\",\"options\":[\"deploy-ops\",\"billing-support\"]},{\"id\":\"promote\",\"kind\":\"noul\",\"prompt\":\"Should the rollout be promoted to production right now?\"},{\"id\":\"severity\",\"kind\":\"score\",\"prompt\":\"How severe is this situation?\",\"options\":[\"routine\",\"needs-attention\",\"critical\"]}]}",
+      "status": 200,
+      "response": "{\"answers\":[{\"question_id\":\"route\",\"outcome\":null,\"probabilities\":[0.52583224,0.47416782],\"confidence\":0.0019263625},{\"question_id\":\"promote\",\"outcome\":null,\"probabilities\":[0.5135249],\"confidence\":0.00052791834},{\"question_id\":\"severity\",\"outcome\":null,\"probabilities\":[0.36018527,0.2878931,0.35192162],\"confidence\":0.0043790936}],\"routing\":{\"lane\":\"modelless\",\"reason\":\"modelless corpus routing: ops=3 support=0; fused abstain (score+distance) armed\"},\"calibration\":{\"method\":\"none\",\"temperature\":1.0}}"
+    },
+    "off_corpus": {
+      "method": "POST",
+      "path": "/decide",
+      "request": "{\"state\":\"My sourdough starter stopped rising after I moved it to a colder kitchen.\",\"questions\":[{\"id\":\"route\",\"kind\":\"choice\",\"prompt\":\"Route this ticket to the team that owns it.\",\"options\":[\"deploy-ops\",\"billing-support\"]}]}",
+      "status": 200,
+      "response": "{\"answers\":[{\"question_id\":\"route\",\"outcome\":null,\"probabilities\":[0.52577484,0.4742252],\"confidence\":0.0019177794}],\"routing\":{\"lane\":\"modelless\",\"reason\":\"modelless corpus routing: ops=0 support=1; fused abstain (score+distance) armed\"},\"calibration\":{\"method\":\"none\",\"temperature\":1.0}}"
+    },
+    "raw_lane": {
+      "method": "POST",
+      "path": "/decide",
+      "headers": {
+        "X-Reflex-Lane": "raw"
+      },
+      "request": "{\"state\":\"The piece leaves no holes under it on the left edge, sits flat on the surface, and the stack stays low.\",\"questions\":[{\"id\":\"clean\",\"kind\":\"noul\",\"prompt\":\"Does the stack look clean?\"}]}",
+      "status": 200,
+      "response": "{\"answers\":[{\"question_id\":\"clean\",\"outcome\":null,\"probabilities\":[0.4931789],\"confidence\":0.00013428926}],\"routing\":{\"lane\":\"modelless\",\"reason\":\"modelless corpus routing: ops=0 support=1; fused abstain (score+distance) armed\"},\"calibration\":{\"method\":\"none\",\"temperature\":1.0}}"
+    },
+    "feedback": {
+      "method": "POST",
+      "path": "/feedback",
+      "request": "{\"p\":0.51988834,\"outcome\":true}",
+      "status": 200,
+      "response": "{\"refit\":false}"
+    },
+    "err_too_few_options": {
+      "method": "POST",
+      "path": "/decide",
+      "request": "{\"state\":\"\",\"questions\":[{\"id\":\"q\",\"kind\":\"choice\",\"prompt\":\"Pick one.\",\"options\":[\"only\"]}]}",
+      "status": 422,
+      "response": "{\"error\":\"request invalid: decision_wire: choice/score question 0 needs ≥2 options, got 1\"}"
+    },
+    "err_noul_with_options": {
+      "method": "POST",
+      "path": "/decide",
+      "request": "{\"state\":\"\",\"questions\":[{\"id\":\"q\",\"kind\":\"noul\",\"prompt\":\"Ship it?\",\"options\":[\"yes\",\"no\"]}]}",
+      "status": 422,
+      "response": "{\"error\":\"request invalid: decision_wire: noul question 0 must not carry options\"}"
+    },
+    "err_malformed": {
+      "method": "POST",
+      "path": "/decide",
+      "request": "not json",
+      "status": 400,
+      "response": "{\"error\":\"expected ident at line 1 column 2\"}"
+    },
+    "err_unknown_lane": {
+      "method": "POST",
+      "path": "/decide",
+      "headers": {
+        "X-Reflex-Lane": "fast"
+      },
+      "request": "{\"state\":\"\",\"questions\":[]}",
+      "status": 400,
+      "response": "{\"error\":\"unknown lane \\\"fast\\\" (supported: modelless, raw, laya)\"}"
+    },
+    "err_laya_off": {
+      "method": "POST",
+      "path": "/decide",
+      "headers": {
+        "X-Reflex-Lane": "laya"
+      },
+      "request": "{\"state\":\"The staging deploy of release candidate 4.2 finished but the error budget is down to 12 percent and two health endpoints are flapping after the rollout. Rollback is one command. Decide what happens next.\",\"questions\":[{\"id\":\"route\",\"kind\":\"choice\",\"prompt\":\"Route this ticket to the team that owns it.\",\"options\":[\"deploy-ops\",\"billing-support\"]}]}",
+      "status": 503,
+      "response": "{\"error\":\"laya lane is not enabled — restart the engine with RIIR_REFLEX_LAYA=1\"}"
+    },
+    "err_not_found": {
+      "method": "GET",
+      "path": "/v1/decide",
+      "status": 404,
+      "response": "{\"error\":\"not found\"}"
+    },
+    "err_too_large": {
+      "method": "POST",
+      "path": "/decide",
+      "request_meta": {
+        "declared_content_length": 4194305
+      },
+      "status": 413,
+      "response": "{\"error\":\"body too large\"}"
+    }
+  }
+}

@@ -22,6 +22,9 @@ built elsewhere? YES → here. NO → another repo; file there.
   drift gate.
 - `wasm-head/` — a zero-dependency, own-workspace Rust port of the fitted
   Tetris game-head recipe, built to `assets/arena_head.wasm`.
+- `/docs/api/` (the HTTP API reference) and `data/wire.json` — the engine's wire captured VERBATIM
+  from the release binary by `scripts/capture_wire.mjs` (bytes owned by riir-reflex; the capture
+  and its rendering are this repo's).
 - The site's smoke/parity checks (`scripts/*_smoke.*`, `*_parity.mjs`,
   `tests/`).
 - Display naming: the brand is **Reflex**; lanes are *Reflex · modelless*
