@@ -532,3 +532,37 @@ run `sync_mirror.py` to refresh the manifest — a stale manifest is a named
 `MANIFEST-STALE` finding, never silence. Proposal 053's page/nav/DRY-sources
 work itself still awaits owner ratification; this lands only its T1.4
 byte-identity confirmation + the mirror pair.
+
+## 2026-10-03 — Issue 009 CLOSED: /bench FAQ typed numbers, locked-claim scope, arena figure polish
+
+Found during the web-family restyle (riir-ai `.docs/13_web_family`). Five tasks:
+
+- **T1** (`2fc29eb`): the openthai FAQ's p50s, accuracy, ratio and per-option cost
+  bind via `[data-ot]` from `data/bench.json`; `public_copy_gate.cjs` scans every
+  opened `details.faq` for typed figures (5 reasoned constants in
+  `FAQ_FIGURE_ALLOW`; canary: the parent commit reds on exactly the 5 typed figures).
+- **T2** (`2fc29eb`; source fixes riir-instinct `b6425bf`, riir-rethink `47887ff`):
+  the "BLAKE3-locked / signed" copy scoped to what serves. Instinct winners are raw
+  `.bin` files pinned by BLAKE3 (no signature), the Rethink vessel path is planned,
+  and only the Reflex game heads load through a verified signature.
+- **T3** (`3448505`): arena charts lay out at the available width (600–920 units),
+  pinned to min-width = that width, so labels never scale below 1:1: measured
+  **3.87 px → 11.00 px** at 390. The mermaid flow figures scroll inside `.fig-x` /
+  `.fw-stage` at a 690 px min-width (16-unit labels, view boxes ≤ ~990 wide); the
+  board's "12 rows" label and the pie-legend swatch letters went 9 → 11 px.
+- **T4** (`3448505`, katgpt-rs mirror `0d4af3dd0`): the Tetris flow figures are
+  re-rendered on the family ink palette + Reflex accent (`render_tetris_flows.py`
+  refuses the retired "rust" palette and gained `--only`). `flow_walk.js`
+  highlights and board chrome resolve family tokens via `var()` / `color-mix`
+  (one palette: the page's). Lane colours re-measured on `--bg-2`, all ≥ 3:1.
+- **T5** (riir-reflex `a84bad6`): the skill's cache path is verified against reflex 0.2.3
+  (`$HOME/.cache/riir-reflex/laya`, `LAYA_WEIGHTS_DIR` / `LAYA_HOME` overrides).
+
+Gate: `scripts/arena_legibility_smoke.mjs` (labels ≥ 11 px at 390 + 1280,
+no sideways scroll, no retired palette literal; canary: the parent commit reds on
+all three classes). `home_page_smoke.cjs` now listens on an OS-assigned loopback
+port. The fixed 8793 had coexisted with another server on 127.0.0.1:8793 and
+timed out at 30 s. Deployed `a83f9c66` (T1/T2/T5) and `888a4b7d` (T3/T4). Live
+assets were curl-verified and the live /arena labels measured at 11 px with
+no sideways scroll at 390. `arena_prod_smoke.mjs` needs a local engine with
+`RIIR_REFLEX_ALLOWED_ORIGIN` and was not run.
