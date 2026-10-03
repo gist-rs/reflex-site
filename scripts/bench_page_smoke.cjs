@@ -321,16 +321,79 @@ const server = http.createServer((req, res) => {
       // preflight-clean box.
       if (s.clef?.latency_p50_ms != null) visibleP50s.push(s.clef.latency_p50_ms);
     }
-    const expectedBreaks = visibleP50s.filter((v) => v > 500).length;
+    // TABLES count: every variant cell's own p50 (the per-suite tables
+    // render one row per lane VARIANT — paw hosted and paw local are two
+    // rows, every laya checkpoint its own row).
+    const expectedTables = visibleP50s.filter((v) => v > 500).length;
+    // HERO count: the hero renders ONE bar per (suite, lane KEY, host) —
+    // the best-accuracy candidate for that key (bench-charts.js pickHost;
+    // first-wins-ties in allLanes order, multilingual skipped). The paw key
+    // matches BOTH postures and the laya keys match every checkpoint, so
+    // raw-cell counting over-counts variants the hero never renders —
+    // measured at the bench-117 tail publish: ag_news + typed_decisions
+    // pick paw LOCAL on accuracy (0.7925/0.5955 beat hosted 0.79/0.5925),
+    // so their ~1.05 s hosted p50s count in the tables but never render a
+    // hero bar. This mirrors the page's pick exactly (same field order,
+    // same accOf, same lane-key grouping).
+    const PRODUCT = new Set(["Instinct", "Instinct (hybrid)", "Rethink", "Rethink (encoder)", "Instinct (encoder)"]);
+    const keyOf = (l) => {
+      const ln = String(l.lane ?? "");
+      if (ln === "KatGPT" || (l.model === "modelless" && !PRODUCT.has(ln))) return "katgpt";
+      if (ln === "laya (rust)") return "rust";
+      if (ln === "laya (python)") return "python";
+      if (ln === "clm (reference)") return "clm";
+      if (ln === "gliner (reference)") return "gliner";
+      if (ln === "agentjev (reference)") return "agentjev";
+      if (ln === "Instinct" || ln === "Instinct (hybrid)") return "instinct";
+      if (PRODUCT.has(ln)) return "instinct-encoder";
+      if (ln === "openthai (reference)") return "openthai";
+      if (ln === "bekko (reference)") return "bekko";
+      if (ln.startsWith("paw")) return "paw";
+      if (ln === "clef (local)") return "clef";
+      return "other";
+    };
+    const accOf = (l) => { const h = (l.hard || {}).accuracy; return h != null ? h : l.accuracy; };
+    const num = (v) => typeof v === "number" && isFinite(v);
+    // allLanes/extraLanes field order (bench-charts.js) — tie-breaks depend on it.
+    const candsOf = (base) => {
+      const out = [];
+      if (base.modelless) out.push(base.modelless);
+      for (const k of Object.keys(base.laya || {})) out.push(base.laya[k]);
+      for (const k of ["clm", "gliner", "bekko", "agentjev", "openthai", "paw", "paw_local", "clef", "hybrid", "encoder"])
+        if (base[k]) out.push(base[k]);
+      return out;
+    };
+    let expectedHero = 0;
+    for (const s of bench.suites) {
+      const hosts = [s, ...Object.values(s.extra_host_lanes || {})];
+      for (const hv of hosts) {
+        const byKey = new Map();
+        for (const l of candsOf(hv)) {
+          if (l.model === "multilingual") continue;
+          const k = keyOf(l);
+          if (!byKey.has(k)) byKey.set(k, []);
+          byKey.get(k).push(l);
+        }
+        for (const group of byKey.values()) {
+          let best = null;
+          for (const l of group) {
+            const a = accOf(l);
+            if (!num(a)) continue;
+            if (!best || a > accOf(best)) best = l;
+          }
+          if (best && best.latency_p50_ms != null && best.latency_p50_ms > 500) expectedHero++;
+        }
+      }
+    }
     const heroBreaks = await page.$$eval("#bench-hero .sz-break", (xs) => xs.length);
-    if (heroBreaks !== expectedBreaks) fail(`expected ${expectedBreaks} hero break sign(s) on p50 (data-derived), got ${heroBreaks}`);
-    else console.log(`ok: hero p50 carries the ${expectedBreaks} past-500ms break sign(s) (data-derived)`);
+    if (heroBreaks !== expectedHero) fail(`expected ${expectedHero} hero break sign(s) on p50 (pick-mirrored, data-derived), got ${heroBreaks}`);
+    else console.log(`ok: hero p50 carries the ${expectedHero} past-500ms break sign(s) (pick-mirrored, data-derived)`);
     const axisBreak = await page.$$eval("#bench-hero .bc-axis span", (xs) => xs.filter((s) => s.textContent === "500 ms").length);
     if (axisBreak < 1) fail("hero axis does not name the 500 ms break tick");
     else console.log(`ok: hero axis names the 500 ms break (${axisBreak} axis renders)`);
     const cellBreaks = await page.$$eval("#tables .bc-cell .sz-break", (xs) => xs.length);
-    if (cellBreaks !== expectedBreaks) fail(`expected ${expectedBreaks} suite-cell break sign(s) (data-derived), got ${cellBreaks}`);
-    else console.log(`ok: suite cells carry the ${expectedBreaks} past-500ms break sign(s) (data-derived)`);
+    if (cellBreaks !== expectedTables) fail(`expected ${expectedTables} suite-cell break sign(s) (data-derived), got ${cellBreaks}`);
+    else console.log(`ok: suite cells carry the ${expectedTables} past-500ms break sign(s) (data-derived)`);
   }
 
   // 9a) the two metrics that had NO sort before the generic "by value" one
@@ -437,8 +500,8 @@ const server = http.createServer((req, res) => {
     const bench = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "data", "bench.json"), "utf8"));
     const cells = bench.suites.flatMap((s) => [s.modelless, ...Object.values(s.laya || {}),
       ...Object.values(s.extra_host_lanes || {}).flatMap((h) => [h.modelless, ...Object.values(h.laya || {}),
-        h.clm, h.gliner, h.agentjev, h.hybrid, h.openthai, h.paw, h.paw_local]), s.clm, s.gliner, s.agentjev, s.hybrid,
-      s.openthai, s.paw, s.paw_local]).filter(Boolean);
+        h.clm, h.gliner, h.agentjev, h.hybrid, h.openthai, h.paw, h.paw_local, h.clef, h.encoder]), s.clm, s.gliner, s.agentjev, s.hybrid,
+      s.openthai, s.paw, s.paw_local, s.clef, s.encoder]).filter(Boolean);
     const unfit = cells.filter((c) => c.latency_quotable === false).length;
     const kmUnfit = bench.suites.filter((s) => s.modelless?.latency_quotable === false).length;
     const dom = await page.evaluate(() => [...document.querySelectorAll("td.unq")]
