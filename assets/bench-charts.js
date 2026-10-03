@@ -1031,7 +1031,7 @@
 
   function summaryShell(d) {
     const basis = sharedBasis();
-    const scopedNow = summaryScope === "shared" && basis;
+    const scopedNow = summaryScope === "shared" && !!basis; // !! — && hands back the array, not a boolean
     const sharedN = basis ? scopedSuites(d).length : 0;
     const btns = Object.entries(METRICS).map(([k, M]) =>
       `<button type="button" data-metric="${k}" aria-pressed="${k === summaryMetric}">${esc(M.label)}${M.log ? " (log)" : ""}</button>`).join("");

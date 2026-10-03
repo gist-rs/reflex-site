@@ -220,6 +220,11 @@ console.log(`[cc] ${cc.bands} bands / ${cc.labels} lanes, note names the chance 
   const sharedN = Object.keys((d.areas || {}).suites || {}).length;
   if (!sharedN) die("bench.json carries no areas basis — the arm cannot run");
   if (!shell().includes('data-scope="shared"') || !shell().includes('data-scope="all"')) die("the scope toggle did not render");
+  // aria-pressed must be the STRING true/false — `scope === "shared" && basis`
+  // evaluates to the ARRAY when true, and the comma-joined suite list broke
+  // the active-button highlight (found live: aria-pressed="ag_news,…")
+  const pressed = [...shell().matchAll(/data-scope="(\w+)" aria-pressed="([^"]*)"/g)].map((m) => m[2]);
+  if (pressed.length !== 2 || !pressed.every((p) => p === "true" || p === "false")) die(`scope buttons must carry boolean aria-pressed, got ${JSON.stringify(pressed)}`);
   if (!shell().includes(`>shared ${sharedN}</button>`)) die(`the shared button must carry the data-derived count (${sharedN})`);
   if (!shell().includes(`>all ${nSuites}</button>`)) die(`the all button must carry the data-derived count (${nSuites})`);
   if (!body().includes(`Scoped to the ${sharedN} shared suites`)) die("the default note must disclose the shared scope");
