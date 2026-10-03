@@ -1,5 +1,5 @@
 # Issue 006 — reflex.gist.rs: no copy-paste request/response, no API reference, no "first corpus" path on the site
-**Status:** OPEN — T1/T2/T5 LANDED 2026-10-03 (wire captured from the release binary, `/docs/api/`, footer engine stamp); T3 owner-gated; T4 BLOCKED on riir-reflex Issue 063 (the shipped binary cannot serve a user corpus). Filed 2026-10-03 (web trust audit, riir-ai Issue 1028)
+**Status:** OPEN — T1/T2/T5 LANDED 2026-10-03 (wire captured from the release binary, `/docs/api/`, footer engine stamp); T4 LANDED 2026-10-03 (v0.2.4's `RIIR_REFLEX_CORPUS` lane — the walkthrough + sample corpus are live); T3 owner-gated. Filed 2026-10-03 (web trust audit, riir-ai Issue 1028)
 
 **Priority:** P1 — the developer row of design guide §7 ("install command, a working
 request/response example, what runs locally vs hosted, limits, source link") is half met.
@@ -48,7 +48,7 @@ request/response example, what runs locally vs hosted, limits, source link") is 
 - [x] T1 generated request/response block on the home page (answer + abstain) — `/#try-it`
 - [x] T2 `/docs/api/` reference page (routes, schema, type names, errors, limits, versioning, "HTTP-only, any language")
 - [ ] T3 decide: stateless hosted text-wire demo for the playground (owner)
-- [ ] T4 5-minute first-corpus walkthrough with a sample corpus — BLOCKED: riir-reflex Issue 063
+- [x] T4 5-minute first-corpus walkthrough with a sample corpus — LANDED (v0.2.4 recapture, `cce66a5`): the home page carries the captured `corpus_answered` bytes + the download (`/first-corpus.tar.gz`) + the three-command walkthrough; `/docs/api/#corpus` documents the env, the shape, the distance-gated posture, and `corpus_off`. The capture now mints throwaway demo vessels (heads are mint-only since v0.2.4) and boots a second engine on the vendored corpus.
 - [x] T5 current engine version + release-notes link on every page (footer `[data-wire-version]`)
 
 ## Landed (2026-10-03)

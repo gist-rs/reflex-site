@@ -4,6 +4,18 @@ One hash-pinned line per removed issue (the fleet noise-reduction convention:
 an issue file is removed once its work is verifiably landed; this file is the
 durable record). Full narrative of each: `git log --follow -- .issues/<file>`.
 
+- **2026-10-03 — the wire re-captured off reflex v0.2.4 + the first-corpus walkthrough LIVE
+  (`cce66a5`, CF `15bd631f`).** The release carries the corpus serve lane (riir-reflex Issue 063)
+  and the wire id fix (Issue 062 — verified: the served head reason reads `game-head/tetris
+  (corpus-fitted, decoded arm)`, zero id occurrences on the live pages, `WIRE_ID_ALLOW` EMPTY
+  and the copy gate green). Because v0.2.4 makes the game heads MINT-ONLY (the boot fit retired),
+  `capture_wire.mjs` now mints throwaway demo vessels first (deterministic; the fixtures resolve
+  from the `../riir-reflex` sibling; the home + api captions name the mint step) and boots a second
+  engine on the vendored `first-corpus/` sample (the walkthrough's download, `/first-corpus.tar.gz`)
+  for the `corpus_answered` / `corpus_off` cases — in-corpus answers, off-corpus abstains, captured
+  verbatim. Measured posture change recorded on the home block: the demo corpus still abstains
+  everywhere; YOUR corpus is the answers lane. 15 cases, all captions asserted.
+
 - **2026-10-02 — the six harness_* decision-point suites are REMOVED from the bench board (owner
   call; board commit `f1731fc`).** The wide template-disjoint eval delivered the verdict that retired
   them: on the honest wide populations (96–100 cases per family) the modelless engine reads AT CHANCE
