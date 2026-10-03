@@ -1681,6 +1681,12 @@
         return `<b>${esc(s.name)}</b> — Clef <b class="num">${f4(clef.accuracy)}</b> acc / <b class="num">${f4(clef.jdi_skill)}</b> skill${p50} leads every measured lane` +
           (best ? ` (best other: ${esc(best.display)} ${f4(best.accuracy)})` : "");
       }
+      // A tie is a tie — never "leads" (code_fixties-class rows: clef /
+      // openthai / bekko all read 0.5938). The skill axes disclose the tie's
+      // shape without inventing a winner.
+      if (clef.accuracy === best.accuracy) {
+        return `<b>${esc(s.name)}</b> — Clef <b class="num">${f4(clef.accuracy)}</b> acc / <b class="num">${f4(clef.jdi_skill)}</b> skill ties ${esc(best.display)} ${f4(best.accuracy)} / ${f4(best.jdi_skill)}${p50}`;
+      }
       const rec = best.record_only ? ` <b class="bc-fb" title="record-only — serve refused">rec</b>` : "";
       return `<b>${esc(s.name)}</b> — ${esc(best.display)}${rec} leads at <b class="num">${f4(best.accuracy)}</b> acc / <b class="num">${f4(best.jdi_skill)}</b> skill over Clef <b class="num">${f4(clef.accuracy)}</b> / <b class="num">${f4(clef.jdi_skill)}</b>${p50}`;
     }).filter(Boolean);

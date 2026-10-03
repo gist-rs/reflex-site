@@ -105,8 +105,8 @@
       "date_utc": "2026-10-03T17:14:24Z"
      },
      "clef": {
-      "git_sha": "91dd0cb",
-      "date_utc": "2026-10-03T20:18:10Z"
+      "git_sha": "fec0d7c",
+      "date_utc": "2026-10-03T22:33:58Z"
      }
     },
     "head_posture": "OFF (head_scale 0 \u2014 the published baseline posture)"
@@ -3954,6 +3954,69 @@
      "git_sha": "0dc2c20",
      "date_utc": "2026-10-03T17:15:01Z"
     }
+   },
+   "clef": {
+    "lane": "clef (local)",
+    "model": "clef-flash-4bit",
+    "hard": {
+     "n": 400,
+     "accuracy": 0.9,
+     "macro_f1": 0.8917746035059467,
+     "ece": 0.03992650000000026,
+     "brier": 0.1696214880000008,
+     "nll": 0.3335992007998545,
+     "aurc": 0.03126012430935035,
+     "mean_confidence": 0.9217579999999992,
+     "acc_at_50_coverage": 0.985,
+     "acc_at_80_coverage": 0.95
+    },
+    "readout_ece": 0.03992650000000026,
+    "raw_abstain": null,
+    "calibrated_abstain": null,
+    "abstain_causes": null,
+    "readout_ece_raw": null,
+    "readout_ece_calibrated": null,
+    "floor_ece": null,
+    "g1_pass": null,
+    "g1_verdict": null,
+    "by_question_type": null,
+    "soft_acc": null,
+    "brier_soft": null,
+    "score_mae": null,
+    "within_1": null,
+    "latency_p50_ms": 456.0,
+    "latency_p99_ms": 1045.0,
+    "latency_tail_support": 5,
+    "latency_extremes": {
+     "first_ms": 386.0,
+     "max_ms": 1361.0,
+     "argmax_case": 301
+    },
+    "determinism_ok": true,
+    "determinism_n": 10,
+    "seconds": 199.255336334,
+    "n_cases": 400,
+    "n_questions": 400,
+    "score_threshold": null,
+    "distance_threshold": null,
+    "threshold_recommendation": null,
+    "corpus_cap": null,
+    "head_selection": null,
+    "nb_selection": null,
+    "oc_selection": null,
+    "ridge_selection": null,
+    "genome_selection": null,
+    "transductive": null,
+    "confusion": null,
+    "pair_head_ab": null,
+    "jdi_chance": 0.3075,
+    "jdi_skill": 0.8555956678700362,
+    "cases_digest": "fnv1a64-07eff23c06505584",
+    "latency_quotable": true,
+    "source_run": {
+     "git_sha": "fec0d7c",
+     "date_utc": "2026-10-03T22:29:34Z"
+    }
    }
   },
   {
@@ -5324,6 +5387,69 @@
      "git_sha": "0dc2c20",
      "date_utc": "2026-10-03T17:15:33Z"
     }
+   },
+   "clef": {
+    "lane": "clef (local)",
+    "model": "clef-flash-4bit",
+    "hard": {
+     "n": 400,
+     "accuracy": 0.5925,
+     "macro_f1": 0.4914428254411061,
+     "ece": 0.22750299999999998,
+     "brier": 0.6258503445999996,
+     "nll": 1.3155490101052263,
+     "aurc": 0.28487971165470716,
+     "mean_confidence": 0.8095199999999996,
+     "acc_at_50_coverage": 0.73,
+     "acc_at_80_coverage": 0.615625
+    },
+    "readout_ece": 0.22750299999999998,
+    "raw_abstain": null,
+    "calibrated_abstain": null,
+    "abstain_causes": null,
+    "readout_ece_raw": null,
+    "readout_ece_calibrated": null,
+    "floor_ece": null,
+    "g1_pass": null,
+    "g1_verdict": null,
+    "by_question_type": null,
+    "soft_acc": null,
+    "brier_soft": null,
+    "score_mae": null,
+    "within_1": null,
+    "latency_p50_ms": 416.0,
+    "latency_p99_ms": 582.0,
+    "latency_tail_support": 5,
+    "latency_extremes": {
+     "first_ms": 468.0,
+     "max_ms": 612.0,
+     "argmax_case": 7
+    },
+    "determinism_ok": true,
+    "determinism_n": 10,
+    "seconds": 180.761833625,
+    "n_cases": 400,
+    "n_questions": 400,
+    "score_threshold": null,
+    "distance_threshold": null,
+    "threshold_recommendation": null,
+    "corpus_cap": null,
+    "head_selection": null,
+    "nb_selection": null,
+    "oc_selection": null,
+    "ridge_selection": null,
+    "genome_selection": null,
+    "transductive": null,
+    "confusion": null,
+    "pair_head_ab": null,
+    "jdi_chance": 0.2975,
+    "jdi_skill": 0.41992882562277584,
+    "cases_digest": "fnv1a64-6feefd1c947dd008",
+    "latency_quotable": true,
+    "source_run": {
+     "git_sha": "fec0d7c",
+     "date_utc": "2026-10-03T22:26:05Z"
+    }
    }
   },
   {
@@ -6689,6 +6815,69 @@
      "git_sha": "0dc2c20",
      "date_utc": "2026-10-03T17:15:55Z"
     }
+   },
+   "clef": {
+    "lane": "clef (local)",
+    "model": "clef-flash-4bit",
+    "hard": {
+     "n": 600,
+     "accuracy": 0.6033333333333334,
+     "macro_f1": 0.5752050497694366,
+     "ece": 0.08852866666666666,
+     "brier": 0.5538565256499991,
+     "nll": 0.9846725971763867,
+     "aurc": 0.34716630317106256,
+     "mean_confidence": 0.6810806666666661,
+     "acc_at_50_coverage": 0.6666666666666666,
+     "acc_at_80_coverage": 0.6291666666666667
+    },
+    "readout_ece": 0.08852866666666666,
+    "raw_abstain": null,
+    "calibrated_abstain": null,
+    "abstain_causes": null,
+    "readout_ece_raw": null,
+    "readout_ece_calibrated": null,
+    "floor_ece": null,
+    "g1_pass": null,
+    "g1_verdict": null,
+    "by_question_type": null,
+    "soft_acc": null,
+    "brier_soft": null,
+    "score_mae": null,
+    "within_1": null,
+    "latency_p50_ms": 409.0,
+    "latency_p99_ms": 497.0,
+    "latency_tail_support": 7,
+    "latency_extremes": {
+     "first_ms": 373.0,
+     "max_ms": 568.0,
+     "argmax_case": 312
+    },
+    "determinism_ok": true,
+    "determinism_n": 10,
+    "seconds": 254.562425084,
+    "n_cases": 600,
+    "n_questions": 600,
+    "score_threshold": null,
+    "distance_threshold": null,
+    "threshold_recommendation": null,
+    "corpus_cap": null,
+    "head_selection": null,
+    "nb_selection": null,
+    "oc_selection": null,
+    "ridge_selection": null,
+    "genome_selection": null,
+    "transductive": null,
+    "confusion": null,
+    "pair_head_ab": null,
+    "jdi_chance": 0.2733333333333333,
+    "jdi_skill": 0.4541284403669726,
+    "cases_digest": "fnv1a64-ad64a6cb0039e916",
+    "latency_quotable": true,
+    "source_run": {
+     "git_sha": "fec0d7c",
+     "date_utc": "2026-10-03T22:33:58Z"
+    }
    }
   },
   {
@@ -8051,6 +8240,69 @@
     "source_run": {
      "git_sha": "0dc2c20",
      "date_utc": "2026-10-03T17:09:51Z"
+    }
+   },
+   "clef": {
+    "lane": "clef (local)",
+    "model": "clef-flash-4bit",
+    "hard": {
+     "n": 116,
+     "accuracy": 0.5862068965517241,
+     "macro_f1": 0.5166666666666666,
+     "ece": 0.3627982758620688,
+     "brier": 0.7202440972413787,
+     "nll": 1.3115656635238997,
+     "aurc": 0.17774181693710567,
+     "mean_confidence": 0.9406706896551722,
+     "acc_at_50_coverage": 0.8620689655172413,
+     "acc_at_80_coverage": 0.6304347826086957
+    },
+    "readout_ece": 0.3627982758620688,
+    "raw_abstain": null,
+    "calibrated_abstain": null,
+    "abstain_causes": null,
+    "readout_ece_raw": null,
+    "readout_ece_calibrated": null,
+    "floor_ece": null,
+    "g1_pass": null,
+    "g1_verdict": null,
+    "by_question_type": null,
+    "soft_acc": null,
+    "brier_soft": null,
+    "score_mae": null,
+    "within_1": null,
+    "latency_p50_ms": 330.0,
+    "latency_p99_ms": 523.0,
+    "latency_tail_support": 2,
+    "latency_extremes": {
+     "first_ms": 336.0,
+     "max_ms": 864.0,
+     "argmax_case": 8
+    },
+    "determinism_ok": true,
+    "determinism_n": 10,
+    "seconds": 46.17145675,
+    "n_cases": 116,
+    "n_questions": 116,
+    "score_threshold": null,
+    "distance_threshold": null,
+    "threshold_recommendation": null,
+    "corpus_cap": null,
+    "head_selection": null,
+    "nb_selection": null,
+    "oc_selection": null,
+    "ridge_selection": null,
+    "genome_selection": null,
+    "transductive": null,
+    "confusion": null,
+    "pair_head_ab": null,
+    "jdi_chance": 0.5172413793103449,
+    "jdi_skill": 0.14285714285714268,
+    "cases_digest": "fnv1a64-5080803ec29f2423",
+    "latency_quotable": true,
+    "source_run": {
+     "git_sha": "fec0d7c",
+     "date_utc": "2026-10-03T22:14:49Z"
     }
    }
   },
@@ -9458,6 +9710,69 @@
      "git_sha": "0dc2c20",
      "date_utc": "2026-10-03T17:10:22Z"
     }
+   },
+   "clef": {
+    "lane": "clef (local)",
+    "model": "clef-flash-4bit",
+    "hard": {
+     "n": 300,
+     "accuracy": 0.8133333333333334,
+     "macro_f1": 0.8150782669962471,
+     "ece": 0.09094333333333339,
+     "brier": 0.2610078611333333,
+     "nll": 0.4771099683991806,
+     "aurc": 0.06807677861824893,
+     "mean_confidence": 0.7622119999999997,
+     "acc_at_50_coverage": 0.9533333333333334,
+     "acc_at_80_coverage": 0.9
+    },
+    "readout_ece": 0.09094333333333339,
+    "raw_abstain": null,
+    "calibrated_abstain": null,
+    "abstain_causes": null,
+    "readout_ece_raw": null,
+    "readout_ece_calibrated": null,
+    "floor_ece": null,
+    "g1_pass": null,
+    "g1_verdict": null,
+    "by_question_type": null,
+    "soft_acc": null,
+    "brier_soft": null,
+    "score_mae": null,
+    "within_1": null,
+    "latency_p50_ms": 351.0,
+    "latency_p99_ms": 426.0,
+    "latency_tail_support": 4,
+    "latency_extremes": {
+     "first_ms": 399.0,
+     "max_ms": 539.0,
+     "argmax_case": 32
+    },
+    "determinism_ok": true,
+    "determinism_n": 10,
+    "seconds": 115.912468667,
+    "n_cases": 300,
+    "n_questions": 300,
+    "score_threshold": null,
+    "distance_threshold": null,
+    "threshold_recommendation": null,
+    "corpus_cap": null,
+    "head_selection": null,
+    "nb_selection": null,
+    "oc_selection": null,
+    "ridge_selection": null,
+    "genome_selection": null,
+    "transductive": null,
+    "confusion": null,
+    "pair_head_ab": null,
+    "jdi_chance": 0.3333333333333333,
+    "jdi_skill": 0.72,
+    "cases_digest": "fnv1a64-b136750e5af1d412",
+    "latency_quotable": true,
+    "source_run": {
+     "git_sha": "fec0d7c",
+     "date_utc": "2026-10-03T22:17:04Z"
+    }
    }
   },
   {
@@ -10776,6 +11091,69 @@
     "source_run": {
      "git_sha": "0dc2c20",
      "date_utc": "2026-10-03T17:11:20Z"
+    }
+   },
+   "clef": {
+    "lane": "clef (local)",
+    "model": "clef-flash-4bit",
+    "hard": {
+     "n": 300,
+     "accuracy": 0.9333333333333333,
+     "macro_f1": 0.9284468303231186,
+     "ece": 0.036306333333333295,
+     "brier": 0.10314332356666697,
+     "nll": 0.2514852520445878,
+     "aurc": 0.007203424882594562,
+     "mean_confidence": 0.9498336666666667,
+     "acc_at_50_coverage": 1.0,
+     "acc_at_80_coverage": 0.9833333333333333
+    },
+    "readout_ece": 0.036306333333333295,
+    "raw_abstain": null,
+    "calibrated_abstain": null,
+    "abstain_causes": null,
+    "readout_ece_raw": null,
+    "readout_ece_calibrated": null,
+    "floor_ece": null,
+    "g1_pass": null,
+    "g1_verdict": null,
+    "by_question_type": null,
+    "soft_acc": null,
+    "brier_soft": null,
+    "score_mae": null,
+    "within_1": null,
+    "latency_p50_ms": 903.0,
+    "latency_p99_ms": 1262.0,
+    "latency_tail_support": 4,
+    "latency_extremes": {
+     "first_ms": 1279.0,
+     "max_ms": 1279.0,
+     "argmax_case": 0
+    },
+    "determinism_ok": true,
+    "determinism_n": 10,
+    "seconds": 300.746141917,
+    "n_cases": 300,
+    "n_questions": 300,
+    "score_threshold": null,
+    "distance_threshold": null,
+    "threshold_recommendation": null,
+    "corpus_cap": null,
+    "head_selection": null,
+    "nb_selection": null,
+    "oc_selection": null,
+    "ridge_selection": null,
+    "genome_selection": null,
+    "transductive": null,
+    "confusion": null,
+    "pair_head_ab": null,
+    "jdi_chance": 0.08666666666666667,
+    "jdi_skill": 0.927007299270073,
+    "cases_digest": "fnv1a64-49390c8b80475849",
+    "latency_quotable": true,
+    "source_run": {
+     "git_sha": "fec0d7c",
+     "date_utc": "2026-10-03T22:22:48Z"
     }
    }
   },
@@ -13094,6 +13472,69 @@
     "source_run": {
      "git_sha": "0dc2c20",
      "date_utc": "2026-10-03T17:17:19Z"
+    }
+   },
+   "clef": {
+    "lane": "clef (local)",
+    "model": "clef-flash-4bit",
+    "hard": {
+     "n": 32,
+     "accuracy": 0.59375,
+     "macro_f1": 0.33966165413533833,
+     "ece": 0.17301875000000003,
+     "brier": 0.459462555625,
+     "nll": 1.0960614953969814,
+     "aurc": 0.12347292940738006,
+     "mean_confidence": 0.6742124999999999,
+     "acc_at_50_coverage": 0.9375,
+     "acc_at_80_coverage": 0.72
+    },
+    "readout_ece": 0.17301875000000003,
+    "raw_abstain": null,
+    "calibrated_abstain": null,
+    "abstain_causes": null,
+    "readout_ece_raw": null,
+    "readout_ece_calibrated": null,
+    "floor_ece": null,
+    "g1_pass": null,
+    "g1_verdict": null,
+    "by_question_type": null,
+    "soft_acc": null,
+    "brier_soft": null,
+    "score_mae": null,
+    "within_1": null,
+    "latency_p50_ms": 673.0,
+    "latency_p99_ms": 1372.0,
+    "latency_tail_support": 1,
+    "latency_extremes": {
+     "first_ms": 673.0,
+     "max_ms": 1372.0,
+     "argmax_case": 9
+    },
+    "determinism_ok": true,
+    "determinism_n": 10,
+    "seconds": 26.071880417,
+    "n_cases": 16,
+    "n_questions": 32,
+    "score_threshold": null,
+    "distance_threshold": null,
+    "threshold_recommendation": null,
+    "corpus_cap": null,
+    "head_selection": null,
+    "nb_selection": null,
+    "oc_selection": null,
+    "ridge_selection": null,
+    "genome_selection": null,
+    "transductive": null,
+    "confusion": null,
+    "pair_head_ab": null,
+    "jdi_chance": 0.375,
+    "jdi_skill": 0.35,
+    "cases_digest": "fnv1a64-93583fda4fc64946",
+    "latency_quotable": true,
+    "source_run": {
+     "git_sha": "fec0d7c",
+     "date_utc": "2026-10-03T22:13:55Z"
     }
    }
   },
@@ -16212,25 +16653,55 @@
     "color_key": "clef",
     "kind": "http-oracle",
     "per_suite": {
+     "ag_news": {
+      "acc": 0.9,
+      "cc": 0.866667
+     },
+     "massive_intent_en": {
+      "acc": 0.933333,
+      "cc": 0.929825
+     },
      "banking77": {
       "acc": 0.954,
       "cc": 0.953395
      },
+     "sst5": {
+      "acc": 0.603333,
+      "cc": 0.504167
+     },
+     "emotion": {
+      "acc": 0.5925,
+      "cc": 0.511
+     },
+     "xnli_en": {
+      "acc": 0.813333,
+      "cc": 0.72
+     },
+     "prompt_injections": {
+      "acc": 0.586207,
+      "cc": 0.172414
+     },
      "typed_decisions": {
       "acc": 0.6955,
       "cc": 0.553846
+     },
+     "code_fixtures": {
+      "acc": 0.59375,
+      "cc": 0.409091
      }
     },
     "areas": {
-     "language": 0.953395,
-     "decisions": 0.553846
+     "language": 0.916629,
+     "sentiment": 0.507583,
+     "reasoning": 0.446207,
+     "decisions": 0.481468
     },
-    "index": 0.753621,
+    "index": 0.587972,
     "coverage": {
-     "suites": 2,
+     "suites": 9,
      "of": 9
     },
-    "complete": false
+    "complete": true
    },
    "clm@4090-win": {
     "display": "clm",
@@ -16483,9 +16954,9 @@
    "clef": {
     "clock": "http",
     "method": "HTTP round-trip to a local clef-flash-4bit (community 4-bit quant of their 9B) served on the m3 behind a loopback shim; the hosted 27B posture is owner-gated \u2014 never pooled with these cells",
-    "suites": 2,
-    "p50_geomean_ms": 2385.7745,
-    "n_used": 2,
+    "suites": 9,
+    "p50_geomean_ms": 679.9972,
+    "n_used": 9,
     "n_unquotable": 0,
     "n_unjudged": 0,
     "note": "population = the suites behind the lane's index; p50 geometric mean over latency_quotable cells only (unfit timing is shown in the tables, never plotted)"
@@ -16730,6 +17201,444 @@
     ]
    },
    {
+    "name": "ag_news",
+    "n_cases": 400,
+    "n_questions": 400,
+    "pin": "fnv1a64-07eff23c06505584",
+    "rows": [
+     {
+      "lane": "clef",
+      "display": "clef (local)",
+      "model": "clef-flash-4bit",
+      "n": 400,
+      "accuracy": 0.9,
+      "macro_f1": 0.8917746035059467,
+      "jdi_chance": 0.3075,
+      "jdi_skill": 0.8555956678700362,
+      "serves": null,
+      "record_only": false
+     },
+     {
+      "lane": "hybrid",
+      "display": "Instinct",
+      "model": "H2(\u03b2=0.25,nmin=2,\u03c4=2)",
+      "n": 400,
+      "accuracy": 0.8975,
+      "macro_f1": 0.8878275558568157,
+      "jdi_chance": 0.3075,
+      "jdi_skill": 0.8519855595667869,
+      "serves": "H2(\u03b2=0.25,nmin=2,\u03c4=2)",
+      "record_only": false
+     },
+     {
+      "lane": "modelless",
+      "display": "KatGPT",
+      "model": "modelless",
+      "n": 400,
+      "accuracy": 0.8825,
+      "macro_f1": 0.8741933646432797,
+      "jdi_chance": null,
+      "jdi_skill": null,
+      "serves": null,
+      "record_only": false
+     },
+     {
+      "lane": "openthai",
+      "display": "openthai (reference)",
+      "model": "openthai-systemone",
+      "n": 400,
+      "accuracy": 0.89,
+      "macro_f1": 0.882644318569296,
+      "jdi_chance": null,
+      "jdi_skill": null,
+      "serves": null,
+      "record_only": false
+     },
+     {
+      "lane": "bekko",
+      "display": "bekko (reference)",
+      "model": "hotchpotch/bekko-system-one-v0-400m",
+      "n": 400,
+      "accuracy": 0.915,
+      "macro_f1": 0.9088637583052136,
+      "jdi_chance": 0.3075,
+      "jdi_skill": 0.8772563176895307,
+      "serves": null,
+      "record_only": false
+     }
+    ],
+    "excluded": [
+     "encoder@ag_news: digest (absent) != the pin fnv1a64-07eff23c06505584 (different population \u2014 excluded, never mixed)",
+     "paw_local@ag_news: no measured accuracy on this suite",
+     "paw@ag_news: no measured accuracy on this suite"
+    ]
+   },
+   {
+    "name": "emotion",
+    "n_cases": 400,
+    "n_questions": 400,
+    "pin": "fnv1a64-6feefd1c947dd008",
+    "rows": [
+     {
+      "lane": "clef",
+      "display": "clef (local)",
+      "model": "clef-flash-4bit",
+      "n": 400,
+      "accuracy": 0.5925,
+      "macro_f1": 0.4914428254411061,
+      "jdi_chance": 0.2975,
+      "jdi_skill": 0.41992882562277584,
+      "serves": null,
+      "record_only": false
+     },
+     {
+      "lane": "hybrid",
+      "display": "Instinct",
+      "model": "A0",
+      "n": 400,
+      "accuracy": 0.885,
+      "macro_f1": 0.8014284327939634,
+      "jdi_chance": 0.2975,
+      "jdi_skill": 0.8362989323843416,
+      "serves": "A0",
+      "record_only": false
+     },
+     {
+      "lane": "modelless",
+      "display": "KatGPT",
+      "model": "modelless",
+      "n": 400,
+      "accuracy": 0.885,
+      "macro_f1": 0.8014284327939634,
+      "jdi_chance": null,
+      "jdi_skill": null,
+      "serves": null,
+      "record_only": false
+     },
+     {
+      "lane": "openthai",
+      "display": "openthai (reference)",
+      "model": "openthai-systemone",
+      "n": 400,
+      "accuracy": 0.59,
+      "macro_f1": 0.4844213484626461,
+      "jdi_chance": null,
+      "jdi_skill": null,
+      "serves": null,
+      "record_only": false
+     },
+     {
+      "lane": "bekko",
+      "display": "bekko (reference)",
+      "model": "hotchpotch/bekko-system-one-v0-400m",
+      "n": 400,
+      "accuracy": 0.5825,
+      "macro_f1": 0.4664338387697607,
+      "jdi_chance": 0.2975,
+      "jdi_skill": 0.40569395017793597,
+      "serves": null,
+      "record_only": false
+     }
+    ],
+    "excluded": [
+     "encoder@emotion: tier-fallback (the answering tier's read, not this lane's own)",
+     "paw_local@emotion: no measured accuracy on this suite",
+     "paw@emotion: no measured accuracy on this suite"
+    ]
+   },
+   {
+    "name": "sst5",
+    "n_cases": 600,
+    "n_questions": 600,
+    "pin": "fnv1a64-ad64a6cb0039e916",
+    "rows": [
+     {
+      "lane": "clef",
+      "display": "clef (local)",
+      "model": "clef-flash-4bit",
+      "n": 600,
+      "accuracy": 0.6033333333333334,
+      "macro_f1": 0.5752050497694366,
+      "jdi_chance": 0.2733333333333333,
+      "jdi_skill": 0.4541284403669726,
+      "serves": null,
+      "record_only": false
+     },
+     {
+      "lane": "hybrid",
+      "display": "Instinct",
+      "model": "A1",
+      "n": 600,
+      "accuracy": 0.4216666666666667,
+      "macro_f1": 0.3645178225884921,
+      "jdi_chance": 0.2733333333333333,
+      "jdi_skill": 0.20412844036697253,
+      "serves": "A1",
+      "record_only": false
+     },
+     {
+      "lane": "modelless",
+      "display": "KatGPT",
+      "model": "modelless",
+      "n": 600,
+      "accuracy": 0.39666666666666667,
+      "macro_f1": 0.32101890185812104,
+      "jdi_chance": null,
+      "jdi_skill": null,
+      "serves": null,
+      "record_only": false
+     },
+     {
+      "lane": "openthai",
+      "display": "openthai (reference)",
+      "model": "openthai-systemone",
+      "n": 600,
+      "accuracy": 0.43,
+      "macro_f1": 0.41049715078874643,
+      "jdi_chance": null,
+      "jdi_skill": null,
+      "serves": null,
+      "record_only": false
+     },
+     {
+      "lane": "bekko",
+      "display": "bekko (reference)",
+      "model": "hotchpotch/bekko-system-one-v0-400m",
+      "n": 600,
+      "accuracy": 0.455,
+      "macro_f1": 0.30583133122619166,
+      "jdi_chance": 0.2733333333333333,
+      "jdi_skill": 0.25000000000000006,
+      "serves": null,
+      "record_only": false
+     }
+    ],
+    "excluded": [
+     "encoder@sst5: digest (absent) != the pin fnv1a64-ad64a6cb0039e916 (different population \u2014 excluded, never mixed)",
+     "paw_local@sst5: no measured accuracy on this suite",
+     "paw@sst5: no measured accuracy on this suite"
+    ]
+   },
+   {
+    "name": "prompt_injections",
+    "n_cases": 116,
+    "n_questions": 116,
+    "pin": "fnv1a64-5080803ec29f2423",
+    "rows": [
+     {
+      "lane": "clef",
+      "display": "clef (local)",
+      "model": "clef-flash-4bit",
+      "n": 116,
+      "accuracy": 0.5862068965517241,
+      "macro_f1": 0.5166666666666666,
+      "jdi_chance": 0.5172413793103449,
+      "jdi_skill": 0.14285714285714268,
+      "serves": null,
+      "record_only": false
+     },
+     {
+      "lane": "hybrid",
+      "display": "Instinct",
+      "model": "A1",
+      "n": 116,
+      "accuracy": 0.853448275862069,
+      "macro_f1": 0.8529126575669427,
+      "jdi_chance": 0.5172413793103449,
+      "jdi_skill": 0.6964285714285714,
+      "serves": "A1",
+      "record_only": false
+     },
+     {
+      "lane": "modelless",
+      "display": "KatGPT",
+      "model": "modelless",
+      "n": 116,
+      "accuracy": 0.7672413793103449,
+      "macro_f1": 0.7642808760442538,
+      "jdi_chance": null,
+      "jdi_skill": null,
+      "serves": null,
+      "record_only": false
+     },
+     {
+      "lane": "openthai",
+      "display": "openthai (reference)",
+      "model": "openthai-systemone",
+      "n": 116,
+      "accuracy": 0.6293103448275862,
+      "macro_f1": 0.5820695433598659,
+      "jdi_chance": null,
+      "jdi_skill": null,
+      "serves": null,
+      "record_only": false
+     },
+     {
+      "lane": "bekko",
+      "display": "bekko (reference)",
+      "model": "hotchpotch/bekko-system-one-v0-400m",
+      "n": 116,
+      "accuracy": 0.5086206896551724,
+      "macro_f1": 0.3789799943646098,
+      "jdi_chance": 0.5172413793103449,
+      "jdi_skill": 0.0,
+      "serves": null,
+      "record_only": false
+     }
+    ],
+    "excluded": [
+     "encoder@prompt_injections: tier-fallback (the answering tier's read, not this lane's own)",
+     "paw_local@prompt_injections: no measured accuracy on this suite",
+     "paw@prompt_injections: no measured accuracy on this suite"
+    ]
+   },
+   {
+    "name": "xnli_en",
+    "n_cases": 300,
+    "n_questions": 300,
+    "pin": "fnv1a64-b136750e5af1d412",
+    "rows": [
+     {
+      "lane": "clef",
+      "display": "clef (local)",
+      "model": "clef-flash-4bit",
+      "n": 300,
+      "accuracy": 0.8133333333333334,
+      "macro_f1": 0.8150782669962471,
+      "jdi_chance": 0.3333333333333333,
+      "jdi_skill": 0.72,
+      "serves": null,
+      "record_only": false
+     },
+     {
+      "lane": "hybrid",
+      "display": "Instinct",
+      "model": "A0",
+      "n": 300,
+      "accuracy": 0.5233333333333333,
+      "macro_f1": 0.5070059473023049,
+      "jdi_chance": 0.3333333333333333,
+      "jdi_skill": 0.285,
+      "serves": "A0",
+      "record_only": false
+     },
+     {
+      "lane": "modelless",
+      "display": "KatGPT",
+      "model": "modelless",
+      "n": 300,
+      "accuracy": 0.5233333333333333,
+      "macro_f1": 0.5061129338341462,
+      "jdi_chance": null,
+      "jdi_skill": null,
+      "serves": null,
+      "record_only": false
+     },
+     {
+      "lane": "openthai",
+      "display": "openthai (reference)",
+      "model": "openthai-systemone",
+      "n": 300,
+      "accuracy": 0.8966666666666666,
+      "macro_f1": 0.8966195977749251,
+      "jdi_chance": null,
+      "jdi_skill": null,
+      "serves": null,
+      "record_only": false
+     },
+     {
+      "lane": "bekko",
+      "display": "bekko (reference)",
+      "model": "hotchpotch/bekko-system-one-v0-400m",
+      "n": 300,
+      "accuracy": 0.86,
+      "macro_f1": 0.858750405020872,
+      "jdi_chance": 0.3333333333333333,
+      "jdi_skill": 0.7899999999999998,
+      "serves": null,
+      "record_only": false
+     }
+    ],
+    "excluded": [
+     "encoder@xnli_en: digest (absent) != the pin fnv1a64-b136750e5af1d412 (different population \u2014 excluded, never mixed)",
+     "paw_local@xnli_en: no measured accuracy on this suite",
+     "paw@xnli_en: no measured accuracy on this suite"
+    ]
+   },
+   {
+    "name": "massive_intent_en",
+    "n_cases": 300,
+    "n_questions": 300,
+    "pin": "fnv1a64-49390c8b80475849",
+    "rows": [
+     {
+      "lane": "clef",
+      "display": "clef (local)",
+      "model": "clef-flash-4bit",
+      "n": 300,
+      "accuracy": 0.9333333333333333,
+      "macro_f1": 0.9284468303231186,
+      "jdi_chance": 0.08666666666666667,
+      "jdi_skill": 0.927007299270073,
+      "serves": null,
+      "record_only": false
+     },
+     {
+      "lane": "hybrid",
+      "display": "Instinct",
+      "model": "H2(\u03b2=1,nmin=2,\u03c4=4)",
+      "n": 300,
+      "accuracy": 0.84,
+      "macro_f1": 0.8317455255770921,
+      "jdi_chance": 0.08666666666666667,
+      "jdi_skill": 0.8248175182481752,
+      "serves": "H2(\u03b2=1,nmin=2,\u03c4=4)",
+      "record_only": false
+     },
+     {
+      "lane": "modelless",
+      "display": "KatGPT",
+      "model": "modelless",
+      "n": 300,
+      "accuracy": 0.78,
+      "macro_f1": 0.7698039912157559,
+      "jdi_chance": null,
+      "jdi_skill": null,
+      "serves": null,
+      "record_only": false
+     },
+     {
+      "lane": "openthai",
+      "display": "openthai (reference)",
+      "model": "openthai-systemone",
+      "n": 300,
+      "accuracy": 0.92,
+      "macro_f1": 0.9142354668289988,
+      "jdi_chance": null,
+      "jdi_skill": null,
+      "serves": null,
+      "record_only": false
+     },
+     {
+      "lane": "bekko",
+      "display": "bekko (reference)",
+      "model": "hotchpotch/bekko-system-one-v0-400m",
+      "n": 300,
+      "accuracy": 0.91,
+      "macro_f1": 0.9056898356680406,
+      "jdi_chance": 0.08666666666666667,
+      "jdi_skill": 0.9014598540145986,
+      "serves": null,
+      "record_only": false
+     }
+    ],
+    "excluded": [
+     "encoder@massive_intent_en: tier-fallback (the answering tier's read, not this lane's own)",
+     "paw_local@massive_intent_en: no measured accuracy on this suite",
+     "paw@massive_intent_en: no measured accuracy on this suite"
+    ]
+   },
+   {
     "name": "banking77",
     "n_cases": 500,
     "n_questions": 500,
@@ -16800,6 +17709,79 @@
      "encoder@banking77: tier-fallback (the answering tier's read, not this lane's own)",
      "paw_local@banking77: no measured accuracy on this suite",
      "paw@banking77: no measured accuracy on this suite"
+    ]
+   },
+   {
+    "name": "code_fixtures",
+    "n_cases": 16,
+    "n_questions": 32,
+    "pin": "fnv1a64-93583fda4fc64946",
+    "rows": [
+     {
+      "lane": "clef",
+      "display": "clef (local)",
+      "model": "clef-flash-4bit",
+      "n": 32,
+      "accuracy": 0.59375,
+      "macro_f1": 0.33966165413533833,
+      "jdi_chance": 0.375,
+      "jdi_skill": 0.35,
+      "serves": null,
+      "record_only": false
+     },
+     {
+      "lane": "hybrid",
+      "display": "Instinct",
+      "model": "A1",
+      "n": 32,
+      "accuracy": 0.5625,
+      "macro_f1": 0.4258928571428571,
+      "jdi_chance": 0.375,
+      "jdi_skill": 0.3,
+      "serves": "A1",
+      "record_only": false
+     },
+     {
+      "lane": "modelless",
+      "display": "KatGPT",
+      "model": "modelless",
+      "n": 32,
+      "accuracy": 0.375,
+      "macro_f1": 0.16398467432950192,
+      "jdi_chance": null,
+      "jdi_skill": null,
+      "serves": null,
+      "record_only": false
+     },
+     {
+      "lane": "openthai",
+      "display": "openthai (reference)",
+      "model": "openthai-systemone",
+      "n": 32,
+      "accuracy": 0.59375,
+      "macro_f1": 0.31459790209790206,
+      "jdi_chance": null,
+      "jdi_skill": null,
+      "serves": null,
+      "record_only": false
+     },
+     {
+      "lane": "bekko",
+      "display": "bekko (reference)",
+      "model": "hotchpotch/bekko-system-one-v0-400m",
+      "n": 32,
+      "accuracy": 0.59375,
+      "macro_f1": 0.3242845117845118,
+      "jdi_chance": 0.375,
+      "jdi_skill": 0.35,
+      "serves": null,
+      "record_only": false
+     }
+    ],
+    "excluded": [
+     "encoder@code_fixtures: tier-fallback (the answering tier's read, not this lane's own)",
+     "paw_local@code_fixtures: no measured accuracy on this suite",
+     "paw@code_fixtures: no measured accuracy on this suite"
     ]
    }
   ],

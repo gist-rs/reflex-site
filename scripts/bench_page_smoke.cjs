@@ -158,11 +158,16 @@ const server = http.createServer((req, res) => {
       for (const s of X.suites) {
         if (!tldrText.includes(s.name)) fail(`TL;DR missing suite ${s.name}`);
         const lead = leaderOf(s);
-        // clef-led suites read "<suite> — Clef … leads" (the renderer's
-        // fixed phrasing); every other leader reads "<suite> — <display>".
+        // Three phrasings, all data-pinned: clef strictly ahead reads
+        // "<suite> — Clef … leads"; a tie at the top reads "ties <display>";
+        // any other strict leader reads "<suite> — <display> leads".
+        const clefRow = s.rows.find((r) => String(r.display).startsWith("clef"));
+        const isTie = clefRow && lead && typeof clefRow.accuracy === "number" && clefRow.accuracy === lead.accuracy && !String(lead.display).startsWith("clef");
         const leadTxt = String(lead.display).startsWith("clef") ? "Clef" : lead.display;
-        if (lead && !tldrText.includes(`${s.name} — ${leadTxt}`)) fail(`TL;DR leader mismatch on ${s.name}`);
-        if (lead && lead.record_only && !tldrText.includes("rec")) fail(`TL;DR record-only leader unmarked on ${s.name}`);
+        if (isTie) {
+          if (!tldrText.includes(`${s.name} — Clef`) || !tldrText.includes("ties")) fail(`TL;DR tie phrasing missing on ${s.name}`);
+        } else if (lead && !tldrText.includes(`${s.name} — ${leadTxt}`)) fail(`TL;DR leader mismatch on ${s.name}`);
+        if (lead && !isTie && lead.record_only && !tldrText.includes("rec")) fail(`TL;DR record-only leader unmarked on ${s.name}`);
       }
       if (!/Clef/.test(tldrText)) fail("TL;DR never names Clef");
       console.log(`ok: crosswalk TL;DR verdicts render (${X.suites.length} suite(s), leaders match the data)`);
