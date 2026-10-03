@@ -14,8 +14,11 @@
 //
 // Color follows the LANE (the bench-charts palette: Reflex · modelless orange, laya
 // Rust blue, laya Python green) + the rulebook lane's magenta (#c4579e,
-// validated all-pairs against the three on #1d110c: normal-vision ΔE ≥ 16,
-// CVD pass) + the raw baseline in the de-emphasis gray — it is the floor.
+// validated all-pairs against the three on the old #1d110c theme: normal-vision
+// ΔE ≥ 16, CVD pass — the pairs are unchanged by the family restyle) + the raw
+// baseline in the de-emphasis gray — it is the floor. Contrast on the family
+// --bg-2 (#11141b), re-measured for Issue 009 T4: 4.57 / 5.06 / 5.41 / 7.86,
+// the gray 3.80 — every mark ≥ the 3:1 graphics floor.
 
 import * as T from "./games/tetris.js";
 
@@ -93,6 +96,28 @@ function showTip(html, x, y) {
 }
 const hideTip = () => { if (tip) tip.style.display = "none"; };
 
+// Mobile legibility (design guide §6: chart labels ≥ 11 px). A chart laid
+// out in a fixed 920-unit box and scaled to a 324 px phone column renders an
+// 11-unit label at ~3.9 px. Instead each chart is laid out at the width it
+// will actually get — clamped to [CHART_MIN_W, CHART_MAX_W] — and pinned to
+// at least that many CSS px, so the svg never scales below 1:1: every label
+// renders at its CSS size, and a column narrower than CHART_MIN_W scrolls
+// inside .ac-scroll (scripts/arena_legibility_smoke.mjs measures both).
+const CHART_MIN_W = 600;
+const CHART_MAX_W = 920;
+function layoutWidth(host) {
+  // a hidden tab measures 0 — fall back to the viewport, never to the floor
+  const avail = host.clientWidth || document.documentElement.clientWidth || CHART_MAX_W;
+  return Math.round(Math.min(CHART_MAX_W, Math.max(CHART_MIN_W, avail)));
+}
+function mount(host, svg, W) {
+  svg.style.minWidth = `${W}px`;
+  const wrap = document.createElement("div");
+  wrap.className = "ac-scroll";
+  wrap.append(svg);
+  host.append(wrap);
+}
+
 function niceMax(v) {
   if (v <= 0) return 1;
   const p = 10 ** Math.floor(Math.log10(v));
@@ -102,7 +127,7 @@ function niceMax(v) {
 
 // ── chart 1: score as each game goes ─────────────────────────────────────
 function scoreChart(host, games) {
-  const W = 920, H = 300, L = 64, R = 190, TOP = 14, B = 34;
+  const W = layoutWidth(host), H = 300, L = 64, R = 190, TOP = 14, B = 34;
   const pw = W - L - R, ph = H - TOP - B;
   const xMax = Math.max(...games.map((g) => g.game.pieces), 1);
   const yStep = niceMax(Math.max(...games.map((g) => g.game.score), 40) / 5);
@@ -173,7 +198,7 @@ function scoreChart(host, games) {
   };
   hit.addEventListener("mousemove", move);
   hit.addEventListener("mouseleave", () => { cross.setAttribute("visibility", "hidden"); hideTip(); });
-  host.append(svg);
+  mount(host, svg, W);
 }
 
 // ── chart 2: time to judge one spot (log scale) ──────────────────────────
@@ -188,7 +213,7 @@ function latencyChart(host, games) {
   // Fastest first (owner call) — the bars read as a ranking; color still
   // follows the lane, never the rank.
   const rows = games.filter((g) => g.p50 != null).sort((a, b) => a.p50 - b.p50);
-  const W = 920, rowH = 30, L = 190, R = 110, TOP = 6, B = 30;
+  const W = layoutWidth(host), rowH = 30, L = 190, R = 110, TOP = 6, B = 30;
   const H = TOP + rows.length * rowH + B;
   const pw = W - L - R;
   const lo = 1e-3, hi = 1e4; // 1 µs … 10 s
@@ -211,7 +236,7 @@ function latencyChart(host, games) {
     bar.addEventListener("mousemove", (ev) => showTip(tipHtml, ev.clientX, ev.clientY));
     bar.addEventListener("mouseleave", hideTip);
   });
-  host.append(svg);
+  mount(host, svg, W);
 }
 
 function tableView(host, games) {
@@ -274,12 +299,13 @@ export function renderTetrisResults(j) {
   host.append(legend);
   const c1 = document.createElement("figure");
   c1.className = "ac-fig";
-  c1.innerHTML = `<figcaption>Score as each recorded game goes <span class="bc-mut">(seed 607 · guideline 40/100/300/1200)</span></figcaption>`;
+  const hint = `<span class="ac-hint">Swipe the chart sideways. </span>`;
+  c1.innerHTML = `<figcaption>${hint}Score as each recorded game goes <span class="bc-mut">(seed 607 · guideline 40/100/300/1200)</span></figcaption>`;
   host.append(c1);
   scoreChart(c1, games);
   const c2 = document.createElement("figure");
   c2.className = "ac-fig";
-  c2.innerHTML = `<figcaption>Time to judge one landing spot <span class="bc-mut">(p50 as recorded · log scale — each step is 10×)</span></figcaption>`;
+  c2.innerHTML = `<figcaption>${hint}Time to judge one landing spot <span class="bc-mut">(p50 as recorded · log scale — each step is 10×)</span></figcaption>`;
   host.append(c2);
   latencyChart(c2, games);
   tableView(host, games);

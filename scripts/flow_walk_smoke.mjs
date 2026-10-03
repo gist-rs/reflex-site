@@ -141,10 +141,17 @@ try {
     },
     { timeout: 5000 },
   );
-  const labelColor = await figs.nth(1).locator(".edgeLabel.fw-edge-active p").first().evaluate(
-    (n) => n.style.color,
-  );
-  if (!/255,\s*178,\s*122/.test(labelColor)) fail(`active edge label not emphasized (${labelColor})`);
+  // emphasized = an inline highlight is set AND it paints differently from a
+  // resting label (palette-agnostic: the tint is family-token color-mix since
+  // Issue 009 T4, so a literal RGB pin would only re-pin the palette)
+  const [labelInline, labelColor, restColor] = await figs.nth(1).evaluate((f) => {
+    const on = f.querySelector(".edgeLabel.fw-edge-active p");
+    const off = f.querySelector(".edgeLabel:not(.fw-edge-active) p");
+    return [on?.style.color ?? "", on ? getComputedStyle(on).color : "", off ? getComputedStyle(off).color : ""];
+  });
+  if (!labelInline || !labelColor || labelColor === restColor) {
+    fail(`active edge label not emphasized (inline "${labelInline}", painted ${labelColor} vs resting ${restColor})`);
+  }
   console.log("[flow-walk-smoke] dot jump: recovery edges + label emphasis OK");
 
   // resume from the jumped-to step and let it advance once

@@ -733,7 +733,7 @@ class TetrisBoard {
     const CW = cv.width / T.WIDTH;
     const CH = cv.height / T.HEIGHT;
     ctx.clearRect(0, 0, cv.width, cv.height);
-    ctx.strokeStyle = "rgba(58,33,23,0.6)";
+    ctx.strokeStyle = "rgba(52,59,75,0.6)"; // family --line-2 (#343b4b); a canvas cannot read var()
     ctx.lineWidth = 1;
     for (let c = 1; c < T.WIDTH; c++) {
       ctx.beginPath(); ctx.moveTo(c * CW, 0); ctx.lineTo(c * CW, cv.height); ctx.stroke();

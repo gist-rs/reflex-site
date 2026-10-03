@@ -27,7 +27,11 @@ const server = http.createServer((req, res) => {
 });
 
 (async () => {
-  await new Promise((r) => server.listen(8793, r));
+  // An OS-assigned port on the loopback the page is loaded from: a fixed 8793
+  // bound on the wildcard address coexisted with ANY other server already on
+  // 127.0.0.1:8793, so the page loaded that server and timed out at 30 s.
+  await new Promise((r) => server.listen(0, "127.0.0.1", r));
+  const base = `http://127.0.0.1:${server.address().port}`;
   const browser = await chromium.launch();
   const page = await browser.newPage({ viewport: { width: 1280, height: 1200 } });
   const errs = [];
@@ -35,7 +39,7 @@ const server = http.createServer((req, res) => {
   page.on("console", (m) => { if (m.type() === "error") errs.push(m.text()); });
   const fail = (m) => { console.error("FAIL:", m); process.exitCode = 1; };
 
-  await page.goto("http://127.0.0.1:8793/", { waitUntil: "networkidle" });
+  await page.goto(`${base}/`, { waitUntil: "networkidle" });
 
   // 1. the size chart rendered from data (not the loading placeholder)
   await page.waitForFunction(

@@ -37,8 +37,9 @@ This renders every block through mermaid.ink with a PER-SOURCE palette (the
 SOURCES table's 4th field): the gist.rs web-family ink palette with the
 owning product's accent on node borders for the education figures, and the
 original brown/ember theme (`#241410` node fill, `#ff8a4c` borders) for
-katgpt-rs's Tetris figures, whose arena step-through highlights are tuned to
-it — then post-processes per the Issue-131
+katgpt-rs's Tetris figures until reflex-site Issue 009 T4 moved them (and
+the arena step-through highlights in assets/flow_walk.js) onto the family
+ink palette with the Reflex accent — then post-processes per the Issue-131
 conventions (no `@import`, every selector scoped to the SVG's own id,
 `role="img"` + the aria sentence), and writes the SAME bytes to both mirrors:
 
@@ -55,6 +56,10 @@ Modes:
     --check    no network: exit 1 if any block's two mirrors differ or are
                missing (a stale mirror ships a stale figure). Never a silent
                green: a source with zero blocks is a finding.
+    --only S   restrict either mode to sources whose doc path or checkout
+               name contains S (re-render one repo's figures without
+               rewriting — and re-committing — every other repo's mirror).
+               A filter that matches nothing is a red, never a quiet zero.
 
 An absent checkout (Cargo.toml probe, the sync_mirror convention) is a LOUD
 per-source SKIP — the figures are committed files, so deploys never need the
@@ -103,15 +108,15 @@ def rethink_root() -> Path:
 # filename and the site-side assets/ filename agree.
 #
 # The 4th field is the PALETTE (2026-10-03, the gist.rs web-family restyle):
-# "rust" = the original brown/ember theme, kept for katgpt-rs's Tetris
-# figures (another repo's outputs, and assets/flow_walk.js's step highlights
-# are tuned to it); "family:<accent>" = the family ink palette with that
-# product accent on node borders (riir-ai .docs/13_web_family/family.css).
+# "family:<accent>" = the family ink palette with that product accent on node
+# borders (riir-ai .docs/13_web_family/family.css). The Tetris figures took
+# the Reflex accent in reflex-site Issue 009 T4; the original brown/ember
+# theme is retired ("rust" is refused, not silently mapped).
 # The 5th field, when True, renders ONLY the blocks that carry the
 # %% file:/%% aria: headers and skips the rest (decision_flow.md keeps an
 # un-rendered annotated block beside its compact hero block).
 SOURCES = (
-    (katgpt_root, ".docs/06_game_arenas/tetris_lane_flows.md", {}, "rust", False),
+    (katgpt_root, ".docs/06_game_arenas/tetris_lane_flows.md", {}, "family:#ff8a3d", False),
     (reflex_root, ".docs/03_decision_flow/decision_flow.md", {}, "family:#ff8a3d", True),
     (instinct_root, ".docs/03_decision_flow/instinct_flow.md", {}, "family:#f472b6", False),
     (reflex_root, ".docs/05_resources/dev_flow.md", {"dev_flow.svg": "reflex_dev_flow.svg"}, "family:#ff8a3d", False),
@@ -120,25 +125,12 @@ SOURCES = (
     (rethink_root, ".docs/05_resources/dev_flow.md", {"dev_flow.svg": "rethink_dev_flow.svg"}, "family:#a98bfa", False),
 )
 
-THEME = {
-    "theme": "base",
-    "themeVariables": {
-        "background": "transparent",
-        "primaryColor": "#241410",
-        "primaryBorderColor": "#ff8a4c",
-        "primaryTextColor": "#f2e6dd",
-        "secondaryColor": "#1d110c",
-        "tertiaryColor": "#1d110c",
-        "lineColor": "#b99f8f",
-        "textColor": "#f2e6dd",
-        "clusterBkg": "#1d110c",
-        "clusterBorder": "#3a2117",
-        "edgeLabelBackground": "#1d110c",
-        "fontFamily": "ui-monospace,SFMono-Regular,Menlo,Consolas,monospace",
-        "fontSize": "16px",
-    },
-    "flowchart": {"htmlLabels": True, "curve": "basis"},
-}
+FONT_FAMILY = "ui-monospace,SFMono-Regular,Menlo,Consolas,monospace"
+# Label size in SVG user units. The arena's figure min-width (assets/arena.css
+# .lanefig) is derived from it so a label never renders below the design
+# guide's 11 px at 390 px (scripts/arena_legibility_smoke.mjs measures it).
+FONT_SIZE_PX = 16
+FLOWCHART = {"htmlLabels": True, "curve": "basis"}
 
 
 def family_theme(accent: str) -> dict:
@@ -159,16 +151,14 @@ def family_theme(accent: str) -> dict:
             "clusterBkg": "#161a23",
             "clusterBorder": "#343b4b",
             "edgeLabelBackground": "#11141b",
-            "fontFamily": THEME["themeVariables"]["fontFamily"],
-            "fontSize": "16px",
+            "fontFamily": FONT_FAMILY,
+            "fontSize": f"{FONT_SIZE_PX}px",
         },
-        "flowchart": dict(THEME["flowchart"]),
+        "flowchart": dict(FLOWCHART),
     }
 
 
 def theme_for(palette: str) -> dict:
-    if palette == "rust":
-        return THEME
     if palette.startswith("family:"):
         return family_theme(palette.split(":", 1)[1])
     raise SystemExit(f"unknown palette {palette!r}")
@@ -189,7 +179,7 @@ def blocks(md: str, headered_only: bool = False):
         yield f.group(1), a.group(1), body
 
 
-def render(code: str, theme: dict = THEME) -> str:
+def render(code: str, theme: dict) -> str:
     state = json.dumps({"code": code, "mermaid": theme}).encode("utf-8")
     pako = base64.urlsafe_b64encode(zlib.compress(state, 9)).decode("ascii")
     url = f"https://mermaid.ink/svg/pako:{pako}?bgColor=!transparent"
@@ -227,10 +217,15 @@ def postprocess(svg: str, sid_name: str, aria: str) -> str:
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--check", action="store_true")
+    ap.add_argument("--only", metavar="S", help="only sources whose doc path or checkout name contains S")
     args = ap.parse_args()
     bad = 0
+    picked = 0
     for root_fn, rel, rename, palette, headered_only in SOURCES:
         root = root_fn()
+        if args.only and args.only not in rel and args.only not in root.name:
+            continue
+        picked += 1
         if not (root / "Cargo.toml").exists():
             print(f"SKIP (loud): {root.name} checkout absent - {rel} UNCHECKED this run")
             continue
@@ -263,6 +258,9 @@ def main() -> int:
                 dst.write_text(svg, encoding="utf-8", newline="\n")
             print(f"✓ rendered {file} -> assets/{site_name} ({len(svg)} B) → both mirrors")
             time.sleep(3)  # politeness: mermaid.ink 503s on a back-to-back burst
+    if args.only and not picked:
+        print(f"✗ --only {args.only!r} matched no source")
+        bad += 1
     if args.check:
         print(("✗ " if bad else "✓ ") + (f"{bad} figure problem(s)" if bad else "all figures in sync"))
     return 1 if bad else 0

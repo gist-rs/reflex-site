@@ -30,8 +30,24 @@ import {
 const STEP_MS = 3000;
 const WALK_KEY = "tetris_rulebook_walk";
 const META_KEY = "tetris_rulebook";
-const GHOST = "rgb(242, 230, 221)"; // candidate ghosts: warm white — MUST stay
+const GHOST = "rgb(233, 236, 242)"; // candidate ghosts: the family --text white — MUST stay
 // rgb(...) form: withAlpha() expands only "rgb(" strings (the opaque-white bug)
+
+// Chrome colors follow the family tokens (assets/family.css), resolved by the
+// CSS engine at paint time — so the walk re-themes with the page and never
+// carries a second copy of the palette (reflex-site Issue 009 T4). Piece
+// cells keep the games palette; only chrome + highlights live here.
+const C = {
+  boardBg: "var(--bg-2)",
+  boardLine: "var(--line-2)",
+  grid: "color-mix(in srgb, var(--text) 5%, transparent)",
+  flash: "color-mix(in srgb, var(--text) 28%, transparent)",
+  accent: "var(--accent)",
+  // the active step: a lighter accent tint, brighter than the figure's
+  // default accent border, over an accent-washed node fill
+  hiStroke: "color-mix(in srgb, var(--accent) 62%, #fff)",
+  hiFill: "color-mix(in srgb, var(--accent) 18%, var(--surface-2))",
+};
 
 // ── the real record → replayed states ───────────────────────────────────
 
@@ -388,10 +404,10 @@ function boardSVG(spec) {
     role: "img",
     "aria-label": "mini tetris board showing the recorded position for this step",
   });
-  svg.appendChild(svgEl("rect", { x: 0.5, y: 0.5, width: W - 1, height: H - 1, rx: 6, fill: "#140b08", stroke: "#3a2117" }));
+  svg.appendChild(svgEl("rect", { x: 0.5, y: 0.5, width: W - 1, height: H - 1, rx: 6, style: `fill:${C.boardBg};stroke:${C.boardLine}` }));
 
   // faint grid
-  const grid = svgEl("g", { stroke: "rgba(242,230,221,0.05)" });
+  const grid = svgEl("g", { style: `stroke:${C.grid}` });
   for (let c = 1; c < T.WIDTH; c++) grid.appendChild(svgEl("line", { x1: PAD + c * CELL, y1: PAD, x2: PAD + c * CELL, y2: H - PAD }));
   for (let r = 1; r < T.HEIGHT; r++) grid.appendChild(svgEl("line", { x1: PAD, y1: PAD + r * CELL, x2: W - PAD, y2: PAD + r * CELL }));
   svg.appendChild(grid);
@@ -455,7 +471,7 @@ function boardSVG(spec) {
         height: CELL + 1,
         rx: 2.5,
         fill: "none",
-        stroke: "#ff8a4c",
+        style: `stroke:${C.accent}`,
         "stroke-width": 1.8,
         class: "fw-hl",
         "data-hl": "",
@@ -465,12 +481,12 @@ function boardSVG(spec) {
 
   // cleared-row flash + the 12-row trigger line
   for (const r of spec.flashRows || []) {
-    svg.appendChild(svgEl("rect", { x: PAD, y: PAD + r * CELL, width: T.WIDTH * CELL, height: CELL, fill: "rgba(242,230,221,0.28)", class: "fw-hl", "data-flash": "" }));
+    svg.appendChild(svgEl("rect", { x: PAD, y: PAD + r * CELL, width: T.WIDTH * CELL, height: CELL, style: `fill:${C.flash}`, class: "fw-hl", "data-flash": "" }));
   }
   if (spec.twelve) {
     const y = PAD + (T.HEIGHT - 12) * CELL;
-    svg.appendChild(svgEl("line", { x1: PAD, y1: y, x2: W - PAD, y2: y, stroke: "#ff8a4c", "stroke-dasharray": "4 3", "stroke-width": 1.2, "data-twelve": "" }));
-    const label = svgEl("text", { x: W - PAD - 2, y: y - 3, "text-anchor": "end", fill: "#ff8a4c", "font-size": 9, "font-family": "ui-monospace,Menlo,monospace" });
+    svg.appendChild(svgEl("line", { x1: PAD, y1: y, x2: W - PAD, y2: y, style: `stroke:${C.accent}`, "stroke-dasharray": "4 3", "stroke-width": 1.2, "data-twelve": "" }));
+    const label = svgEl("text", { x: W - PAD - 2, y: y - 3, "text-anchor": "end", style: `fill:${C.accent}`, "font-size": 11, "font-family": "ui-monospace,Menlo,monospace" });
     label.textContent = "12 rows";
     svg.appendChild(label);
   }
@@ -619,16 +635,16 @@ function setupWalk(figure, svg, svgId, cfg) {
         if (!g) continue;
         g.classList.add("fw-active");
         g.querySelectorAll("rect").forEach((r) => {
-          r.style.stroke = "#ffb27a"; // light ember tint — brighter than the default border
+          r.style.stroke = C.hiStroke;
           r.style.strokeWidth = "2.5px";
-          r.style.fill = "#331d13";
+          r.style.fill = C.hiFill;
         });
       }
       for (const e of step.edges || []) {
         const p = edgePath(e);
         if (p) {
           p.classList.add("fw-edge-active");
-          p.style.stroke = "#ffb27a";
+          p.style.stroke = C.hiStroke;
           p.style.strokeWidth = "2.5px";
           p.style.strokeDasharray = "7 5";
         }
@@ -636,8 +652,8 @@ function setupWalk(figure, svg, svgId, cfg) {
         if (lab && lab.querySelector("p, text")) {
           lab.classList.add("fw-edge-active");
           lab.querySelectorAll("p, span, text").forEach((t) => {
-            t.style.color = "#ffb27a";
-            t.style.fill = "#ffb27a";
+            t.style.color = C.hiStroke;
+            t.style.fill = C.hiStroke;
           });
         }
       }
@@ -773,7 +789,8 @@ async function boot() {
       if (!recordCfg) continue; // no record → keep the plain static figure
       const introBoard = { ...recordCfg.steps[0].board, ghosts: [], chip: STATIC_WALKS[name].introChip };
       const cfg = { ...STATIC_WALKS[name], ...recordCfg, introBoard };
-      img.replaceWith(svg);
+      // the <img> sits in a .fig-x scroll wrapper; .fw-stage takes over that job
+      (img.closest(".fig-x") ?? img).replaceWith(svg);
       setupWalk(figure, svg, svgId, cfg);
     } catch (err) {
       console.warn("[flow-walk] " + name + " stays static:", err.message);
