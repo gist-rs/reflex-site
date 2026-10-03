@@ -1,5 +1,5 @@
 # Issue 008 — reflex.gist.rs /bench + /resources: internal vocabulary, no glossary, banned "seal" wording
-**Status:** OPEN — 2026-10-03 (web trust audit, riir-ai Issue 1028)
+**Status:** RESOLVED — `e97247b` (T1/T2/T4/T5) + `b9416c7` (T3), deployed 2026-10-03. Filed 2026-10-03 (web trust audit, riir-ai Issue 1028)
 
 **Priority:** P2 — education (design guide §5: explain jargon on first use; >5 terms → glossary;
 banned word "seal").
@@ -54,8 +54,24 @@ riir-dapps Issue 114.)
 
 ## Tasks
 
-- [ ] T1 remove internal ids from /bench + home (table above)
-- [ ] T2 glossary box on /bench and /resources
-- [ ] T3 seal → lock (`bench/index.html:238,278`, `resources/index.html:164,224`)
-- [ ] T4 hero "No model weights" reworded for learners
-- [ ] T5 vocabulary/no-internal-id check in `tests/` (site gate)
+- [x] T1 remove internal ids from /bench + home (table above)
+- [x] T2 glossary box on /bench and /resources
+- [x] T3 seal → lock (`bench/index.html:238,278`, `resources/index.html:164,224`)
+- [x] T4 hero "No model weights" reworded for learners
+- [x] T5 vocabulary/no-internal-id check in `tests/` (site gate)
+
+## Resolution notes (2026-10-03)
+
+- T1 (`e97247b`): "Proposal 051", "051-era", "pre-076", "issue 058", "Bench 085" (bench) and "Issue 020"
+  (arena TL;DR) replaced by plain words + a link to `data/changes.json`; one typed measured number in that
+  FAQ (a banking77 cell) went with it.
+- T2 (`e97247b`): "Words used on this page" glossary on /bench; /resources carries the #learn primer
+  glossary (`b9416c7`) plus a "More words used further down this page" box (modelless, lane, suite,
+  selective accuracy, cc, conformal floor, record-only, tier-fallback, encoder head, vessel, rung).
+- T3 (`b9416c7`, mirrors `44a8731`): every rendered "seal/sealed" is "lock/locked".
+- T4 (`e97247b`): hero "No neural network to download — the only fitted numbers are small thresholds and
+  heads rebuilt from your own documents and labels."
+- T5 (`e97247b`): `scripts/public_copy_gate.cjs` (not tests/ — the site's gates live in scripts/, per
+  AGENTS.md) renders all six pages with every <details> open and fails on the id patterns, "seal"
+  (pages + served md/svg mirrors), missing family chrome, or sideways scroll at 390 px.
+

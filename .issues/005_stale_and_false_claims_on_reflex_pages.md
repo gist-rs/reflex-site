@@ -1,5 +1,5 @@
 # Issue 005 — reflex.gist.rs: stale / false statements (private-repo claim, Rethink "incoming", attribution, install lines)
-**Status:** OPEN — 2026-10-03 (web trust audit, riir-ai Issue 1028)
+**Status:** MOSTLY RESOLVED — T1–T5b landed in `e97247b` (+ riir-reflex `50d340d`), deployed 2026-10-03; T6 OPEN (owner-repo follow-up in the riir-reflex dist / gist-rs/reflex). Filed 2026-10-03 (web trust audit, riir-ai Issue 1028)
 
 **Priority:** P0 — statements a reader can disprove in one click.
 **Audience:** developer + buyer.
@@ -31,10 +31,29 @@ T1–T4 are text edits; T5 needs one test on a Homebrew 6 box; T6/T7 are owner-r
 
 ## Tasks
 
-- [ ] T1 "riir-instinct, private repo" → "riir-instinct (open)" at `bench/index.html:402,479`; Rethink → "riir-rethink (private)" wherever it is attributed
-- [ ] T2 `resources/index.html:250` → live storefront link, waitlist state from rethink.gist.rs
-- [ ] T3 home: a "Need answers where Reflex abstains? → Rethink" line + family footer links to rethink.gist.rs and ai.gist.rs
-- [ ] T4 TL;DR names its 9-of-11 suite basis; Instinct latency row explained or moved to /bench
-- [ ] T5 verify `brew install riir-reflex` on Homebrew 6; align with cargo-refine (`brew trust`) and add the platform note
-- [ ] T5b SKILL.md: binary name `reflex`, version line + wire captures refreshed against the current release (skill version bump)
-- [ ] T6 (riir-reflex dist) LICENSE in gist-rs/reflex; README Scoop line updated
+- [x] T1 "riir-instinct, private repo" → "riir-instinct (open)" at `bench/index.html:402,479`; Rethink → "riir-rethink (private)" wherever it is attributed
+- [x] T2 `resources/index.html:250` → live storefront link, waitlist state from rethink.gist.rs
+- [x] T3 home: a "Need answers where Reflex abstains? → Rethink" line + family footer links to rethink.gist.rs and ai.gist.rs
+- [x] T4 TL;DR names its 9-of-11 suite basis; Instinct latency row explained or moved to /bench
+- [x] T5 verify `brew install riir-reflex` on Homebrew 6; align with cargo-refine (`brew trust`) and add the platform note
+- [x] T5b SKILL.md: binary name `reflex`, version line + wire captures refreshed against the current release (skill version bump)
+- [ ] T6 (riir-reflex dist) LICENSE in gist-rs/reflex; README Scoop line updated — still open (not this site's repo)
+
+## Resolution notes (2026-10-03, `e97247b`)
+
+- T1: /bench says Instinct is open source (gist-rs/riir-instinct) and Rethink is the hosted product with
+  private source; no "riir-instinct's naming law" attribution of Rethink remains.
+- T2: /resources links the live storefront and names its waitlist state; the resources smoke now FAILS on
+  an "incoming / may be dark" hedge and requires the rethink.gist.rs link (the old "incoming" arm inverted).
+- T3: home "Need more than the floor? → Meet Rethink" card + the family footer (Reflex · Rethink · Refine ·
+  Network) on every page (`b9416c7`).
+- T4: the TL;DR renders "across N of the M published suites — the ones where both laya lanes (Rust and
+  Python) also ran" (both counts from data/bench.json); the home summary drops Instinct/Rethink rows on the
+  latency metric only, with a note pointing to /bench#instinct (their timing covers only their own arm's suites).
+- T5: `brew tap gist-rs/tap && brew install riir-reflex` verified on Homebrew 7.0.7 (M3) → `reflex 0.2.3`;
+  that box had the tap already in `trust.json`, so the fresh-box refusal is not re-observed here — the home
+  line and the skill now both read `brew tap … && brew trust gist-rs/tap && brew install riir-reflex`
+  (aligned with the cargo-refine page) + "macOS + Linux" (the formula carries both bottles).
+- T5b: riir-reflex `50d340d` — skill v2: every command is `reflex`, version stamp 0.2.3, /healthz's JSON
+  reply documented; the wire example re-captured live against 0.2.3 (byte-identical to the old capture).
+
