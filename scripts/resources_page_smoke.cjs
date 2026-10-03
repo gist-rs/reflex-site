@@ -30,7 +30,7 @@ const path = require("path");
 
 const ROOT = path.resolve(__dirname, "..");
 const PAGE = path.join(ROOT, "resources", "index.html");
-const MIME = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".json": "application/json", ".svg": "image/svg+xml", ".md": "text/markdown" };
+const MIME = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".json": "application/json", ".svg": "image/svg+xml", ".md": "text/markdown", ".webp": "image/webp", ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".gif": "image/gif", ".avif": "image/avif" };
 const server = http.createServer((req, res) => {
   let rel = decodeURIComponent(req.url.split("?")[0]);
   if (rel.endsWith("/")) rel += "index.html";
@@ -214,6 +214,7 @@ function digitFindings(text, label, fail) {
   const noAlt = imgs.filter((i) => !i.alt);
   if (noAlt.length) fail(`images without alt text: ${JSON.stringify(noAlt.map((i) => i.src))}`);
   const wanted = [
+    "/assets/jev_vs_reflex_story.webp",
     "/assets/jev_vs_reflex_flow.svg",
     "/assets/decision_flow.svg", "/assets/instinct_flow.svg", "/assets/rethink_flow.svg",
     "/assets/reflex_dev_flow.svg", "/assets/instinct_dev_flow.svg", "/assets/rethink_dev_flow.svg",
@@ -221,9 +222,9 @@ function digitFindings(text, label, fail) {
   for (const w of wanted) {
     if (!imgs.some((i) => i.src === w)) fail(`expected image missing: ${w}`);
   }
-  if (imgs.length !== 8) fail(`expected 8 <img> (decision_flow reused in overview + reflex), got ${imgs.length}`);
-  if (!broken.length && !noAlt.length && imgs.length === 8 && wanted.every((w) => imgs.some((i) => i.src === w))) {
-    console.log(`ok: all 8 images resolve with alts (7 unique assets, decision_flow reused)`);
+  if (imgs.length !== 9) fail(`expected 9 <img> (decision_flow reused in overview + reflex), got ${imgs.length}`);
+  if (!broken.length && !noAlt.length && imgs.length === 9 && wanted.every((w) => imgs.some((i) => i.src === w))) {
+    console.log(`ok: all 9 images resolve with alts (8 unique assets, decision_flow reused)`);
   }
 
   // 5. the target matrix: 4 columns, header + 6 rows

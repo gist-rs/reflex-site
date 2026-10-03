@@ -17,6 +17,10 @@ static assets.
   development flows. Content is DRY-sourced from each lane's `.docs/05_resources/` + decision-flow docs,
   mirrored under `docs/<lane>/` + `assets/` by `scripts/sync_mirror.py`; every measured claim is a link
   into `/bench/` (the numbers law — the render smoke enforces it on visible text).
+  Rasters ship WebP-first (`scripts/image_gate.sh` — resized to the layout width
+  they render at, e.g. `assets/jev_vs_reflex_story.webp`, the primer's storybook
+  illustration, AI-generated with Google Gemini and converted from the original
+  JPEG with cwebp at q 80).
 - `/playground/` — the playground (talks to the visitor's OWN engine on
   `127.0.0.1:7331`; nothing is uploaded) + the three-step start, and the
   **Reflexer** section: a Tetris position asked of the reflexer engine with

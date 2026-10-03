@@ -23,7 +23,7 @@ const path = require("path");
 const ROOT = path.resolve(__dirname, "..");
 const PORT = 8797;
 const PAGES = ["/", "/playground/", "/arena/", "/bench/", "/resources/", "/docs/api/", "/404.html"];
-const MIME = { ".html": "text/html", ".js": "text/javascript", ".mjs": "text/javascript", ".css": "text/css", ".json": "application/json", ".svg": "image/svg+xml", ".md": "text/markdown", ".wasm": "application/wasm" };
+const MIME = { ".html": "text/html", ".js": "text/javascript", ".mjs": "text/javascript", ".css": "text/css", ".json": "application/json", ".svg": "image/svg+xml", ".md": "text/markdown", ".wasm": "application/wasm", ".webp": "image/webp", ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".gif": "image/gif", ".avif": "image/avif" };
 
 // Case-INSENSITIVE: innerText applies CSS text-transform, so an id inside an
 // uppercased kicker reads "PLAN 12" and a case-sensitive scan never saw it.

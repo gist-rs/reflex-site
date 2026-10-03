@@ -450,6 +450,8 @@ p code, li code, dd code, summary code { white-space: normal; overflow-wrap: any
 /* ── /resources #learn — the Jev primer ───────────────────────────────── */
 #learn h3 { margin-top: var(--s-6); }
 #learn > p { max-width: var(--measure); color: var(--text-2); }
+.learn-hero { max-width: var(--measure); }
+.learn-hero img { width: 100%; }
 .learn-gloss { margin: var(--s-5) 0; padding: var(--s-4) var(--s-5); background: var(--surface); border-color: var(--line); border-left-color: var(--accent); }
 #learn .gf-card h3 { margin-top: 0; }
 .wire { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr)); gap: var(--s-4); }
