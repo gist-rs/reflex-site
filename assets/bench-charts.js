@@ -1341,6 +1341,99 @@
       `</div>`;
   }
 
-  window.BenchCharts = { hero, suite, setLogDomain, summary, areas, frontier, profile, suiteSortControl, setSuiteSort, setPrimaryHost, lat, accOf, ccOf };
+  // ── the S1MB board (reflex plan 010; the external judgment benchmark) ──
+  // One grouped horizontal-bar chart over d.s1mb (publish_bench.py derives
+  // it from the same suite cells the per-suite tables show, so chart and
+  // tables can never disagree): rows = the three suites + the unweighted
+  // average, bars = the serving lanes with the accuracy ON the bar. The
+  // lane filter governs EVERY section of the page, this one included. A
+  // board lane the palette does not know renders OTHER gray through laneOf
+  // — never a made-up hue; a missing cell renders the none-bar gap, never
+  // a zero. The long per-lane prose (model + note) renders BELOW the chart
+  // as a compact muted list — stuffed into table cells it was the 390px
+  // sideways-scroll class the design guide §6 exists for (prose wraps;
+  // only tables/SVG scroll inside a wrapper).
+  // The board's lane keys → synthetic lane objects fed through the SAME
+  // LANES predicates (laneOf), so a palette recolor needs no edit here and
+  // an unknown board lane degrades to OTHER, never a second palette.
+  const S1MB_PALETTE = {
+    modelless: { lane: "KatGPT", model: "modelless" },
+    hybrid: { lane: "Instinct" },
+    laya: { lane: "laya (rust)" },
+    encoder: { lane: "Rethink" },
+  };
+  function s1mb(d, el) {
+    if (!el) return;
+    const S = d && d.s1mb;
+    if (!S || !Array.isArray(S.lanes) || !Array.isArray(S.suites) || !S.suites.length) {
+      el.innerHTML = `<p class="cases">the S1MB board needs a bench.json with the s1mb block — refresh with publish_bench.py --rederive data/bench.json</p>`;
+      return;
+    }
+    tooltip();
+    const suiteName = { s1mb_noul: "true/false", s1mb_score: "rate a reply", s1mb_choice: "pick an answer" };
+    const palOf = (ln) => laneOf(S1MB_PALETTE[ln.key] || ln);
+    const shown = S.lanes.filter((ln) => visibleKey(palOf(ln).key));
+    if (!shown.length) {
+      el.innerHTML = `<p class="cases">every lane with a measured S1MB cell is hidden by the lane filter — show a lane above to see the board.</p>`;
+      return;
+    }
+    const clamp01 = (x) => Math.max(0, Math.min(1, x));
+    const cellBar = (ln, c) => {
+      const pal = palOf(ln);
+      const a = pct(c.acc);
+      const tip = `<span class="bc-sw" style="background:${pal.color}"></span><b>${esc(ln.display)}</b><br>` +
+        `accuracy <b>${esc(a)}</b>${num(c.n) ? ` · n=${c.n}` : ""}` +
+        (c.fallback ? `<br><span class="bc-mut">↩ the answering tier answered — this lane's own head is pending its earn gate</span>` : "");
+      return `<div class="bc-cell" tabindex="0" data-tip="${esc(tip)}" aria-label="${esc(`${ln.display} accuracy ${a}${c.fallback ? " (served by the answering tier)" : ""}`)}">` +
+        `<i style="width:calc((100% - 64px) * ${clamp01(c.acc).toFixed(4)});background:${pal.color}"></i>` +
+        `<span>${esc(a)}${c.fallback ? ` <b class="bc-fb" title="served by the answering tier">↩</b>` : ""}</span></div>`;
+    };
+    const avgBar = (ln) => {
+      const pal = palOf(ln);
+      const cov = ln.coverage || {};
+      if (!num(ln.avg)) return `<div class="bc-hbar bc-none">${esc(ln.display)} — no lane-own reads yet</div>`;
+      const tip = `<span class="bc-sw" style="background:${pal.color}"></span><b>${esc(ln.display)}</b><br>` +
+        `avg accuracy <b>${esc(pct(ln.avg))}</b><br><span class="bc-mut">unweighted mean of the lane's own measured cells (${cov.suites != null ? cov.suites : "?"}/${cov.of != null ? cov.of : "?"} suites)</span>`;
+      return `<div class="bc-cell" tabindex="0" data-tip="${esc(tip)}" aria-label="${esc(`${ln.display} unweighted average ${pct(ln.avg)}`)}">` +
+        `<i style="width:calc((100% - 64px) * ${clamp01(ln.avg).toFixed(4)});background:${pal.color}"></i>` +
+        `<span>${esc(pct(ln.avg))}</span></div>`;
+    };
+    // A gap keeps its lane's color story: the none-bar text names the gap
+    // and the tooltip carries the lane's own note (the head-budget reason
+    // and its kin live in publish_bench's note prose — never re-derived).
+    const noneBar = (ln, why) =>
+      `<div class="bc-hbar bc-none"${ln.note ? ` data-tip="${esc(ln.note)}"` : ""}>${esc(ln.display)} — ${esc(why)}</div>`;
+    const emptyGuard = `<div class="bc-hbar bc-none">no measured cell on the shown lanes</div>`;
+    const suiteRow = (name) => {
+      const bars = shown.map((ln) => {
+        const c = (ln.cells || {})[name];
+        return c && num(c.acc) ? cellBar(ln, c) : noneBar(ln, "not measured");
+      }).join("") || emptyGuard;
+      return `<a class="bc-hlabel" href="#suite-${esc(name)}">${esc(suiteName[name] || name)}</a>` +
+        `<div class="bc-htrack">${grid("acc")}${bars}</div>`;
+    };
+    // "avg" stays short for the 96px mobile label column (design guide §6);
+    // the unweighted-mean definition lives in the caption (publish_bench's
+    // disclosure) and this title.
+    const avgRow = `<div class="bc-hlabel" title="unweighted mean over each lane's own measured suites">avg</div>` +
+      `<div class="bc-htrack">${shown.map(avgBar).join("") || emptyGuard}</div>`;
+    const legendHtml = `<div class="bc-legend" aria-label="lanes">${shown.map((ln) =>
+      `<span><i class="bc-sw" style="background:${palOf(ln).color}"></i>${esc(ln.display)}</span>`).join("")}</div>`;
+    // The lane list: one line per lane — display · model, then the caveat
+    // note in the muted cases voice. Full-width prose wraps; it never
+    // scrolls the page sideways.
+    const notes = S.lanes.map((ln) => {
+      const pal = palOf(ln);
+      return `<p class="s1mb-lane"><i class="bc-sw" style="background:${pal.color}"></i><b>${esc(ln.display)}</b>${ln.model ? ` <span class="bc-mut">· ${esc(ln.model)}</span>` : ""}${ln.note ? `<br><span class="cases">${esc(ln.note)}</span>` : ""}</p>`;
+    }).join("");
+    el.innerHTML = `<div class="bc-bar">${legendHtml}</div>` +
+      `<div class="bc-hgrid"><div></div>${axis("acc")}` +
+      S.suites.map(suiteRow).join("") + avgRow +
+      `<div></div>${axis("acc")}</div>` +
+      `<p class="bc-note">${esc(S.disclosure || "")}</p>` +
+      (notes ? `<div class="s1mb-notes">${notes}</div>` : "");
+  }
+
+  window.BenchCharts = { hero, suite, setLogDomain, summary, areas, frontier, profile, s1mb, suiteSortControl, setSuiteSort, setPrimaryHost, lat, accOf, ccOf };
   window.BenchRig.scoped = scopedPairs;
 })();

@@ -116,6 +116,14 @@
   #per-suite { margin-top: 48px; }
   #suite-sort { display: flex; align-items: center; gap: 8px; margin: 14px 0 10px; }
   #suite-sort .bc-mut { font-size: 12px; }
+  /* the S1MB lane notes (bench-only): the per-lane model + caveat prose
+     rendered full-width UNDER the chart — inside table cells this prose
+     was the 390px sideways-scroll class (design guide §6: prose wraps,
+     only tables/SVG scroll inside a wrapper) */
+  .s1mb-notes { margin-top: 10px; }
+  .s1mb-notes p { margin: 0 0 6px; font-size: 12px; color: var(--muted); }
+  .s1mb-notes b { color: var(--text); font-weight: 600; }
+  .s1mb-notes .bc-sw { margin-right: 6px; }
   @media (max-width: 640px) {
     .bc-suite { grid-template-columns: 1fr 1fr; }
     .bc-suite .bc-slabel { grid-column: 1 / -1; }
@@ -834,43 +842,16 @@ function renderTiming(d) {
     `<p class="cases">comparability: an in-process read and an HTTP round-trip are both "latency" here, and they are NOT comparable — compare a lane's p50 against its own past, and read cross-lane ratios only within one clock class. The frontier above plots lanes with at least one quotable cell; “— not plotted” names a lane whose published cells carry no quotable timing today.</p>`;
 }
 
-// The S1MB board (the external judgment benchmark, after #timing): one row
-// per lane × the three suites + the unweighted average, rendered from
-// d.s1mb (publish_bench.py derives it from the same suite cells the
-// per-suite tables show, so the two can never disagree). An old bench.json
-// (no s1mb block) renders the refresh note; a missing cell renders "—" as
-// the disclosed gap it is.
+// The S1MB section (the external judgment benchmark, after #timing) renders
+// through BenchCharts.s1mb — the grouped lane×suite bar chart with the
+// unweighted-avg row, the gap none-bars and the compact lane notes below.
+// The chart reads d.s1mb (publish_bench.py derives it from the same suite
+// cells the per-suite tables show, so the two can never disagree) and it
+// honors the lane filter like every other section. An old bench.json (no
+// s1mb block) renders the refresh note; a missing cell renders the none-bar
+// gap, never a zero.
 function renderS1mb(d) {
-  const el = document.getElementById("bench-s1mb");
-  if (!el) return;
-  const S = d && d.s1mb;
-  if (!S || !Array.isArray(S.lanes)) {
-    el.innerHTML = `<p class="cases">the S1MB board needs a bench.json with the s1mb block — refresh with publish_bench.py --rederive data/bench.json</p>`;
-    return;
-  }
-  const suiteName = { s1mb_noul: "true/false", s1mb_score: "rate a reply", s1mb_choice: "pick an answer" };
-  const cellOf = (lane, suite) => {
-    const c = (lane.cells || {})[suite];
-    if (!c || typeof c.acc !== "number") return "—";
-    const v = (Math.round(c.acc * 1000) / 10) + "%";
-    return c.fallback ? `${v} <span class="chip" title="no trained head passed its earn gate on this suite — the answering tier's served read">served by tier</span>` : v;
-  };
-  const rows = S.lanes.map((lane) => {
-    const cov = lane.coverage || {};
-    const avg = (typeof lane.avg === "number") ? (Math.round(lane.avg * 1000) / 10) + "%" : "—";
-    const gap = cov.suites < cov.of
-      ? ` <span class="chip">${cov.of - cov.suites} suite${cov.of - cov.suites === 1 ? "" : "s"} not measured</span>`
-      : "";
-    const note = lane.note ? `<div class="cases">${esc(lane.note)}</div>` : "";
-    return `<tr><td>${esc(lane.display)}${gap}<br><span class="cases">${esc(lane.model || "")}</span>${note}</td>` +
-      S.suites.map((s) => `<td>${cellOf(lane, s)}</td>`).join("") +
-      `<td><strong>${avg}</strong></td></tr>`;
-  }).join("");
-  const heads = S.suites.map((s) => `<th>${esc(suiteName[s] || s)}</th>`).join("");
-  el.innerHTML = `<div class="scroll"><table class="bench">` +
-    `<thead><tr><th>lane</th>${heads}<th>average</th></tr></thead>` +
-    `<tbody>${rows}</tbody></table></div>` +
-    `<p class="cases">${esc(S.disclosure || "")}</p>`;
+  if (window.BenchCharts && BenchCharts.s1mb) BenchCharts.s1mb(d, document.getElementById("bench-s1mb"));
 }
 
 // The board-changes list (plan 001 task 7): a curated append-only feed

@@ -479,4 +479,43 @@ console.log(`[frontier] ${fDots} dots, ${fPartial} partial, ${fTPartial} timing-
   console.log(`[ladder] ${famPlotted.length} plotted rungs (${famPlotted.join(" → ")}), ${labels} labeled dots; middle rung verified on synthetic`);
 })();
 
+// The S1MB board chart (reflex plan 010): the grouped lane×suite bars + the
+// avg row + the gap none-bars + the compact lane notes under the chart (the
+// prose-in-table-cells overflow fix). Counts are DATA-DERIVED from d.s1mb —
+// a hand-typed count reds the day a lane lands.
+(function s1mbBoard() {
+  const die = (m) => { console.error(`FAIL[s1mb]: ${m}`); process.exit(1); };
+  if (!d.s1mb || !Array.isArray(d.s1mb.lanes)) die("bench.json carries no s1mb block — the arm cannot run");
+  fakeEl("s1mb");
+  window.BenchCharts.s1mb(d, captured["s1mb"]);
+  const h = captured["s1mb"].innerHTML;
+  if (!h.includes("bc-hgrid")) die("no grouped grid rendered");
+  let expCells = 0, expNone = 0;
+  for (const ln of d.s1mb.lanes) {
+    const measured = d.s1mb.suites.filter((s) => (ln.cells || {})[s] && typeof (ln.cells || {})[s].acc === "number").length;
+    expCells += measured + (typeof ln.avg === "number" ? 1 : 0);
+    expNone += (d.s1mb.suites.length - measured) + (typeof ln.avg === "number" ? 0 : 1);
+  }
+  const cells = (h.match(/class="bc-cell"/g) || []).length;
+  const nones = (h.match(/bc-none/g) || []).length;
+  if (cells !== expCells) die(`${cells} bar(s) vs ${expCells} measured (lane × suite) + avg cells`);
+  if (nones !== expNone) die(`${nones} gap marker(s) vs ${expNone} expected (unmeasured + avg-less lanes)`);
+  for (const m of h.matchAll(/width:calc\(\(100% - 64px\) \* ([\d.]+)\)/g)) {
+    const f = +m[1];
+    if (!(f >= 0 && f <= 1)) die(`bar fraction out of track: ${f}`);
+  }
+  if (!h.includes(">avg</div>")) die("the avg row is missing");
+  if (!h.includes("not measured")) die("a measured gap must render the none-bar, never a zero");
+  if (!h.includes("no lane-own reads yet")) die("an avg-less lane must render the honest none-bar");
+  for (const ln of d.s1mb.lanes)
+    if (!h.includes(`>${ln.display}</b>`)) die(`lane ${ln.display} missing from the board`);
+  if (d.s1mb.disclosure && !h.includes(d.s1mb.disclosure.slice(0, 40))) die("the caption lost the disclosure");
+  const dNoS1 = JSON.parse(JSON.stringify(d));
+  delete dNoS1.s1mb;
+  fakeEl("s1mb-old");
+  window.BenchCharts.s1mb(dNoS1, captured["s1mb-old"]);
+  if (!captured["s1mb-old"].innerHTML.includes("--rederive")) die("old-data posture must name the refresh remedy");
+  console.log(`[s1mb] ${cells} bars / ${nones} gap marker(s), avg row + notes + disclosure render (data-derived)`);
+})();
+
 console.log(`chart render smoke PASS (p50: ${p50.bands} bands / ${p50.labels} lanes, broken at 500 ms; acc: ${acc.bands} bands / ${acc.labels} lanes; cc: ${cc.bands} bands; radar: ${polys} polys / ${dots} dots)`);

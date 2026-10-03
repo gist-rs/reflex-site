@@ -140,6 +140,38 @@ const server = http.createServer((req, res) => {
     else if (expected > 0) console.log(`ok: ${label} not-run only on its ${expected} unmeasured suite(s)`);
   }
 
+  // 4b) the S1MB section renders the grouped bar chart (the prose-in-cells
+  //     overflow fix) and the lane filter governs it like every section.
+  //     Bar counts are DATA-DERIVED from d.s1mb (a hand-typed count reds
+  //     the day a lane lands).
+  {
+    const s1 = laneData.s1mb;
+    if (!s1 || !Array.isArray(s1.lanes)) fail("s1mb arm: bench.json carries no s1mb block");
+    else {
+      const laneBars = (ln) => s1.suites.filter((su) => (ln.cells || {})[su] && typeof (ln.cells || {})[su].acc === "number").length
+        + (typeof ln.avg === "number" ? 1 : 0);
+      const expAll = s1.lanes.reduce((n, ln) => n + laneBars(ln), 0);
+      const s1mbBars = () => page.$$eval("#bench-s1mb .bc-cell", (xs) => xs.length);
+      if (!(await page.$("#bench-s1mb .bc-hgrid"))) fail("s1mb section renders no chart (bc-hgrid missing)");
+      else {
+        const n0 = await s1mbBars();
+        if (n0 !== expAll) fail(`s1mb bars ${n0} != data ${expAll}`);
+        else console.log(`ok: s1mb chart renders ${n0} bars (data-derived)`);
+        // the laya lane leaves with its filter chip — bars AND its gap none-bar
+        const laya = s1.lanes.find((ln) => ln.key === "laya");
+        if (laya) {
+          await page.uncheck('#lane-filter input[data-key="rust"]');
+          await page.waitForTimeout(200);
+          const n1 = await s1mbBars();
+          if (n1 !== n0 - laneBars(laya)) fail(`s1mb bars after hiding laya: ${n1}, expected ${n0 - laneBars(laya)}`);
+          else console.log("ok: s1mb chart honors the lane filter");
+          await page.check('#lane-filter input[data-key="rust"]');
+          await page.waitForTimeout(200);
+        }
+      }
+    }
+  }
+
   // 5) toggle gliner OFF: rows disappear everywhere
   await page.check('#lane-filter input[data-key="gliner"]').catch(() => {});
   await page.uncheck('#lane-filter input[data-key="gliner"]');
