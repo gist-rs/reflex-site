@@ -42,7 +42,7 @@
       "repo": "riir-instinct",
       "src": ".docs/05_resources/resources.md",
       "dst": "docs/instinct/resources.md",
-      "sha256": "28160be1b138f71971879d1b38fa64921f4e9851542b4cdff9199416e318a693"
+      "sha256": "28ac1bb9c650001493441c63d8036b0410c610d53fd13e29b8a2d96cc1671f20"
     },
     {
       "repo": "riir-instinct",
