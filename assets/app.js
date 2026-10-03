@@ -152,7 +152,10 @@ async function homeFigure() {
   }
   if (!window.BenchCharts) return;
   BenchCharts.setLogDomain(d);
-  if (chart) BenchCharts.summary(d, chart, { latencyBenchOnly: ["instinct", "instinct-encoder"] });
+  // Latency rows plot quotable runs only, coverage counted on the label —
+  // Instinct and Rethink render beside the base lanes (2026-10-03 user
+  // report: the wholesale hide read as a missing render).
+  if (chart) BenchCharts.summary(d, chart);
   if (tldrBody) {
     // Issue-058 follow-up (2026-10-01): the SAME denominator as the arena
     // TL;DR (arena_tldr.js pick()) — modelless + laya.english + py/english,

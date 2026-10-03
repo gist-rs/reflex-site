@@ -105,6 +105,39 @@ if (p50Rows < 2 || p50GridBreaks !== p50Rows) { console.error(`FAIL[p50-break]: 
 if (!/style="left:80\.00%">500 ms<\/span>/.test(p50Html)) { console.error("FAIL[p50-break]: the axis does not name the 500 ms break tick"); process.exit(1); }
 console.log(`[p50-break] 1 break sign, ${p50GridBreaks} break gridlines (one per row track), axis names the 500 ms break`);
 
+// The family lanes plot on the speed chart (the 2026-10-03 user report: a
+// wholesale hide read as a missing render). Latency rows plot QUOTABLE runs
+// only — Instinct (9 of 9 quotable) and Rethink (2 of its cells; the unfit
+// 364 ms read and the fallback cells' answering-tier clock stay in the
+// tables) render with the coverage counted on the label, and the lanes with
+// no quotable latency (clm/gliner/agentjev unjudged, bekko/paw unfit) are
+// NAMED in the note but carry no bar. Re-pin the counts when the data's
+// quotable verdicts move.
+const familyRows = [...p50Html.matchAll(/aria-label="(Instinct|Rethink) averaged: (.+?) over (\d+) suites/g)];
+const byLane = {};
+for (const [, lane, val, n] of familyRows) byLane[lane] = { val, n: +n };
+if (!byLane["Instinct"] || !byLane["Rethink"]) {
+  console.error(`FAIL[p50-family]: Instinct/Rethink missing from the p50 summary — got ${JSON.stringify(byLane)}`);
+  process.exit(1);
+}
+if (byLane["Instinct"].n !== 9 || byLane["Rethink"].n !== 2) {
+  console.error(`FAIL[p50-family]: quotable coverage moved (Instinct ${byLane["Instinct"].n}/9, Rethink ${byLane["Rethink"].n}/2) — re-pin`);
+  process.exit(1);
+}
+const covTagged = (p50Html.match(/bc-hlabel">[^<]*<i[^>]*><\/i>[^<]*<span class="bc-mut">· \d+\/\d+<\/span>/g) || []).length;
+if (covTagged < 2) { console.error(`FAIL[p50-family]: partial-coverage labels not tagged (got ${covTagged})`); process.exit(1); }
+for (const dropped of ["clm", "gliner", "agentjev", "bekko", "paw"]) {
+  if (!p50Html.includes("no quotable latency") || !p50Html.includes(`${dropped},`) && !p50Html.includes(` ${dropped} have`) && !p50Html.includes(` ${dropped} has`)) {
+    console.error(`FAIL[p50-family]: ${dropped} has no quotable latency but the note does not name it`);
+    process.exit(1);
+  }
+  if ((p50Html.match(new RegExp(`aria-label="${dropped} averaged`, "g")) || []).length) {
+    console.error(`FAIL[p50-family]: ${dropped} rendered a p50 bar without quotable timing`);
+    process.exit(1);
+  }
+}
+console.log(`[p50-family] Instinct ${byLane["Instinct"].val} over 9 · Rethink ${byLane["Rethink"].val} over 2, ${covTagged} coverage-tagged labels, 5 unfit/unjudged lanes named-not-plotted`);
+
 // Switch the metric via the captured click handler (accuracy: log=false path).
 const toggle = captured[".bc-toggle"];
 if (!toggle || !toggle.handlers.click) { console.error("FAIL: metric toggle not wired"); process.exit(1); }

@@ -809,11 +809,12 @@
   // per-suite separation lives on /bench/ and only there.
   // the landing page defaults to the speed story — the reason Reflex exists;
   // /bench/'s hero keeps its own accuracy default
-  let summaryData = null, summaryMetric = "p50", summaryOpts = {};
+  let summaryData = null, summaryMetric = "p50";
 
   function laneStats(d, m, lane) {
     const vals = [], perSuite = [];
     const hosts = new Set();
+    let seen = 0, unplottable = 0;
     for (const s of d.suites || []) {
       // pick() returns [lane, host] — host names the extra-host cell when the
       // primary host never ran this lane (the comparison-lane fallback)
@@ -821,38 +822,59 @@
       const l = picked ? picked[0] : null;
       if (!l) continue;
       const v = METRICS[m].get(l, s);
+      // Latency plots quotable runs only (the same law the areas timing
+      // block and the frontier follow: unfit or unjudged timing is shown in
+      // the suite tables, never plotted). A picked cell carrying timing
+      // without a verified box state drops OUT of the row and counts here,
+      // so the note can name the lanes it happened to — a fallback cell's
+      // latency is the ANSWERING tier's clock, and an unfit run's is not a
+      // measurement the page may rank.
+      if (METRICS[m].log) {
+        seen++;
+        if (l.latency_quotable !== true) { unplottable++; continue; }
+      }
       if (!num(v) || (METRICS[m].log && v <= 0)) continue;
       vals.push(v);
       perSuite.push([s.name, v]);
       if (picked[1]) hosts.add(picked[1]);
     }
-    if (!vals.length) return null;
+    // The lane renders on this metric (it has cells) but nothing plottable —
+    // a zero row the caller names in the note, never silently drops.
+    if (!vals.length) return seen ? { zero: true, unplottable } : null;
     const avg = METRICS[m].log
       ? Math.exp(vals.reduce((a, v) => a + Math.log(v), 0) / vals.length)
       : vals.reduce((a, v) => a + v, 0) / vals.length;
-    return { value: avg, min: Math.min(...vals), max: Math.max(...vals), n: vals.length, perSuite, hosts: [...hosts] };
+    return { value: avg, min: Math.min(...vals), max: Math.max(...vals), n: vals.length, perSuite, hosts: [...hosts], unplottable };
   }
 
   function summaryBody() {
     const d = summaryData, m = summaryMetric, M = METRICS[m], f = fmtOf(m);
     // rows sorted best-average-first for the active metric: highest mean
     // accuracy first, fastest geometric-mean latency first (Array.sort is
-    // stable, so ties keep LANES order); lanes with no cell are dropped
-    // opts.latencyBenchOnly: lane keys whose TIMING renders on /bench/ only
-    // (the home page's family arms — their timing covers only the suites
-    // their own arm is registered on, which a one-row geomean beside the
-    // all-suite Reflex row cannot say; web trust audit Issue 005 T4)
-    const skip = M.log ? new Set(summaryOpts.latencyBenchOnly || []) : new Set();
-    const ranked = LANES.filter((lane) => !skip.has(lane.key)).map((lane) => [lane, laneStats(d, m, lane)])
-      .filter(([, a]) => a)
+    // stable, so ties keep LANES order); lanes with no cell are dropped.
+    // Latency rows plot quotable runs only (laneStats) — a lane whose every
+    // timing cell is unfit or unjudged lands in the zero bucket and is
+    // NAMED in the note, never silently absent (the 2026-10-03 user
+    // report: Instinct and Rethink had been hidden from this chart
+    // wholesale; their quotable cells plot with the coverage counted on
+    // the label).
+    const total = (d.suites || []).length;
+    const stats = LANES.map((lane) => [lane, laneStats(d, m, lane)]);
+    const ranked = stats.filter(([, a]) => a && !a.zero)
       .sort(([, x], [, y]) => (M.log ? x.value - y.value : y.value - x.value));
+    const zeroLanes = stats.filter(([, a]) => a && a.zero).map(([lane]) => lane);
     const rows = ranked.map(([lane, a]) => {
       const fLo = frac(m, a.min), fHi = frac(m, a.max), fAv = frac(m, a.value);
       const how = M.log ? "geometric mean" : "macro-average";
       const spread = a.n > 1 ? `min <b>${f(a.min)}</b> · max <b>${f(a.max)}</b>` : "single suite";
       const per = a.perSuite.map(([name, v]) => `${esc(name)}: <b>${f(v)}</b>`).join("<br>");
+      // partial coverage is visible on the label, not tooltip-only — a bar
+      // averaged over 2 of 14 suites must not read as the same denominator
+      // as a full row (the reason Instinct/Rethink had been hidden instead)
+      const cov = a.n < total ? ` <span class="bc-mut">· ${a.n}/${total}</span>` : "";
       const tip = `<span class="bc-sw" style="background:${lane.color}"></span><b>${esc(lane.label)}</b><br>` +
         `${how} over <b>${a.n}</b> suites: <b>${f(a.value)}</b> — band = per-suite range (${spread})` +
+        (M.log ? `<br><span class="bc-mut">quotable runs only — the rest sits in the benchmark tables</span>` : "") +
         (a.hosts.length ? `<br><span class="bc-mut">includes extra-host cells: ${a.hosts.map((h) => "@" + esc(h)).join(", ")}</span>` : "") +
         `<br><span class="bc-mut">${per}</span>`;
       const band = a.n > 1
@@ -871,11 +893,14 @@
         : `left:${(fAv * 100).toFixed(2)}%;transform:translate(calc(-100% - 5px),-50%);`;
       const brk = M.log && latBroken && a.max > BREAK_AT
         ? `<i class="sz-break" aria-hidden="true" style="left:${(LIN_SPAN * 100).toFixed(2)}%"></i>` : "";
-      return `<div class="bc-hlabel"><i class="bc-sw" style="background:${lane.color}"></i>${esc(lane.label)}</div>` +
+      return `<div class="bc-hlabel"><i class="bc-sw" style="background:${lane.color}"></i>${esc(lane.label)}${cov}</div>` +
         `<div class="bc-htrack">${grid(m)}` +
         `<div class="bc-hbar" tabindex="0" data-tip="${esc(tip)}" aria-label="${esc(`${lane.label} averaged: ${f(a.value)} over ${a.n} suites (min ${f(a.min)}, max ${f(a.max)})`)}">` +
         `${band}${brk}<i class="bc-mark" style="left:${(fAv * 100).toFixed(2)}%;background:${lane.color}"></i><span class="bc-val" style="${valStyle}">${f(a.value)}</span></div></div>`;
     }).join("");
+    const zeroNote = zeroLanes.length
+      ? ` ${zeroLanes.map((l) => l.label).join(", ")} ${zeroLanes.length === 1 ? "has" : "have"} no quotable latency — their timing sits in the benchmark tables, never plotted.`
+      : "";
     const note = (M.log
       ? (latBroken
         ? `Band = min → max suite p50; tick = geometric mean; log to ${lat(BREAK_AT)}, then a compressed tail past the break sign — exact values on the tooltip. Shorter is faster. `
@@ -884,15 +909,14 @@
         ? "Band = min → max suite chance-corrected accuracy; tick = macro-average; 0% = random guessing on that suite's option count (the same scale as the area radar), so suites compare — bars clip at the 0% chance line, tooltips carry exact values. "
         : "Band = min → max suite accuracy; tick = macro-average; chance differs per suite — compare lanes, not suites. ") +
       `Rows sorted ${M.log ? "fastest" : "best"} average first. ` +
-      `Over ${(d.suites || []).length} published suites — hover a bar for per-suite values.` +
-      (skip.size ? " Instinct and Rethink time only the suites their own arm is registered on — their latency is on the benchmark page's Instinct section." : "");
+      `Over ${total} published suites — hover a bar for per-suite values; the count beside a lane is its plotted suites.` +
+      (M.log ? zeroNote + " Latency plots quotable runs only — timing without a verified run stays on the benchmark page's tables. Instinct and Rethink time only where their own arm ran." : "");
     return `<div class="bc-hgrid"><div></div>${axis(m)}${rows}<div></div>${axis(m)}</div><p class="bc-note">${esc(note)}</p>`;
   }
 
-  function summary(d, el, opts) {
+  function summary(d, el) {
     if (!el || !d || !d.suites) return;
     summaryData = d;
-    summaryOpts = opts || {};
     setPrimaryHost(d.meta && d.meta.host);
     tooltip();
     const btns = Object.entries(METRICS).map(([k, M]) =>
