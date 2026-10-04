@@ -4,6 +4,14 @@ One hash-pinned line per removed issue (the fleet noise-reduction convention:
 an issue file is removed once its work is verifiably landed; this file is the
 durable record). Full narrative of each: `git log --follow -- .issues/<file>`.
 
+- **2026-10-05 — resolved-issue hygiene (Issue 008, closed): the /bench + /resources jargon
+  and seal-wording audit is fully landed — file removed (noise reduction).**
+  T1/T2/T4/T5 at `e97247b` (internal ids stripped from /bench + home; the "Words used on
+  this page" glossary on /bench; the hero "No model weights" reworded for learners;
+  `scripts/public_copy_gate.cjs` — the id-pattern/seal/family-chrome/390px gate) + T3 at
+  `b9416c7` (every rendered seal/sealed → lock/locked, /resources #learn primer glossary).
+  Deployed 2026-10-03. Full narrative: `git log --follow -- .issues/008_bench_and_resources_jargon_glossary_and_seal_wording.md`.
+
 - **2026-10-05 — buyer-trust completion (Issue 007 T4/T6): the comparison table and the worked example — only the owner's T5 remains.**
   **T4** — home `#compare` "Three ways to get a decision": the buyer's version of the Jev
   education, a nine-axis table over Reflex (self-hosted, modelless) · LLM API (general chat
