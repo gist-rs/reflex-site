@@ -156,9 +156,15 @@ function digitFindings(text, label, fail) {
       if (!/"answers"/.test(resp) || !/"probabilities"/.test(resp)) fail("response example lacks answers/probabilities");
     }
     if (!learn.figImg) fail("#learn figure (jev_vs_reflex_flow.svg) missing");
-    if (!/coming/i.test(learn.clefChip || "") || !/Clef/.test(learn.clefText)) fail("Clef note must exist and be marked coming");
-    if (/\d/.test(learn.clefText)) fail(`Clef note must carry no digits until the lane publishes: ${JSON.stringify(learn.clefText.match(/\S*\d\S*/g))}`);
-    if (process.exitCode !== 1) console.log(`ok: #learn primer — first section, ${learn.h3.length} sub-headings, ${learn.terms.length} glossary terms, wire example, figure, Clef note (coming, digit-free)`);
+    // The Clef-flash lane published (Bench 113); the note says so and names
+    // WHICH Clef by size — Cloudflare ships two (2026-10-04 owner ask). The
+    // only digits allowed are those two model-card sizes: a measured number
+    // here would be a second, hand-typed copy of the board.
+    if (!/on the board/i.test(learn.clefChip || "")) fail("Clef note chip must read 'on the board'");
+    if (!/Clef-flash \(9B\)/.test(learn.clefText) || !/Clef \(27B\)/.test(learn.clefText)) fail("Clef note must name both models with their sizes");
+    const clefDigits = learn.clefText.replace(/\((?:27|9)B\)|\b4-bit\b/g, "");
+    if (/\d/.test(clefDigits)) fail(`Clef note must carry no measured digits: ${JSON.stringify(clefDigits.match(/\S*\d\S*/g))}`);
+    if (process.exitCode !== 1) console.log(`ok: #learn primer — first section, ${learn.h3.length} sub-headings, ${learn.terms.length} glossary terms, wire example, figure, Clef note (on the board, sized, no measured digits)`);
   }
 
   // 2c. the figure asset's own visible text obeys the numbers law

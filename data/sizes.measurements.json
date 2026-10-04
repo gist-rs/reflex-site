@@ -163,7 +163,7 @@
   {
    "key": "clef_venv",
    "bytes": 584762455,
-   "what": "the clef lane venv (python 3.12: mlx 0.32.3 + mlx-lm 0.32.0 + mlx-vlm 0.7.4 \u2014 the community MLX port's tested pins, riir-reflex Bench 113)",
+   "what": "the clef-flash (9B) lane venv (python 3.12: mlx 0.32.3 + mlx-lm 0.32.0 + mlx-vlm 0.7.4 \u2014 the community MLX port's tested pins, riir-reflex Bench 113)",
    "host": "m3-max-metal",
    "date_utc": "2026-10-04",
    "how": "uv venv --python 3.12 /tmp/clef-env + `uv pip install mlx==0.32.3 mlx-lm==0.32.0 mlx-vlm==0.7.4` (Bench 113's recorded pins; the bench-time env was an ephemeral uv run, so this rebuilds it from the pins); sum of file sizes (584,274,775 over 10,506 files) + dir entries (487,680), the lstat convention of the sibling venv rows."

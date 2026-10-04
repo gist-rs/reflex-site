@@ -162,7 +162,10 @@ if (!/aria-label="bekko 400M averaged: /.test(p50Html) || p50Html.includes(">bek
   console.error("FAIL[p50-family]: bekko must plot a real bar, sized-labeled");
   process.exit(1);
 }
-if (!/aria-label="clef averaged: /.test(p50Html)) {
+// the clef label names the FAMILY + size off the cell model id
+// (bench-charts.js MODEL_FAMILIES; clef-flash-4bit → "clef-flash (9B)") —
+// Cloudflare ships two Clef models, so the bare "clef" must not render
+if (!/aria-label="clef-flash \(9B\) averaged: /.test(p50Html) || /aria-label="clef averaged: /.test(p50Html)) {
   console.error("FAIL[p50-family]: clef must plot a real p50 bar (bench 118's quotable cells — the presence row retires)");
   process.exit(1);
 }

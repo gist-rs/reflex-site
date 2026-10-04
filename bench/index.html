@@ -267,7 +267,7 @@
     <div id="bench-areas" aria-live="polite"></div>
 
     <h2 id="crosswalk"><a class="hlink" href="#crosswalk">The JDI crosswalk</a></h2>
-    <p>Where Cloudflare's Clef lands against our lanes on the same splits — every measured row digest-pinned to one population; the JDI board's own rows quoted as reference only.</p>
+    <p>Where Cloudflare's Clef-flash (9B) lands against our lanes on the same splits — every measured row digest-pinned to one population; the JDI board's own rows quoted as reference only.</p>
     <div id="bench-crosswalk" aria-live="polite"></div>
 
     <h2 id="frontier"><a class="hlink" href="#frontier">Efficiency frontier</a></h2>
@@ -358,10 +358,10 @@
         per question shape from our committed spec, answered over their hosted REST — or through their local llama.cpp runtime as the
         <code>paw (local)</code> posture — a comparison lane, never a product lane (free-text answers under the exact-match law, so it
         carries no confidence columns).
-        <strong>clef (local)</strong> — Cloudflare's Clef decision model (not affiliated), measured as their open weights rather than their
-        hosted API: the community 4-bit quant of their 9B (<code>mlx-community/clef-flash-4bit</code>) served on our box behind a loopback
-        shim — a comparison lane, never a product lane. Accuracy publishes only for now (the local run's box state was not quotable; a
-        quiet-box re-read lands latency, and the hosted 27B posture is a future owner-gated cell).</p>
+        <strong>clef-flash (9B) · local</strong> — Cloudflare ships two Clef decision models (not affiliated): Clef (27B) and Clef-flash (9B).
+        This lane is <b>Clef-flash (9B)</b>, measured as their open weights rather than their hosted API: the community 4-bit quant
+        (<code>mlx-community/clef-flash-4bit</code>) served on our box behind a loopback shim — a comparison lane, never a product lane.
+        Clef (27B) is not on the board: its hosted posture is a future owner-gated cell.</p>
       </details>
       <details class="faq">
         <summary>Tell me more about the clm lane</summary>
@@ -552,9 +552,9 @@
       <li>paw reference: <a href="https://programasweights.com">ProgramAsWeights</a> (MIT) ·
         Python SDK <a href="https://github.com/programasweights/programasweights-python">programasweights-python</a> ·
         <a href="https://programasweights.readthedocs.io">docs</a></li>
-      <li>clef reference: Cloudflare's Clef · the local posture runs the community quant
+      <li>clef reference: Cloudflare's Clef-flash (9B) · the local posture runs the community quant
         <a href="https://huggingface.co/mlx-community/clef-flash-4bit">mlx-community/clef-flash-4bit</a>
-        (4-bit, their 9B) — never pooled with the hosted cell</li>
+        (4-bit) — never pooled with a hosted cell; Clef (27B) is not measured here</li>
       <li>Instinct / Rethink — our lanes (Instinct open source; Rethink hosted at
         <a href="https://rethink.gist.rs/">rethink.gist.rs</a>, private source): <strong>Instinct</strong> is the trained-specialist
         hybrid composed over Reflex; <strong>Rethink</strong> is the encoder arm (record-only so far). Described in the
@@ -640,7 +640,9 @@ function laneRow(l, bestAcc, hostTag, s) {
     ? `<td class="ccneg" title="below chance — negative chance-corrected accuracy, shown signed">${fmt(cc)} ▾</td>`
     : `<td title="${cc == null ? "no chance baseline for this suite" : "chance-corrected accuracy"}">${cc == null ? "—" : fmt(cc)}</td>`;
   // "KatGPT" is the lane's DATA id (publish_bench.py); the product name is Reflex.
-  const laneName = l.lane === "KatGPT" ? "Reflex" : String(l.lane).replace(/ \(reference\)$/, "");
+  // sized lanes (bekko / clef) carry their checkpoint size — one helper home
+  const laneBase = String(l.lane).replace(/ \(reference\)$/, "");
+  const laneName = l.lane === "KatGPT" ? "Reflex" : window.BenchCharts && BenchCharts.sizedDisplay ? BenchCharts.sizedDisplay(laneBase) : laneBase;
   tds.push(`<td>${fmt(laneName)} · ${fmt(l.model)}${hostTag ? ` <span class="host">@${hostTag}</span>` : ""}</td>`);
   tds.push(`<td class="${accCell}">${fmt(acc)}</td>`);
   tds.push(ccCell);
@@ -858,7 +860,8 @@ function renderTiming(d) {
   const rows = Object.keys(A.timing).map((key) => {
     const t = A.timing[key];
     const ld = A.lanes[key] || {};
-    const lane = (ld.display || key) + (ld.host ? ` <span class="host">@${esc(ld.host)}</span>` : "");
+    const disp = ld.display || key;
+    const lane = esc(window.BenchCharts && BenchCharts.sizedDisplay ? BenchCharts.sizedDisplay(disp) : disp) + (ld.host ? ` <span class="host">@${esc(ld.host)}</span>` : "");
     const geo = (typeof t.p50_geomean_ms === "number" && isFinite(t.p50_geomean_ms))
       ? (window.BenchCharts ? BenchCharts.lat(t.p50_geomean_ms) : t.p50_geomean_ms + " ms")
       : "— not plotted";

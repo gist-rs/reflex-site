@@ -77,7 +77,7 @@
       structured data) plus a set of <b>typed questions</b>, and returns one typed answer per question with a
       probability for every option — never free text. <b>Jev</b>, by TypeSafe AI, is the best-known example: a
       hosted model you call over the internet. The request shape it uses — the <b>Jev wire</b> — has become
-      a common language: Cloudflare's open <b>Clef</b> models speak it too, and Reflex speaks the same vocabulary.</p>
+      a common language: Cloudflare's open <b>Clef</b> models — Clef (27B) and Clef-flash (9B) — speak it too, and Reflex speaks the same vocabulary.</p>
 
     <div class="gf-callout learn-gloss">
       <dl class="gf-gloss">
@@ -98,7 +98,7 @@
         <dt>autoregressive</dt><dd>Generating an answer one token at a time, each step feeding the next — how
           chatbots write. Slow for decisions, and the text still has to be parsed.</dd>
         <dt>non-autoregressive</dt><dd>Scoring every option in parallel straight from the prefill — no text is
-          generated. This is what decision models like Clef do, per Cloudflare.</dd>
+          generated. This is what decision models like Clef (27B) and Clef-flash (9B) do, per Cloudflare.</dd>
         <dt>calibration</dt><dd>Whether stated confidence matches reality: of all answers given “eight in ten”
           confidence, about eight in ten should be right.</dd>
         <dt>ECE</dt><dd>Expected calibration error — the average gap between confidence and accuracy, measured in
@@ -159,7 +159,7 @@
       if it is careful, the confidence.</p>
 
     <h3>One request, one response</h3>
-    <p class="sub">A security-incident triage, in the Jev wire shape Cloudflare documents for Clef. Three
+    <p class="sub">A security-incident triage, in the Jev wire shape Cloudflare documents for Clef (27B) and Clef-flash (9B). Three
       questions, one of each type.</p>
     <div class="wire">
       <figure class="gf-fig wire-pane">
@@ -246,12 +246,12 @@
     </div>
 
     <div class="gf-callout clef-note" id="clef">
-      <p><span class="gf-chip warn">coming</span> <b>Clef is coming to the board.</b> Cloudflare's
-        <a href="https://blog.cloudflare.com/clef-decision-models/">Clef and Clef-flash</a> are open decision
-        models that speak the Jev wire. We are adding a Clef comparison lane to <a href="/bench/">the benchmark</a>,
-        measured by the same harness as every other lane. No numbers here until that lane publishes — the
+      <p><span class="gf-chip ok">on the board</span> <b>Clef-flash (9B) is on the board.</b> Cloudflare's
+        <a href="https://blog.cloudflare.com/clef-decision-models/">Clef (27B) and Clef-flash (9B)</a> are open decision
+        models that speak the Jev wire. <a href="/bench/">The benchmark</a> carries a Clef-flash (9B) comparison lane —
+        the community 4-bit quant, run locally by the same harness as every other lane. Clef (27B) is not measured yet; the
         <a href="https://huggingface.co/spaces/multimodalart/jev-decision-index">Jev Decision Index</a> is the
-        community board in the meantime.</p>
+        community board for it in the meantime.</p>
     </div>
 
     <h3>Try it</h3>

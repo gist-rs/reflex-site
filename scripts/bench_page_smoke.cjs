@@ -118,7 +118,9 @@ const server = http.createServer((req, res) => {
   //     data-derived law — the cells are acc-only (latency stripped under
   //     the Issue-021 wall until the quiet-box re-read), so a zero here is
   //     the invisible-lane class again, never an honest absence.
-  const clefRows = await page.$$eval("#tables tr", (trs) => trs.filter((t) => { const c = t.querySelector("td"); return c && /^clef \(local\)/.test(c.textContent); }).length);
+  // the row names WHICH Clef + its size (bench-charts MODEL_FAMILIES off
+  // the cell model id): "clef-flash (9B) · local · clef-flash-4bit"
+  const clefRows = await page.$$eval("#tables tr", (trs) => trs.filter((t) => { const c = t.querySelector("td"); return c && /^clef-flash \(9B\) · local · /.test(c.textContent); }).length);
   const expectedClef = expectedLaneRows("clef");
   if (clefRows !== expectedClef || expectedClef < 1) fail(`clef rows ${clefRows} != data ${expectedClef}`);
   else console.log(`ok: ${clefRows} clef table rows (data-derived)`);

@@ -78,7 +78,7 @@
     // the lane's own cell `model` ids at data load (applyLaneSizes below) —
     // "bekko" alone read as any-size (2026-10-03 user ask); the data's
     // bekko-system-one-v0-400m carries the answer, so the site never types it.
-    { key: "bekko", label: "bekko", color: "#e57373", sizeFromModel: true, match: (l) => l.lane === "bekko (reference)" },
+    { key: "bekko", label: "bekko", color: "#e57373", sizeFrom: "token", match: (l) => l.lane === "bekko (reference)" },
     // The PAW comparison lanes (reflex .issues/033): ProgramAsWeights — the
     // hosted and local postures share ONE palette slot and ONE filter chip
     // (same lane, two serving postures); the table row label carries the
@@ -90,14 +90,17 @@
     // Warm-taupe slot — the free family between bekko's rose and the neutral
     // grays; same disclosure as bekko (not ΔE-validated with the founding
     // slots' rigor; the next palette pass re-checks all-pairs).
-    { key: "clef", label: "clef", color: "#a1887f", match: (l) => l.lane === "clef (local)" },
+    // sizeFrom "family": Cloudflare ships TWO Clef models and the lane name
+    // says neither — the label names the family AND its size off the cell's
+    // model id (MODEL_FAMILIES below; 2026-10-04 owner ask).
+    { key: "clef", label: "clef", color: "#a1887f", sizeFrom: "family", match: (l) => l.lane === "clef (local)" },
   ];
   const OTHER = { key: "other", label: "other", color: "#69718a" };
   const laneOf = (l) => LANES.find((x) => x.match(l)) || OTHER;
   // display form of the data's lane name — the "(reference)" qualifier
   // stays in the data (it drives laneOf matching) but never renders
   // "KatGPT" is the modelless lane's DATA id (publish_bench.py); display it as the product.
-  const shortLane = (l) => (l.lane === "KatGPT" ? "Reflex" : String(l.lane).replace(/ \(reference\)$/, ""));
+  const shortLane = (l) => (l.lane === "KatGPT" ? "Reflex" : sizedDisplay(String(l.lane).replace(/ \(reference\)$/, "")));
 
   // The palette's one home, exposed for the sibling renderers that draw
   // lane-colored marks outside the charts (instinct.js's per-suite verdict
@@ -115,7 +118,7 @@
       // silently drop those marks to the OTHER gray.
       const hit = LANES.find((x) => x.key === "katgpt" ? (s === "Reflex" || s === "KatGPT")
         : x.key === "paw" ? s.startsWith("paw")
-        : x.key === "bekko" ? s.startsWith("bekko")
+        : x.sizeFrom ? (s.startsWith(x.base || x.label) || s === x.label || x.match({ lane: s }))
         : s === x.label);
       return (hit || OTHER).color;
     },
@@ -357,7 +360,20 @@
   // run (digit(s) + m, not followed by an identifier character), rendered
   // "400M"; a future seat move re-derives on the next publish.
   const SIZE_TOKEN_RE = /(\d+(?:\.\d+)?)m(?![a-z0-9])/i;
-  let laneSize = null;
+  // A family whose checkpoint ids carry NO size token ("clef-flash-4bit")
+  // resolves through this model-card table: id prefix → family name +
+  // parameter count, read off the Hugging Face safetensors totals
+  // (Cloudflare/clef-flash 9,409,813,744 — a Qwen3.5-9B finetune;
+  // Cloudflare/clef 27,356,728,560 — a Qwen3.8-27B finetune; read
+  // 2026-10-04). The FLASH row must precede the bare one. An id matching no
+  // row keeps the bare lane label — never a guess. (riir-rethink's
+  // build_why_data.py carries the same two rows for the storefront.)
+  const MODEL_FAMILIES = [
+    { re: /(?:^|\/)clef-flash(?!\w)/i, name: "clef-flash", size: "9B" },
+    { re: /(?:^|\/)clef(?!-flash)(?!\w)/i, name: "clef", size: "27B" },
+  ];
+  // lane key → its sized label for this data load (absent = bare label)
+  const laneSized = new Map();
   function laneCells(d, lane) {
     const out = [];
     for (const s of d.suites || [])
@@ -365,26 +381,43 @@
         if (laneOf(l) === lane) out.push(l);
     return out;
   }
+  function sizedLabelOf(lane, model) {
+    const m = String(model || "");
+    if (lane.sizeFrom === "token") {
+      const t = SIZE_TOKEN_RE.exec(m);
+      return t ? `${lane.base} ${t[1]}M` : null;
+    }
+    if (lane.sizeFrom === "family") {
+      const f = MODEL_FAMILIES.find((x) => x.re.test(m));
+      return f ? `${f.name} (${f.size})` : null;
+    }
+    return null;
+  }
   function applyLaneSizes(d) {
-    laneSize = null;
+    laneSized.clear();
     for (const lane of LANES) {
-      if (!lane.sizeFromModel) continue;
-      const toks = new Set();
-      for (const l of laneCells(d, lane)) {
-        const m = SIZE_TOKEN_RE.exec(String(l.model || ""));
-        if (m) toks.add(m[1] + "M");
-      }
-      if (toks.size !== 1) continue;
-      laneSize = [...toks][0];
-      lane.label = lane.label.replace(/\s+\d+(?:\.\d+)?M$/i, "") + " " + laneSize;
+      if (!lane.sizeFrom) continue;
+      lane.base = lane.base || lane.label;
+      lane.label = lane.base; // idempotent: re-derived from the data each load
+      const labels = new Set(laneCells(d, lane).map((l) => sizedLabelOf(lane, l.model)));
+      if (labels.size !== 1 || labels.has(null)) continue; // disagree / unknown → bare
+      lane.label = [...labels][0];
+      laneSized.set(lane.key, lane.label);
     }
   }
+  // DATA-side display forms ("bekko", "clef (local)") → the sized label; a
+  // serving posture in the data form survives as a suffix ("· local").
   function sizedDisplay(form) {
     const s = String(form);
-    if (!laneSize) return s;
-    for (const lane of LANES)
-      if (lane.sizeFromModel && lane.label.startsWith(s + " "))
-        return s.includes(laneSize) ? s : s + " " + laneSize;
+    for (const lane of LANES) {
+      const sized = laneSized.get(lane.key);
+      if (!sized) continue;
+      if (s === sized || s.startsWith(sized + " ")) return s;
+      if (s === lane.base || lane.match({ lane: s })) {
+        const q = / \((local|hosted)\)$/.exec(s);
+        return q ? `${sized} · ${q[1]}` : sized;
+      }
+    }
     return s;
   }
 
@@ -1453,7 +1486,7 @@
       }
       const cx = px(p.x), cy = py(p.y);
       const host = p.ld.host ? " · @" + p.ld.host : "";
-      const tip = `<b>${esc((p.ld.display || meta.label) + host)}</b><br>` +
+      const tip = `<b>${esc(sizedDisplay(p.ld.display || meta.label) + host)}</b><br>` +
         `cc index <b>${pct(p.y)}</b> · p50 geo <b>${lat(p.x)}</b> (${p.t.n_used} quotable of ${p.t.suites})<br>` +
         `<span class="bc-mut">${esc(p.ld.kind || "")} · ${esc(p.t.clock || "")}</span>` +
         (partial ? `<br><span class="bc-mut">partial coverage — ${p.ld.coverage.suites}/${p.ld.coverage.of}${missing.length ? " (missing: " + esc(missing.join(", ")) + ")" : ""}</span>` : "") +
@@ -1466,9 +1499,9 @@
       // so every dot carries its lane label; near the right edge the
       // label flips to the dot's left instead of overflowing the viewBox
       const lright = cx > W - 96;
-      out += `<text class="ft-label" x="${(lright ? cx - 9 : cx + 9).toFixed(1)}" y="${(cy + 3).toFixed(1)}" text-anchor="${lright ? "end" : "start"}" style="fill:${meta.color}">${esc(p.ld.display || meta.label)}</text>`;
+      out += `<text class="ft-label" x="${(lright ? cx - 9 : cx + 9).toFixed(1)}" y="${(cy + 3).toFixed(1)}" text-anchor="${lright ? "end" : "start"}" style="fill:${meta.color}">${esc(sizedDisplay(p.ld.display || meta.label))}</text>`;
       out += `<circle class="rd-dot${partial ? " ft-partial" : ""}${tpartial ? " ft-tpartial" : ""}" cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="4.6" style="fill:${meta.color};fill-opacity:${partial ? 0.25 : 1};stroke:${meta.color};stroke-width:${tpartial ? 1.6 : 1};stroke-dasharray:${tpartial ? "2.5 2" : "none"}"` +
-        ` data-tip="${esc(tip)}" tabindex="0" aria-label="${esc(`${p.ld.display || meta.label} index ${pct(p.y)} p50 ${lat(p.x)} timing ${p.t.n_used}/${p.t.suites}${on ? " on the frontier" : ""}${partial ? " partial" : ""}`)}"/>`;
+        ` data-tip="${esc(tip)}" tabindex="0" aria-label="${esc(`${sizedDisplay(p.ld.display || meta.label)} index ${pct(p.y)} p50 ${lat(p.x)} timing ${p.t.n_used}/${p.t.suites}${on ? " on the frontier" : ""}${partial ? " partial" : ""}`)}"/>`;
     }
     out += `</svg>`;
     const missNote = missing.length
@@ -1525,7 +1558,7 @@
       ? lat(t.p50_geomean_ms)
       : `not plotted (${t.n_unjudged || 0} unjudged / ${t.n_unquotable || 0} unfit of ${t.suites || 0} cells)`;
     el.innerHTML = `<div class="lane-profile" style="border-left:4px solid ${meta.color};padding-left:12px">` +
-      `<h3>${esc(ld.display || meta.label)}${host} <span class="bc-mut">· ${esc(ld.kind || "")}</span></h3>` +
+      `<h3>${esc(sizedDisplay(ld.display || meta.label))}${host} <span class="bc-mut">· ${esc(ld.kind || "")}</span></h3>` +
       `<p class="bc-note">cc index <b>${num(ld.index) ? pct(ld.index) : "—"}</b> · coverage ${ld.coverage.suites}/${ld.coverage.of}${ld.complete ? " (complete)" : " (partial — pending suites stay pending, never zero)"} · clock ${esc(t.clock || "?")} — ${esc(t.method || "")} · p50 geo ${geoTxt}</p>` +
       `<div class="scroll"><table class="bench"><thead><tr><th>suite</th><th>acc</th><th>cc</th><th>p50</th><th>timing</th><th>det</th><th>source run</th></tr></thead><tbody>${rows}</tbody></table></div>` +
       `<p class="bc-note"><a href="/bench/">← full board</a> — this view is read-only and does not touch your saved lane filter.</p>` +
@@ -1644,7 +1677,7 @@
       const pal = laneOf({ lane: r.display, model: r.model });
       const tag = r.record_only ? ` <b class="bc-fb" title="record-only — serve refused">rec</b>` : "";
       return `<tr>` +
-        `<td><i class="bc-sw" style="background:${pal.color}"></i>${esc(r.display)}${tag}</td>` +
+        `<td><i class="bc-sw" style="background:${pal.color}"></i>${esc(sizedDisplay(r.display))}${tag}</td>` +
         `<td class="bc-mut">${esc(r.model || "")}</td>` +
         `<td>${esc(fmt(r.n))}</td>` +
         `<td><b>${esc(fmt(r.accuracy, true))}</b></td>` +
@@ -1672,23 +1705,27 @@
     const tldrLines = X.suites.map((s) => {
       const clef = s.rows.find((r) => String(r.display).startsWith("clef"));
       if (!clef || !num(clef.accuracy)) return null;
+      // the family + size, off the row's own model id (MODEL_FAMILIES) —
+      // "Clef" alone never says which of Cloudflare's two models ran
+      const fam = MODEL_FAMILIES.find((x) => x.re.test(String(clef.model || "")));
+      const clefName = fam ? `${fam.name[0].toUpperCase()}${fam.name.slice(1)} (${fam.size})` : "Clef";
       const others = s.rows.filter((r) => r !== clef && num(r.accuracy));
       const best = others.length ? others.reduce((a, b) => (b.accuracy > a.accuracy ? b : a)) : null;
       const clefCell = (d.suites || []).find((x) => x.name === s.name);
       const p50 = clefCell && clefCell.clef && clefCell.clef.latency_p50_ms != null
         ? ` at ${lat(clefCell.clef.latency_p50_ms)} p50 (${esc(clef.model || "local")})` : "";
       if (!best || clef.accuracy > best.accuracy) {
-        return `<b>${esc(s.name)}</b> — Clef <b class="num">${f4(clef.accuracy)}</b> acc / <b class="num">${f4(clef.jdi_skill)}</b> skill${p50} leads every measured lane` +
+        return `<b>${esc(s.name)}</b> — ${esc(clefName)} <b class="num">${f4(clef.accuracy)}</b> acc / <b class="num">${f4(clef.jdi_skill)}</b> skill${p50} leads every measured lane` +
           (best ? ` (best other: ${esc(best.display)} ${f4(best.accuracy)})` : "");
       }
       // A tie is a tie — never "leads" (code_fixties-class rows: clef /
       // openthai / bekko all read 0.5938). The skill axes disclose the tie's
       // shape without inventing a winner.
       if (clef.accuracy === best.accuracy) {
-        return `<b>${esc(s.name)}</b> — Clef <b class="num">${f4(clef.accuracy)}</b> acc / <b class="num">${f4(clef.jdi_skill)}</b> skill ties ${esc(best.display)} ${f4(best.accuracy)} / ${f4(best.jdi_skill)}${p50}`;
+        return `<b>${esc(s.name)}</b> — ${esc(clefName)} <b class="num">${f4(clef.accuracy)}</b> acc / <b class="num">${f4(clef.jdi_skill)}</b> skill ties ${esc(best.display)} ${f4(best.accuracy)} / ${f4(best.jdi_skill)}${p50}`;
       }
       const rec = best.record_only ? ` <b class="bc-fb" title="record-only — serve refused">rec</b>` : "";
-      return `<b>${esc(s.name)}</b> — ${esc(best.display)}${rec} leads at <b class="num">${f4(best.accuracy)}</b> acc / <b class="num">${f4(best.jdi_skill)}</b> skill over Clef <b class="num">${f4(clef.accuracy)}</b> / <b class="num">${f4(clef.jdi_skill)}</b>${p50}`;
+      return `<b>${esc(s.name)}</b> — ${esc(best.display)}${rec} leads at <b class="num">${f4(best.accuracy)}</b> acc / <b class="num">${f4(best.jdi_skill)}</b> skill over ${esc(clefName)} <b class="num">${f4(clef.accuracy)}</b> / <b class="num">${f4(clef.jdi_skill)}</b>${p50}`;
     }).filter(Boolean);
     el.innerHTML =
       `<p class="bc-note"><b>Read the caveat before any number:</b> ${esc(X.caveat || "")}</p>` +
@@ -1705,11 +1742,15 @@
       (blog.rows && blog.rows.length
         ? `<h3 class="suite">Clef's blog — BANKING77 macro-F1 <span class="cases">— their run, reference only</span></h3>` +
           `<div class="scroll"><table class="bench"><thead><tr><th>model</th><th>macro F1 %</th><th>median ms</th></tr></thead><tbody>` +
-          blog.rows.map((r) => `<tr><td>${esc(r.model)}</td><td>${esc(fmt(r.macro_f1_pct))}</td><td>${esc(fmt(r.median_ms))}</td></tr>`).join("") +
+          // the blog table lists BOTH Clef models — each row names its size
+          blog.rows.map((r) => {
+            const fam = MODEL_FAMILIES.find((x) => x.re.test(String(r.model || "")) && x.name.toLowerCase() === String(r.model).toLowerCase());
+            return `<tr><td>${esc(fam ? `${r.model} (${fam.size})` : r.model)}</td><td>${esc(fmt(r.macro_f1_pct))}</td><td>${esc(fmt(r.median_ms))}</td></tr>`;
+          }).join("") +
           `</tbody></table></div><p class="cases">${esc(blog.note || "")}</p>`
         : "");
   }
 
-  window.BenchCharts = { hero, suite, setLogDomain, summary, areas, frontier, profile, s1mb, crosswalk, suiteSortControl, setSuiteSort, setPrimaryHost, lat, accOf, ccOf };
+  window.BenchCharts = { hero, suite, setLogDomain, summary, areas, frontier, profile, s1mb, crosswalk, suiteSortControl, setSuiteSort, setPrimaryHost, lat, accOf, ccOf, sizedDisplay };
   window.BenchRig.scoped = scopedPairs;
 })();

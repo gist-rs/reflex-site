@@ -31,22 +31,22 @@
  },
  {
   "date": "2026-10-04",
-  "change": "Clef comparison lane joins the board (edition 2026-10-2: clef (local) — community 4-bit 9B, m3 loopback; banking77 + typed_decisions acc-only)",
-  "why": "the Clef-vs-Rethink crosswalk starts with the local-posture cells published on the JDI axes (macro F1 + chance-corrected skill); latency stays acc-only until the quiet-box re-read, the hosted 27B cell is owner-gated"
+  "change": "Clef-flash (9B) comparison lane joins the board (edition 2026-10-2: clef-flash (9B), local — community 4-bit quant, m3 loopback; banking77 + typed_decisions acc-only)",
+  "why": "the Clef-flash (9B)-vs-Rethink crosswalk starts with the local-posture cells published on the JDI axes (macro F1 + chance-corrected skill); latency stays acc-only until the quiet-box re-read, the hosted Clef (27B) cell is owner-gated"
  },
  {
   "date": "2026-10-04",
-  "change": "The JDI crosswalk section ships on /bench/ (plan-011 C3): the side-by-side on the clef-carrying suites, every measured row digest-pinned to one population",
+  "change": "The JDI crosswalk section ships on /bench/ (plan-011 C3): the side-by-side on the clef-flash (9B)-carrying suites, every measured row digest-pinned to one population",
   "why": "the Rethink hybrid + encoder cells joined the pin (axes + cases_digest from the C2 gold join); the JDI board's own rows + Clef's blog table render as reference only under the B5 caveat, verbatim; mismatched or unpinnable lanes are excluded with the reason shown, never silently mixed"
  },
  {
   "date": "2026-10-04",
-  "change": "clef's timing graduates to quotable (the quiet-box re-read): banking77 p50 3368 ms · typed 1690 ms — the acc-only posture retires; the p50 presence row retires with it",
+  "change": "clef-flash (9B)'s timing graduates to quotable (the quiet-box re-read): banking77 p50 3368 ms · typed 1690 ms — the acc-only posture retires; the p50 presence row retires with it",
   "why": "both re-reads on a preflight-clean box (load 2.57→1.07 / 1.22→2.80, AC, High Power) with accuracy, ECE, macro-F1 and the population digests reproducing the lane's first reading exactly — the determinism witnesses; the loaded-box figures were 14-29% inflated exactly as the Issue-021 law predicts"
  },
  {
   "date": "2026-10-04",
-  "change": "clef completes its 9-suite index (the dataset-suite tail, local 4-bit rig): 7 new cells, all timing-quotable — p50 geomean 680 ms across the lane",
-  "why": "clef leads sst5 (0.6033), massive_intent (0.9333) and banking77 (0.9540); bekko leads ag_news at 0.9150, openthai leads xnli_en at 0.8967, Instinct leads emotion and prompt_injections; code_fixtures is a three-way tie at 0.5938 — the crosswalk's verdict lines now say 'ties' where nobody leads, never a false leader"
+  "change": "clef-flash (9B) completes its 9-suite index (the dataset-suite tail, local 4-bit rig): 7 new cells, all timing-quotable — p50 geomean 680 ms across the lane",
+  "why": "clef-flash (9B) leads sst5 (0.6033), massive_intent (0.9333) and banking77 (0.9540); bekko leads ag_news at 0.9150, openthai leads xnli_en at 0.8967, Instinct leads emotion and prompt_injections; code_fixtures is a three-way tie at 0.5938 — the crosswalk's verdict lines now say 'ties' where nobody leads, never a false leader"
  }
 ]
