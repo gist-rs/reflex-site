@@ -123,11 +123,11 @@ const server = http.createServer((req, res) => {
       detailHidden: document.querySelector("#size-report .sz-detail").hidden,
       expanded: document.querySelector("#size-report .sz-stack").getAttribute("aria-expanded"),
       open: document.querySelector("#size-report .sz-row").classList.contains("sz-open"),
-      bullets: document.querySelectorAll("#size-report .sz-detail ul.sz-tip li").length,
+      bullets: document.querySelectorAll("#size-report .sz-detail .sz-bd-row").length,
     }));
     if (after.detailHidden || after.expanded !== "true" || !after.open) fail(`size bar click did not expand the detail (${JSON.stringify(after)})`);
-    if (after.bullets < 1) fail("expanded detail carries no stack bullets");
-    else console.log(`ok: tapping a size bar expands its detail (${after.bullets} stack bullets)`);
+    if (after.bullets < 1) fail("expanded detail carries no stack rows");
+    else console.log(`ok: tapping a size bar expands its detail (${after.bullets} stack rows)`);
     await page.click("#size-report .sz-stack"); // collapses again
     const stackRows = await page.evaluate(() => {
       const stacks = [...document.querySelectorAll("#size-report")].length;

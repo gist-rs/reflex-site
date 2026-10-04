@@ -2,8 +2,8 @@
 """Render the gist.rs flow figures from their doc sources (two-mirror law).
 
 ONE renderer for every flow figure (riir-ai Plan 620; the spec is the family
-design guide §8, riir-ai `.docs/13_web_family/design_guide.md`). Two block
-kinds, one source table:
+design guide §8, riir-ai `.docs/13_web_family/design_guide.md`). One block
+kind, one source table:
 
   ```gfflow    the family format (§8.3): TOML describing lanes, numbered
                steps, edges and an optional step-through walk. Rendered
@@ -15,17 +15,16 @@ kinds, one source table:
                The numbering rule (§8.2), the status vocabulary, the lane
                colours and every walk in/out file are VALIDATED — a flow that
                breaks them is refused, never drawn.
-  ```mermaid   the legacy path, rendered through mermaid.ink (network). It
-               stays only until the last block migrates (Plan 620 P3), then
-               it is deleted together with the render_tetris_flows.py shim.
-               Each block carries two header comments:
-                   %% file: <name>.svg      the output name in the DOC directory
-                   %% aria: <one sentence>  the SVG's aria-label
+
+               (The ```mermaid legacy path — mermaid.ink over the network —
+               was deleted at Plan 620 P3 when the last block migrated; the
+               un-headered mermaid prose blocks left in three docs are
+               inert annotated sources the renderer never reads.)
 
 SOURCES OF TRUTH (one doc per owning repo; the SOURCES table below):
   katgpt-rs `.docs/06_game_arenas/tetris_lane_flows.md` (the Tetris lanes),
-  riir-reflex `.docs/03_decision_flow/decision_flow.md` (the hero figure —
-  only its headered block renders) and `.docs/05_resources/dev_flow.md`,
+  riir-reflex `.docs/03_decision_flow/decision_flow.md` (the hero figure) and
+  `.docs/05_resources/dev_flow.md`,
   riir-instinct `.docs/03_decision_flow/instinct_flow.md` and
   `.docs/05_resources/dev_flow.md`, riir-rethink
   `.docs/03_decision_flow/rethink_flow.md`, `.docs/05_resources/dev_flow.md`
@@ -67,9 +66,8 @@ Modes:
     (default)   render + write both mirrors (+ walk JSON + page fallbacks).
     --check     no network: run the self-test, then exit 1 if any gfflow block
                 fails validation or its committed outputs differ from a fresh
-                render, if any page fallback is stale, if an embed's
-                width/height disagree with the SVG, or if any mermaid block's
-                two mirrors differ or are missing. Never a silent green: a
+                render, if any page fallback is stale, or if an embed's
+                width/height disagree with the SVG. Never a silent green: a
                 source with zero blocks is a finding.
     --self-test the arms over the gfflow validator + renderer (numbering
                 accept/refuse, vocabulary, missing payload, 3-line body,
@@ -88,17 +86,13 @@ else ../riir-rethink, all beside this repo.
 """
 
 import argparse
-import base64
 import html
 import json
 import os
 import re
 import sys
 import tempfile
-import time
 import tomllib
-import urllib.request
-import zlib
 from pathlib import Path
 from typing import Callable, NamedTuple
 
@@ -156,34 +150,32 @@ def rethink_site() -> Path:
 
 
 class Source(NamedTuple):
-    """One owning doc. `palette` applies to its mermaid blocks only ("family:
-    <hex>" = the family ink palette with that accent on node borders; the
-    retired brown theme is refused). `headered_only` renders only the mermaid
-    blocks carrying %% file:/%% aria: headers. `site` is the site root whose
-    `assets/` receives the site mirror."""
+    """One owning doc (every flow figure is a ```gfflow block — Plan 620 P3
+    deleted the mermaid path). `rename` maps a doc-local output name onto a
+    different site name (the three sibling dev flows all author `file =
+    "dev_flow.svg"` but serve as <product>_dev_flow.svg). `site` is the site
+    root whose `assets/` receives the site mirror."""
 
     root: Callable[[], Path]
     rel: str
     rename: dict
-    palette: str | None = None
-    headered_only: bool = False
     site: Callable[[], Path] = reflex_site
 
 
 SOURCES = (
-    Source(katgpt_root, ".docs/06_game_arenas/tetris_lane_flows.md", {}, "family:#ff8a3d"),
-    Source(reflex_root, ".docs/03_decision_flow/decision_flow.md", {}, "family:#ff8a3d", True),
-    Source(instinct_root, ".docs/03_decision_flow/instinct_flow.md", {}, "family:#f472b6"),
-    Source(reflex_root, ".docs/05_resources/dev_flow.md", {"dev_flow.svg": "reflex_dev_flow.svg"}, "family:#ff8a3d"),
-    Source(instinct_root, ".docs/05_resources/dev_flow.md", {"dev_flow.svg": "instinct_dev_flow.svg"}, "family:#f472b6"),
-    Source(rethink_root, ".docs/03_decision_flow/rethink_flow.md", {}, "family:#a98bfa"),
-    Source(rethink_root, ".docs/05_resources/dev_flow.md", {"dev_flow.svg": "rethink_dev_flow.svg"}, "family:#a98bfa"),
+    Source(katgpt_root, ".docs/06_game_arenas/tetris_lane_flows.md", {}),
+    Source(reflex_root, ".docs/03_decision_flow/decision_flow.md", {}),
+    Source(instinct_root, ".docs/03_decision_flow/instinct_flow.md", {}),
+    Source(reflex_root, ".docs/05_resources/dev_flow.md", {"dev_flow.svg": "reflex_dev_flow.svg"}),
+    Source(instinct_root, ".docs/05_resources/dev_flow.md", {"dev_flow.svg": "instinct_dev_flow.svg"}),
+    Source(rethink_root, ".docs/03_decision_flow/rethink_flow.md", {}),
+    Source(rethink_root, ".docs/05_resources/dev_flow.md", {"dev_flow.svg": "rethink_dev_flow.svg"}),
     # the model-classes education figures (the /resources #development deep dive)
     Source(rethink_root, ".docs/05_resources/model_classes.md", {}, site=reflex_site),
     # the first gfflow block (Plan 620 P1.3): its site is the rethink storefront
     Source(rethink_root, ".docs/06_trust_flow/trust_flow.md", {}, site=rethink_site),
     # the Reflex ↔ Reflexer relation figure (riir-reflexer Plan 004; F16 in 620's table)
-    Source(reflexer_root, ".docs/06_resources/resources.md", {}, "family:#ff8a3d"),
+    Source(reflexer_root, ".docs/06_resources/resources.md", {}),
     # the rethink rung flow serves on BOTH fronts: reflex /resources#rethink
     # (the entry above) and the rethink storefront's #how (this second pair
     # of mirrors — same bytes, second site)
@@ -192,11 +184,11 @@ SOURCES = (
     # front is a no-JS worker — the mirrors land in kat-service/src/assets
     # and are include_str!'d (both SVGs: the swimlane + the 390 px card list,
     # swapped by a CSS media query — <picture> needs URLs the worker lacks)
-    Source(refine_root, ".docs/10_self_evolve/self_evolve_flow.md", {}, headered_only=True, site=kat_service_src),
+    Source(refine_root, ".docs/10_self_evolve/self_evolve_flow.md", {}, site=kat_service_src),
     # the four Get-started role loops + the KAT economy figure (the trust
     # section's companion) — same no-JS worker posture as the hero: both
     # shapes mirrored into kat-service/src/assets, include_str!'d, CSS swap
-    Source(refine_root, ".docs/01_orientation/role_flows.md", {}, headered_only=True, site=kat_service_src),
+    Source(refine_root, ".docs/01_orientation/role_flows.md", {}, site=kat_service_src),
     # the Jev-vs-Reflex comparison (F8): SITE-LOCAL — reflex-site owns the
     # source (it compares an external product with ours; no sibling home)
     Source(reflex_site, "docs/flows/jev_vs_reflex_flow.md", {}),
@@ -1182,88 +1174,6 @@ def gfflow_blocks(md: str) -> list:
     return [m.group(1) for m in GFFLOW_RE.finditer(md)]
 
 
-# ── legacy mermaid path (deleted with the last migrated block, Plan 620 P3) ─
-
-FONT_FAMILY = MONO
-# Label size in SVG user units. The arena's figure min-width (assets/arena.css
-# .lanefig) is derived from it so a label never renders below 11 px at 390 px.
-FONT_SIZE_PX = 16
-FLOWCHART = {"htmlLabels": True, "curve": "basis"}
-
-
-def family_theme(accent: str) -> dict:
-    return {
-        "theme": "base",
-        "themeVariables": {
-            "background": "transparent",
-            "primaryColor": TOKENS["surface-2"],
-            "primaryBorderColor": accent,
-            "primaryTextColor": TOKENS["text"],
-            "secondaryColor": TOKENS["surface"],
-            "tertiaryColor": TOKENS["surface"],
-            "lineColor": TOKENS["muted"],
-            "textColor": TOKENS["text"],
-            "clusterBkg": TOKENS["surface"],
-            "clusterBorder": TOKENS["line-2"],
-            "edgeLabelBackground": TOKENS["bg-2"],
-            "fontFamily": FONT_FAMILY,
-            "fontSize": f"{FONT_SIZE_PX}px",
-        },
-        "flowchart": dict(FLOWCHART),
-    }
-
-
-def theme_for(palette: str) -> dict:
-    if palette and palette.startswith("family:"):
-        return family_theme(palette.split(":", 1)[1])
-    raise SystemExit(f"unknown palette {palette!r}")
-
-
-def blocks(md: str, headered_only: bool = False):
-    """Yield (file, aria, code) for every ```mermaid block with a file header."""
-    for m in re.finditer(r"```mermaid\n(.*?)```", md, re.S):
-        code = m.group(1)
-        f = re.search(r"^%% file:\s*(\S+)\s*$", code, re.M)
-        a = re.search(r"^%% aria:\s*(.+?)\s*$", code, re.M)
-        if headered_only and not f and not a:
-            continue
-        if not f or not a:
-            raise SystemExit(f"block without %% file:/%% aria: header:\n{code[:200]}")
-        body = "\n".join(l for l in code.splitlines() if not l.startswith("%%"))
-        yield f.group(1), a.group(1), body
-
-
-def render_mermaid(code: str, theme: dict) -> str:
-    state = json.dumps({"code": code, "mermaid": theme}).encode("utf-8")
-    pako = base64.urlsafe_b64encode(zlib.compress(state, 9)).decode("ascii")
-    url = f"https://mermaid.ink/svg/pako:{pako}?bgColor=!transparent"
-    req = urllib.request.Request(url, headers={"User-Agent": "reflex-site-render/1"})
-    last = None
-    for attempt in range(4):  # mermaid.ink times out intermittently
-        try:
-            with urllib.request.urlopen(req, timeout=60) as r:
-                return r.read().decode("utf-8")
-        except OSError as e:
-            last = e
-            print(f"  … mermaid.ink attempt {attempt + 1} failed ({e}); retrying", file=sys.stderr)
-    raise SystemExit(f"mermaid.ink unreachable after 4 attempts: {last}")
-
-
-def postprocess(svg: str, sid_name: str, aria: str) -> str:
-    sid = sid_name.removesuffix(".svg").replace("_", "-")
-    m = re.search(r'<svg[^>]*\bid="([^"]+)"', svg)
-    if not m:
-        raise SystemExit(f"{sid_name}: rendered SVG has no root id")
-    old = m.group(1)
-    # rename EVERY occurrence: root id, `#id` selector scope, marker ids
-    svg = svg.replace(old, sid)
-    svg = re.sub(r"@import[^;]+;", "", svg)
-    a = aria.replace("&", "&amp;").replace('"', "&quot;")
-    svg = re.sub(r'\s(role|aria-label|aria-labelledby|aria-describedby)="[^"]*"', "", svg, count=0)
-    svg = svg.replace("<svg ", f'<svg role="img" aria-label="{a}" ', 1)
-    return svg
-
-
 # ── self-test ──────────────────────────────────────────────────────────────
 
 _ST_BASE = """
@@ -1445,10 +1355,9 @@ def main() -> int:
         site = src.site()
         assets = site / "assets"
         md = doc.read_text(encoding="utf-8")
-        mer = list(blocks(md, src.headered_only))
         gff = gfflow_blocks(md)
-        if not mer and not gff:
-            print(f"✗ {doc} has zero flow blocks — nothing rendered is not a pass")
+        if not gff:
+            print(f"✗ {doc} has zero gfflow blocks — nothing rendered is not a pass")
             bad += 1
             continue
         if args.check and gff and site not in sites_checked:
@@ -1502,25 +1411,6 @@ def main() -> int:
                 elif stale:
                     for p in stale:
                         print(f"✓ filled the walk fallback in {p.relative_to(site)}")
-        for file, aria, code in mer:
-            site_name = src.rename.get(file, file)
-            a, b = doc.parent / file, assets / site_name
-            if args.check:
-                if not a.exists() or not b.exists():
-                    missing = "doc" if not a.exists() else "site"
-                    print(f"✗ {file} -> assets/{site_name}: missing mirror ({missing})")
-                    bad += 1
-                elif a.read_bytes() != b.read_bytes():
-                    print(f"✗ {file} -> assets/{site_name}: mirrors differ — re-render")
-                    bad += 1
-                else:
-                    print(f"✓ {file} -> assets/{site_name} ({b.stat().st_size} B)")
-                continue
-            svg = postprocess(render_mermaid(code, theme_for(src.palette)), site_name, aria)
-            for dst in (a, b):
-                dst.write_text(svg, encoding="utf-8", newline="\n")
-            print(f"✓ rendered {file} -> assets/{site_name} ({len(svg)} B) → both mirrors")
-            time.sleep(3)  # politeness: mermaid.ink 503s on a back-to-back burst
     if args.only and not picked:
         print(f"✗ --only {args.only!r} matched no source")
         bad += 1
