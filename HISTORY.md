@@ -537,7 +537,7 @@ durable record). Full narrative of each: `git log --follow -- .issues/<file>`.
   T1+T2 landed 2026-09-28 (Bench 076+077 m3 modelless re-measure + the
   `carry_beats_incumbent` suppression); T4 (per-cell `source_run` stamps)
   2026-09-27; T3 (the m3-ane ANE re-measure) 2026-09-30 — reflex
-  [Bench 098](../../riir-reflex/.benchmarks/098_ane_quotable_rerun.md):
+  [Bench 098](../riir-reflex/.benchmarks/098_ane_quotable_rerun.md):
   preflight-passed spans (5.04/4.64), the five published suites exactly,
   accuracy bit-identical at HEAD `2f6b58c`, p50 within 1 ms,
   prompt_injections' 652 ms cold-compile p99 gone. Published via the
