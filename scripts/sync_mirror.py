@@ -30,7 +30,8 @@ records the carve-out):
     layer 2  content scan — run at sync AND --check time over every Rethink
              source; a violation is RED, never a warning: sync REFUSES that
              pair (the committed mirror is left intact) and the run exits 1.
-               md:  code fences whose info string is not `mermaid`; `src/`
+               md:  code fences whose info string is not `mermaid` or
+                    `gfflow` (the family flow source, Plan 620); `src/`
                     path references; manifest filenames (arsenal.toml /
                     deploy.yaml / Cargo.toml); 64-hex digest-shaped strings;
                     digit-heavy measured claims (decimals and unit forms).
@@ -45,8 +46,17 @@ records the carve-out):
              row. This scan does NOT check the banner — a source missing it
              is invisible to this script; the source repo owns that guard.
 
+OUTBOUND pairs (the other direction — this site's bytes copied INTO a
+sibling): the family step-through walker `assets/flow_walk.js` is owned
+here and served by the Rethink storefront too (riir-ai Plan 620 P1.4), so
+`riir-rethink/site/assets/flow_walk.js` is a MIRROR of this repo's file.
+OUTBOUND_PAIRS lists them; sync copies site → sibling, --check reds on drift.
+Public code flowing INTO the private repo crosses no fence; nothing private
+flows out. No manifest row (the manifest records sources mirrored HERE).
+An absent sibling checkout is the same loud per-root SKIP.
+
 instinct_flow.svg / rethink_flow.svg and the three dev_flow.svg figures are
-PRODUCED by scripts/render_tetris_flows.py (which writes both mirrors
+PRODUCED by scripts/render_flows.py (which writes both mirrors
 byte-identically); this script is the drift DETECTOR between renders and
 owns the recorded-source-sha manifest:
 
@@ -114,7 +124,7 @@ MIRROR_SOURCES = (
     ),
     (
         "riir-instinct",
-        "secondary — absent checkout = loud skip (produced figure: render_tetris_flows.py)",
+        "secondary — absent checkout = loud skip (produced figure: render_flows.py)",
         (
             (".docs/03_decision_flow/instinct_flow.svg", "assets/instinct_flow.svg"),
             (".docs/05_resources/resources.md", "docs/instinct/resources.md"),
@@ -132,6 +142,11 @@ MIRROR_SOURCES = (
             (".docs/05_resources/dev_flow.svg", "assets/rethink_dev_flow.svg"),
         ),
     ),
+)
+
+# (this site's file, sibling repo, path in the sibling) — site → sibling copies
+OUTBOUND_PAIRS = (
+    ("assets/flow_walk.js", "riir-rethink", "site/assets/flow_walk.js"),
 )
 
 ALL_PAIRS = tuple(
@@ -197,7 +212,7 @@ def _svg_visible_text(svg: str) -> str:
 
 
 def _md_fence_findings(md: str) -> list:
-    """Code fences whose info string is not `mermaid` (bare fences included)."""
+    """Code fences whose info string is not `mermaid`/`gfflow` (bare fences included)."""
     reasons = []
     in_fence = False
     for i, line in enumerate(md.splitlines(), 1):
@@ -206,7 +221,7 @@ def _md_fence_findings(md: str) -> list:
             if s.startswith("```"):
                 info = s[3:].strip()
                 first = info.split()[0] if info else ""
-                if first != "mermaid":
+                if first not in ("mermaid", "gfflow"):  # gfflow: the family flow source (Plan 620)
                     reasons.append(f"non-mermaid code fence at line {i} ({info or 'bare fence'})")
                 in_fence = True
         elif s.startswith("```"):
@@ -321,7 +336,44 @@ def run_check(site: Path, roots: dict, sources=MIRROR_SOURCES):
         if verdict != "OK":
             findings.append(f"{verdict}: {rel_src} -> {rel_dst}")
     findings += manifest_findings(site, unverifiable, pairs)
+    findings += outbound_findings(site, roots, skipped)
     return findings, skipped
+
+
+def outbound_findings(site: Path, roots: dict, skipped: list, outbound=None) -> list:
+    out = []
+    for rel_src, repo, rel_dst in (OUTBOUND_PAIRS if outbound is None else outbound):
+        root = roots[repo]
+        if not checkout_present(root):
+            if repo not in skipped:
+                skipped.append(repo)
+            continue
+        src, dst = site / rel_src, root / rel_dst
+        if not src.exists():
+            out.append(f"OUTBOUND-MISSING-SOURCE: {rel_src}")
+        elif not dst.exists():
+            out.append(f"OUTBOUND-MISSING-MIRROR: {rel_src} -> {repo}/{rel_dst}")
+        elif src.read_bytes() != dst.read_bytes():
+            out.append(f"OUTBOUND-DRIFT: {rel_src} -> {repo}/{rel_dst}")
+    return out
+
+
+def outbound_sync(site: Path, roots: dict, outbound=None) -> list:
+    lines = []
+    for rel_src, repo, rel_dst in (OUTBOUND_PAIRS if outbound is None else outbound):
+        root = roots[repo]
+        if not checkout_present(root):
+            lines.append(f"SKIP (checkout absent): {repo} - outbound {rel_dst} left as committed")
+            continue
+        src, dst = site / rel_src, root / rel_dst
+        if not src.exists():
+            lines.append(f"REFUSED (outbound source missing): {rel_src}")
+            continue
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        changed = (not dst.exists()) or dst.read_bytes() != src.read_bytes()
+        shutil.copyfile(src, dst)
+        lines.append(f"{'synced (changed)' if changed else 'already identical'}: outbound {rel_src} -> {repo}/{rel_dst}")
+    return lines
 
 
 def manifest_findings(site: Path, unverifiable: set, pairs=ALL_PAIRS) -> list:
@@ -439,6 +491,8 @@ def run_sync(site: Path, roots: dict, sources=MIRROR_SOURCES) -> list:
         state = "synced (changed)" if changed else "already identical"
         lines.append(f"{state}: {rel_dst} ({dst.stat().st_size}B sha256:{_sha(dst)})")
     lines += write_manifest(site, roots, pairs)
+    if sources is MIRROR_SOURCES:
+        lines += outbound_sync(site, roots)
     return lines
 
 
@@ -458,12 +512,22 @@ def selftest() -> int:
         site = td / "site"
         for repo, _, _ in MIRROR_SOURCES:
             seed_root(roots, repo)
+        for rel_src, _repo, _dst in OUTBOUND_PAIRS:
+            (site / rel_src).parent.mkdir(parents=True, exist_ok=True)
+            (site / rel_src).write_bytes(b"// walker")
         # 1) sync populates the mirrors + manifest; check then reads green
         run_sync(site, roots)
         findings, skipped = run_check(site, roots)
         assert findings == [] and skipped == [], (findings, skipped)
         rows = json.loads(manifest_path(site).read_text(encoding="utf-8"))["files"]
         assert len(rows) == len(ALL_PAIRS), rows
+        # 1b) an outbound mirror (site → sibling) that drifts is a finding
+        ob_src, ob_repo, ob_dst = OUTBOUND_PAIRS[0]
+        (roots[ob_repo] / ob_dst).write_bytes(b"// edited in the sibling")
+        findings, _ = run_check(site, roots)
+        assert findings == [f"OUTBOUND-DRIFT: {ob_src} -> {ob_repo}/{ob_dst}"], findings
+        run_sync(site, roots)
+        assert (roots[ob_repo] / ob_dst).read_bytes() == b"// walker"
         # 2) a source edit is DRIFT, not silence
         first_repo, first_src_rel, first_dst_rel = ALL_PAIRS[0]
         (roots[first_repo] / first_src_rel).write_bytes(b"changed")
@@ -608,7 +672,7 @@ def selftest() -> int:
         findings, _ = run_check(site, roots)
         assert findings == [], findings
     print(
-        "self-test PASS (sync/check/drift/missing-source/missing-mirror/"
+        "self-test PASS (sync/check/outbound-drift/drift/missing-source/missing-mirror/"
         "manifest-stale/manifest-unlisted/secondary-skip/rethink-skip/"
         "primary-absent/no-shrink/pair-shape/fence-rust-fence/fence-64-hex/"
         "fence-unit-claim/svg-text-scan/manifest-extra-key)"
@@ -643,7 +707,7 @@ def main() -> int:
             print("fix: python3 scripts/sync_mirror.py  (after editing the .docs source)")
             return 1
         checked = sum(1 for repo, _, _ in ALL_PAIRS if repo not in skipped)
-        print(f"mirrors in sync ({checked}/{len(ALL_PAIRS)} pairs + manifest)")
+        print(f"mirrors in sync ({checked}/{len(ALL_PAIRS)} pairs + {len(OUTBOUND_PAIRS)} outbound + manifest)")
         return 0
     for line in run_sync(SITE_ROOT, roots):
         print(line)
@@ -655,7 +719,7 @@ def main() -> int:
             print(f"  - {f}")
         return 1
     checked = sum(1 for repo, _, _ in ALL_PAIRS if repo not in skipped)
-    print(f"mirrors in sync ({checked}/{len(ALL_PAIRS)} pairs + manifest)")
+    print(f"mirrors in sync ({checked}/{len(ALL_PAIRS)} pairs + {len(OUTBOUND_PAIRS)} outbound + manifest)")
     return 0
 
 

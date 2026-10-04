@@ -12,7 +12,9 @@
 //     label size is read from the svg's own root rule, `#<id>{…font-size:Npx`)
 //   • the mini replay boards (.fw-board svg) — their only label ("12 rows")
 //     appears on some steps, so a board with no label at load is not a
-//     finding; their font-size LITERALS in flow_walk.js are checked statically
+//     finding; their font-size LITERALS in flow_walk_tetris.js (the board
+//     plug-in, split out of flow_walk.js in riir-ai Plan 620 P1.4) are
+//     checked statically
 // Each family carries a blindness floor: a selector that matches nothing
 // would otherwise print a perfect score over zero labels.
 //
@@ -45,9 +47,10 @@ const RETIRED = ["#241410", "#ff8a4c", "#1d110c", "#3a2117", "#f2e6dd", "#b99f8f
 const paletteFiles = [
   ...readdirSync(path.join(siteDir, "assets")).filter((f) => /^tetris_flow_.*\.svg$/.test(f)).map((f) => path.join("assets", f)),
   "assets/flow_walk.js",
+  "assets/flow_walk_tetris.js",
   "assets/arena.css",
 ];
-if (paletteFiles.length < 6) fail(`palette scan saw ${paletteFiles.length} files (< 6) — walk went blind`);
+if (paletteFiles.length < 7) fail(`palette scan saw ${paletteFiles.length} files (< 7) — walk went blind`);
 for (const rel of paletteFiles) {
   const text = readFileSync(path.join(siteDir, rel), "utf8").toLowerCase();
   const hits = RETIRED.filter((lit) => text.includes(lit));
@@ -56,10 +59,10 @@ for (const rel of paletteFiles) {
 // the board label sizes are svg attributes at 1:1 (the board svg is never
 // scaled) — a literal below 11 is a sub-11 px label whenever it shows
 {
-  const js = readFileSync(path.join(siteDir, "assets/flow_walk.js"), "utf8");
+  const js = readFileSync(path.join(siteDir, "assets/flow_walk_tetris.js"), "utf8");
   const sizes = [...js.matchAll(/"font-size":\s*([\d.]+)/g)].map((m) => Number(m[1]));
-  if (!sizes.length) fail("flow_walk.js: no font-size literal found — the static board-label check went blind");
-  for (const fs of sizes) if (fs < MIN_PX) fail(`flow_walk.js: board label font-size ${fs} < ${MIN_PX}`);
+  if (!sizes.length) fail("flow_walk_tetris.js: no font-size literal found — the static board-label check went blind");
+  for (const fs of sizes) if (fs < MIN_PX) fail(`flow_walk_tetris.js: board label font-size ${fs} < ${MIN_PX}`);
 }
 
 // ── T3: rendered label sizes ───────────────────────────────────────────────
