@@ -79,6 +79,24 @@
       "src": ".docs/05_resources/dev_flow.svg",
       "dst": "assets/rethink_dev_flow.svg",
       "sha256": "fc1df9b9531f99d3fa651f88412206d8cbca46c3b243985b1e16a86dc241f31d"
+    },
+    {
+      "repo": "riir-reflexer",
+      "src": ".docs/06_resources/resources.md",
+      "dst": "docs/reflexer/resources.md",
+      "sha256": "f592ee41ff0d29d0bfc15fa9086a5156be9e443e895d6330d00e0f37a3b4210c"
+    },
+    {
+      "repo": "riir-reflexer",
+      "src": ".docs/06_resources/reflexer_relation_flow.svg",
+      "dst": "assets/reflexer_relation_flow.svg",
+      "sha256": "f446afea58bf29c4bb6dda99f6d541ae20bdd320a80698c58018ffa43b0c5eec"
+    },
+    {
+      "repo": "riir-reflexer",
+      "src": ".docs/06_resources/reflexer_relation_flow_m.svg",
+      "dst": "assets/reflexer_relation_flow_m.svg",
+      "sha256": "3d53f937b94de38f7cc713c8a0ee9ad9dae7aa8da1090732f640488cb5c705ee"
     }
   ]
 }

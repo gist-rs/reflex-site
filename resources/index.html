@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Reflex, Instinct, Rethink — the family explained</title>
-  <meta name="description" content="Three names, one idea: a free modelless decision engine that runs on your machine (Reflex), the specialist composition that upgrades it (Instinct), and the encoder tier served from our GPU hosts (Rethink).">
+  <title>Reflex, Reflexer, Instinct, Rethink — the family explained</title>
+  <meta name="description" content="Four names, one idea: a free modelless decision engine that runs on your machine (Reflex), the specialist composition that upgrades it (Instinct), the encoder tier served from our GPU hosts (Rethink) — and the rulebook engine that plays the same wire as a game (Reflexer).">
   <link rel="stylesheet" href="/assets/family.css">
   <link rel="stylesheet" href="/assets/style.css">
 </head>
@@ -39,15 +39,17 @@
 
   <div class="hero">
     <p class="kicker">Resources · the education page</p>
-    <h1>One family. Three names.<br><em>The same idea, three rungs deep.</em></h1>
+    <h1>One family. Four names.<br><em>The same idea, three rungs deep — and an engine that plays.</em></h1>
     <p class="lead">
       <strong>Reflex</strong> is the product you install. <strong>Instinct</strong> is the idea that upgrades it.
       <strong>Rethink</strong> is that idea, served from our GPU hosts.
+      <strong>Reflexer</strong> is the other engine — the same wire, played as a game.
     </p>
     <div class="cta-row">
       <a class="btn primary" href="#learn">How Jev works</a>
       <a class="btn" href="#reflex">The free floor</a>
       <a class="btn" href="#rethink">The encoder tier</a>
+      <a class="btn" href="#reflexer">The rulebook engine</a>
       <a class="btn" href="#development">Build your own</a>
     </div>
     <div class="badges">
@@ -143,6 +145,10 @@
             files checked against a pinned BLAKE3 digest, run on our servers.</dd>
           <dt>rung</dt><dd>One step on the ladder: free local Reflex first; a hosted head only when the step below
             abstains.</dd>
+          <dt>rulebook</dt><dd>The fixed list of rules a game engine scores with: every board a move can lead to
+            gets a score, and the best plan wins. Also called the genome.</dd>
+          <dt>frozen genome</dt><dd>The rulebook shipped as constant bytes — never retrained at runtime, never
+            blended, so the same request always gives the same answer.</dd>
         </dl>
       </div>
     </details>
@@ -258,7 +264,9 @@
 
   <section id="overview">
     <h2><a class="hlink" href="#overview">What is this family?</a></h2>
-    <p class="sub">Two products and one idea. The products ship binaries; the idea is how they compose.</p>
+    <p class="sub">Two products, one idea — and a second engine that plays. The products ship binaries;
+      the idea is how they compose; the engine runs the same question wire over a game board
+      (<a href="#reflexer">the rulebook engine</a>).</p>
 
     <div class="pages">
       <div class="page-card">
@@ -455,6 +463,85 @@
         does, how your data is handled, and the buy card, which carries its honest state (a waitlist until
         purchases open). The <a href="/bench/">bench Rethink rows</a> are the measured side of everything this
         section claims.</p>
+      </details>
+    </div>
+  </section>
+
+  <section id="reflexer">
+    <h2><a class="hlink" href="#reflexer">Reflexer — the same wire, played as a game.</a></h2>
+    <p class="sub">Reflexer is the family's rulebook engine — it speaks Reflex's question types
+      and answer envelope over a different state, the game board: one frozen-genome search per
+      turn answers where to place, how the position stands, and whether it survives.
+      [Rulebook: a fixed list of rules that scores every board a move can lead to. Frozen
+      genome: shipped as constant bytes — never retrained, never blended.]</p>
+
+    <figure class="figure scrolls">
+      <picture>
+        <source media="(max-width: 720px)" srcset="/assets/reflexer_relation_flow_m.svg" type="image/svg+xml">
+        <img style="--minw:1062px" src="/assets/reflexer_relation_flow.svg" width="1462" height="546"
+          alt="The Reflex and Reflexer relation: one request shape — a state plus typed questions — branches by what the state is. 2a a text question runs Reflex: the corpus answers, or the engine abstains. 2b a game turn runs Reflexer: one frozen-genome search scores every board a move can lead to. Both merge into the same answer envelope — one typed answer per question, or an abstain. A vessel (one signed file, applied whole) swaps the genome, never a blend."
+          loading="lazy">
+      </picture>
+      <figcaption>The relation: <strong>same question vocabulary, same envelope, different state</strong> —
+        the branch shape is the whole story. Write-up:
+        <a href="/docs/reflexer/resources.md">resources.md (local mirror)</a> ·
+        <a href="https://github.com/gist-rs/riir-reflexer/blob/develop/.docs/06_resources/resources.md">on GitHub</a>.</figcaption>
+    </figure>
+
+    <div class="teaser">
+      <div class="cell">
+        <span class="lbl">REFLEX · QUESTIONS ABOUT ANYTHING</span>
+        <h3>The state is text you wrote.</h3>
+        <ol>
+          <li><b>Ask:</b> a sentence or a JSON object, plus typed questions.</li>
+          <li><b>Answer:</b> from a corpus you author — or an honest abstain.</li>
+          <li><b>Where:</b> your machine, free; nothing leaves by default.</li>
+        </ol>
+      </div>
+      <div class="cell">
+        <span class="lbl">REFLEXER · THE WIRE AS A GAME</span>
+        <h3>The state is a game board.</h3>
+        <ol>
+          <li><b>Ask:</b> the board, the falling piece, the bag — three fixed questions.</li>
+          <li><b>Answer:</b> one frozen-genome search; <b>place</b>, <b>state</b>, <b>survive</b>.</li>
+          <li><b>Where:</b> the arena's <a href="/arena/">Reflex · rulebook boards</a> — in your
+            tab, or one network hop away.</li>
+        </ol>
+      </div>
+    </div>
+
+    <p>You have already met this engine: the arena's <b>Reflex · rulebook</b> boards are it —
+      the lane is family-branded, the engine behind it is Reflexer, and the Reflex question
+      engine does not need it. One set of bytes runs the local binary, the browser tab and a
+      stateless worker, and they answer identically. Reflexer also gave the family its artifact
+      format — the <b>vessel</b>: one signed file, hashed and locked, applied whole at boot so a
+      downgrade or a fork refuses; the family's artifacts, public and hosted alike, ship in it.</p>
+
+    <div class="faqs">
+      <details class="faq">
+        <summary>Why do the names sound alike?</summary>
+        <p>Because the arena labels the lane, not the repo: <b>Reflex · rulebook</b> is the
+          family-branded lane, and Reflexer is the engine behind it. Reflex answers your
+          questions; Reflexer plays the game. Two engines, one vocabulary — and the arena shows
+          both.</p>
+      </details>
+      <details class="faq">
+        <summary>Do I need Reflexer to run Reflex?</summary>
+        <p>No. They are separate engines. Install Reflex to answer typed questions on your own
+          machine; Reflexer is what the arena's rulebook boards run, and the format its artifacts
+          ship in.</p>
+      </details>
+      <details class="faq">
+        <summary>What did Reflexer give the whole family?</summary>
+        <p>The vessel format: one signed file that swaps an engine's decision rules whole at boot —
+          never a weighted blend, because blends do not preserve move rankings. It is a public
+          format; anything that ships as an artifact in this family, public or hosted, rides it.</p>
+      </details>
+      <details class="more">
+        <summary>Deep write-up</summary>
+        <p>The lane's own explainer, mirrored on this site:
+          <a href="/docs/reflexer/resources.md">resources.md (local mirror)</a> ·
+          <a href="https://github.com/gist-rs/riir-reflexer">gist-rs/riir-reflexer on GitHub</a>.</p>
       </details>
     </div>
   </section>

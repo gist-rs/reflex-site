@@ -1,7 +1,7 @@
 // The /resources education-page smoke: serves the repo statically, renders
 // /resources/ in headless chromium, and asserts the page the proposal
 // specified (ai Proposal 053 / plan 619 T3.3):
-//   1. render — the four sections exist with self-linked titles, the three
+//   1. render — the six sections exist with self-linked titles, the four
 //      framing sentences appear VERBATIM in visible text, every <img>
 //      resolves (the mermaid-<img> embedding law) with a non-empty alt,
 //      the target matrix has its shape, the collapses are present, and
@@ -101,9 +101,9 @@ function digitFindings(text, label, fail) {
   if (errs.length) fail("page errors: " + errs.join("; "));
   else console.log("ok: no page errors");
 
-  // 2. the five sections exist with self-linked titles (#learn first)
+  // 2. the six sections exist with self-linked titles (#learn first)
   const sections = await page.evaluate(() =>
-    ["learn", "overview", "reflex", "rethink", "development"].map((id) => {
+    ["learn", "overview", "reflex", "rethink", "reflexer", "development"].map((id) => {
       const sec = document.getElementById(id);
       const a = sec && sec.querySelector("h2 a.hlink");
       return { id, ok: !!sec, href: a && a.getAttribute("href") };
@@ -113,7 +113,7 @@ function digitFindings(text, label, fail) {
     if (!s.ok) fail(`missing section #${s.id}`);
     else if (s.href !== `#${s.id}`) fail(`#${s.id} title not self-linked (href=${s.href})`);
   }
-  if (sections.every((s) => s.ok && s.href === `#${s.id}`)) console.log("ok: all five sections present, titles self-linked");
+  if (sections.every((s) => s.ok && s.href === `#${s.id}`)) console.log("ok: all six sections present, titles self-linked");
 
   // 2b. the #learn primer: first section on the page, its sub-headings, the
   //     glossary, the wire example, the figure, the Clef "coming" note
@@ -194,11 +194,12 @@ function digitFindings(text, label, fail) {
     "Reflex is the family's free floor — a modelless decision engine that runs on your machine, answers from a corpus you author, and abstains by design when the evidence is thin.",
     "Instinct is the idea that upgrades Reflex without replacing it: when the free engine abstains, a specialist trained for exactly that domain scores the survivors on top, never instead.",
     "Rethink is the same Instinct idea one rung deeper: where a bag specialist is too coarse, a trained encoder head thinks — served HOSTED-ONLY from our GPU servers, so the weights never leave controlled hardware.",
+    "Reflexer is the family's rulebook engine — it speaks Reflex's question types and answer envelope over a different state, the game board: one frozen-genome search per turn answers where to place, how the position stands, and whether it survives.",
   ];
   framings.forEach((f, i) => {
     if (!flat.includes(f)) fail(`framing sentence ${i + 1} missing or not verbatim`);
   });
-  if (framings.every((f) => flat.includes(f))) console.log("ok: all three framing sentences verbatim");
+  if (framings.every((f) => flat.includes(f))) console.log("ok: all four framing sentences verbatim");
 
   // 4. every image resolves (the <img> embedding law — mermaid renders share
   //    id="mermaid-svg", inlining two would clash) and carries an alt
@@ -218,13 +219,14 @@ function digitFindings(text, label, fail) {
     "/assets/jev_vs_reflex_flow.svg",
     "/assets/decision_flow.svg", "/assets/instinct_flow.svg", "/assets/rethink_flow.svg",
     "/assets/reflex_dev_flow.svg", "/assets/instinct_dev_flow.svg", "/assets/rethink_dev_flow.svg",
+    "/assets/reflexer_relation_flow.svg",
   ];
   for (const w of wanted) {
     if (!imgs.some((i) => i.src === w)) fail(`expected image missing: ${w}`);
   }
-  if (imgs.length !== 9) fail(`expected 9 <img> (decision_flow reused in overview + reflex), got ${imgs.length}`);
-  if (!broken.length && !noAlt.length && imgs.length === 9 && wanted.every((w) => imgs.some((i) => i.src === w))) {
-    console.log(`ok: all 9 images resolve with alts (8 unique assets, decision_flow reused)`);
+  if (imgs.length !== 10) fail(`expected 10 <img> (decision_flow reused in overview + reflex), got ${imgs.length}`);
+  if (!broken.length && !noAlt.length && imgs.length === 10 && wanted.every((w) => imgs.some((i) => i.src === w))) {
+    console.log(`ok: all 10 images resolve with alts (9 unique assets, decision_flow reused)`);
   }
 
   // 5. the target matrix: 4 columns, header + 6 rows

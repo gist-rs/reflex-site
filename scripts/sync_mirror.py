@@ -142,6 +142,15 @@ MIRROR_SOURCES = (
             (".docs/05_resources/dev_flow.svg", "assets/rethink_dev_flow.svg"),
         ),
     ),
+    (
+        "riir-reflexer",
+        "public — the rulebook engine's education pairs (relation section, Plan 004)",
+        (
+            (".docs/06_resources/resources.md", "docs/reflexer/resources.md"),
+            (".docs/06_resources/reflexer_relation_flow.svg", "assets/reflexer_relation_flow.svg"),
+            (".docs/06_resources/reflexer_relation_flow_m.svg", "assets/reflexer_relation_flow_m.svg"),
+        ),
+    ),
 )
 
 # (this site's file, sibling repo, path in the sibling) — site → sibling copies
@@ -161,6 +170,7 @@ ROOT_ENV_VARS = {
     "riir-reflex": "RIIR_REFLEX_CHECKOUT",
     "riir-instinct": "INSTINCT_CHECKOUT",
     "riir-rethink": "RETHINK_CHECKOUT",
+    "riir-reflexer": "REFLEXER_CHECKOUT",
 }
 MANIFEST_REL = "assets/mirror_manifest.json"
 MANIFEST_KEYS = {"repo", "src", "dst", "sha256"}  # a ref key is a leak; run_check fails it

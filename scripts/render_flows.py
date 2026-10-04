@@ -129,6 +129,10 @@ def rethink_root() -> Path:
     return _checkout("RETHINK_CHECKOUT", "riir-rethink")
 
 
+def reflexer_root() -> Path:
+    return _checkout("REFLEXER_CHECKOUT", "riir-reflexer")
+
+
 def reflex_site() -> Path:
     return SITE
 
@@ -162,6 +166,8 @@ SOURCES = (
     Source(rethink_root, ".docs/05_resources/dev_flow.md", {"dev_flow.svg": "rethink_dev_flow.svg"}, "family:#a98bfa"),
     # the first gfflow block (Plan 620 P1.3): its site is the rethink storefront
     Source(rethink_root, ".docs/06_trust_flow/trust_flow.md", {}, site=rethink_site),
+    # the Reflex ↔ Reflexer relation figure (riir-reflexer Plan 004; F16 in 620's table)
+    Source(reflexer_root, ".docs/06_resources/resources.md", {}, "family:#ff8a3d"),
 )
 
 
