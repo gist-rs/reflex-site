@@ -4,6 +4,18 @@ One hash-pinned line per removed issue (the fleet noise-reduction convention:
 an issue file is removed once its work is verifiably landed; this file is the
 durable record). Full narrative of each: `git log --follow -- .issues/<file>`.
 
+- **2026-10-04 — the `#reflexer` relation section + the Plan 620 P1 takeover.** Two landings in one
+  session. (1) TAKEOVER: the 620 sibling session's uncommitted P1 (the gfflow renderer +1465 lines,
+  the generalised walker, the F1 trust-flow golden with captured-wire walk payloads) sat idle —
+  taken over, completed (payload regen + re-render + the P1.5 halves: the pre-deploy prose here +
+  web_family_gate's new S4 flow-figure pin, canary-verified both directions) and landed across
+  three repos (reflex-site `fe69bd2`, riir-rethink `7b86e8b`, riir-ai `0d5f852a1`); the rethink
+  storefront redeployed with the branch-numbered trust flow + walker. (2) riir-reflexer Plan 004:
+  `/resources` gains `#reflexer` after `#rethink` — the gfflow relation figure (desktop + 390px
+  `_m` via <picture>), the framing pin #4, teaser cells, the arena "Reflex · rulebook" naming
+  answered head-on, deep write-up mirror + GitHub links (`12538b9`, deployed; riir-reflexer
+  `ba943d8`). Smoke: six sections, four framings, 10 images; every gate green incl.
+  web_family_gate --live 4/4.
 - **2026-10-03 — the bekko 400M timing LANDED: 9/9 quotable cells, the presence row becomes a real bar (riir-reflex
   bench 115, 067 T1–T5 executed).** The lane's p50 geomean is **231.7 ms** (`areas.timing.bekko` n_used 9/9, zero
   unfit/unjudged); every accuracy cell byte-identical to the published 400M board. The window that landed is NOT one
