@@ -137,6 +137,10 @@ def refine_root() -> Path:
     return _checkout("REFINE_CHECKOUT", "riir-refine")
 
 
+def dapps_root() -> Path:
+    return _checkout("DAPPS_CHECKOUT", "riir-dapps")
+
+
 def kat_service_src() -> Path:
     # the refine.gist.rs worker: static bytes are include_str!'d from src/,
     # so the renderer's site mirror root is the src dir (assets/ under it)
@@ -193,6 +197,12 @@ SOURCES = (
     # section's companion) — same no-JS worker posture as the hero: both
     # shapes mirrored into kat-service/src/assets, include_str!'d, CSS swap
     Source(refine_root, ".docs/01_orientation/role_flows.md", {}, headered_only=True, site=kat_service_src),
+    # the Jev-vs-Reflex comparison (F8): SITE-LOCAL — reflex-site owns the
+    # source (it compares an external product with ours; no sibling home)
+    Source(reflex_site, "docs/flows/jev_vs_reflex_flow.md", {}),
+    # the umbrella rung (F15): the apex front is a no-JS worker — mirrors
+    # land in kat-service/src/assets, include_str!'d (both shapes, CSS swap)
+    Source(dapps_root, ".docs/11_kat_service/umbrella_flow.md", {}, site=kat_service_src),
 )
 
 
@@ -1421,7 +1431,10 @@ def main() -> int:
         if args.only and args.only not in src.rel and args.only not in root.name:
             continue
         picked += 1
-        if not (root / "Cargo.toml").exists():
+        # a checkout is "present" when it looks like a repo we own: every
+        # sibling carries Cargo.toml; reflex-site (site-local sources) is the
+        # html-and-assets front with index.html at its root
+        if not (root / "Cargo.toml").exists() and not (root / "index.html").exists():
             print(f"SKIP (loud): {root.name} checkout absent - {src.rel} UNCHECKED this run")
             continue
         doc = root / src.rel

@@ -228,7 +228,7 @@
       abstained questions need to go anywhere else — to a hosted <b>Rethink</b> head, paid only where Reflex was
       not sure.</p>
     <figure class="gf-fig fig-scroll">
-      <img src="/assets/jev_vs_reflex_flow.svg" width="960" height="450"
+      <img src="/assets/jev_vs_reflex_flow.svg" width="1462" height="546"
         alt="Two ways to answer the same typed question. Jev: your app sends the state and typed questions over a network round-trip to a hosted model, which always returns a typed answer with probabilities, even when unsure. Reflex: your app asks the same questions over loopback on your own machine; the modelless Reflex floor answers from your corpus in microseconds; if it is sure it returns a typed answer with calibrated confidence, if not it abstains with the full distribution attached and only then escalates to a hosted Rethink head, paid only for those questions"
         loading="lazy">
       <figcaption><span class="scroll-hint">Swipe the figure sideways. </span>Jev (top) always answers, from a hosted model. Reflex (bottom) answers locally when it is sure and
