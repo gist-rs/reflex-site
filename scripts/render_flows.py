@@ -164,6 +164,8 @@ SOURCES = (
     Source(instinct_root, ".docs/05_resources/dev_flow.md", {"dev_flow.svg": "instinct_dev_flow.svg"}, "family:#f472b6"),
     Source(rethink_root, ".docs/03_decision_flow/rethink_flow.md", {}, "family:#a98bfa"),
     Source(rethink_root, ".docs/05_resources/dev_flow.md", {"dev_flow.svg": "rethink_dev_flow.svg"}, "family:#a98bfa"),
+    # the model-classes education figures (the /resources #development deep dive)
+    Source(rethink_root, ".docs/05_resources/model_classes.md", {}, site=reflex_site),
     # the first gfflow block (Plan 620 P1.3): its site is the rethink storefront
     Source(rethink_root, ".docs/06_trust_flow/trust_flow.md", {}, site=rethink_site),
     # the Reflex ↔ Reflexer relation figure (riir-reflexer Plan 004; F16 in 620's table)

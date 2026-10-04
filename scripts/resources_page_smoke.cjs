@@ -43,9 +43,12 @@ const server = http.createServer((req, res) => {
 });
 
 // The fence's own digit vocabulary (keep in lockstep with sync_mirror.py —
-// one definition of "digit-heavy" across the site's instruments).
+// one definition of "digit-heavy" across the site's instruments). Bare `s`
+// carries \b and the sec/secs/seconds spellings join the set: "N steps in
+// path order" (a gfflow figure's accessibility desc) is metadata, not
+// "N s" — real bare-second claims (s, sec, secs, seconds) still red.
 const DECIMAL_RE = /\d+\.\d+/;
-const UNIT_RE = /\d+\s?(?:ms|µs|us|s|tok\/s|%)/;
+const UNIT_RE = /\d+\s?(?:ms|µs|us|sec(?:ond)?s?\b|s\b|tok\/s|%)/;
 
 // Raw-file visible text: drop script/style blocks, strip tags, decode the
 // entities the page actually uses. This is the static half; the rendered
@@ -226,13 +229,14 @@ function digitFindings(text, label, fail) {
     "/assets/decision_flow.svg", "/assets/instinct_flow.svg", "/assets/rethink_flow.svg",
     "/assets/reflex_dev_flow.svg", "/assets/instinct_dev_flow.svg", "/assets/rethink_dev_flow.svg",
     "/assets/reflexer_relation_flow.svg",
+    "/assets/model_classes_flow.svg", "/assets/train_freeze_flow.svg",
   ];
   for (const w of wanted) {
     if (!imgs.some((i) => i.src === w)) fail(`expected image missing: ${w}`);
   }
-  if (imgs.length !== 10) fail(`expected 10 <img> (decision_flow reused in overview + reflex), got ${imgs.length}`);
-  if (!broken.length && !noAlt.length && imgs.length === 10 && wanted.every((w) => imgs.some((i) => i.src === w))) {
-    console.log(`ok: all 10 images resolve with alts (9 unique assets, decision_flow reused)`);
+  if (imgs.length !== 12) fail(`expected 12 <img> (decision_flow reused in overview + reflex; the two #development model-class figures carry picture mobile twins), got ${imgs.length}`);
+  if (!broken.length && !noAlt.length && imgs.length === 12 && wanted.every((w) => imgs.some((i) => i.src === w))) {
+    console.log(`ok: all 12 images resolve with alts (11 unique assets, decision_flow reused, two with mobile twins)`);
   }
 
   // 5. the target matrix: 4 columns, header + 6 rows

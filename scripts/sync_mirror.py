@@ -4,15 +4,21 @@
 Each owning repo's `.docs` book is the SOURCE OF TRUTH; the copies this site
 serves are MIRRORS. MIRROR_SOURCES is the per-root table — layer 0, nothing
 unlisted is ever copied — one row per source checkout; the flat pair view
-(ALL_PAIRS) is derived from it. 12 pairs across three roots:
+(ALL_PAIRS) is derived from it. Pairs across the roots (recount after every
+pair change — this figure is the drift alarm for the table itself):
 
     riir-reflex   (public, PRIMARY)  5 pairs: decision_flow.svg, SKILL.md,
                                      resources.md, dev_flow.md, dev_flow.svg
     riir-instinct (secondary)        4 pairs: instinct_flow.svg + the same
                                      resources trio
     riir-rethink  (PRIVATE forever — education pairs ONLY)
-                                     4 pairs: rethink_flow.svg + the same
-                                     resources trio
+                                     9 pairs: rethink_flow.svg + the same
+                                     resources trio + the model-classes set
+                                     (md + two gfflow figures with mobile
+                                     twins, the /resources #development
+                                     deep dive)
+    riir-reflexer (public)           3 pairs: resources.md + the relation
+                                     figure with its mobile twin
 
 The landing page renders decision_flow.svg from assets/, the agent-skill
 section curl-installs the SKILL.md from skills/, /bench/#instinct embeds
@@ -140,6 +146,11 @@ MIRROR_SOURCES = (
             (".docs/05_resources/resources.md", "docs/rethink/resources.md"),
             (".docs/05_resources/dev_flow.md", "docs/rethink/dev_flow.md"),
             (".docs/05_resources/dev_flow.svg", "assets/rethink_dev_flow.svg"),
+            (".docs/05_resources/model_classes.md", "docs/rethink/model_classes.md"),
+            (".docs/05_resources/model_classes_flow.svg", "assets/model_classes_flow.svg"),
+            (".docs/05_resources/model_classes_flow_m.svg", "assets/model_classes_flow_m.svg"),
+            (".docs/05_resources/train_freeze_flow.svg", "assets/train_freeze_flow.svg"),
+            (".docs/05_resources/train_freeze_flow_m.svg", "assets/train_freeze_flow_m.svg"),
         ),
     ),
     (
@@ -187,7 +198,14 @@ MANIFEST_NOTE = (
 FENCE_FORBIDDEN_NAMES = ("arsenal.toml", "deploy.yaml", "Cargo.toml")
 _HEX64_RE = re.compile(r"\b[0-9a-fA-F]{64}\b")
 _DECIMAL_RE = re.compile(r"\d+\.\d+")
-_UNIT_RE = re.compile(r"\d+\s?(?:ms|µs|us|s|tok/s|%)")
+# Bare `s` is anchored with \b and the second/secs spellings join the set:
+# a gfflow figure's accessibility desc legitimately says "N steps in path
+# order", and the pre-\b form read that as "N s" — a measured-claim false
+# positive that refused the figure pair (the first gfflow SVGs in the
+# Rethink mirror set, the model-classes education figures). Real claims
+# still red: "3 s", "3s", "3 sec", "3 secs", "3 seconds", "12 ms",
+# "40 %".
+_UNIT_RE = re.compile(r"\d+\s?(?:ms|µs|us|sec(?:ond)?s?\b|s\b|tok/s|%)")
 _SRC_PATH_RE = re.compile(r"\bsrc/")
 
 
@@ -670,6 +688,25 @@ def selftest() -> int:
             f"FENCE-VIOLATION: {RETHINK_ROOT}/{rethink_svg}"
         ), findings
         (roots[RETHINK_ROOT] / rethink_svg).write_bytes(rethink_svg.encode())  # restore
+        # 13b) the gfflow-desc false positive stays CLEAN: "N steps in path
+        #      order" is figure metadata, not a measured unit claim — while a
+        #      real bare-second claim ("took 3 s") still reds (the \b +
+        #      `seconds` arms of the same regex)
+        (roots[RETHINK_ROOT] / rethink_svg).write_bytes(
+            rethink_svg.encode() + "\n<text>10 steps in path order.</text>\n".encode()
+        )
+        run_sync(site, roots)
+        findings, _ = run_check(site, roots)
+        assert findings == [], findings
+        for planted_claim in ("<text>took 3 s flat</text>", "<text>waited 4 seconds</text>", "<text>held 5 secs</text>", "<text>took 3 sec</text>"):
+            (roots[RETHINK_ROOT] / rethink_svg).write_bytes(
+                rethink_svg.encode() + ("\n" + planted_claim + "\n").encode()
+            )
+            findings, _ = run_check(site, roots)
+            assert findings and findings[0].startswith(
+                f"FENCE-VIOLATION: {RETHINK_ROOT}/{rethink_svg}"
+            ), (planted_claim, findings)
+        (roots[RETHINK_ROOT] / rethink_svg).write_bytes(rethink_svg.encode())  # restore
         run_sync(site, roots)
         # 14) a manifest row carrying a key outside {repo, src, dst, sha256}
         #     is a finding — a git ref leaking in cannot pass silently
@@ -685,7 +722,8 @@ def selftest() -> int:
         "self-test PASS (sync/check/outbound-drift/drift/missing-source/missing-mirror/"
         "manifest-stale/manifest-unlisted/secondary-skip/rethink-skip/"
         "primary-absent/no-shrink/pair-shape/fence-rust-fence/fence-64-hex/"
-        "fence-unit-claim/svg-text-scan/manifest-extra-key)"
+        "fence-unit-claim/svg-text-scan/svg-steps-clean/svg-bare-seconds-red/"
+        "manifest-extra-key)"
     )
     return 0
 

@@ -81,6 +81,36 @@
       "sha256": "fc1df9b9531f99d3fa651f88412206d8cbca46c3b243985b1e16a86dc241f31d"
     },
     {
+      "repo": "riir-rethink",
+      "src": ".docs/05_resources/model_classes.md",
+      "dst": "docs/rethink/model_classes.md",
+      "sha256": "e0a8ea9f350c9b3a191c8e0c9425a158c79c71e194e4b8a0adbec2b05e4d1ef2"
+    },
+    {
+      "repo": "riir-rethink",
+      "src": ".docs/05_resources/model_classes_flow.svg",
+      "dst": "assets/model_classes_flow.svg",
+      "sha256": "63430548159b9690dc8c5c7fac0ff3ead8800945de3b51530f61f71c24f5ed7f"
+    },
+    {
+      "repo": "riir-rethink",
+      "src": ".docs/05_resources/model_classes_flow_m.svg",
+      "dst": "assets/model_classes_flow_m.svg",
+      "sha256": "606edad6f14b09447cfb7c57f89d4dcf1c02824f3adab107fe15cbcd3a6c9713"
+    },
+    {
+      "repo": "riir-rethink",
+      "src": ".docs/05_resources/train_freeze_flow.svg",
+      "dst": "assets/train_freeze_flow.svg",
+      "sha256": "519ac5e1ad9d586919570687004aa20cb5dd1b1e66c1c4dc74ee58d9cb302838"
+    },
+    {
+      "repo": "riir-rethink",
+      "src": ".docs/05_resources/train_freeze_flow_m.svg",
+      "dst": "assets/train_freeze_flow_m.svg",
+      "sha256": "26d9ed39175fe89b3849f3ea230328c5e66f5ca1d22d7b41961fb3bb233d1e53"
+    },
+    {
       "repo": "riir-reflexer",
       "src": ".docs/06_resources/resources.md",
       "dst": "docs/reflexer/resources.md",

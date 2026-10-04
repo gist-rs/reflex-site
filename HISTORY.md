@@ -4,6 +4,40 @@ One hash-pinned line per removed issue (the fleet noise-reduction convention:
 an issue file is removed once its work is verifiably landed; this file is the
 durable record). Full narrative of each: `git log --follow -- .issues/<file>`.
 
+- **2026-10-04 (latest) — the `#development` model-classes deep dive: two gfflow figures, a four-group
+  developer glossary, and the train/freeze comparison table (owner ask: “add svg explain the flow …
+  vocabulary should add more jargon … the table compare between each train/freeze technics”).**
+  New mirrored pair set from the Rethink education folder (nine pairs now, was four):
+  `.docs/05_resources/model_classes.md` — the public-by-mirror primer (encoder vs autoregressive
+  vs modelless, BERT/ModernBERT/SFT/LoRA/distillation vocabulary, the teacher→student lessons, the
+  technique table) — plus its two gfflow figures with mobile twins: `model_classes_flow.svg`
+  (three lanes — modelless your-machine / encoder our-hosts / autoregressive chatbot — branching
+  2a/2b/2c from one typed question, the AR loop a back edge, all merging at one typed answer) and
+  `train_freeze_flow.svg` (frozen below, trained above: corpus → frozen encoder → head fit →
+  holdout → one frozen test read → lock-never-blend → composed serve, four lanes with asides).
+  The page's `#development` section gains the h3 “Under the hood — model classes, training,
+  freezing”, both figures (gf-fig + picture mobile twins, true dims on img and source), four
+  wire-cap glossary groups (thirty terms: encoder, BERT, ModernBERT, decoder-only, causal mask,
+  forward pass, embedding, tokenizer/BPE, sigmoid-vs-softmax · pretraining, fine-tuning, SFT, gold
+  label, distillation, teacher/student, soft target, LoRA/PEFT, full fine-tune, behavioural
+  cloning · frozen weights, head-only, linear probe, catastrophic forgetting, hot-swap, never
+  blend · train/holdout/test, frozen test read, overfitting, winner law, reference lane), and the
+  six-row techniques table (frozen as-is / head-only / distillation / LoRA / full fine-tune /
+  modelless fit) with losses and not-seated rows visible and every gain linked to the bench —
+  no typed numbers. **En-route root-cause fix:** the mirror fence's unit regex read the gfflow
+  figures' accessibility desc “N steps in path order” as a measured “N s” claim and refused the
+  new pairs — bare `s` now carries `\b` and the sec/secs/seconds spellings join the set, in BOTH
+  lockstep instruments (`sync_mirror.py` + `resources_page_smoke.cjs`), with new self-test arms
+  (`svg-steps-clean`, `svg-bare-seconds-red` — incl. “3 sec”/“5 secs”) proving the false positive
+  stays clean while real bare-second claims still red. **Verdict round 1 (Claude REVISE, all
+  points taken):** the gold-only-vs-distillation RESULT left the public doc (the principle stays
+  — “distillation is not a default; measure both”); the “fits in minutes” cost claim became
+  “cheap to fit” (an unlinked measured quantity, gate-invisible without digits); the per-option
+  marker-readout wording took the conservative form (“a small trained head turns the encoder's
+  reading into one score per option”) across doc, figure body and alt. Gates: resources smoke
+  (twelve images now), public copy gate, render_flows --check (embeds verified), sync_mirror
+  --check (pairs + manifest), web_family_gate S1-S4 — all green.
+
 - **2026-10-04 (later) — #rethink refined against the roadmap; #reflexer moved under #reflex (owner ask).**
   The Rethink section now carries the storefront roadmap's two-phase shape (v1
   hosted-only forming — the keyed decision API; v2 distributed planned — the rethink

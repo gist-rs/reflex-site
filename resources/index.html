@@ -597,6 +597,163 @@
         only, serve through the storefront. No step ever places the weights on hardware nobody controls. Write-up:
         <a href="/docs/rethink/dev_flow.md">dev_flow.md (local mirror — the source repo is private)</a>.</figcaption>
     </figure>
+
+    <h3>Under the hood — model classes, training, freezing.</h3>
+    <p class="sub">The flows above assume some vocabulary; this part teaches it. The three model classes that
+      answer typed questions, the words the industry uses for training and freezing — written for software
+      developers — and why the family's serving ladder freezes everything below a small trained head.</p>
+
+    <figure class="gf-fig">
+      <picture>
+        <source media="(max-width: 720px)" srcset="/assets/model_classes_flow_m.svg" width="340" height="1644">
+        <img src="/assets/model_classes_flow.svg" width="1462" height="546" loading="lazy"
+          alt="Three ways a typed question becomes an answer, in three lanes. Modelless, on your machine: the words are hashed into counts, each option scored with a sigmoid against your corpus — microseconds, and it can abstain. Encoder, on our GPU hosts: one forward pass reads the question and every option together, every token attends both directions, and a small trained head turns the encoder's reading into one score per option — the BERT class. Autoregressive, the chatbot shape: read the prompt once, predict the next token under a causal mask, append and repeat in a loop, then parse the free text back into the typed answer. All three lanes end at one typed answer per question, with probabilities and confidence — or an honest abstain.">
+      </picture>
+      <figcaption><strong>Three ways a typed question becomes an answer.</strong> The modelless lane hashes words and
+        scores with a sigmoid — microseconds, on your machine, and it can abstain. The encoder lane — the class
+        <b>BERT</b> made canonical — reads the question and every option in one bidirectional pass, and a small
+        trained head turns the encoder's reading into one score per option. The autoregressive lane — the chatbot class —
+        predicts one token at a time, each seeing only the past, and the text must be parsed back into the typed
+        shape. Deep write-up:
+        <a href="/docs/rethink/model_classes.md">model_classes.md (local mirror — the source repo is private)</a>.</figcaption>
+    </figure>
+
+    <p class="wire-cap">The words — model classes and anatomy</p>
+    <div class="gf-callout learn-gloss">
+      <dl class="gf-gloss">
+        <dt>encoder</dt><dd>A model that reads the whole input in one pass, every token attending both left and
+          right, and produces per-token vectors — not text.</dd>
+        <dt>BERT</dt><dd>The canonical pretrained encoder: pretraining hides words and predicts them from both
+          directions.</dd>
+        <dt>ModernBERT</dt><dd>The modern refresh of BERT — rotary positions, sliding-window attention; the
+          encoder class our lanes build on.</dd>
+        <dt>decoder-only</dt><dd>The autoregressive shape: one stack, each token seeing only the past, built to
+          predict the next token. The GPT family.</dd>
+        <dt>causal mask</dt><dd>The rule that hides the future from each token — what makes a model
+          autoregressive rather than bidirectional.</dd>
+        <dt>forward pass</dt><dd>One run of input through a model to its output. "One forward" is the unit of
+          serve cost.</dd>
+        <dt>embedding</dt><dd>A vector of numbers representing a piece of text; similar meanings land on nearby
+          vectors.</dd>
+        <dt>tokenizer · BPE</dt><dd>How text becomes subword pieces before a model sees it — byte-pair encoding
+          merges frequent pairs; the vocabulary is fixed before training.</dd>
+        <dt>sigmoid vs softmax</dt><dd>Two ways to turn scores into probabilities. Softmax makes options compete
+          (probabilities sum to one); sigmoid scores each option alone. This family's own primitives use
+          sigmoid; a ported reference model may keep softmax to stay faithful to its numbers.</dd>
+      </dl>
+    </div>
+
+    <p class="wire-cap">The words — training techniques</p>
+    <div class="gf-callout learn-gloss">
+      <dl class="gf-gloss">
+        <dt>pretraining</dt><dd>The first, expensive training run on huge generic data that produces a base model.
+          Nobody in this family pretrains; we consume pretrained bases.</dd>
+        <dt>fine-tuning</dt><dd>Any further training that adapts a pretrained model to a task.</dd>
+        <dt>SFT</dt><dd>Supervised fine-tuning — fine-tuning on labeled examples with gold answers; the
+          simplest adaptation. The heads in this family are a minimal SFT.</dd>
+        <dt>gold label</dt><dd>The correct answer for an example, written by people.</dd>
+        <dt>distillation</dt><dd>A big teacher model's probabilities train a small student; the student learns
+          the teacher's graded opinions, not only its hard picks.</dd>
+        <dt>teacher · student</dt><dd>The big frozen model that labels (teacher) and the small cheap model that
+          learns from it (student).</dd>
+        <dt>soft target</dt><dd>A teacher's probability spread over the options — as opposed to one hard gold
+          answer.</dd>
+        <dt>LoRA · adapter</dt><dd>A small trainable patch injected into a frozen base, training a fraction of
+          the parameters — parameter-efficient fine-tuning (PEFT).</dd>
+        <dt>full fine-tune</dt><dd>Updating every weight of the base — the most expressive and the most expensive
+          option.</dd>
+        <dt>behavioural cloning</dt><dd>Training a critic by imitating an expert's moves. Our arena measured its
+          limit: agreeing with the expert is not the same as playing better.</dd>
+      </dl>
+    </div>
+
+    <p class="wire-cap">The words — freezing and serving discipline</p>
+    <div class="gf-callout learn-gloss">
+      <dl class="gf-gloss">
+        <dt>frozen weights</dt><dd>Weights that are done training: locked bytes, never updated at serve time.
+          Same input, same reading, forever.</dd>
+        <dt>head-only training</dt><dd>Freeze the whole base and train only a small head above it — the base's
+          reading stays exact, and the head is cheap to fit per domain.</dd>
+        <dt>linear probe</dt><dd>The simplest head-only form: a single linear layer over frozen features — the
+          classic baseline a real head must beat.</dd>
+        <dt>catastrophic forgetting</dt><dd>A fully fine-tuned model losing skills it used to have — the risk
+          full fine-tunes carry and frozen-below designs avoid by construction.</dd>
+        <dt>hot-swap</dt><dd>Replacing an artifact atomically, whole-for-whole, so a decision always observes
+          one whole model.</dd>
+        <dt>never blend</dt><dd>A weighted mix of two models' outputs is banned in this family: blends do not
+          preserve rankings, so a decision could observe a model that never existed.</dd>
+      </dl>
+    </div>
+
+    <p class="wire-cap">The words — evaluation discipline</p>
+    <div class="gf-callout learn-gloss">
+      <dl class="gf-gloss">
+        <dt>train · holdout · test</dt><dd>Three disjoint slices of a corpus: fit on train, choose on holdout,
+          read test once for the verdict.</dd>
+        <dt>frozen test read</dt><dd>The one-time read of the test split — a number quoted from it can never be
+          improved by trying again. That is the point.</dd>
+        <dt>overfitting</dt><dd>Memorizing the training slice instead of learning the task; the holdout split is
+          what catches it.</dd>
+        <dt>winner law</dt><dd>A student serves only where it strictly beat the free floor on the frozen read.
+          A tie or a loss sells nothing.</dd>
+        <dt>reference lane</dt><dd>A frozen model nobody here trains, measured as the bar each student must
+          clear.</dd>
+      </dl>
+    </div>
+
+    <figure class="gf-fig">
+      <picture>
+        <source media="(max-width: 720px)" srcset="/assets/train_freeze_flow_m.svg" width="340" height="1084">
+        <img src="/assets/train_freeze_flow.svg" width="2050" height="724" loading="lazy"
+          alt="How a student head is built, frozen below and trained above, across four lanes. A labeled corpus of public data with frozen splits. The frozen encoder reads every example once and never trains. A small head fits over the cached reading, on gold labels or a frozen teacher's probabilities. The fit must earn its read on held-out examples; then one frozen test read applies the winner law — serve only a strict win over the free floor. The winner is locked and swapped whole, never blended, and serves composed: the floor answers first and the head thinks only on abstain.">
+      </picture>
+      <figcaption><strong>Frozen below, trained above — how a student head is built.</strong> Everything below the
+        head is frozen and only the head trains: the base's reading stays exact and repeatable, a head is cheap to
+        fit per domain, and nothing below it can drift or forget. What wins is locked and swapped whole — never
+        blended.</figcaption>
+    </figure>
+
+    <p class="wire-cap">Train or freeze — the techniques compared</p>
+    <div class="diffs" id="techniques">
+      <table>
+        <thead>
+          <tr><th>Technique</th><th>What trains</th><th>What stays frozen</th><th>Why we choose it — or don't</th><th>Where the gain shows</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Frozen, as-is</td><td>nothing</td><td>everything</td>
+            <td>The zero-cost baseline: score a pretrained model without any training. Every lane must beat a
+              frozen reference — or the free floor — before anything trains at all.</td>
+            <td><a href="/bench/">the comparison lanes on the board</a></td></tr>
+          <tr><td>Head-only — frozen base + small head</td><td>a tiny head</td><td>the whole base model</td>
+            <td>The hosted rung: the base's reading stays exact and repeatable, a head is cheap to fit per
+              domain, and nothing below it can drift or forget.</td>
+            <td><a href="/bench/">the board's Rethink rows</a> — measured, record-only until the hosted lane
+              opens</td></tr>
+          <tr><td>Distillation — teacher → student</td><td>the student</td><td>the teacher</td>
+            <td>Moves a big model's knowledge into a cheap student. The caveat we measured: the student's
+              feature class can cap the lift — a better teacher could not raise a bag-features student past
+              its ceiling.</td>
+            <td><a href="/bench/#instinct">the board's Instinct rows</a></td></tr>
+          <tr><td>Adapter — LoRA (PEFT)</td><td>a small injected adapter</td><td>the base model</td>
+            <td>The industry's middle path, and the shape behind a published open decision model's recipe.
+              Serve still pays the big base's cost — so it stays out of our serving ladder, kept on the map
+              for a future retrain.</td>
+            <td>not seated — a mapped option</td></tr>
+          <tr><td>Full fine-tune</td><td>every weight</td><td>nothing</td>
+            <td>Most expressive, most expensive, and it risks catastrophic forgetting. Overkill for typed
+              decisions; nobody in the family's serving ladder does it.</td>
+            <td>not used — shown for contrast</td></tr>
+          <tr><td>Modelless fit</td><td>a few gate thresholds, offline</td><td>everything — there is no network at all</td>
+            <td>The free floor: an authored corpus plus fitted gates. Not training in the neural sense, and
+              that is the point — nothing to freeze, nothing to forget.</td>
+            <td><a href="/bench/">the Reflex rows, every suite</a></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="sub">Read the table this way: the serving ladder — modelless → bag specialist → encoder head —
+      never leaves frozen-below-the-head, while the heavier techniques stay available to the training side,
+      where a measured win can promote them. The measured side of every row is
+      <a href="/bench/">the benchmark</a>; no number on this page is typed.</p>
   </section>
 
 </div>
