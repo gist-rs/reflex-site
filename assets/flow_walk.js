@@ -26,6 +26,14 @@
 // Side panels are plug-ins: <figure data-walk-panel="NAME"> loads
 // ./flow_walk_NAME.js, which calls registerPanel(NAME, plugin). A plugin's
 // walk(name) returns the legacy config, or null to keep the figure static.
+// A plugin may also ride a GFFLOW figure (the arena's rulebook figures,
+// Plan 620 group A): gfflowSide(name, data, figure) returns
+// { autoplay?, renderSide(host, cur) } and the walk steps/IN/OUT keep
+// coming from the renderer's .walk.json — the panel contributes the side
+// visual only (the replayed Tetris board).
+// <figure data-walk-autoplay> (either kind) starts the step-through once
+// scrolled into view — the arena's page-wide posture; the family default
+// stays reader-started.
 //
 // Styles: the widget's default chrome is injected once, every rule wrapped in
 // :where() (zero specificity) so a page's own .fw-* rules (the arena's
@@ -414,7 +422,7 @@ function renderIO(host, w) {
   }
 }
 
-async function setupGfflow(figure, src) {
+async function setupGfflow(figure, src, panelName) {
   const walkUrl = src.replace(/\.svg$/, ".walk.json");
   const resp = await fetch(walkUrl);
   if (!resp.ok) throw new Error("fetch " + walkUrl + " → " + resp.status);
@@ -440,16 +448,28 @@ async function setupGfflow(figure, src) {
   }
   const img = figure.querySelector("img");
   (picture ?? img).replaceWith(stage);
+  // a panel plug-in may ride the gfflow walk (the Tetris board): it draws
+  // the side column per step and may ask for autoplay; the steps, the
+  // IN/OUT payloads and the highlight stay the walk's own
+  let side = null;
+  let autoplay = figure.hasAttribute("data-walk-autoplay");
+  if (panelName) {
+    const plugin = await loadPanel(panelName);
+    const adapter = await plugin.gfflowSide?.(src.split("/").pop(), data, figure);
+    if (adapter?.renderSide) side = (host, cur) => adapter.renderSide(host, cur);
+    if (adapter?.autoplay) autoplay = true;
+  }
   // the caption stays last: the controls + panel sit between figure and caption
   const caption = figure.querySelector(":scope > figcaption");
   mountWalk(figure, stage, {
     steps: data.walk,
     intro: data.intro,
-    autoplay: false,
+    autoplay,
     highlight: gfflowHighlighter([desk, mob].filter(Boolean), data, mobBox),
     label: (i) => data.walk[i].steps.map((id) => data.steps[id]?.n ?? id).join(" · "),
     illustrative: (i) => !!data.walk[i].illustrative,
     io: (host, i) => (i >= 0 ? renderIO(host, data.walk[i]) : host.replaceChildren()),
+    side,
   });
   if (caption) figure.append(caption);
   const name = src.split("/").pop();
@@ -485,8 +505,12 @@ async function boot() {
     const src = figure.getAttribute("data-walk") || "";
     const panelName = figure.getAttribute("data-walk-panel");
     try {
-      if (panelName) await setupLegacy(figure, src, panelName);
-      else await setupGfflow(figure, src);
+      // a gfflow figure (renderer-made, §8.3) embeds a <picture> and walks
+      // from <file>.walk.json; a legacy mermaid figure embeds a bare <img>.
+      // A panel plug-in rides either kind.
+      if (figure.querySelector("picture")) await setupGfflow(figure, src, panelName);
+      else if (panelName) await setupLegacy(figure, src, panelName);
+      else await setupGfflow(figure, src, null);
     } catch (err) {
       console.warn("[flow-walk] " + src.split("/").pop() + " stays static:", err.message);
     }

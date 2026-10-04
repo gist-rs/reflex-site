@@ -182,27 +182,361 @@
       <section class="lanes-how" id="tetris-how">
         <h3>How each lane picks a spot</h3>
         <p class="sub">Same game for everyone (seeded 7-bag, hard drop, guideline scoring) — only the pick differs.
-        Source: <a href="https://github.com/katopz/katgpt-rs/blob/HEAD/.docs/06_game_arenas/tetris_lane_flows.md">tetris_lane_flows.md</a>.</p>
-        <figure class="figure lanefig">
-          <figcaption><span class="fig-hint">Swipe the figure sideways. </span><b>laya (Rust / Python)</b> — one forward pass per spot sentence; sees only the falling piece.</figcaption>
-          <div class="fig-x"><img src="/assets/tetris_flow_laya.svg" alt="laya lanes: code lists every landing spot, writes each as an English sentence, the laya model answers Does the stack look clean for each, and the piece goes to the highest probability" loading="lazy"></div>
+        Source: <a href="https://github.com/katopz/katgpt-rs/blob/HEAD/.docs/06_game_arenas/tetris_lane_flows.md">tetris_lane_flows.md</a>.
+        Press play on any figure to walk one recorded turn of the seed-607 game — every walk's input and output
+        is replayed from the recorded games, never typed.</p>
+        <figure class="figure lanefig gf-fig" data-walk="/assets/tetris_flow_laya.svg" data-walk-autoplay>
+          <picture>
+            <source media="(max-width: 720px)" srcset="/assets/tetris_flow_laya_m.svg" width="340" height="768">
+            <img src="/assets/tetris_flow_laya.svg" width="1168" height="546" loading="lazy"
+              alt="The laya lane, numbered along the path in three lanes. 1 the turn arrives — board plus falling piece from the seeded 7-bag. 2 list every spot — each rotation in each column. 3 say it in words — one sentence per spot. 4 the model reads — a laya forward pass per sentence. 5 P(clean) per spot. 6 play the highest.">
+          </picture>
+          <figcaption><b>laya (Rust / Python)</b> — one forward pass per spot sentence; sees only the falling piece.</figcaption>
         </figure>
-        <figure class="figure lanefig">
-          <figcaption><span class="fig-hint">Swipe the figure sideways. </span><b>Reflex · modelless</b> — laya's recorded answers distilled into a tiny linear head that runs in this tab.</figcaption>
-          <div class="fig-x"><img src="/assets/tetris_flow_modelless.svg" alt="Reflex · modelless lane: the same spot sentence is decoded back into board features, scored by a small linear head fitted on laya's recorded answers, and the highest score is played, in microseconds inside WebAssembly" loading="lazy"></div>
+        <!-- gfflow:walk tetris_flow_laya.svg -->
+<details class="gf-walk-static" data-walk-static="tetris_flow_laya.svg"><summary>Step by step: what goes in and what comes out</summary>
+<ol class="gf-walk-list">
+<li><p class="gf-walk-h"><b>1 · The turn arrives</b></p><p>One turn of the recorded seed-607 game: the board, the falling piece, and the nine landing spots the harness will judge. Every lane in the arena plays this same stream — what differs is only how the pick is made.</p><p class="gf-walk-io">IN · the recorded opening turn</p><pre class="gf-code">{
+  &quot;grammar&quot;: &quot;laya-tetris-v3&quot;,
+  &quot;question&quot;: &quot;Does the stack look clean?&quot;,
+  &quot;state&quot;: &quot;The stack stands low and the surface is mostly flat. There are no holes under the blocks. The square piece is falling.&quot;,
+  &quot;piece&quot;: &quot;O&quot;,
+  &quot;board&quot;: [
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;
+  ],
+  &quot;landing_spots&quot;: 9
+}</pre><p class="gf-walk-from">recorded from the laya (Rust) lane, seed 607, 2026-09-25, arena/demo_oracle.json _meta.sources.tetris_laya · scripts/record_demo_walks.mjs · the opening turn (turn 0)</p></li>
+<li><p class="gf-walk-h"><b>2 · List every spot</b></p><p>The harness enumerates every legal landing: each rotation of the piece in each column, hard-dropped. For the opening O piece that is nine distinct futures — the count rides the recorded turn above.</p></li>
+<li><p class="gf-walk-h"><b>3 · Say it in words</b></p><p>Each spot becomes one English sentence — the holes it leaves, how it meets the surface, where it lands, how tall the stack stands. The words are pinned by the grammar; every lane reads the same ones.</p></li>
+<li><p class="gf-walk-h"><b>4 · The model reads</b></p><p>The laya model runs one forward pass per sentence. Rust is the served port; Python is the torch reference it is measured against — the same open weights either way.</p></li>
+<li><p class="gf-walk-h"><b>5 · P(clean) per spot</b></p><p>Every landing spot comes back with a cleanliness probability. The recorded opening turn&#x27;s nine answers are below — watch how flat they are on an empty board: the model is nearly indifferent, and small differences decide the pick.</p><p class="gf-walk-io">OUT · P(clean) per spot · the pick</p><pre class="gf-code">{
+  &quot;p_clean_per_spot&quot;: [0.6832, 0.6832, 0.6888, 0.6888, 0.691, 0.691, 0.6379, 0.6379, 0.6581],
+  &quot;pick&quot;: 4
+}</pre><p class="gf-walk-from">recorded from the laya (Rust) lane, seed 607, 2026-09-25, arena/demo_oracle.json _meta.sources.tetris_laya · scripts/record_demo_walks.mjs · the opening turn&#x27;s answer</p></li>
+<li><p class="gf-walk-h"><b>6 · Play the highest</b></p><p>The highest-probability spot is played and the piece drops; the next turn starts the loop again. One model forward per spot is the whole cost of this lane.</p><p class="gf-walk-io">OUT · the played spot</p><pre class="gf-code">{
+  &quot;p_clean_per_spot&quot;: [0.6832, 0.6832, 0.6888, 0.6888, 0.691, 0.691, 0.6379, 0.6379, 0.6581],
+  &quot;pick&quot;: 4
+}</pre><p class="gf-walk-from">recorded from the laya (Rust) lane, seed 607, 2026-09-25, arena/demo_oracle.json _meta.sources.tetris_laya · scripts/record_demo_walks.mjs · the opening turn&#x27;s answer</p></li>
+</ol>
+</details>
+<!-- /gfflow:walk -->
+        <figure class="figure lanefig gf-fig" data-walk="/assets/tetris_flow_modelless.svg" data-walk-autoplay>
+          <picture>
+            <source media="(max-width: 720px)" srcset="/assets/tetris_flow_modelless_m.svg" width="340" height="498">
+            <img src="/assets/tetris_flow_modelless.svg" width="1168" height="546" loading="lazy"
+              alt="The Reflex modelless lane, numbered along the path in three lanes. 1 the same sentence laya reads, unchanged. 2 decode to features — holes, flat, height, side, clears. 3 a tiny linear head fitted on laya's recorded answers. 4 play the highest — microseconds in your tab.">
+          </picture>
+          <figcaption><b>Reflex · modelless</b> — laya's recorded answers distilled into a tiny linear head that runs in this tab.</figcaption>
         </figure>
-        <figure class="figure lanefig" data-walk="/assets/tetris_flow_rulebook.svg" data-walk-panel="tetris">
-          <figcaption><span class="fig-hint">Swipe the figure sideways. </span><b>Reflex · rulebook</b> — no model: plans three pieces ahead, averaging the unknown third over the bag.</figcaption>
-          <div class="fig-x"><img src="/assets/tetris_flow_rulebook.svg" alt="Reflex · rulebook search: try every spot for the falling piece, every spot for the preview piece keeping the best six, then every piece still left in the bag; score each end board with the strategy rulebook, average over the unknown piece, take the best plan, and play its first move" loading="lazy"></div>
+        <!-- gfflow:walk tetris_flow_modelless.svg -->
+<details class="gf-walk-static" data-walk-static="tetris_flow_modelless.svg"><summary>Step by step: what goes in and what comes out</summary>
+<ol class="gf-walk-list">
+<li><p class="gf-walk-h"><b>1 · The same sentence</b></p><p>The distillation changes nothing about the input: the very same recorded opening turn the laya lane reads. That is the point — same question, a different (much cheaper) answerer.</p><p class="gf-walk-io">IN · the same recorded opening turn</p><pre class="gf-code">{
+  &quot;grammar&quot;: &quot;laya-tetris-v3&quot;,
+  &quot;question&quot;: &quot;Does the stack look clean?&quot;,
+  &quot;state&quot;: &quot;The stack stands low and the surface is mostly flat. There are no holes under the blocks. The square piece is falling.&quot;,
+  &quot;piece&quot;: &quot;O&quot;,
+  &quot;board&quot;: [
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;
+  ],
+  &quot;landing_spots&quot;: 9
+}</pre><p class="gf-walk-from">recorded from the KatGPT modelless lane, seed 607, 2026-09-25, arena/demo_oracle.json _meta.sources.tetris_head · scripts/record_demo_walks.mjs · the opening turn (turn 0)</p></li>
+<li><p class="gf-walk-h"><b>2 · Decode to features</b></p><p>The sentence is decoded back into the board features it came from: holes left, how flat the surface sits, stack height, which side it lands on, lines cleared. A handful of numbers — no words reach the head.</p></li>
+<li><p class="gf-walk-h"><b>3 · A tiny linear head</b></p><p>A small linear head, fitted offline on laya&#x27;s recorded answers, scores the features. It imitates laya — 44 of 120 picks agree on the pinned corpus — so it plays like laya, only about a hundred-thousand times faster.</p><p class="gf-walk-io">OUT · the head&#x27;s answer to the same turn</p><pre class="gf-code">{
+  &quot;p_clean_per_spot&quot;: [0.5325405, 0.5325405, 0.534729, 0.534729, 0.53691745, 0.53691745, 0.5391059, 0.5391059, 0.54129434],
+  &quot;pick&quot;: 8
+}</pre><p class="gf-walk-from">recorded from the KatGPT modelless lane, seed 607, 2026-09-25, arena/demo_oracle.json _meta.sources.tetris_head · scripts/record_demo_walks.mjs · the opening turn&#x27;s answer</p></li>
+<li><p class="gf-walk-h"><b>4 · Play the highest</b></p><p>The top-scoring spot drops. The head runs as WebAssembly in your tab — it is the lane playing live in the arena below, one pick per piece at microsecond cost.</p><p class="gf-walk-io">OUT · the played spot</p><pre class="gf-code">{
+  &quot;p_clean_per_spot&quot;: [0.5325405, 0.5325405, 0.534729, 0.534729, 0.53691745, 0.53691745, 0.5391059, 0.5391059, 0.54129434],
+  &quot;pick&quot;: 8
+}</pre><p class="gf-walk-from">recorded from the KatGPT modelless lane, seed 607, 2026-09-25, arena/demo_oracle.json _meta.sources.tetris_head · scripts/record_demo_walks.mjs · the opening turn&#x27;s answer</p></li>
+</ol>
+</details>
+<!-- /gfflow:walk -->
+        <figure class="figure lanefig gf-fig" data-walk="/assets/tetris_flow_rulebook.svg" data-walk-panel="tetris" data-walk-autoplay>
+          <picture>
+            <source media="(max-width: 720px)" srcset="/assets/tetris_flow_rulebook_m.svg" width="340" height="790">
+            <img src="/assets/tetris_flow_rulebook.svg" width="874" height="368" loading="lazy"
+              alt="The Reflex rulebook search, numbered along the path in two lanes. 1 the piece in play — every legal landing spot. 2 the preview piece chained, best six kept. 3 the unknown third piece — branch over every piece left in the bag. 4 score end boards with the strategy rulebook. 5 average over the unknown, pick the sturdiest plan. 6 play the first move, then re-plan from scratch.">
+          </picture>
+          <figcaption><b>Reflex · rulebook</b> — no model: plans three pieces ahead, averaging the unknown third over the bag.</figcaption>
         </figure>
-        <figure class="figure lanefig" data-walk="/assets/tetris_flow_modes.svg" data-walk-panel="tetris">
-          <figcaption><span class="fig-hint">Swipe the figure sideways. </span><b>The rulebook's modes</b> — build for tetrises only while safe; found by self-evolution, not hand-coded.</figcaption>
-          <div class="fig-x"><img src="/assets/tetris_flow_modes.svg" alt="the rulebook's play modes: on a clean low stack it builds a nine-one stack and waits for tetrises; three or more covered holes switch it to downstack, a tall stack to survive, both using safe survival weights; a clean board returns it to build" loading="lazy"></div>
+        <!-- gfflow:walk tetris_flow_rulebook.svg -->
+<details class="gf-walk-static" data-walk-static="tetris_flow_rulebook.svg"><summary>Step by step: what goes in and what comes out</summary>
+<ol class="gf-walk-list">
+<li><p class="gf-walk-h"><b>1 · Look ahead — the falling piece</b></p><p>The rulebook never reacts one piece at a time. It starts by listing every legal landing spot for the piece in play — every rotation in every column — and treats each one as a possible future board.</p><p class="gf-walk-io">IN · the recorded seed-607 clear turn</p><pre class="gf-code">{
+  &quot;lane&quot;: &quot;Reflex · rulebook (the search champion)&quot;,
+  &quot;genome_id&quot;: &quot;68cae9d382014662&quot;,
+  &quot;piece&quot;: &quot;I&quot;,
+  &quot;board&quot;: [
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..####....&quot;,
+    &quot;########..&quot;,
+    &quot;#########.&quot;,
+    &quot;#########.&quot;,
+    &quot;#########.&quot;,
+    &quot;#########.&quot;
+  ],
+  &quot;landing_spots&quot;: 17,
+  &quot;depth&quot;: 3
+}</pre><p class="gf-walk-from">recorded from the Reflexer (rulebook search) lane, seed 607, 2026-09-25, arena/demo_oracle.json _meta.sources.tetris_rulebook · katgpt-rs examples/tetris_09_site_walk.rs · turn 32 (the recorded turn with the biggest clear)</p></li>
+<li><p class="gf-walk-h"><b>2 · Chain the preview piece</b></p><p>Each candidate board is paired with every landing spot of the preview piece — and the tree is pruned hard: only the best six boards survive each level, so the search stays tiny instead of exploding.</p></li>
+<li><p class="gf-walk-h"><b>3 · Cover the unknown third piece</b></p><p>The piece after that is not known yet. Rather than gamble on a single guess, the plan plays out every piece the bag could still deal — the search branches over all of them.</p></li>
+<li><p class="gf-walk-h"><b>4 · Score every end board</b></p><p>Each final board is scored by the strategy rulebook — holes, bumpiness, stack height, wells, lines cleared — the instincts of a careful human player, written as numbers.</p></li>
+<li><p class="gf-walk-h"><b>5 · Average over the unknown · pick the plan</b></p><p>A plan is only as good as its worst realistic draw: scores are averaged across the possible third pieces, so a line-clear that needs the I-piece rates low — it usually does not come. The sturdiest plan wins.</p><p class="gf-walk-io">OUT · per-spot scores · the winning plan</p><pre class="gf-code">{
+  &quot;spot_scores&quot;: [0.0677, 0.119, 0.2616, 0.1489, 0.0577, 0.0152, 0.0317, 0.2808, 0.188, 0.2341, 0.2328, 0.2383, 0.2324, 0.2605, 0.1837, 0.2417, 0.5],
+  &quot;pick&quot;: 16,
+  &quot;ms_per_decision&quot;: [0.014, 0.014, 0.014, 0.014, 0.014, 0.014, 0.014, 0.014, 0.014, 0.014, 0.014, 0.014, 0.014, 0.014, 0.014, 0.014, 0.014],
+  &quot;scores_note&quot;: &quot;sigmoid((v − max v) / std(v)) over the champion&#x27;s per-option root values (std floor 1e-9) — the pick reads 0.5; a display map, not a probability&quot;
+}</pre><p class="gf-walk-from">recorded from the Reflexer (rulebook search) lane, seed 607, 2026-09-25, arena/demo_oracle.json _meta.sources.tetris_rulebook · katgpt-rs examples/tetris_09_site_walk.rs · turn 32&#x27;s answer (scores are the recorded display map)</p></li>
+<li><p class="gf-walk-h"><b>6 · Play the first move — then re-plan</b></p><p>Only the winning plan&#x27;s first move is played; the very next piece restarts the whole search from scratch. All of it runs in about a third of a millisecond — a thousand-plus searches would fit inside one 60 Hz frame.</p><p class="gf-walk-io">OUT · the recorded tetris landing</p><pre class="gf-code">{
+  &quot;lines_cleared&quot;: 4,
+  &quot;lines_so_far&quot;: 12,
+  &quot;score_so_far&quot;: 1560,
+  &quot;pieces_so_far&quot;: 33
+}</pre><p class="gf-walk-from">recorded from the Reflexer (rulebook search) lane, seed 607, 2026-09-25, arena/demo_oracle.json _meta.sources.tetris_rulebook · katgpt-rs examples/tetris_09_site_walk.rs · after turn 32&#x27;s pick lands (replayed off the record)</p></li>
+</ol>
+</details>
+<!-- /gfflow:walk -->
+        <figure class="figure lanefig gf-fig" data-walk="/assets/tetris_flow_modes.svg" data-walk-panel="tetris" data-walk-autoplay>
+          <picture>
+            <source media="(max-width: 720px)" srcset="/assets/tetris_flow_modes_m.svg" width="340" height="538">
+            <img src="/assets/tetris_flow_modes.svg" width="874" height="368" loading="lazy"
+              alt="The rulebook's play modes as a cycle. 1 BUILD — nine flat plus one open well, waiting for tetrises. On 3+ covered holes it branches to 2a DOWNSTACK — dig them back out; on a 12+ row stack to 2b SURVIVE — take any line, stay low; both hand back to BUILD when the board recovers.">
+          </picture>
+          <figcaption><b>The rulebook's modes</b> — build for tetrises only while safe; found by self-evolution, not hand-coded.</figcaption>
         </figure>
-        <figure class="figure lanefig">
-          <figcaption><span class="fig-hint">Swipe the figure sideways. </span><b>raw baseline</b> — no fitted heads: it abstains, and the abstain plays a random spot.</figcaption>
-          <div class="fig-x"><img src="/assets/tetris_flow_raw.svg" alt="raw baseline lane: the corpus engine without fitted heads finds the spot sentence off-corpus, abstains, and the abstain plays as a labelled random spot, the honest floor" loading="lazy"></div>
+        <!-- gfflow:walk tetris_flow_modes.svg -->
+<details class="gf-walk-static" data-walk-static="tetris_flow_modes.svg"><summary>Step by step: what goes in and what comes out</summary>
+<ol class="gf-walk-list">
+<li><p class="gf-walk-h"><b>1 · BUILD — the default mode</b></p><p>On a clean, low stack it builds a 9-1 stack: nine columns packed flat plus one open well on the right edge, saving I-pieces to clear four lines at once. The 9-1 shape was self-evolved — nobody hand-coded it; it fell out of the training climb.</p><p class="gf-walk-io">IN · a real recorded build position</p><pre class="gf-code">{
+  &quot;mode&quot;: &quot;BUILD&quot;,
+  &quot;board&quot;: [
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..#..#....&quot;,
+    &quot;#########.&quot;,
+    &quot;#########.&quot;,
+    &quot;#########.&quot;,
+    &quot;#########.&quot;,
+    &quot;#########.&quot;,
+    &quot;#########.&quot;,
+    &quot;#########.&quot;,
+    &quot;#########.&quot;
+  ],
+  &quot;covered_holes&quot;: 0,
+  &quot;stack_height&quot;: 9
+}</pre><p class="gf-walk-from">recorded from the Reflexer (rulebook search) lane, seed 607, 2026-09-25, arena/demo_oracle.json _meta.sources.tetris_rulebook · katgpt-rs examples/tetris_09_site_walk.rs · turn 271 (the strongest 9-1 build position)</p></li>
+<li><p class="gf-walk-h"><b>2a · Trouble #1 — covered holes → DOWNSTACK</b></p><p>Three or more holes buried under the stack and building stops paying: every new piece makes it worse. The mode flips to DOWNSTACK, which deliberately clears the lines sitting above the holes to dig them back out.</p><p class="gf-walk-io">IN · the most-buried recorded position</p><pre class="gf-code">{
+  &quot;board&quot;: [
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;.........#&quot;,
+    &quot;......####&quot;,
+    &quot;...#######&quot;,
+    &quot;#.########&quot;,
+    &quot;#.########&quot;,
+    &quot;##.###.###&quot;,
+    &quot;######.##.&quot;,
+    &quot;######.##.&quot;,
+    &quot;#########.&quot;,
+    &quot;#########.&quot;,
+    &quot;#########.&quot;,
+    &quot;#########.&quot;,
+    &quot;#########.&quot;,
+    &quot;#########.&quot;
+  ],
+  &quot;covered_holes&quot;: 12
+}</pre><p class="gf-walk-from">recorded from the Reflexer (rulebook search) lane, seed 607, 2026-09-25, arena/demo_oracle.json _meta.sources.tetris_rulebook · katgpt-rs examples/tetris_09_site_walk.rs · turn 62 (the most-buried recorded position)</p><p class="gf-walk-io">OUT · the measured trigger vs the genome&#x27;s threshold</p><pre class="gf-code">{
+  &quot;mode&quot;: &quot;DOWNSTACK&quot;,
+  &quot;covered_holes&quot;: 12,
+  &quot;trigger_at_holes&quot;: 3
+}</pre><p class="gf-walk-from">recorded from the Reflexer (rulebook search) lane, seed 607, 2026-09-25, arena/demo_oracle.json _meta.sources.tetris_rulebook · katgpt-rs examples/tetris_09_site_walk.rs · counted off turn 62&#x27;s board; threshold from the recorded genome</p></li>
+<li><p class="gf-walk-h"><b>2b · Trouble #2 — tall stack → SURVIVE</b></p><p>A stack twelve rows high is one bad piece from topping out. SURVIVE takes any line it can and keeps the board low — scoring gives way to staying alive. (Survive wins when both exits fire at once.)</p><p class="gf-walk-io">IN · the tallest recorded position</p><pre class="gf-code">{
+  &quot;board&quot;: [
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;.........#&quot;,
+    &quot;........##&quot;,
+    &quot;....##..##&quot;,
+    &quot;....######&quot;,
+    &quot;....######&quot;,
+    &quot;....######&quot;,
+    &quot;....##.###&quot;,
+    &quot;...###.##.&quot;,
+    &quot;...###.##.&quot;,
+    &quot;#########.&quot;,
+    &quot;#########.&quot;,
+    &quot;#########.&quot;,
+    &quot;#########.&quot;,
+    &quot;#########.&quot;,
+    &quot;#########.&quot;
+  ],
+  &quot;stack_height&quot;: 15
+}</pre><p class="gf-walk-from">recorded from the Reflexer (rulebook search) lane, seed 607, 2026-09-25, arena/demo_oracle.json _meta.sources.tetris_rulebook · katgpt-rs examples/tetris_09_site_walk.rs · turn 56 (the tallest recorded position)</p><p class="gf-walk-io">OUT · the measured height vs the genome&#x27;s threshold</p><pre class="gf-code">{
+  &quot;mode&quot;: &quot;SURVIVE&quot;,
+  &quot;stack_height&quot;: 15,
+  &quot;trigger_at_rows&quot;: 12
+}</pre><p class="gf-walk-from">recorded from the Reflexer (rulebook search) lane, seed 607, 2026-09-25, arena/demo_oracle.json _meta.sources.tetris_rulebook · katgpt-rs examples/tetris_09_site_walk.rs · measured off turn 56&#x27;s board; threshold from the recorded genome</p></li>
+<li><p class="gf-walk-h"><b>1 · Recovery — both modes hand back to BUILD</b></p><p>Holes dug out, or the stack back under twelve — either way the mode returns to BUILD and the cycle starts over. The board is re-read before every single piece, so the switch is never late.</p><p class="gf-walk-io">IN · a real recovered position</p><pre class="gf-code">{
+  &quot;mode&quot;: &quot;BUILD (recovered)&quot;,
+  &quot;board&quot;: [
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;...#......&quot;,
+    &quot;#.#####...&quot;,
+    &quot;#######...&quot;,
+    &quot;########..&quot;,
+    &quot;#########.&quot;,
+    &quot;#########.&quot;
+  ],
+  &quot;covered_holes&quot;: 0,
+  &quot;stack_height&quot;: 6
+}</pre><p class="gf-walk-from">recorded from the Reflexer (rulebook search) lane, seed 607, 2026-09-25, arena/demo_oracle.json _meta.sources.tetris_rulebook · katgpt-rs examples/tetris_09_site_walk.rs · turn 80 (holes dug out, stack back under 12)</p></li>
+<li><p class="gf-walk-h"><b>1 · 2a · 2b · One search, three weights</b></p><p>The modes are not three different AIs — it is the same placement search wearing different score weights: self-evolved builder weights while safe, proven survival weights in trouble. That is the whole trick behind the rulebook lane.</p></li>
+</ol>
+</details>
+<!-- /gfflow:walk -->
+        <figure class="figure lanefig gf-fig" data-walk="/assets/tetris_flow_raw.svg" data-walk-autoplay>
+          <picture>
+            <source media="(max-width: 720px)" srcset="/assets/tetris_flow_raw_m.svg" width="340" height="548">
+            <img src="/assets/tetris_flow_raw.svg" width="874" height="546" loading="lazy"
+              alt="The raw baseline, numbered along the path in three lanes with one branch. 1 the same sentence, sent to the bare engine. 2 corpus engine — no fitted heads, nearest corpus neighbours only. In corpus, 3a play the highest; off corpus, 3b abstain — and the abstain plays a labelled random spot, the honest floor.">
+          </picture>
+          <figcaption><b>raw baseline</b> — no fitted heads: it abstains, and the abstain plays a random spot.</figcaption>
         </figure>
+        <!-- gfflow:walk tetris_flow_raw.svg -->
+<details class="gf-walk-static" data-walk-static="tetris_flow_raw.svg"><summary>Step by step: what goes in and what comes out</summary>
+<ol class="gf-walk-list">
+<li><p class="gf-walk-h"><b>1 · The same sentence</b></p><p>The same recorded opening turn, sent to the engine with every fitted head removed. Only the corpus remains: nearest-neighbour lookup over what it has literally seen before.</p><p class="gf-walk-io">IN · the same recorded opening turn</p><pre class="gf-code">{
+  &quot;grammar&quot;: &quot;laya-tetris-v3&quot;,
+  &quot;question&quot;: &quot;Does the stack look clean?&quot;,
+  &quot;state&quot;: &quot;The stack stands low and the surface is mostly flat. There are no holes under the blocks. The square piece is falling.&quot;,
+  &quot;piece&quot;: &quot;O&quot;,
+  &quot;board&quot;: [
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;,
+    &quot;..........&quot;
+  ],
+  &quot;landing_spots&quot;: 9
+}</pre><p class="gf-walk-from">recorded from the raw baseline lane, seed 607, 2026-09-25, arena/demo_oracle.json _meta.sources.tetris_raw · scripts/record_demo_walks.mjs · the opening turn (turn 0)</p></li>
+<li><p class="gf-walk-h"><b>2 · Corpus engine</b></p><p>With no heads, the engine can only compare the sentence against its corpus. The spot sentences of a real game are almost all new — so this branch is the one the recorded raw game took, five hundred and fifteen times in a row.</p></li>
+<li><p class="gf-walk-h"><b>3a · In corpus → play the highest</b></p><p>When a sentence lands close to something the corpus holds, the engine answers like laya would and the highest-probability neighbour wins. In the whole recorded raw game this path never fired — that honesty is what makes it the floor.</p></li>
+<li><p class="gf-walk-h"><b>3b · Off corpus → abstain, play random</b></p><p>Every outcome comes back null — the engine abstains rather than guess. The abstain plays a random legal spot from a separate seeded stream, labelled as random in the replay so nothing pretends to be a decision.</p><p class="gf-walk-io">OUT · every P(clean) null · a recorded random pick</p><pre class="gf-code">{
+  &quot;p_clean_per_spot&quot;: [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+  ],
+  &quot;pick&quot;: 6,
+  &quot;abstained&quot;: true,
+  &quot;policy&quot;: &quot;argmax, abstain → Rng(seed+1) random spot&quot;
+}</pre><p class="gf-walk-from">recorded from the raw baseline lane, seed 607, 2026-09-25, arena/demo_oracle.json _meta.sources.tetris_raw · scripts/record_demo_walks.mjs · the opening turn&#x27;s answer</p></li>
+</ol>
+</details>
+<!-- /gfflow:walk -->
       </section>
     </section>
 

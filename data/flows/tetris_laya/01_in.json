@@ -1,0 +1,29 @@
+{
+  "grammar": "laya-tetris-v3",
+  "question": "Does the stack look clean?",
+  "state": "The stack stands low and the surface is mostly flat. There are no holes under the blocks. The square piece is falling.",
+  "piece": "O",
+  "board": [
+    "..........",
+    "..........",
+    "..........",
+    "..........",
+    "..........",
+    "..........",
+    "..........",
+    "..........",
+    "..........",
+    "..........",
+    "..........",
+    "..........",
+    "..........",
+    "..........",
+    "..........",
+    "..........",
+    "..........",
+    "..........",
+    "..........",
+    ".........."
+  ],
+  "landing_spots": 9
+}

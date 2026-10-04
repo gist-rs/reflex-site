@@ -1,0 +1,30 @@
+{
+ "01_in.json": {
+  "from": "recorded from the Reflexer (rulebook search) lane, seed 607, 2026-09-25, arena/demo_oracle.json _meta.sources.tetris_rulebook · katgpt-rs examples/tetris_09_site_walk.rs · turn 271 (the strongest 9-1 build position)",
+  "source": "arena/demo_oracle.json",
+  "turn": 271
+ },
+ "02_in.json": {
+  "from": "recorded from the Reflexer (rulebook search) lane, seed 607, 2026-09-25, arena/demo_oracle.json _meta.sources.tetris_rulebook · katgpt-rs examples/tetris_09_site_walk.rs · turn 62 (the most-buried recorded position)",
+  "source": "arena/demo_oracle.json",
+  "turn": 62
+ },
+ "02_out.json": {
+  "from": "recorded from the Reflexer (rulebook search) lane, seed 607, 2026-09-25, arena/demo_oracle.json _meta.sources.tetris_rulebook · katgpt-rs examples/tetris_09_site_walk.rs · counted off turn 62's board; threshold from the recorded genome",
+  "source": "arena/demo_oracle.json"
+ },
+ "03_in.json": {
+  "from": "recorded from the Reflexer (rulebook search) lane, seed 607, 2026-09-25, arena/demo_oracle.json _meta.sources.tetris_rulebook · katgpt-rs examples/tetris_09_site_walk.rs · turn 56 (the tallest recorded position)",
+  "source": "arena/demo_oracle.json",
+  "turn": 56
+ },
+ "03_out.json": {
+  "from": "recorded from the Reflexer (rulebook search) lane, seed 607, 2026-09-25, arena/demo_oracle.json _meta.sources.tetris_rulebook · katgpt-rs examples/tetris_09_site_walk.rs · measured off turn 56's board; threshold from the recorded genome",
+  "source": "arena/demo_oracle.json"
+ },
+ "04_in.json": {
+  "from": "recorded from the Reflexer (rulebook search) lane, seed 607, 2026-09-25, arena/demo_oracle.json _meta.sources.tetris_rulebook · katgpt-rs examples/tetris_09_site_walk.rs · turn 80 (holes dug out, stack back under 12)",
+  "source": "arena/demo_oracle.json",
+  "turn": 80
+ }
+}

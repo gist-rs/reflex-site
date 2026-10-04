@@ -1,0 +1,17 @@
+{
+ "01_in.json": {
+  "from": "recorded from the Reflexer (rulebook search) lane, seed 607, 2026-09-25, arena/demo_oracle.json _meta.sources.tetris_rulebook · katgpt-rs examples/tetris_09_site_walk.rs · turn 32 (the recorded turn with the biggest clear)",
+  "source": "arena/demo_oracle.json",
+  "turn": 32
+ },
+ "01_out.json": {
+  "from": "recorded from the Reflexer (rulebook search) lane, seed 607, 2026-09-25, arena/demo_oracle.json _meta.sources.tetris_rulebook · katgpt-rs examples/tetris_09_site_walk.rs · turn 32's answer (scores are the recorded display map)",
+  "source": "arena/demo_oracle.json",
+  "turn": 32
+ },
+ "02_out.json": {
+  "from": "recorded from the Reflexer (rulebook search) lane, seed 607, 2026-09-25, arena/demo_oracle.json _meta.sources.tetris_rulebook · katgpt-rs examples/tetris_09_site_walk.rs · after turn 32's pick lands (replayed off the record)",
+  "source": "arena/demo_oracle.json",
+  "turn": 32
+ }
+}

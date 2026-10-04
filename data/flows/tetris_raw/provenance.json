@@ -1,0 +1,14 @@
+{
+ "01_in.json": {
+  "from": "recorded from the raw baseline lane, seed 607, 2026-09-25, arena/demo_oracle.json _meta.sources.tetris_raw · scripts/record_demo_walks.mjs · the opening turn (turn 0)",
+  "source": "arena/demo_oracle.json",
+  "turn": 0,
+  "lane": "tetris_raw"
+ },
+ "01_out.json": {
+  "from": "recorded from the raw baseline lane, seed 607, 2026-09-25, arena/demo_oracle.json _meta.sources.tetris_raw · scripts/record_demo_walks.mjs · the opening turn's answer",
+  "source": "arena/demo_oracle.json",
+  "turn": 0,
+  "lane": "tetris_raw"
+ }
+}

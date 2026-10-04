@@ -1,6 +1,6 @@
 // flow_walk_tetris.js — the Tetris board side panel for the arena's two
-// rulebook figures ("Reflex · rulebook" search + "The rulebook's modes"), a
-// plug-in of the family step-through (assets/flow_walk.js; design guide §8.4
+// rulebook figures ("Reflex · rulebook" search + "The rulebook's modes"),
+// a plug-in of the family step-through (assets/flow_walk.js; design guide §8.4
 // "a side panel is a plug-in"). Loaded on demand by flow_walk.js for a
 // figure carrying data-walk-panel="tetris".
 //
@@ -12,9 +12,11 @@
 // per-spot score) and the piece colors all come from that record, so the
 // illustration cannot drift from what the engine actually played.
 //
-// These figures are still mermaid SVGs (render_flows.py's legacy path), so
-// the steps name mermaid node / edge ids; Plan 620 P2 (group A) moves them to
-// gfflow + .walk.json and this panel keeps only the board.
+// Since Plan 620 group A these figures are GFFLOW figures walked from the
+// renderer's .walk.json (the steps, titles, texts and IN/OUT payloads);
+// this panel contributes the BOARD column only, one board per walk step
+// (both derive from the same recorded walk — walk step k shows the same
+// recorded position the board replays).
 
 import { registerPanel } from "./flow_walk.js";
 import * as T from "./games/tetris.js";
@@ -202,7 +204,6 @@ function rulebookSteps(states) {
 
   const steps = [
     {
-      nodes: ["flowchart-A-0"],
       title: "Look ahead — the falling piece",
       text: "The rulebook never reacts one piece at a time. It starts by listing every legal landing spot for the piece in play — every rotation in every column — and treats each one as a possible future board.",
       board: {
@@ -214,8 +215,6 @@ function rulebookSteps(states) {
       },
     },
     {
-      nodes: ["flowchart-B-1"],
-      edges: ["L_A_B_0"],
       title: "Chain the preview piece",
       text: "Each candidate board is paired with every landing spot of the preview piece — and the tree is pruned hard: only the best six boards survive each level, so the search stays tiny instead of exploding.",
       board: {
@@ -228,8 +227,6 @@ function rulebookSteps(states) {
       },
     },
     {
-      nodes: ["flowchart-C-2"],
-      edges: ["L_B_C_0"],
       title: "Cover the unknown third piece",
       text: "The piece after that is not known yet. Rather than gamble on a single guess, the plan plays out every piece the bag could still deal — the search branches over all of them.",
       board: {
@@ -241,8 +238,6 @@ function rulebookSteps(states) {
       },
     },
     {
-      nodes: ["flowchart-V-3"],
-      edges: ["L_C_V_0"],
       title: "Score every end board",
       text: "Each final board is scored by the strategy rulebook — holes, bumpiness, stack height, wells, lines cleared — the instincts of a careful human player, written as numbers.",
       board: {
@@ -254,8 +249,6 @@ function rulebookSteps(states) {
       },
     },
     {
-      nodes: ["flowchart-G-4"],
-      edges: ["L_V_G_0"],
       title: "Average over the unknown · pick the plan",
       text: "A plan is only as good as its worst realistic draw: scores are averaged across the possible third pieces, so a line-clear that needs the I-piece rates low — it usually does not come. The sturdiest plan wins.",
       board: {
@@ -267,8 +260,6 @@ function rulebookSteps(states) {
       },
     },
     {
-      nodes: ["flowchart-P-5"],
-      edges: ["L_G_P_0"],
       title: "Play the first move — then re-plan",
       text: "Only the winning plan's first move is played; the very next piece restarts the whole search from scratch. All of it runs in about 0.35 ms — a thousand-plus searches would fit inside one 60 Hz frame.",
       board: s.postPlace
@@ -305,7 +296,6 @@ function modesSteps(states, buildState) {
 
   const steps = [
     {
-      nodes: ["flowchart-BU-0"],
       title: "BUILD — the default mode",
       text: "On a clean, low stack it builds a 9-1 stack: nine columns packed flat plus one open well on the right edge, saving I-pieces to clear four lines at once. The 9-1 shape was self-evolved — nobody hand-coded it; it fell out of the training climb.",
       board: {
@@ -316,8 +306,6 @@ function modesSteps(states, buildState) {
       },
     },
     {
-      nodes: ["flowchart-DS-1"],
-      edges: ["L_BU_DS_0"],
       title: "Trouble #1 — covered holes → DOWNSTACK",
       text: "Three or more holes buried under the stack and building stops paying: every new piece makes it worse. The mode flips to DOWNSTACK, which deliberately clears the lines sitting above the holes to dig them back out.",
       board: {
@@ -327,8 +315,6 @@ function modesSteps(states, buildState) {
       },
     },
     {
-      nodes: ["flowchart-SV-2"],
-      edges: ["L_BU_SV_0"],
       title: "Trouble #2 — tall stack → SURVIVE",
       text: "A stack twelve rows high is one bad piece from topping out. SURVIVE takes any line it can and keeps the board low — scoring gives way to staying alive. (Survive wins when both exits fire at once.)",
       board: {
@@ -339,8 +325,6 @@ function modesSteps(states, buildState) {
       },
     },
     {
-      nodes: ["flowchart-BU-0"],
-      edges: ["L_DS_BU_0", "L_SV_BU_0"],
       title: "Recovery — both modes hand back to BUILD",
       text: "Holes dug out, or the stack back under twelve — either way the mode returns to BUILD and the cycle starts over. The board is re-read before every single piece, so the switch is never late.",
       board: {
@@ -350,7 +334,6 @@ function modesSteps(states, buildState) {
       },
     },
     {
-      nodes: ["flowchart-BU-0", "flowchart-DS-1", "flowchart-SV-2"],
       title: "One search, three weights",
       text: "The modes are not three different AIs — it is the same placement search wearing different score weights: self-evolved builder weights while safe, proven survival weights in trouble. That is the whole trick behind the rulebook lane.",
       board: {
@@ -524,53 +507,50 @@ function setBoard(host, spec, fallbackText) {
   host.appendChild(chip);
 }
 
-// ── the step scripts (flow text unchanged; boards come from the record) ──
+// ── the gfflow side adapter (one record load feeds both figures) ────────
 
-const STATIC_WALKS = {
-  "tetris_flow_rulebook.svg": {
-    intro:
-      "No model, no sentences — the rulebook lane searches placements and scores boards with a fixed strategy rulebook. Press play to walk the six steps, or click a dot to jump.",
-    introChip: "The real seed-607 recorded position the steps walk through",
-  },
-  "tetris_flow_modes.svg": {
-    intro:
-      "Before every piece the rulebook re-reads the board and picks a mode. Press play to walk the full build → trouble → recover cycle, or click a dot to jump.",
-    introChip: "Real positions from the recorded seed-607 run",
-  },
+const INTRO_CHIPS = {
+  "tetris_flow_rulebook.svg": "The real seed-607 recorded position the steps walk through",
+  "tetris_flow_modes.svg": "Real positions from the recorded seed-607 run",
 };
 
-// one record load feeds both figures
 let recordP = null;
 function records() {
   recordP ??= loadRecord().then(({ states }) => {
     const rb = rulebookSteps(states);
     const md = modesSteps(rb.states, rb.buildState);
     return {
-      "tetris_flow_rulebook.svg": rb.steps,
-      "tetris_flow_modes.svg": md.steps,
+      "tetris_flow_rulebook.svg": rb.steps.map((s) => s.board),
+      "tetris_flow_modes.svg": md.steps.map((s) => s.board),
     };
   });
   return recordP;
 }
 
 registerPanel("tetris", {
-  // → the legacy (mermaid) walk config, or a throw: no record → the figure
-  // stays the static <img> (the no-JS fallback)
-  async walk(name) {
-    const meta = STATIC_WALKS[name];
-    if (!meta) return null;
-    const steps = (await records())[name];
-    if (!steps) return null;
-    const introBoard = { ...steps[0].board, ghosts: [], chip: meta.introChip };
+  // The figure is a gfflow figure (Plan 620 group A): the walk — steps,
+  // texts, IN/OUT payloads — comes from the renderer's .walk.json; this
+  // adapter contributes the BOARD column, one board per walk step (both
+  // derive from the same recorded walk, so step k shows the recorded
+  // position the panel replays). A throw keeps the figure the static
+  // <picture> (the no-JS fallback).
+  async gfflowSide(name, data) {
+    const introChip = INTRO_CHIPS[name];
+    if (!introChip) return null;
+    const boards = (await records())[name];
+    if (!boards || boards.length !== data.walk.length) {
+      throw new Error(
+        `${name}: ${boards?.length ?? 0} recorded boards vs ${data.walk.length} walk steps — re-render the walk or re-record`,
+      );
+    }
+    const introBoard = { ...boards[0], ghosts: [], chip: introChip };
     return {
-      ...meta,
-      steps,
       autoplay: true,
       renderSide(host, cur) {
         setBoard(
           host,
-          cur >= 0 ? steps[cur].board : introBoard,
-          cur >= 0 ? "board unavailable — the recorded walk could not be replayed" : meta.introChip,
+          cur >= 0 ? boards[cur] : introBoard,
+          cur >= 0 ? "board unavailable — the recorded walk could not be replayed" : introChip,
         );
       },
     };

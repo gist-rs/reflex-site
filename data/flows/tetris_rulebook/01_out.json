@@ -1,0 +1,6 @@
+{
+  "spot_scores": [0.0677, 0.119, 0.2616, 0.1489, 0.0577, 0.0152, 0.0317, 0.2808, 0.188, 0.2341, 0.2328, 0.2383, 0.2324, 0.2605, 0.1837, 0.2417, 0.5],
+  "pick": 16,
+  "ms_per_decision": [0.014, 0.014, 0.014, 0.014, 0.014, 0.014, 0.014, 0.014, 0.014, 0.014, 0.014, 0.014, 0.014, 0.014, 0.014, 0.014, 0.014],
+  "scores_note": "sigmoid((v − max v) / std(v)) over the champion's per-option root values (std floor 1e-9) — the pick reads 0.5; a display map, not a probability"
+}

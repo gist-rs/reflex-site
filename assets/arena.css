@@ -250,12 +250,16 @@ footer.site-foot {
 }
 .lanefig figcaption { font-size: 14px; color: var(--muted); margin: 0 0 8px; }
 .lanefig figcaption b { color: var(--text); }
-.lanefig img { width: 100%; max-width: 760px; height: auto; display: block; margin: 0 auto; }
-/* The flow figures are mermaid SVGs with 16-unit labels (render_tetris_flows.py
-   FONT_SIZE_PX) and view boxes up to ~990 wide: 990 × 11/16 ≈ 681, so 690 px
-   keeps every label ≥ 11 px; narrower screens scroll inside the figure. */
+/* The gfflow figures (Plan 620): 874–1168-unit swimlanes with 13.5-unit
+   labels — they render at the wrap width (≥ 874 px keeps every label
+   ≥ 11 px); the 390 px card list is a <source>, not this <img>. */
+.lanefig img { width: 100%; max-width: 100%; height: auto; display: block; margin: 0 auto; }
+/* The walked figures scroll inside the stage (the legacy mermaid minimum
+   kept for wide desktops); the gfflow 390 px card list (.gfw-mob) is laid
+   out at 340 units 1:1 and must never inherit that floor. */
 .lanefig .fig-x, .fw-stage { overflow-x: auto; overscroll-behavior-x: contain; }
 .lanefig .fig-x img, .fw-stage svg { min-width: 690px; }
+.fw-stage .gfw-mob svg { min-width: 0; }
 @media (max-width: 760px) { .fig-hint { display: inline; } }
 
 /* ── lane figures: step-through animation (assets/flow_walk.js) ──
@@ -264,7 +268,11 @@ footer.site-foot {
    panel under the graphic. All highlight overrides are inline styles set
    by the JS; these rules only own opacity dimming, the pulse/dash motion
    and the widget chrome. Family accent only (the theme bans yellow). */
-.fw-stage svg { width: 100%; max-width: 760px; height: auto; display: block; margin: 0 auto; }
+.fw-stage svg { width: 100%; height: auto; display: block; margin: 0 auto; }
+/* the inlined gfflow swimlane keeps its own max-width inline (its true
+   width attr); the mobile card list centers at its 340-unit layout */
+.fw-stage .gfw-desk svg { max-width: none; }
+.fw-stage .gfw-mob svg { max-width: 340px; margin: 0 auto; }
 svg.fw-on .node,
 svg.fw-on .flowchart-link,
 svg.fw-on .edgeLabel { transition: opacity 0.45s ease; }

@@ -6,10 +6,13 @@
 // font-size × (rendered svg width / viewBox width). A scaled-down svg is
 // exactly how a 920-unit chart renders 11-unit labels at ~3.9 px on a phone.
 //   • the two result charts (.ac-svg, inline <text>)
-//   • the walked flow figures (.fw-stage svg — mermaid htmlLabels, so the
-//     labels are HTML inside <foreignObject>, not <text>)
-//   • the static flow figures (.lanefig img — an <img> exposes no DOM, so the
-//     label size is read from the svg's own root rule, `#<id>{…font-size:Npx`)
+//   • the walked flow figures (.fw-stage svg — gfflow since Plan 620 group A:
+//     each figure inlines the desktop swimlane AND the 390 px card list; the
+//     one the current width hides is display:none and is skipped, the other
+//     is measured)
+//   • any figure whose walk failed to mount (the <img> no-JS fallback — its
+//     label size parsed from the svg's own font declarations; zero rows is
+//     the healthy state, every figure walked)
 //   • the mini replay boards (.fw-board svg) — their only label ("12 rows")
 //     appears on some steps, so a board with no label at load is not a
 //     finding; their font-size LITERALS in flow_walk_tetris.js (the board
@@ -34,9 +37,10 @@ const PORT = Number(process.env.LEGIBILITY_PORT ?? 18933);
 const base = `http://127.0.0.1:${PORT}`;
 const MIN_PX = 11;
 const WIDTHS = [390, 1280];
-// blindness floors per family (measured 2026-10-03: 2 charts, 2 walked
-// figures, 3 static figures, 2 boards)
-const FLOORS = { charts: 2, walked: 2, static: 3, boards: 2 };
+// blindness floors per family (measured 2026-10-04, Plan 620 group A: 2
+// charts, 5 walked figures — 5 visible svgs per width, the other 5 hidden by
+// the media switch — 0 static fallbacks while every walk mounts, 2 boards)
+const FLOORS = { charts: 2, walked: 5, static: 0, boards: 2 };
 const LABEL_OPTIONAL = new Set(["boards"]);
 
 let failed = false;
@@ -103,14 +107,25 @@ try {
         }
         return { min, what, scale: s };
       };
-      const fam = (sel, labelSel) => [...document.querySelectorAll(sel)].map((svg, i) => ({ i, ...minOver(svg, labelSel) }));
+      // a gfflow figure inlines BOTH media (desktop swimlane + 390 px card
+      // list); CSS hides the one that does not fit — a display:none svg has
+      // no rendered size and is skipped, never measured as scale 0
+      const fam = (sel, labelSel) => [...document.querySelectorAll(sel)]
+        .filter((svg) => svg.getBoundingClientRect().width > 0)
+        .map((svg, i) => ({ i, ...minOver(svg, labelSel) }));
       const statics = [];
       for (const img of document.querySelectorAll(".lanefig img")) {
         const src = img.getAttribute("src");
         const txt = await (await fetch(src)).text();
         const vbw = parseFloat((/viewBox="[\d.\s-]+?\s([\d.]+)\s[\d.]+"/.exec(txt) || [])[1]);
+        // mermaid root rule first, then the gfflow <style> font declarations
+        // (the no-JS fallback of a renderer-made figure)
         const id = (/<svg[^>]*\bid="([^"]+)"/.exec(txt) || [])[1];
-        const fs = id ? parseFloat((new RegExp(`#${id}\\{[^}]*?font-size:([\\d.]+)px`).exec(txt) || [])[1]) : NaN;
+        let fs = id ? parseFloat((new RegExp(`#${id}\\{[^}]*?font-size:([\\d.]+)px`).exec(txt) || [])[1]) : NaN;
+        if (!Number.isFinite(fs)) {
+          const sizes = [...txt.matchAll(/font:\d+ ?(?:\d+ )?([\d.]+)px/g)].map((m) => Number(m[1]));
+          fs = sizes.length ? Math.min(...sizes) : NaN;
+        }
         const bw = img.getBoundingClientRect().width;
         statics.push({ i: src.split("/").pop(), min: fs * (bw / vbw), what: `${fs}px label in a ${vbw}-wide box at ${Math.round(bw)} px`, scale: bw / vbw });
       }

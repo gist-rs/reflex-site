@@ -1,0 +1,16 @@
+{
+  "p_clean_per_spot": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+  ],
+  "pick": 6,
+  "abstained": true,
+  "policy": "argmax, abstain → Rng(seed+1) random spot"
+}
