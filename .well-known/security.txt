@@ -1,0 +1,4 @@
+Contact: mailto:security@gist.rs
+Expires: 2027-10-05T00:00:00.000Z
+Preferred-Languages: en
+Canonical: https://reflex.gist.rs/.well-known/security.txt

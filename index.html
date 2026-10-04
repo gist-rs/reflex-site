@@ -67,6 +67,21 @@
       <a class="badge" id="g1-badge" href="/bench/" hidden></a>
       <a class="badge muted" href="#notes">G2 latency · G4 zero-alloc · G5 laya parity — gate record</a>
     </div>
+
+    <div class="tldr" id="privacy">
+      <b>What leaves your machine</b>
+      <ul>
+        <li class="ok"><i>✓</i> <b>Nothing, by default.</b> The engine listens on <code>127.0.0.1:7331</code> only,
+          accepts the one browser origin you allow, and sends no telemetry — no usage reports, no crash reports.</li>
+        <li><i>↗</i> <b>One optional upload:</b> the rulebook demo's <em>Ask Cloudflare</em> button on the
+          <a href="/playground/">playground</a> sends the painted board to a stateless Worker (no storage) —
+          disclosed there; <em>Ask this tab</em> never leaves the tab.</li>
+        <li><i>↙</i> <b>One optional download:</b> enabling the laya comparison lane fetches its Apache-2.0 weights
+          from Hugging Face at first use, SHA-256-verified. A download — nothing of yours is sent.</li>
+        <li class="ok"><i>✓</i> Your documents, labels and question text stay in process memory on your machine;
+          the corpus you build is a local file you can read, diff and delete.</li>
+      </ul>
+    </div>
   </div>
 
   <section id="flow">
@@ -540,6 +555,14 @@
       <a href="https://github.com/gist-rs/reflex/releases">Download</a> ·
       <!-- wire:version --><span data-wire-version>engine <a href="https://github.com/gist-rs/reflex/releases/tag/v0.2.4">reflex 0.2.4 · release notes</a></span><!-- /wire:version -->
     </div>
+      <div class="fine about">
+      Reflex is built and run by the <a href="https://github.com/gist-rs">gist.rs</a> team — the same people behind
+      <a href="https://rethink.gist.rs/">Rethink</a>, <a href="https://refine.gist.rs/">Refine</a> and the <a href="https://ai.gist.rs/">ai.gist.rs</a> network.
+      Bugs and questions: <a href="https://github.com/gist-rs/riir-reflex/issues">GitHub issues</a> ·
+      security reports: <a href="mailto:security@gist.rs">security@gist.rs</a> · <a href="/.well-known/security.txt">security.txt</a> ·
+      licences: the engine, the rulebook engine and this site are MIT source; release binaries come from gist-rs/reflex;
+      the optional comparison weights are Apache-2.0, downloaded at runtime and never redistributed.
+      </div>
     </div>
   </div>
 </footer>

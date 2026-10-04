@@ -1,5 +1,5 @@
 # Issue 007 — reflex.gist.rs: buyer/investor cannot find who runs it, how to get help, or a plain "when to choose Reflex"
-**Status:** OPEN — 2026-10-03 (web trust audit, riir-ai Issue 1028)
+**Status:** PARTIAL — T1/T2/T3 LANDED 2026-10-05 (About footer + security.txt + privacy box + rendered TL;DR coverage); T4 coordinate-with-1028, T5 owner (policy commitments), T6 open. Filed 2026-10-03 (web trust audit, riir-ai Issue 1028)
 
 **Priority:** P1 — trust / willingness-to-adopt.
 **Audience:** buyer / investor, team lead approving a dependency.
@@ -49,9 +49,9 @@
 
 ## Tasks
 
-- [ ] T1 About/contact/security.txt/licence line on every page
-- [ ] T2 "What leaves your machine" box on the home page
-- [ ] T3 coverage + selective accuracy in the TL;DR (rendered)
+- [x] T1 About/contact/security.txt/licence line on every page — LANDED 2026-10-05: `.well-known/security.txt` (the rethink.gist.rs precedent — `security@gist.rs`, 1-year expiry, canonical) + a `gf-legal` About block on all 7 pages (gist.rs team + family links, GitHub issues, security contact, licence facts: engine/rulebook/site MIT · binaries gist-rs/reflex · weights Apache-2.0 runtime-downloaded). Wrangler assets serve dot-directories (proven by the rethink site).
+- [x] T2 "What leaves your machine" box on the home page — LANDED 2026-10-05: a `.tldr` box in the hero — nothing by default (127.0.0.1:7331, one allowed origin, no telemetry) · one optional upload (playground Ask Cloudflare, stateless Worker, disclosed there) · one optional download (laya weights from HF, SHA-256-verified) · your docs/labels/questions stay local.
+- [x] T3 coverage + selective accuracy in the TL;DR (rendered) — LANDED 2026-10-05: `app.js` extends `homeFigure()` — median answer rate + median selective accuracy over the suites carrying `calibrated_abstain` (the product posture), computed in-browser from data/bench.json (numbers law; the site's own `median()` convention, same as the speed figure). Live read: "answers a median 52% of questions at 65% accuracy when it answers and abstains on the rest".
 - [ ] T4 buyer comparison table (coordinate with riir-ai 1028 T3's Jev section)
-- [ ] T5 stability / versioning statement
+- [ ] T5 stability / versioning statement (owner — a public deprecation policy is an owner commitment)
 - [ ] T6 one worked business-decision example

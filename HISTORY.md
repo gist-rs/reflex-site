@@ -4,6 +4,29 @@ One hash-pinned line per removed issue (the fleet noise-reduction convention:
 an issue file is removed once its work is verifiably landed; this file is the
 durable record). Full narrative of each: `git log --follow -- .issues/<file>`.
 
+- **2026-10-05 — buyer-trust partial landing (Issue 007 T1/T2/T3): who runs it, what leaves your machine, and coverage beside the speed claim.**
+  The site now answers the buyer's three buried questions without a scroll hunt:
+  **T1** — a `gf-legal` About block on all 7 pages (run by the gist.rs team with family links,
+  bug reports via GitHub issues, security contact `security@gist.rs`) plus
+  `/.well-known/security.txt` (the rethink.gist.rs precedent: mailto contact, 1-year expiry,
+  canonical — no Policy line until a policy page exists) and a licence line grounded in the
+  repos' own LICENSE files (engine + rulebook engine + site MIT · release binaries from
+  gist-rs/reflex · optional comparison weights Apache-2.0, runtime-downloaded, never
+  redistributed). **T2** — a hero `.tldr` box "What leaves your machine": nothing by default
+  (loopback-only listener, one allowed origin, no telemetry) with the two disclosed opt-in
+  exceptions (playground Ask-Cloudflare board upload to a stateless Worker; laya weights
+  download from HF, SHA-256-verified) — every claim already grounded in the engine source and
+  the playground's own disclosure. **T3** — the home TL;DR gains the coverage sentence beside
+  the speed sentence, computed in-browser from data/bench.json (median answer rate + median
+  selective accuracy over the 12 suites carrying the calibrated-abstain block; live read:
+  "answers a median 52% of questions at 65% accuracy when it answers and abstains on the
+  rest") — the 72%-abstain suite the issue worried about is now visible above the fold,
+  rendered, never typed. Gates: public_copy_gate 14 renders PASS, render_wire --check,
+  sync_mirror --check (32/32), render_flows --check all green; a live-render probe verified
+  the JS-rendered sentence and the box with zero page errors. T4 (comparison table) waits on
+  riir-ai 1028 T3; T5 (stability policy) is an owner commitment; T6 (worked business example)
+  stays open.
+
 - **2026-10-04 (latest) — the `#development` model-classes deep dive: two gfflow figures, a four-group
   developer glossary, and the train/freeze comparison table (owner ask: “add svg explain the flow …
   vocabulary should add more jargon … the table compare between each train/freeze technics”).**

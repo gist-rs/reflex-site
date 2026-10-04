@@ -179,11 +179,13 @@ async function homeFigure() {
     const kmP50s = tldrRows.map(({ km }) => km.latency_p50_ms);
     const kmCells = tldrRows.map(({ km }) => km);
     const speedup = median(ratios), geo = median(kmP50s) && Math.exp(kmP50s.reduce((a, v) => a + Math.log(v), 0) / kmP50s.length);
+    let haveSpeed = false;
     if (speedup && geo) {
       tldrBody.innerHTML =
         `Typical decision <b class="num">${lat(geo)}</b> — median <b class="num">${Math.round(speedup).toLocaleString("en-US")}×</b> faster than the open-weights ` +
         `model on the same questions, across <b class="num">${ratios.length}</b> of the <b class="num">${(d.suites || []).length}</b> ` +
         `published suites — the ones where both laya lanes (Rust and Python) also ran.`;
+      haveSpeed = true;
       // The Issue-021 verdict rides the claim it qualifies (never a
       // footnote elsewhere): a speed figure built on timing the run itself
       // judged unfit says so beside the number.
@@ -191,6 +193,22 @@ async function homeFigure() {
       if (v && v.unfit) {
         tldrBody.innerHTML += ` <span class="caveat">⚠ ${BenchProv.unfitNote(`Reflex's timing on ${v.unfit}/${v.n} suites`)}</span>`;
       }
+    }
+    // Coverage (trust audit Issue 007): speed is half the buyer's question;
+    // "how often does it abstain" is the other half — same board data, median
+    // across the suites carrying the calibrated-abstain block (the product
+    // posture), never typed. Selective accuracy counts only suites with
+    // answered questions (selective_n > 0).
+    const cov = (d.suites || []).map((s) => s.modelless?.calibrated_abstain).filter(Boolean);
+    const answerRates = cov.map((c) => 1 - c.abstain_rate);
+    const selAccs = cov.filter((c) => (c.selective_n ?? 0) > 0).map((c) => c.selective_accuracy);
+    if (answerRates.length) {
+      const pct = (v) => Math.round(v * 100) + "%";
+      const covText =
+        `Coverage: it answers a median <b class="num">${pct(median(answerRates))}</b> of questions` +
+        (selAccs.length ? ` at <b class="num">${pct(median(selAccs))}</b> accuracy when it answers` : "") +
+        ` and abstains on the rest rather than guess — <a href="/bench/">per-suite coverage</a>.`;
+      tldrBody.innerHTML = haveSpeed ? tldrBody.innerHTML + " " + covText : covText;
     }
   }
   // G1 badge — counted from the per-suite verdicts, never typed (a suite
