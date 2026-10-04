@@ -1,15 +1,15 @@
 {
  "meta": {
-  "date_utc": "2026-10-03T07:45:54Z",
+  "date_utc": "2026-10-04T02:24:06Z",
   "release": {
-   "tag": "v0.2.3",
-   "url": "https://github.com/gist-rs/reflex/releases/tag/v0.2.3",
+   "tag": "v0.2.4",
+   "url": "https://github.com/gist-rs/reflex/releases/tag/v0.2.4",
    "archives": {
-    "reflex-v0.2.3-aarch64-apple-darwin.tar.gz": 1667989,
-    "reflex-v0.2.3-aarch64-unknown-linux-musl.tar.gz": 1734479,
-    "reflex-v0.2.3-x86_64-apple-darwin.tar.gz": 1783352,
-    "reflex-v0.2.3-x86_64-pc-windows-gnu.zip": 1809619,
-    "reflex-v0.2.3-x86_64-unknown-linux-musl.tar.gz": 1889667
+    "reflex-v0.2.4-aarch64-apple-darwin.tar.gz": 1880244,
+    "reflex-v0.2.4-aarch64-unknown-linux-musl.tar.gz": 1925853,
+    "reflex-v0.2.4-x86_64-apple-darwin.tar.gz": 2051317,
+    "reflex-v0.2.4-x86_64-pc-windows-gnu.zip": 2048162,
+    "reflex-v0.2.4-x86_64-unknown-linux-musl.tar.gz": 2117218
    }
   },
   "law": "every byte count is measured (release archive unpack, HF tree API, local stat) or a recorded on-host measurement with provenance \u2014 never hand-typed",
@@ -41,11 +41,11 @@
    "name": "Reflex \u00b7 native binary (modelless)",
    "framework": "one static Rust binary (dist profile, stripped, fat LTO)",
    "engine_kind": "rust",
-   "engine_bytes": 5073281,
+   "engine_bytes": 4381977,
    "engine_what": "installed binary + THIRD_PARTY_LICENSES.md (unpacked from the aarch64-apple-darwin archive)",
    "engine_provenance": {
     "source": "measured: unpacked release archive",
-    "detail": "v0.2.3 aarch64-apple-darwin, downloaded + stat'd at publish time"
+    "detail": "v0.2.4 aarch64-apple-darwin, downloaded + stat'd at publish time"
    },
    "model_bytes": 0,
    "model_what": "none \u2014 the corpus ships inside the binary; the game heads boot-fit from embedded fixtures",
@@ -56,7 +56,7 @@
     "Windows",
     "container"
    ],
-   "note": "archive download 1.67\u20131.89 MB across all 5 release targets \u2014 the same binary serves every lane"
+   "note": "archive download 1.88\u20132.12 MB across all 5 release targets \u2014 the same binary serves every lane"
   },
   {
    "key": "instinct_hybrid",
@@ -163,11 +163,11 @@
    "name": "Reflex + laya \u00b7 typed",
    "framework": "the same reflex binary + the laya-riir lane (runtime download)",
    "engine_kind": "rust",
-   "engine_bytes": 5073281,
+   "engine_bytes": 4381977,
    "engine_what": "the same installed binary",
    "engine_provenance": {
     "source": "measured: unpacked release archive",
-    "detail": "v0.2.3 aarch64-apple-darwin, downloaded + stat'd at publish time"
+    "detail": "v0.2.4 aarch64-apple-darwin, downloaded + stat'd at publish time"
    },
    "model_bytes": 846195716,
    "model_what": "the typed-decisions specialist checkpoint (SHA-256-pinned, downloaded at first boot)",
@@ -339,6 +339,36 @@
     "GPU (CUDA)"
    ],
    "note": null
+  },
+  {
+   "key": "clef",
+   "name": "clef (local) \u00b7 clef-flash 4-bit",
+   "framework": "the community MLX port (clef_mlx.py) in an mlx venv, behind a loopback HTTP shim",
+   "engine_kind": "python",
+   "engine_bytes": 584762455,
+   "engine_what": "the clef lane venv (python 3.12: mlx + mlx-lm + mlx-vlm \u2014 the MLX port's tested pins)",
+   "engine_provenance": {
+    "source": "recorded measurement",
+    "detail": "the clef lane venv (python 3.12: mlx 0.32.3 + mlx-lm 0.32.0 + mlx-vlm 0.7.4 \u2014 the community MLX port's tested pins, riir-reflex Bench 113) \u2014 measured 2026-10-04 on m3-max-metal: uv venv --python 3.12 /tmp/clef-env + `uv pip install mlx==0.32.3 mlx-lm==0.32.0 mlx-vlm==0.7.4` (Bench 113's recorded pins; the bench-time env was an ephemeral uv run, so this rebuilds it from the pins); sum of file sizes (584,274,775 over 10,506 files) + dir entries (487,680), the lstat convention of the sibling venv rows."
+   },
+   "model_bytes": 6213976673,
+   "model_what": "their 9B decision model as the community 4-bit MLX quant (two safetensors shards + the joint decision head + tokenizer) \u2014 the tree a consumer downloads",
+   "model_provenance": {
+    "source": "huggingface.co tree API (exact bytes)",
+    "detail": "mlx-community/clef-flash-4bit"
+   },
+   "model_stack": [
+    {
+     "label": "clef-flash 4-bit tree",
+     "kind": "weights",
+     "bytes": 6213976673
+    }
+   ],
+   "targets": [
+    "python env",
+    "Apple GPU (MLX)"
+   ],
+   "note": "the bench board's clef (local) comparison lane (Cloudflare/clef-flash, Apache-2.0, not affiliated) \u2014 the LOCAL posture the board measures; the hosted Workers-AI posture is owner-gated and never pooled with it"
   },
   {
    "key": "agentjev",
