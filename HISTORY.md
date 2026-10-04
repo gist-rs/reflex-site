@@ -4,6 +4,18 @@ One hash-pinned line per removed issue (the fleet noise-reduction convention:
 an issue file is removed once its work is verifiably landed; this file is the
 durable record). Full narrative of each: `git log --follow -- .issues/<file>`.
 
+- **2026-10-04 (later) — #rethink refined against the roadmap; #reflexer moved under #reflex (owner ask).**
+  The Rethink section now carries the storefront roadmap's two-phase shape (v1
+  hosted-only forming — the keyed decision API; v2 distributed planned — the rethink
+  download with leaseable specialists and encoders, the honest-limits line quoted);
+  the receipts claim split honestly (live in the open serve today, planned on hosted
+  answers); the "Can I run Rethink myself?" FAQ answers v2's planned download
+  instead of the now-false unconditional "never a public download"; the buy-card
+  state matches the storefront's own words ("not open yet — nothing is charged
+  today", replacing the stale "waitlist"). And per the owner's placement call,
+  #reflexer moved from after #rethink to directly under #reflex (lead + CTA order
+  follow).
+
 - **2026-10-04 — the `#reflexer` relation section + the Plan 620 P1 takeover.** Two landings in one
   session. (1) TAKEOVER: the 620 sibling session's uncommitted P1 (the gfflow renderer +1465 lines,
   the generalised walker, the F1 trust-flow golden with captured-wire walk payloads) sat idle —

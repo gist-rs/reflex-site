@@ -103,7 +103,7 @@ function digitFindings(text, label, fail) {
 
   // 2. the six sections exist with self-linked titles (#learn first)
   const sections = await page.evaluate(() =>
-    ["learn", "overview", "reflex", "rethink", "reflexer", "development"].map((id) => {
+    ["learn", "overview", "reflex", "reflexer", "rethink", "development"].map((id) => {
       const sec = document.getElementById(id);
       const a = sec && sec.querySelector("h2 a.hlink");
       return { id, ok: !!sec, href: a && a.getAttribute("href") };

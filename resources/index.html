@@ -41,15 +41,15 @@
     <p class="kicker">Resources · the education page</p>
     <h1>One family. Four names.<br><em>The same idea, three rungs deep — and an engine that plays.</em></h1>
     <p class="lead">
-      <strong>Reflex</strong> is the product you install. <strong>Instinct</strong> is the idea that upgrades it.
+      <strong>Reflex</strong> is the product you install. <strong>Reflexer</strong> is the other engine — the same
+      wire, played as a game. <strong>Instinct</strong> is the idea that upgrades Reflex.
       <strong>Rethink</strong> is that idea, served from our GPU hosts.
-      <strong>Reflexer</strong> is the other engine — the same wire, played as a game.
     </p>
     <div class="cta-row">
       <a class="btn primary" href="#learn">How Jev works</a>
       <a class="btn" href="#reflex">The free floor</a>
-      <a class="btn" href="#rethink">The encoder tier</a>
       <a class="btn" href="#reflexer">The rulebook engine</a>
+      <a class="btn" href="#rethink">The encoder tier</a>
       <a class="btn" href="#development">Build your own</a>
     </div>
     <div class="badges">
@@ -401,72 +401,6 @@
     </div>
   </section>
 
-  <section id="rethink">
-    <h2><a class="hlink" href="#rethink">Rethink — the same idea, one rung deeper.</a></h2>
-    <p class="sub">Rethink is the same Instinct idea one rung deeper: where a bag specialist is too coarse, a
-      trained encoder head thinks — served HOSTED-ONLY from our GPU servers, so the weights never leave
-      controlled hardware. [HOSTED-ONLY: weights that never leave our servers — you call, we think.]</p>
-
-    <figure class="figure scrolls">
-      <img style="--minw:993px" src="/assets/rethink_flow.svg" width="1444" height="407"
-        alt="One rung deeper than the bag specialist: when the modelless engine abstains, hashed-bag specialists answer fast on CPU, and the harder cases rise to a trained encoder head served HOSTED-ONLY from our GPU hosts, so the weights never leave our servers"
-        loading="lazy">
-      <figcaption>The Rethink flow — from question to answer, with the rung model drawn in.
-        Write-up: <a href="/docs/rethink/resources.md">resources.md (mirrored — the source repo is private)</a>.</figcaption>
-    </figure>
-
-    <div class="teaser">
-      <div class="cell">
-        <span class="lbl">RUNG BELOW · BAG SPECIALISTS (INSTINCT)</span>
-        <h3>Hashed word-count features, scored on CPU.</h3>
-        <ol>
-          <li><b>Features:</b> the question becomes a bag of words — cheap and fast, but blind to word order
-            and nuance.</li>
-          <li><b>Think:</b> microsecond-class, per domain.</li>
-          <li><b>Where:</b> your machine or any CPU host.</li>
-        </ol>
-      </div>
-      <div class="cell">
-        <span class="lbl">THIS RUNG · THE ENCODER (RETHINK)</span>
-        <h3>A trained encoder head reads the question whole.</h3>
-        <ol>
-          <li><b>Features:</b> the full encoder substrate — context, order, nuance.</li>
-          <li><b>Think:</b> millisecond-class thoughts, on our GPU hosts.</li>
-          <li><b>Guard:</b> a HOSTED-ONLY vessel — hashed, signed and encrypted, unreadable without the hosted
-            reader. <i>Planned:</i> the format is built; until the hosted lane opens, heads are checked against a pinned
-            BLAKE3 digest.</li>
-        </ol>
-      </div>
-    </div>
-
-    <p>The free floor always answers first. Rethink is paid only where the free engine's confidence check
-      abstains — the same <b>fused gate</b> as Instinct, one tier deeper. Every answer carries a receipt, and the
-      seated cells are published either way: the <a href="/bench/">benchmark's Rethink rows</a> are the measured
-      side, live today.</p>
-
-    <div class="faqs">
-      <details class="faq">
-        <summary>Why hosted-only? Why not ship the weights?</summary>
-        <p>Because the class is structural, not a policy. The heads ship inside a HOSTED-ONLY vessel, and a build
-        without the hosted reader cannot open one at all — so the weights cannot land on hardware nobody
-        controls, not by accident and not by option.</p>
-      </details>
-      <details class="faq">
-        <summary>Can I run Rethink myself?</summary>
-        <p>No — and that is the honest answer by design. Rethink ships its own serve binary to our own GPU hosts
-        (private distribution, never a public download). The open lanes — <a href="#reflex">Reflex</a> and the
-        <a href="https://github.com/gist-rs/riir-instinct">Instinct teaching lane</a> — are the ones you can run.</p>
-      </details>
-      <details class="faq">
-        <summary>Where is the product surface?</summary>
-        <p>The storefront is live at <a href="https://rethink.gist.rs/">rethink.gist.rs</a> — what the hosted tier
-        does, how your data is handled, and the buy card, which carries its honest state (a waitlist until
-        purchases open). The <a href="/bench/">bench Rethink rows</a> are the measured side of everything this
-        section claims.</p>
-      </details>
-    </div>
-  </section>
-
   <section id="reflexer">
     <h2><a class="hlink" href="#reflexer">Reflexer — the same wire, played as a game.</a></h2>
     <p class="sub">Reflexer is the family's rulebook engine — it speaks Reflex's question types
@@ -545,6 +479,87 @@
       </details>
     </div>
   </section>
+
+  <section id="rethink">
+    <h2><a class="hlink" href="#rethink">Rethink — the same idea, one rung deeper.</a></h2>
+    <p class="sub">Rethink is the same Instinct idea one rung deeper: where a bag specialist is too coarse, a
+      trained encoder head thinks — served HOSTED-ONLY from our GPU servers, so the weights never leave
+      controlled hardware. [HOSTED-ONLY: weights that never leave our servers — you call, we think.]</p>
+
+    <figure class="figure scrolls">
+      <img style="--minw:993px" src="/assets/rethink_flow.svg" width="1444" height="407"
+        alt="One rung deeper than the bag specialist: when the modelless engine abstains, hashed-bag specialists answer fast on CPU, and the harder cases rise to a trained encoder head served HOSTED-ONLY from our GPU hosts, so the weights never leave our servers"
+        loading="lazy">
+      <figcaption>The Rethink flow — from question to answer, with the rung model drawn in.
+        Write-up: <a href="/docs/rethink/resources.md">resources.md (mirrored — the source repo is private)</a>.</figcaption>
+    </figure>
+
+    <div class="teaser">
+      <div class="cell">
+        <span class="lbl">RUNG BELOW · BAG SPECIALISTS (INSTINCT)</span>
+        <h3>Hashed word-count features, scored on CPU.</h3>
+        <ol>
+          <li><b>Features:</b> the question becomes a bag of words — cheap and fast, but blind to word order
+            and nuance.</li>
+          <li><b>Think:</b> microsecond-class, per domain.</li>
+          <li><b>Where:</b> your machine or any CPU host.</li>
+        </ol>
+      </div>
+      <div class="cell">
+        <span class="lbl">THIS RUNG · THE ENCODER (RETHINK)</span>
+        <h3>A trained encoder head reads the question whole.</h3>
+        <ol>
+          <li><b>Features:</b> the full encoder substrate — context, order, nuance.</li>
+          <li><b>Think:</b> millisecond-class thoughts, on our GPU hosts.</li>
+          <li><b>Guard:</b> a HOSTED-ONLY vessel — hashed, signed and encrypted, unreadable without the hosted
+            reader. <i>Planned:</i> the format is built; until the hosted lane opens, heads are checked against a pinned
+            BLAKE3 digest.</li>
+        </ol>
+      </div>
+    </div>
+
+    <p>The free floor always answers first. Rethink is paid only where the free engine's confidence check
+      abstains — the same <b>fused gate</b> as Instinct, one tier deeper. Every open-serve answer already carries a
+      receipt today (the build plus hashes of the input and the decision); receipts on <i>hosted</i> answers are a
+      roadmap item. And the seated cells are published either way: the <a href="/bench/">benchmark's Rethink
+      rows</a> are the measured side, live today.</p>
+
+    <p><b>The shape it ships in.</b> Rethink ships in two phases — each card's state is on the
+      <a href="https://rethink.gist.rs/#roadmap">storefront's roadmap</a>. <b>v1, hosted only</b> is next:
+      the keyed decision API (forming), only-"not sure" escalations, pay per hosted answer and receipts on
+      hosted answers (planned), opt-in stats with the quality-gated retrain (test network). <b>v2,
+      distributed</b> follows: the rethink download — one program on your machine with the engine built in —
+      plus leaseable specialists and encoders, where a lease raises the cost of copying without making copying
+      impossible (the roadmap's own honest limit).</p>
+
+    <div class="faqs">
+      <details class="faq">
+        <summary>Why hosted-only? Why not ship the weights?</summary>
+        <p>Because the class is structural, not a policy. The heads ship inside a HOSTED-ONLY vessel, and a build
+          without the hosted reader cannot open one at all — so the weights cannot land on hardware nobody
+          controls, not by accident and not by option. The same honesty carries into v2's leases: a lease raises
+          the cost of copying, it does not make copying impossible — what a copy cannot get is the next update,
+          a place on the network, or rewards.</p>
+      </details>
+      <details class="faq">
+        <summary>Can I run Rethink myself?</summary>
+        <p>Not today — v1 is hosted only: the trained heads run on our servers and you reach them over the API.
+          The <a href="https://rethink.gist.rs/#roadmap">roadmap's</a> v2 plans the rethink download — one
+          program on your machine with the engine built in, and leaseable specialists and encoders (planned,
+          after v1). Until then, the open lanes — <a href="#reflex">Reflex</a> and the
+          <a href="https://github.com/gist-rs/riir-instinct">Instinct teaching lane</a> — are the ones you can
+          run.</p>
+      </details>
+      <details class="faq">
+        <summary>Where is the product surface?</summary>
+        <p>The storefront is live at <a href="https://rethink.gist.rs/">rethink.gist.rs</a> — what the hosted tier
+          does, how your data is handled, and the <a href="https://rethink.gist.rs/#roadmap">roadmap</a> each
+          card's state lives on. The buy card carries its honest state (not open yet — nothing is charged today).
+          The <a href="/bench/">bench Rethink rows</a> are the measured side of everything this section claims.</p>
+      </details>
+    </div>
+  </section>
+
 
   <section id="development">
     <h2><a class="hlink" href="#development">Build your own.</a></h2>
