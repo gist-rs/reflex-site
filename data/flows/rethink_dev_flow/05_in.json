@@ -1,0 +1,29 @@
+{
+  "state": "The staging deploy of release candidate 4.2 finished but the error budget is down to 12 percent and two health endpoints are flapping after the rollout. Rollback is one command. Decide what happens next.",
+  "questions": [
+    {
+      "id": "route",
+      "kind": "choice",
+      "prompt": "Route this ticket to the team that owns it.",
+      "options": [
+        "deploy-ops",
+        "billing-support"
+      ]
+    },
+    {
+      "id": "promote",
+      "kind": "noul",
+      "prompt": "Should the rollout be promoted to production right now?"
+    },
+    {
+      "id": "severity",
+      "kind": "score",
+      "prompt": "How severe is this situation?",
+      "options": [
+        "routine",
+        "needs-attention",
+        "critical"
+      ]
+    }
+  ]
+}

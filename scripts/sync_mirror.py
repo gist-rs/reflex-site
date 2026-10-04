@@ -7,18 +7,25 @@ unlisted is ever copied — one row per source checkout; the flat pair view
 (ALL_PAIRS) is derived from it. Pairs across the roots (recount after every
 pair change — this figure is the drift alarm for the table itself):
 
-    riir-reflex   (public, PRIMARY)  5 pairs: decision_flow.svg, SKILL.md,
-                                     resources.md, dev_flow.md, dev_flow.svg
-    riir-instinct (secondary)        4 pairs: instinct_flow.svg + the same
-                                     resources trio
-    riir-rethink  (PRIVATE forever — education pairs ONLY)
-                                     9 pairs: rethink_flow.svg + the same
-                                     resources trio + the model-classes set
-                                     (md + two gfflow figures with mobile
-                                     twins, the /resources #development
-                                     deep dive)
-    riir-reflexer (public)           3 pairs: resources.md + the relation
-                                     figure with its mobile twin
+    riir-reflex   (public, PRIMARY)  9 pairs: decision_flow.svg + its mobile
+                                     twin + walk, SKILL.md, resources.md,
+                                     dev_flow.md, reflex_dev_flow.svg + twin
+                                     + walk
+    riir-instinct (secondary)        8 pairs: instinct_flow.svg + its mobile
+                                     twin + walk, the same resources trio,
+                                     instinct_dev_flow.svg + twin + walk
+    riir-rethink  (PRIVATE forever — education pairs ONLY; the fence's
+                                     pair-shape law admits .md/.svg only, so
+                                     the walk JSONs are NOT mirror pairs — the
+                                     renderer writes the storefront copy
+                                     itself)
+                                     10 pairs: rethink_flow.svg + twin, the
+                                     resources trio, rethink_dev_flow.svg +
+                                     twin, and the model-classes set (md +
+                                     two gfflow figures with mobile twins,
+                                     the /resources #development deep dive)
+    riir-reflexer (public)           4 pairs: resources.md + the relation
+                                     figure with its mobile twin and walk
 
 The landing page renders decision_flow.svg from assets/, the agent-skill
 section curl-installs the SKILL.md from skills/, /bench/#instinct embeds
@@ -123,10 +130,13 @@ MIRROR_SOURCES = (
         (
             (".docs/03_decision_flow/decision_flow.svg", "assets/decision_flow.svg"),
             (".docs/03_decision_flow/decision_flow_m.svg", "assets/decision_flow_m.svg"),
+            (".docs/03_decision_flow/decision_flow.walk.json", "assets/decision_flow.walk.json"),
             (".docs/04_agent_skill/SKILL.md", "skills/reflex-integration/SKILL.md"),
             (".docs/05_resources/resources.md", "docs/reflex/resources.md"),
             (".docs/05_resources/dev_flow.md", "docs/reflex/dev_flow.md"),
-            (".docs/05_resources/dev_flow.svg", "assets/reflex_dev_flow.svg"),
+            (".docs/05_resources/reflex_dev_flow.svg", "assets/reflex_dev_flow.svg"),
+            (".docs/05_resources/reflex_dev_flow_m.svg", "assets/reflex_dev_flow_m.svg"),
+            (".docs/05_resources/reflex_dev_flow.walk.json", "assets/reflex_dev_flow.walk.json"),
         ),
     ),
     (
@@ -134,9 +144,13 @@ MIRROR_SOURCES = (
         "secondary — absent checkout = loud skip (produced figure: render_flows.py)",
         (
             (".docs/03_decision_flow/instinct_flow.svg", "assets/instinct_flow.svg"),
+            (".docs/03_decision_flow/instinct_flow_m.svg", "assets/instinct_flow_m.svg"),
+            (".docs/03_decision_flow/instinct_flow.walk.json", "assets/instinct_flow.walk.json"),
             (".docs/05_resources/resources.md", "docs/instinct/resources.md"),
             (".docs/05_resources/dev_flow.md", "docs/instinct/dev_flow.md"),
-            (".docs/05_resources/dev_flow.svg", "assets/instinct_dev_flow.svg"),
+            (".docs/05_resources/instinct_dev_flow.svg", "assets/instinct_dev_flow.svg"),
+            (".docs/05_resources/instinct_dev_flow_m.svg", "assets/instinct_dev_flow_m.svg"),
+            (".docs/05_resources/instinct_dev_flow.walk.json", "assets/instinct_dev_flow.walk.json"),
         ),
     ),
     (
@@ -147,7 +161,8 @@ MIRROR_SOURCES = (
             (".docs/03_decision_flow/rethink_flow_m.svg", "assets/rethink_flow_m.svg"),
             (".docs/05_resources/resources.md", "docs/rethink/resources.md"),
             (".docs/05_resources/dev_flow.md", "docs/rethink/dev_flow.md"),
-            (".docs/05_resources/dev_flow.svg", "assets/rethink_dev_flow.svg"),
+            (".docs/05_resources/rethink_dev_flow.svg", "assets/rethink_dev_flow.svg"),
+            (".docs/05_resources/rethink_dev_flow_m.svg", "assets/rethink_dev_flow_m.svg"),
             (".docs/05_resources/model_classes.md", "docs/rethink/model_classes.md"),
             (".docs/05_resources/model_classes_flow.svg", "assets/model_classes_flow.svg"),
             (".docs/05_resources/model_classes_flow_m.svg", "assets/model_classes_flow_m.svg"),
@@ -162,6 +177,7 @@ MIRROR_SOURCES = (
             (".docs/06_resources/resources.md", "docs/reflexer/resources.md"),
             (".docs/06_resources/reflexer_relation_flow.svg", "assets/reflexer_relation_flow.svg"),
             (".docs/06_resources/reflexer_relation_flow_m.svg", "assets/reflexer_relation_flow_m.svg"),
+            (".docs/06_resources/reflexer_relation_flow.walk.json", "assets/reflexer_relation_flow.walk.json"),
         ),
     ),
 )

@@ -1,0 +1,10 @@
+{
+  "state": "The piece leaves no holes under it on the left edge, sits flat on the surface, and the stack stays low.",
+  "questions": [
+    {
+      "id": "clean",
+      "kind": "noul",
+      "prompt": "Does the stack look clean?"
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "answers": [
+    {
+      "question_id": "route",
+      "outcome": {
+        "choice": {
+          "index": 1
+        }
+      },
+      "probabilities": [0.3341486, 0.3407357, 0.32511574],
+      "confidence": 0.00016820431
+    }
+  ],
+  "routing": {
+    "lane": "modelless",
+    "reason": "modelless corpus routing: billing=0 deploy=1 onboarding=0; fused abstain (score+distance) armed"
+  },
+  "calibration": {
+    "method": "none",
+    "temperature": 1.0
+  }
+}

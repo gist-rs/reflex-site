@@ -1,0 +1,16 @@
+{
+  "state_sentence": "The stack stands low and the surface is mostly flat. There are no holes under the blocks. The square piece is falling.",
+  "piece": "O",
+  "pick": 5,
+  "per_option_ms": [
+    0.047,
+    0.047,
+    0.047,
+    0.047,
+    0.047,
+    0.047,
+    0.047,
+    0.047,
+    0.047
+  ]
+}

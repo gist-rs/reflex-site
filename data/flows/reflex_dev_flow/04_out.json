@@ -1,0 +1,14 @@
+{
+  "status": "ok",
+  "lanes": {
+    "modelless": "ready",
+    "raw": "ready",
+    "laya": "off"
+  },
+  "heads": {
+    "tetris": true,
+    "lanes": true,
+    "flappy": true
+  },
+  "corpus": "demo"
+}

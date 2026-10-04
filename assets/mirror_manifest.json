@@ -16,6 +16,12 @@
     },
     {
       "repo": "riir-reflex",
+      "src": ".docs/03_decision_flow/decision_flow.walk.json",
+      "dst": "assets/decision_flow.walk.json",
+      "sha256": "27c4410027a37ce35606b28b55c2c584a014aad727078c204dc174614e0c822c"
+    },
+    {
+      "repo": "riir-reflex",
       "src": ".docs/04_agent_skill/SKILL.md",
       "dst": "skills/reflex-integration/SKILL.md",
       "sha256": "7650f02a7708f27d7e835e5603c273cabb2190343a00ccc96d79139ea6c1bd2d"
@@ -30,19 +36,43 @@
       "repo": "riir-reflex",
       "src": ".docs/05_resources/dev_flow.md",
       "dst": "docs/reflex/dev_flow.md",
-      "sha256": "dcb4f390884dc9e9cd8926865e2d5d6488ea33ffff98cfb00cb0d8f3ac5758cd"
+      "sha256": "72b76c4ff07fee20d08f860cf0c4e8a89e033cf7a71cdff346174e7f3566822d"
     },
     {
       "repo": "riir-reflex",
-      "src": ".docs/05_resources/dev_flow.svg",
+      "src": ".docs/05_resources/reflex_dev_flow.svg",
       "dst": "assets/reflex_dev_flow.svg",
-      "sha256": "010838180b7b4b9aa5d1fc237852f545c88df9716719bfcbf797c4981c20c451"
+      "sha256": "80c7a260f7fe63ec08e43ba13ba3fb6d9f3ba303b1ed6b3ca67cfcfec8538c08"
+    },
+    {
+      "repo": "riir-reflex",
+      "src": ".docs/05_resources/reflex_dev_flow_m.svg",
+      "dst": "assets/reflex_dev_flow_m.svg",
+      "sha256": "cb59de7078dd22b60d13695ff78582545353355249eeeea748ea2464742f10f8"
+    },
+    {
+      "repo": "riir-reflex",
+      "src": ".docs/05_resources/reflex_dev_flow.walk.json",
+      "dst": "assets/reflex_dev_flow.walk.json",
+      "sha256": "d7e0938ee039668c8b24ce71a0c50475ad5c24d87e5d056e2bc3045f4a3a5ed4"
     },
     {
       "repo": "riir-instinct",
       "src": ".docs/03_decision_flow/instinct_flow.svg",
       "dst": "assets/instinct_flow.svg",
-      "sha256": "74d245ba51fea39618926df614ec3cb07d33620083262e26ad2a6b662a3fd7b9"
+      "sha256": "065525b6da9901da4eea1e630a0939d3fb01eb083567ccce98e88cfc79ae36e2"
+    },
+    {
+      "repo": "riir-instinct",
+      "src": ".docs/03_decision_flow/instinct_flow_m.svg",
+      "dst": "assets/instinct_flow_m.svg",
+      "sha256": "715d4605f8c64a6837bfd8db81b241a71511d226b80fa45d5aa27d3f6e4f5062"
+    },
+    {
+      "repo": "riir-instinct",
+      "src": ".docs/03_decision_flow/instinct_flow.walk.json",
+      "dst": "assets/instinct_flow.walk.json",
+      "sha256": "7e4ab4626a07f3e233ca349222fc9e856ab2c68b65d417462470175eb980f16a"
     },
     {
       "repo": "riir-instinct",
@@ -54,13 +84,25 @@
       "repo": "riir-instinct",
       "src": ".docs/05_resources/dev_flow.md",
       "dst": "docs/instinct/dev_flow.md",
-      "sha256": "46f355284985c0f97c0300343b12c12c32bdf51321012c3b8a5490e04426fc34"
+      "sha256": "3f620b65918ffd395f5df6b2edc5ca184ac6ad809382d83d3c85af8d8fb30a9d"
     },
     {
       "repo": "riir-instinct",
-      "src": ".docs/05_resources/dev_flow.svg",
+      "src": ".docs/05_resources/instinct_dev_flow.svg",
       "dst": "assets/instinct_dev_flow.svg",
-      "sha256": "8d560f918f4517a637dfbc027282b139032f36cb1a8ad43f9c437ecf71224c0e"
+      "sha256": "a18e8cbb640a55df35d4bdb798201ec959ed84f695dafe2e5027a09b019f9382"
+    },
+    {
+      "repo": "riir-instinct",
+      "src": ".docs/05_resources/instinct_dev_flow_m.svg",
+      "dst": "assets/instinct_dev_flow_m.svg",
+      "sha256": "001298838dbb4e16f3b91f4a456574b7bf75830be5a4a6c5ec4c51a8f38947ae"
+    },
+    {
+      "repo": "riir-instinct",
+      "src": ".docs/05_resources/instinct_dev_flow.walk.json",
+      "dst": "assets/instinct_dev_flow.walk.json",
+      "sha256": "6d8a12b741f0afb77cd44e97d1a3536bfbda2360f8cb49a54023c591e1e30555"
     },
     {
       "repo": "riir-rethink",
@@ -84,13 +126,19 @@
       "repo": "riir-rethink",
       "src": ".docs/05_resources/dev_flow.md",
       "dst": "docs/rethink/dev_flow.md",
-      "sha256": "5c613ba9b8b00cfe66fc9ffb63ba575f24dd31ddda5673b2f42afdcc0bb3a0c1"
+      "sha256": "4d060915f4e5943ad4179ab8048761cf4bdc6a2b5b588ea941fa410eca8eee7e"
     },
     {
       "repo": "riir-rethink",
-      "src": ".docs/05_resources/dev_flow.svg",
+      "src": ".docs/05_resources/rethink_dev_flow.svg",
       "dst": "assets/rethink_dev_flow.svg",
-      "sha256": "fc1df9b9531f99d3fa651f88412206d8cbca46c3b243985b1e16a86dc241f31d"
+      "sha256": "8aa4e7be0c42c80a83c9e7761693244f811f913b5bbdfecd985e9cb85735cfbd"
+    },
+    {
+      "repo": "riir-rethink",
+      "src": ".docs/05_resources/rethink_dev_flow_m.svg",
+      "dst": "assets/rethink_dev_flow_m.svg",
+      "sha256": "5aa1d262bb254e12186270b08c22c89ab8c19b705c9d77093f59ade1114f3f88"
     },
     {
       "repo": "riir-rethink",
@@ -126,7 +174,7 @@
       "repo": "riir-reflexer",
       "src": ".docs/06_resources/resources.md",
       "dst": "docs/reflexer/resources.md",
-      "sha256": "f592ee41ff0d29d0bfc15fa9086a5156be9e443e895d6330d00e0f37a3b4210c"
+      "sha256": "983b2f2fc09af052824d5b5989a3be5f5921e9a71bbd475c7c5164ec65bf69d3"
     },
     {
       "repo": "riir-reflexer",
@@ -139,6 +187,12 @@
       "src": ".docs/06_resources/reflexer_relation_flow_m.svg",
       "dst": "assets/reflexer_relation_flow_m.svg",
       "sha256": "3d53f937b94de38f7cc713c8a0ee9ad9dae7aa8da1090732f640488cb5c705ee"
+    },
+    {
+      "repo": "riir-reflexer",
+      "src": ".docs/06_resources/reflexer_relation_flow.walk.json",
+      "dst": "assets/reflexer_relation_flow.walk.json",
+      "sha256": "e149f6355cbf249efa6e444c8748a7d10e2fefa1c65f78628780a41e3479695e"
     }
   ]
 }

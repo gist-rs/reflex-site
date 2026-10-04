@@ -1,0 +1,10 @@
+{
+ "05_in.json": {
+  "from": "captured from the reflex 0.2.4 release binary, 2026-10-03 · POST /decide (abstained request)",
+  "source": "reflex-site data/wire.json",
+  "case": "abstained",
+  "field": "request",
+  "engine": "reflex 0.2.4",
+  "captured": "2026-10-03"
+ }
+}

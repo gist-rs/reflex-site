@@ -712,12 +712,28 @@ const server = http.createServer((req, res) => {
     });
     if (!order) fail("#instinct must sit after #protocol-section and before #faq");
     else console.log("ok: #instinct sits after Protocol, before FAQ");
-    const figEl = await page.$(".instinct img");
-    await figEl.scrollIntoViewIfNeeded();
-    await page.waitForFunction(() => { const i = document.querySelector(".instinct img"); return i && i.naturalWidth > 0; }, null, { timeout: 10000 });
-    const fig = await page.$eval(".instinct img", (x) => ({ src: x.getAttribute("src"), w: x.naturalWidth }));
-    if (fig.src !== "/assets/instinct_flow.svg" || !fig.w) fail(`instinct figure broken: ${JSON.stringify(fig)}`);
-    else console.log(`ok: instinct flow figure loads (${fig.w}px)`);
+    // the figure may still be the <img> fallback (walker failed / not yet
+    // mounted) or the inlined gfflow stage (Plan 620: the walker replaces
+    // the <picture> with the two <svg data-gfflow> shapes once mounted) —
+    // either form means the figure resolved.
+    const figEl = (await page.$(".instinct img")) || (await page.$(".instinct figure[data-walk='/assets/instinct_flow.svg'] .gfw-stage"));
+    if (!figEl) { fail("instinct figure missing (neither <img> fallback nor mounted gfflow stage)"); }
+    else {
+      await figEl.scrollIntoViewIfNeeded();
+      await page.waitForFunction(() => {
+        const i = document.querySelector(".instinct img");
+        if (i) return i.complete && i.naturalWidth > 0;
+        return !!document.querySelector(".instinct figure[data-walk] svg[data-gfflow]");
+      }, null, { timeout: 10000 });
+      const fig = await page.evaluate(() => {
+        const i = document.querySelector(".instinct img");
+        if (i) return { src: i.getAttribute("src"), w: i.naturalWidth };
+        const s = document.querySelector(".instinct figure[data-walk] svg[data-gfflow]");
+        return s ? { src: "/assets/" + s.id.replace(/-/g, "_") + ".svg", w: s.viewBox.baseVal.width } : null;
+      });
+      if (!fig || fig.src !== "/assets/instinct_flow.svg" || !fig.w) fail(`instinct figure broken: ${JSON.stringify(fig)}`);
+      else console.log(`ok: instinct flow figure loads (${fig.w}px)`);
+    }
     await page.waitForFunction(() => document.querySelectorAll("#instinct-verdict li").length >= 2, { timeout: 10000 });
     const accOf = (l) => { if (!l) return null; const h = (l.hard || {}).accuracy; return h != null ? h : l.accuracy; };
     const bench = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "data", "bench.json"), "utf8"));

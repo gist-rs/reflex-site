@@ -1,0 +1,22 @@
+{
+  "answers": [
+    {
+      "question_id": "clean",
+      "outcome": {
+        "noul": {
+          "yes": true
+        }
+      },
+      "probabilities": [0.51943666],
+      "confidence": 0.51943666
+    }
+  ],
+  "routing": {
+    "lane": "modelless",
+    "reason": "game-head/tetris (corpus-fitted, decoded arm)"
+  },
+  "calibration": {
+    "method": "none",
+    "temperature": 1.0
+  }
+}

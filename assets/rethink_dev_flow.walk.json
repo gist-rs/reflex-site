@@ -1,0 +1,120 @@
+{
+ "gfflow_walk": 1,
+ "generated_by": "reflex-site scripts/render_flows.py",
+ "file": "rethink_dev_flow.svg",
+ "title": "Rethink: how a hosted head is made, locked, minted and served",
+ "accent": "#a98bfa",
+ "intro": "Press play to walk the path one step at a time, or click a dot to jump.",
+ "steps": {
+  "train": {
+   "n": "1",
+   "title": "Train the head",
+   "lane": "trainer",
+   "color": "#a98bfa"
+  },
+  "lock": {
+   "n": "2",
+   "title": "Lock it",
+   "lane": "trainer",
+   "color": "#a98bfa"
+  },
+  "mint": {
+   "n": "3",
+   "title": "Mint the vessel",
+   "lane": "hosts",
+   "color": "#a98bfa"
+  },
+  "deploy": {
+   "n": "4",
+   "title": "Deploy",
+   "lane": "hosts",
+   "color": "#a98bfa"
+  },
+  "store": {
+   "n": "5",
+   "title": "The storefront",
+   "lane": "hosts",
+   "color": "#a98bfa"
+  }
+ },
+ "edges": [
+  {
+   "id": "train->lock",
+   "back": false
+  },
+  {
+   "id": "lock->mint",
+   "back": false
+  },
+  {
+   "id": "mint->deploy",
+   "back": false
+  },
+  {
+   "id": "deploy->store",
+   "back": false
+  }
+ ],
+ "walk": [
+  {
+   "title": "Train the head",
+   "text": "A small head trains above a frozen base — the base never trains, so its reading stays exact and repeatable. The heads on the public board today were made this way; their reads are measured there, record-only.",
+   "steps": [
+    "train"
+   ],
+   "edges": [],
+   "illustrative": false
+  },
+  {
+   "title": "Lock it",
+   "text": "The head is hashed and checksum-verified: any change to the file is caught at load, and nothing trains at serve time.",
+   "steps": [
+    "lock"
+   ],
+   "edges": [
+    "train->lock"
+   ],
+   "illustrative": false
+  },
+  {
+   "title": "Mint the vessel",
+   "text": "The head is minted into one HOSTED-ONLY vessel — a locked file whose weights never leave our servers. The format is built; the hosted lane it serves is planned.",
+   "steps": [
+    "mint"
+   ],
+   "edges": [
+    "lock->mint"
+   ],
+   "illustrative": false
+  },
+  {
+   "title": "Deploy to our GPU hosts",
+   "text": "The vessel deploys to GPU hosts we control, in one container shape. No step of this flow ever places the weights on hardware nobody controls.",
+   "steps": [
+    "deploy"
+   ],
+   "edges": [
+    "mint->deploy"
+   ],
+   "illustrative": false
+  },
+  {
+   "title": "Serve at the storefront",
+   "text": "You call, we think: the hosted API answers the questions the free floor abstained on, with a receipt on every answer. Planned — this is the public request it would carry, and its reply is published when the lane opens.",
+   "steps": [
+    "store"
+   ],
+   "edges": [
+    "deploy->store"
+   ],
+   "illustrative": true,
+   "in": {
+    "lang": "json",
+    "src": "data/flows/rethink_dev_flow/05_in.json",
+    "label": "the abstained question, sent up",
+    "from": "captured from the reflex 0.2.4 release binary, 2026-10-03 · POST /decide (abstained request)",
+    "body": "{\n  \"state\": \"The staging deploy of release candidate 4.2 finished but the error budget is down to 12 percent and two health endpoints are flapping after the rollout. Rollback is one command. Decide what happens next.\",\n  \"questions\": [\n    {\n      \"id\": \"route\",\n      \"kind\": \"choice\",\n      \"prompt\": \"Route this ticket to the team that owns it.\",\n      \"options\": [\n        \"deploy-ops\",\n        \"billing-support\"\n      ]\n    },\n    {\n      \"id\": \"promote\",\n      \"kind\": \"noul\",\n      \"prompt\": \"Should the rollout be promoted to production right now?\"\n    },\n    {\n      \"id\": \"severity\",\n      \"kind\": \"score\",\n      \"prompt\": \"How severe is this situation?\",\n      \"options\": [\n        \"routine\",\n        \"needs-attention\",\n        \"critical\"\n      ]\n    }\n  ]\n}"
+   }
+  }
+ ]
+}

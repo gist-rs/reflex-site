@@ -55,14 +55,21 @@ const UNIT_RE = /\d+\s?(?:ms|µs|us|sec(?:ond)?s?\b|s\b|tok\/s|%)/;
 // innerText below is the live half.
 // The footer engine stamp ([data-wire-version], rendered by render_wire.mjs)
 // is a release identifier, not a figure — the ONE element both halves skip.
+// The gfflow walk fallbacks (<details class="gf-walk-static">, filled by
+// render_flows.py from data/flows/) are the same class as the home page's
+// .wire-pair panes: the engine's VERBATIM captured bytes (design guide §8.4
+// — "numbers live in the walk payloads"); the site cannot reword them
+// without lying about what the binary returns, so they are skipped here.
 const WIRE_VERSION_RAW = /<span data-wire-version>[\s\S]*?<\/a><\/span>/g;
+const WALK_STATIC_RAW = /<details class="gf-walk-static"[\s\S]*?<\/details>/g;
 function visibleTextOfRawHtml(html) {
   return html
     .replace(WIRE_VERSION_RAW, " ")
+    .replace(WALK_STATIC_RAW, " ")
     .replace(/<script\b[\s\S]*?<\/script>/gi, " ")
     .replace(/<style\b[\s\S]*?<\/style>/gi, " ")
     .replace(/<[^>]+>/g, " ")
-    .replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/>/g, ">")
+    .replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">")
     .replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&nbsp;/g, " ");
 }
 
@@ -131,7 +138,7 @@ function digitFindings(text, label, fail) {
     const clef = document.getElementById("clef");
     return {
       first: first && first.id, h3, terms, dds, pres,
-      figImg: !!sec.querySelector("figure img[src='/assets/jev_vs_reflex_flow.svg']"),
+      figImg: !!sec.querySelector("figure img[src='/assets/jev_vs_reflex_flow.svg'], figure[data-walk='/assets/jev_vs_reflex_flow.svg'] svg[data-gfflow]"),
       clefText: clef ? clef.textContent : "",
       clefChip: clef ? (clef.querySelector(".gf-chip") || {}).textContent : null,
     };
@@ -210,19 +217,29 @@ function digitFindings(text, label, fail) {
   });
   if (framings.every((f) => flat.includes(f))) console.log("ok: all four framing sentences verbatim");
 
-  // 4. every image resolves (the <img> embedding law — mermaid renders share
-  //    id="mermaid-svg", inlining two would clash) and carries an alt
-  const imgs = await page.evaluate(() =>
-    [...document.images].map((i) => ({
-      src: i.getAttribute("src"),
-      ok: i.complete && i.naturalWidth > 0,
-      alt: (i.getAttribute("alt") || "").trim(),
-    }))
-  );
-  const broken = imgs.filter((i) => !i.ok);
-  if (broken.length) fail(`broken images: ${JSON.stringify(broken)}`);
-  const noAlt = imgs.filter((i) => !i.alt);
-  if (noAlt.length) fail(`images without alt text: ${JSON.stringify(noAlt.map((i) => i.src))}`);
+  // 4. every figure resolves and is accessible. Two shapes count (Plan 620):
+  //    a plain <img> that loads and carries an alt, or — for a walkable
+  //    figure whose walker mounted — the inlined gfflow stage (the walker
+  //    REPLACES the <img>/<picture> with the two <svg data-gfflow> shapes,
+  //    each carrying role="img" + <title>/<desc>; a failed walk leaves the
+  //    <img> fallback in place, so either form satisfies the check and a
+  //    figure in NEITHER form is missing). The walker never mounts without
+  //    fetching both SVGs, so a mounted stage is a resolved figure.
+  const figs = await page.evaluate(() => {
+    const out = [];
+    for (const i of document.images)
+      out.push({ kind: "img", src: i.getAttribute("src"), ok: i.complete && i.naturalWidth > 0, alt: (i.getAttribute("alt") || "").trim() });
+    for (const s of document.querySelectorAll("svg[data-gfflow]")) {
+      const mob = s.id.endsWith("-m");
+      const stem = (mob ? s.id.slice(0, -2) : s.id).replace(/-/g, "_");
+      out.push({ kind: "gfflow", src: "/assets/" + stem + (mob ? "_m" : "") + ".svg", ok: s.getAttribute("role") === "img" && !!s.querySelector("title"), alt: (s.querySelector("title")?.textContent || "").trim() });
+    }
+    return out;
+  });
+  const broken = figs.filter((i) => !i.ok);
+  if (broken.length) fail(`broken figures: ${JSON.stringify(broken)}`);
+  const noAlt = figs.filter((i) => !i.alt);
+  if (noAlt.length) fail(`figures without alt/title: ${JSON.stringify(noAlt.map((i) => i.src))}`);
   const wanted = [
     "/assets/jev_vs_reflex_story.webp",
     "/assets/jev_vs_reflex_flow.svg",
@@ -231,12 +248,13 @@ function digitFindings(text, label, fail) {
     "/assets/reflexer_relation_flow.svg",
     "/assets/model_classes_flow.svg", "/assets/train_freeze_flow.svg",
   ];
+  const desktop = figs.filter((f) => !f.src.endsWith("_m.svg"));
   for (const w of wanted) {
-    if (!imgs.some((i) => i.src === w)) fail(`expected image missing: ${w}`);
+    if (!desktop.some((i) => i.src === w)) fail(`expected figure missing: ${w}`);
   }
-  if (imgs.length !== 11) fail(`expected 11 <img> (decision_flow lives in #reflex only — the #overview duplicate was removed 2026-10-04; decision_flow + rethink_flow + the two #development model-class figures carry picture mobile twins), got ${imgs.length}`);
-  if (!broken.length && !noAlt.length && imgs.length === 11 && wanted.every((w) => imgs.some((i) => i.src === w))) {
-    console.log(`ok: all 11 images resolve with alts (11 unique assets, three with mobile twins)`);
+  if (desktop.length !== 11) fail(`expected 11 figures (decision_flow lives in #reflex only — the #overview duplicate was removed 2026-10-04; walkable figures arrive as inlined gfflow stages once their walker mounts), got ${desktop.length}`);
+  if (!broken.length && !noAlt.length && desktop.length === 11 && wanted.every((w) => desktop.some((i) => i.src === w))) {
+    console.log(`ok: all 11 figures resolve and are accessible (${figs.length} shapes incl. mobile twins; walkable ones as inlined gfflow stages)`);
   }
 
   // 5. the target matrix: 4 columns, header + 6 rows
@@ -267,11 +285,13 @@ function digitFindings(text, label, fail) {
 
   // 8. the numbers law on RENDERED visible text (the live half; innerText —
   //    not textContent — is the visible surface, the raw-file half above is
-  //    the superset)
+  //    the superset). The walk fallbacks are skipped here too: their payloads
+  //    are captured wire bytes (see the raw-half note above).
   digitFindings(
     await page.evaluate(() => {
       const b = document.body.cloneNode(true);
       b.querySelectorAll("[data-wire-version]").forEach((e) => e.remove());
+      b.querySelectorAll("details.gf-walk-static").forEach((e) => e.remove());
       document.body.appendChild(b); // innerText needs a rendered node
       const t = b.innerText;
       b.remove();

@@ -1,0 +1,38 @@
+{
+ "01_in.json": {
+  "from": "captured from the reflex 0.2.4 release binary, 2026-10-03 · POST /decide (answered request)",
+  "source": "reflex-site data/wire.json",
+  "case": "answered",
+  "field": "request",
+  "engine": "reflex 0.2.4",
+  "captured": "2026-10-03"
+ },
+ "03a_out.json": {
+  "from": "captured from the reflex 0.2.4 release binary, 2026-10-03 · POST /decide (answered response)",
+  "source": "reflex-site data/wire.json",
+  "case": "answered",
+  "field": "response",
+  "engine": "reflex 0.2.4",
+  "captured": "2026-10-03"
+ },
+ "04_out.json": {
+  "from": "captured from the reflex 0.2.4 release binary, 2026-10-03 · POST /decide (answered response)",
+  "source": "reflex-site data/wire.json",
+  "case": "answered",
+  "field": "response",
+  "engine": "reflex 0.2.4",
+  "captured": "2026-10-03"
+ },
+ "02b_in.json": {
+  "from": "recorded rulebook game — the arena's replay-verified walk (recorded by the katgpt-rs site-walk example; turn 1)",
+  "source": "reflex-site arena/demo_oracle.json",
+  "key": "tetris_rulebook_walk[0]",
+  "recorder": "katgpt-rs examples/tetris_09_site_walk.rs"
+ },
+ "03b_out.json": {
+  "from": "recorded rulebook game — the searched pick (argmax over the rulebook's option scores; turn 1, piece O)",
+  "source": "reflex-site arena/demo_oracle.json",
+  "key": "tetris_rulebook_walk[0]",
+  "recorder": "katgpt-rs examples/tetris_09_site_walk.rs"
+ }
+}

@@ -1,0 +1,50 @@
+{
+ "01_in.json": {
+  "from": "captured from the reflex 0.2.4 release binary, 2026-10-03 · POST /decide (abstained request)",
+  "source": "reflex-site data/wire.json",
+  "case": "abstained",
+  "field": "request",
+  "engine": "reflex 0.2.4",
+  "captured": "2026-10-03"
+ },
+ "03b_in.json": {
+  "from": "captured from the reflex 0.2.4 release binary, 2026-10-03 · POST /decide (answered request)",
+  "source": "reflex-site data/wire.json",
+  "case": "answered",
+  "field": "request",
+  "engine": "reflex 0.2.4",
+  "captured": "2026-10-03"
+ },
+ "03b_out.json": {
+  "from": "captured from the reflex 0.2.4 release binary, 2026-10-03 · POST /decide (answered response)",
+  "source": "reflex-site data/wire.json",
+  "case": "answered",
+  "field": "response",
+  "engine": "reflex 0.2.4",
+  "captured": "2026-10-03"
+ },
+ "03c_in.json": {
+  "from": "captured from the reflex 0.2.4 release binary, 2026-10-03 · POST /decide (abstained request)",
+  "source": "reflex-site data/wire.json",
+  "case": "abstained",
+  "field": "request",
+  "engine": "reflex 0.2.4",
+  "captured": "2026-10-03"
+ },
+ "03c_out.json": {
+  "from": "captured from the reflex 0.2.4 release binary, 2026-10-03 · POST /decide (abstained response)",
+  "source": "reflex-site data/wire.json",
+  "case": "abstained",
+  "field": "response",
+  "engine": "reflex 0.2.4",
+  "captured": "2026-10-03"
+ },
+ "04b_in.json": {
+  "from": "captured from the reflex 0.2.4 release binary, 2026-10-03 · POST /decide (abstained request)",
+  "source": "reflex-site data/wire.json",
+  "case": "abstained",
+  "field": "request",
+  "engine": "reflex 0.2.4",
+  "captured": "2026-10-03"
+ }
+}

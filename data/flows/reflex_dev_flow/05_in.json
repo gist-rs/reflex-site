@@ -1,0 +1,15 @@
+{
+  "state": "our deploy regressed the error budget after the rollout — run the rollback and verify the health endpoints",
+  "questions": [
+    {
+      "id": "route",
+      "kind": "choice",
+      "prompt": "Which runbook applies?",
+      "options": [
+        "billing",
+        "deploy",
+        "onboarding"
+      ]
+    }
+  ]
+}

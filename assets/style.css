@@ -519,3 +519,18 @@ main > section:first-child, .wrap > section:first-child { border-top: 0; }
 .wire-pane pre code { white-space: pre-wrap; overflow-wrap: anywhere; }
 @media (max-width: 900px) { .wire-pair { grid-template-columns: minmax(0, 1fr); } }
 .api-ref td:last-child { white-space: normal; min-width: 16rem; }
+
+/* Flow step-through, no-JS fallback (riir-ai Plan 620; family design guide
+   §8.4): the walker (assets/flow_walk.js) injects its own zero-specificity
+   chrome and hides this block once mounted; these rules style the
+   <details> IN/OUT list the renderer fills between the gfflow:walk markers.
+   Same block as the rethink storefront's style.css. */
+.gf-walk-static { margin: var(--s-4) 0 0; border: 1px solid var(--line); border-radius: var(--r-2); background: var(--surface); padding: var(--s-3) var(--s-4); }
+.gf-walk-static summary { cursor: pointer; color: var(--text); font-weight: 600; }
+.gf-walk-list { margin: var(--s-3) 0 0; padding-left: 1.2rem; color: var(--text-2); }
+.gf-walk-list li { margin: 0 0 var(--s-4); }
+.gf-walk-list p { margin: 0 0 var(--s-2); }
+.gf-walk-h b { color: var(--text); }
+.gf-walk-illu, .gf-walk-from { font: 500 var(--fs-0)/1.5 var(--mono); color: var(--muted); }
+.gf-walk-io { font: 600 var(--fs-0)/1.4 var(--mono); letter-spacing: .06em; color: var(--muted); margin-top: var(--s-3) !important; }
+.gf-walk-list pre.gf-code { max-height: 16rem; font-size: var(--fs-0); margin: 0 0 var(--s-2); }

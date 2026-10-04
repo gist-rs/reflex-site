@@ -100,6 +100,47 @@ from = "floor"; to = "abstain"; label = "not sure"
 from = "jev_read"; to = "jev_answer"
 [[edge]]
 from = "abstain"; to = "escalate"; label = "you choose"
+
+[[walk]]
+title = "One question, two routes"
+text  = "The same state and typed questions either way — here a security triage: route the ticket, promote or not, rate the severity. The difference is only where the answering happens and what happens when the answerer is unsure."
+steps = ["ask"]
+in    = { lang = "json", src = "data/flows/jev_vs_reflex_flow/01_in.json", label = "POST /decide — the same request either way" }
+[[walk]]
+title = "The Jev route — a network hop"
+text  = "Every decision crosses the network to their cloud, where a hosted model reads the whole state in one pass. Their product, their wire — nothing here is ours to show beyond the public description."
+steps = ["jev_trip"]
+[[walk]]
+title = "One-pass read"
+text  = "A hosted model reads the state and every option together and always returns a typed answer with probabilities — even when it is unsure. Thresholding those probabilities is your job."
+steps = ["jev_read"]
+[[walk]]
+title = "The Reflex route — loopback"
+text  = "The same question goes over loopback to the modelless engine on your own machine. It answers from a corpus you author, in microseconds — nothing leaves by default."
+steps = ["floor"]
+in    = { lang = "json", src = "data/flows/jev_vs_reflex_flow/03b_in.json", label = "POST /decide · a question it is sure on" }
+[[walk]]
+title = "Sure — answer with confidence"
+text  = "When the evidence is there, a typed answer comes back with calibrated confidence. This game-head question is one the engine is sure on."
+steps = ["sure"]
+in    = { lang = "json", src = "data/flows/jev_vs_reflex_flow/03b_in.json", label = "POST /decide" }
+out   = { lang = "json", src = "data/flows/jev_vs_reflex_flow/03b_out.json", label = "sure: outcome yes" }
+[[walk]]
+title = "Not sure — it abstains"
+text  = "On the harder triage question the engine abstains: “not sure” with the full distribution attached, never a guess. Your code routes the hard case instead of thresholding a confident-looking wrong answer."
+steps = ["abstain"]
+in    = { lang = "json", src = "data/flows/jev_vs_reflex_flow/03c_in.json", label = "POST /decide · the triage question" }
+out   = { lang = "json", src = "data/flows/jev_vs_reflex_flow/03c_out.json", label = "not sure: every outcome is null" }
+[[walk]]
+title = "The hosted model always answers"
+text  = "The Jev route's answer to the same triage question is a typed answer with probabilities — always. If you threshold it, you decide where “unsure” begins; if you don't, every case looks answered."
+steps = ["jev_answer"]
+[[walk]]
+title = "Escalation is a choice, not a default"
+text  = "Only the abstained questions are candidates for a hosted, paid head — and only if you point your app at it. That is what makes paying optional rather than constant. Planned: the hosted lane opens later."
+steps = ["escalate"]
+illustrative = true
+in    = { lang = "json", src = "data/flows/jev_vs_reflex_flow/04b_in.json", label = "the abstained question, sent up" }
 ```
 
 ## Status per step (the honesty table — re-check before every edit)

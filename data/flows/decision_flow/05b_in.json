@@ -1,0 +1,14 @@
+{
+  "state": "My sourdough starter stopped rising after I moved it to a colder kitchen.",
+  "questions": [
+    {
+      "id": "route",
+      "kind": "choice",
+      "prompt": "Route this ticket to the team that owns it.",
+      "options": [
+        "deploy-ops",
+        "billing-support"
+      ]
+    }
+  ]
+}

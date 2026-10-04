@@ -317,14 +317,155 @@
         the product it belongs to. Where its own arm measured <em>below</em> the seated one, the served answer shows (↩, the
         answering arm + the encoder's own read on hover); where it reads ahead, the violet record cell stands — results land
         as the encoder serving deploy exists.</p>
-      <figure class="figure scrolls">
-        <img style="--minw:1204px" src="/assets/instinct_flow.svg" width="1751" height="730"
-          alt="The Instinct composition flow in two bands: the top band is the question in — the same typed question runs Reflex's modelless engine first, and a confident fused-gate answer returns in microseconds with the specialist never paid; on abstain the bottom band takes over — top-k prune keeps the candidates, the locked per-domain specialist scores them, an H1 cascade or H2 prior fusion calibrates the pick, and the answer ships with a decision receipt — while arsenal.toml, the only selection surface, hot-swaps registered arms monotonically"
-          loading="lazy">
+      <figure class="figure scrolls" data-walk="/assets/instinct_flow.svg">
+        <picture>
+          <source media="(max-width: 720px)" srcset="/assets/instinct_flow_m.svg" type="image/svg+xml" width="340" height="1316">
+          <img style="--minw:1204px" src="/assets/instinct_flow.svg" width="1462" height="724"
+            alt="The Instinct composition, numbered along the path in four lanes. 1 your question — the same typed question. 2 Reflex answers first: embed, route, score, and the fused gate checks confidence. If sure, 3a the answer and its receipt return in microseconds and the specialist is never paid. If not sure, the open lane takes over: 3b.1 the abstained question is pruned to the top candidates, 3b.2 the locked per-domain specialist scores them — never blended — and 3b.3 a cascade pick or prior fusion returns one calibrated answer. Still unsure escalates one rung deeper to 4 the encoder rung on our GPU hosts — measured on the board, record-only. 5 the manifest hot-swaps registered arms — each beat free Reflex on one frozen read — back into the scoring step, whole."
+            loading="lazy">
+        </picture>
         <figcaption>Registered arms only: a specialist joins the manifest solely where it beat free Reflex pre-registration, on one frozen test read
-          (the GOAT gate). Write-up:
+          (the GOAT gate). Orange = your machine · pink = the open lane (serves live) · violet = our GPU hosts (the encoder rung, record-only). Write-up:
           <a href="https://github.com/gist-rs/riir-instinct/blob/HEAD/.docs/03_decision_flow/instinct_flow.md">instinct_flow.md</a>.</figcaption>
       </figure>
+      <!-- gfflow:walk instinct_flow.svg -->
+<details class="gf-walk-static" data-walk-static="instinct_flow.svg"><summary>Step by step: what goes in and what comes out</summary>
+<ol class="gf-walk-list">
+<li><p class="gf-walk-h"><b>1 · The same typed question</b></p><p>Your app sends the same typed question it would send the free engine: a state plus questions — choice, score or yes-no. This spot question is one the game heads know.</p><p class="gf-walk-io">IN · POST /decide</p><pre class="gf-code">{
+  &quot;state&quot;: &quot;The piece leaves no holes under it on the left edge, sits flat on the surface, and the stack stays low.&quot;,
+  &quot;questions&quot;: [
+    {
+      &quot;id&quot;: &quot;clean&quot;,
+      &quot;kind&quot;: &quot;noul&quot;,
+      &quot;prompt&quot;: &quot;Does the stack look clean?&quot;
+    }
+  ]
+}</pre><p class="gf-walk-from">captured from the reflex 0.2.4 release binary, 2026-10-03 · POST /decide (answered request)</p></li>
+<li><p class="gf-walk-h"><b>2 · The free floor answers first</b></p><p>Reflex runs before anything paid: embed, route to the corpus, score every option, and the fused gate checks confidence. On this harder triage question the gate abstains — every outcome comes back null — and that abstain is what pays the rung above.</p><p class="gf-walk-io">IN · POST /decide · a harder question</p><pre class="gf-code">{
+  &quot;state&quot;: &quot;The staging deploy of release candidate 4.2 finished but the error budget is down to 12 percent and two health endpoints are flapping after the rollout. Rollback is one command. Decide what happens next.&quot;,
+  &quot;questions&quot;: [
+    {
+      &quot;id&quot;: &quot;route&quot;,
+      &quot;kind&quot;: &quot;choice&quot;,
+      &quot;prompt&quot;: &quot;Route this ticket to the team that owns it.&quot;,
+      &quot;options&quot;: [
+        &quot;deploy-ops&quot;,
+        &quot;billing-support&quot;
+      ]
+    },
+    {
+      &quot;id&quot;: &quot;promote&quot;,
+      &quot;kind&quot;: &quot;noul&quot;,
+      &quot;prompt&quot;: &quot;Should the rollout be promoted to production right now?&quot;
+    },
+    {
+      &quot;id&quot;: &quot;severity&quot;,
+      &quot;kind&quot;: &quot;score&quot;,
+      &quot;prompt&quot;: &quot;How severe is this situation?&quot;,
+      &quot;options&quot;: [
+        &quot;routine&quot;,
+        &quot;needs-attention&quot;,
+        &quot;critical&quot;
+      ]
+    }
+  ]
+}</pre><p class="gf-walk-from">captured from the reflex 0.2.4 release binary, 2026-10-03 · POST /decide (abstained request)</p><p class="gf-walk-io">OUT · not sure: the abstain that pays the rung</p><pre class="gf-code">{
+  &quot;answers&quot;: [
+    {
+      &quot;question_id&quot;: &quot;route&quot;,
+      &quot;outcome&quot;: null,
+      &quot;probabilities&quot;: [0.52583224, 0.47416782],
+      &quot;confidence&quot;: 0.0019263625
+    },
+    {
+      &quot;question_id&quot;: &quot;promote&quot;,
+      &quot;outcome&quot;: null,
+      &quot;probabilities&quot;: [0.49452087],
+      &quot;confidence&quot;: 0.00008660555
+    },
+    {
+      &quot;question_id&quot;: &quot;severity&quot;,
+      &quot;outcome&quot;: null,
+      &quot;probabilities&quot;: [0.3601853, 0.2878931, 0.35192165],
+      &quot;confidence&quot;: 0.004379213
+    }
+  ],
+  &quot;routing&quot;: {
+    &quot;lane&quot;: &quot;modelless&quot;,
+    &quot;reason&quot;: &quot;modelless corpus routing: ops=3 support=0; fused abstain (score+distance) armed; drafter-only=1&quot;
+  },
+  &quot;calibration&quot;: {
+    &quot;method&quot;: &quot;none&quot;,
+    &quot;temperature&quot;: 1.0
+  }
+}</pre><p class="gf-walk-from">captured from the reflex 0.2.4 release binary, 2026-10-03 · POST /decide (abstained response)</p></li>
+<li><p class="gf-walk-h"><b>3a · Sure — the specialist is never paid</b></p><p>When the floor is sure, the answer goes straight back with calibrated confidence and a receipt, and no specialist is consulted. That is the rung model: you pay for thinking, never for re-answering what the free floor already knows.</p><p class="gf-walk-io">IN · POST /decide</p><pre class="gf-code">{
+  &quot;state&quot;: &quot;The piece leaves no holes under it on the left edge, sits flat on the surface, and the stack stays low.&quot;,
+  &quot;questions&quot;: [
+    {
+      &quot;id&quot;: &quot;clean&quot;,
+      &quot;kind&quot;: &quot;noul&quot;,
+      &quot;prompt&quot;: &quot;Does the stack look clean?&quot;
+    }
+  ]
+}</pre><p class="gf-walk-from">captured from the reflex 0.2.4 release binary, 2026-10-03 · POST /decide (answered request)</p><p class="gf-walk-io">OUT · sure: outcome yes</p><pre class="gf-code">{
+  &quot;answers&quot;: [
+    {
+      &quot;question_id&quot;: &quot;clean&quot;,
+      &quot;outcome&quot;: {
+        &quot;noul&quot;: {
+          &quot;yes&quot;: true
+        }
+      },
+      &quot;probabilities&quot;: [0.51943666],
+      &quot;confidence&quot;: 0.51943666
+    }
+  ],
+  &quot;routing&quot;: {
+    &quot;lane&quot;: &quot;modelless&quot;,
+    &quot;reason&quot;: &quot;game-head/tetris (corpus-fitted, decoded arm)&quot;
+  },
+  &quot;calibration&quot;: {
+    &quot;method&quot;: &quot;none&quot;,
+    &quot;temperature&quot;: 1.0
+  }
+}</pre><p class="gf-walk-from">captured from the reflex 0.2.4 release binary, 2026-10-03 · POST /decide (answered response)</p></li>
+<li><p class="gf-walk-h"><b>3b.1 · Prune to the candidates</b></p><p>Only the abstained question goes on. The survivors are pruned to the top candidates so the rung above scores a handful of options, not the whole list.</p></li>
+<li><p class="gf-walk-h"><b>3b.2 · The specialist scores</b></p><p>A per-domain specialist — a locked artifact whose digest is checked at every load — scores the candidates. Selection is a monotonic hot-swap of whole artifacts from the manifest: never a weighted blend, because blends do not preserve rankings.</p></li>
+<li><p class="gf-walk-h"><b>3b.3 · Fuse into one calibrated answer</b></p><p>The composition fuses the floor&#x27;s read with the specialist&#x27;s: a cascade pick, or prior fusion lifting the calibrated favourite. A confident pick returns as the answer, receipt attached.</p></li>
+<li><p class="gf-walk-h"><b>4 · Still unsure — one rung deeper</b> <span class="gf-walk-illu">○ illustrative · planned</span></p><p>Where the bag view reads too coarse, a trained encoder head thinks — GPU-hosted, weights on our hosts only. It is measured on the benchmark board today, record-only: the hosted lane opens later, and this is the public request it would carry.</p><p class="gf-walk-io">IN · the abstained question, sent up</p><pre class="gf-code">{
+  &quot;state&quot;: &quot;The staging deploy of release candidate 4.2 finished but the error budget is down to 12 percent and two health endpoints are flapping after the rollout. Rollback is one command. Decide what happens next.&quot;,
+  &quot;questions&quot;: [
+    {
+      &quot;id&quot;: &quot;route&quot;,
+      &quot;kind&quot;: &quot;choice&quot;,
+      &quot;prompt&quot;: &quot;Route this ticket to the team that owns it.&quot;,
+      &quot;options&quot;: [
+        &quot;deploy-ops&quot;,
+        &quot;billing-support&quot;
+      ]
+    },
+    {
+      &quot;id&quot;: &quot;promote&quot;,
+      &quot;kind&quot;: &quot;noul&quot;,
+      &quot;prompt&quot;: &quot;Should the rollout be promoted to production right now?&quot;
+    },
+    {
+      &quot;id&quot;: &quot;severity&quot;,
+      &quot;kind&quot;: &quot;score&quot;,
+      &quot;prompt&quot;: &quot;How severe is this situation?&quot;,
+      &quot;options&quot;: [
+        &quot;routine&quot;,
+        &quot;needs-attention&quot;,
+        &quot;critical&quot;
+      ]
+    }
+  ]
+}</pre><p class="gf-walk-from">captured from the reflex 0.2.4 release binary, 2026-10-03 · POST /decide (abstained request)</p></li>
+<li><p class="gf-walk-h"><b>5 · The manifest hot-swaps arms</b></p><p>arsenal.toml is the one selection surface: a specialist joins only where it beat free Reflex on one frozen test read, and it is swapped whole — a decision always observes one whole server.</p></li>
+</ol>
+</details>
+<!-- /gfflow:walk -->
       <div class="tldr" id="instinct-verdict">
         <p class="sub" style="margin:0">loading the Instinct verdicts from <a href="/data/bench.json">data/bench.json</a>…</p>
       </div>
@@ -1028,5 +1169,6 @@ fetch("/data/bench.json", { cache: "no-store" })
     document.getElementById("bench-meta").textContent = "failed to load bench data: " + e;
   });
 </script>
+<script type="module" src="/assets/flow_walk.js"></script>
 </body>
 </html>

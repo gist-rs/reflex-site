@@ -1,0 +1,30 @@
+{
+  "answers": [
+    {
+      "question_id": "route",
+      "outcome": null,
+      "probabilities": [0.52583224, 0.47416782],
+      "confidence": 0.0019263625
+    },
+    {
+      "question_id": "promote",
+      "outcome": null,
+      "probabilities": [0.49452087],
+      "confidence": 0.00008660555
+    },
+    {
+      "question_id": "severity",
+      "outcome": null,
+      "probabilities": [0.3601853, 0.2878931, 0.35192165],
+      "confidence": 0.004379213
+    }
+  ],
+  "routing": {
+    "lane": "modelless",
+    "reason": "modelless corpus routing: ops=3 support=0; fused abstain (score+distance) armed; drafter-only=1"
+  },
+  "calibration": {
+    "method": "none",
+    "temperature": 1.0
+  }
+}
