@@ -189,6 +189,10 @@ SOURCES = (
     # and are include_str!'d (both SVGs: the swimlane + the 390 px card list,
     # swapped by a CSS media query — <picture> needs URLs the worker lacks)
     Source(refine_root, ".docs/10_self_evolve/self_evolve_flow.md", {}, headered_only=True, site=kat_service_src),
+    # the four Get-started role loops + the KAT economy figure (the trust
+    # section's companion) — same no-JS worker posture as the hero: both
+    # shapes mirrored into kat-service/src/assets, include_str!'d, CSS swap
+    Source(refine_root, ".docs/01_orientation/role_flows.md", {}, headered_only=True, site=kat_service_src),
 )
 
 
