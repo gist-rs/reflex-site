@@ -290,15 +290,6 @@
     </div>
 
     <figure class="figure scrolls">
-      <img style="--minw:1043px" src="/assets/decision_flow.svg" width="1517" height="610"
-        alt="The Reflex decision flow: state plus a typed question (choice, score, or yes/no) is embedded, routed to a domain, options scored corpus-is-the-model, calibrated by a sigmoid gate, then answered in microseconds with confidence or an honest abstain — loopback only, thresholds fitted offline from your own labeled data"
-        loading="lazy">
-      <figcaption>The free lane: <strong>Reflex</strong>'s decision flow — the same figure as the
-        <a href="/#flow">home page</a> (one asset, two readers). Write-up:
-        <a href="https://github.com/gist-rs/riir-reflex/blob/HEAD/.docs/03_decision_flow/decision_flow.md">decision_flow.md</a>.</figcaption>
-    </figure>
-
-    <figure class="figure scrolls">
       <img style="--minw:1204px" src="/assets/instinct_flow.svg" width="1751" height="730"
         alt="The Instinct composition flow in two bands: the top band is the question in — the same typed question runs Reflex's modelless engine first, and a confident fused-gate answer returns in microseconds with the specialist never paid; on abstain the bottom band takes over — top-k prune keeps the candidates, the locked per-domain specialist scores them, an H1 cascade or H2 prior fusion calibrates the pick, and the answer ships with a decision receipt"
         loading="lazy">
@@ -339,11 +330,16 @@
       Abstain: the engine says “I don't know” instead of guessing.]</p>
 
     <figure class="figure scrolls">
-      <img style="--minw:1043px" src="/assets/decision_flow.svg" width="1517" height="610"
-        alt="The Reflex decision flow: state plus a typed question (choice, score, or yes/no) is embedded, routed to a domain, options scored corpus-is-the-model, calibrated by a sigmoid gate, then answered in microseconds with confidence or an honest abstain — loopback only, thresholds fitted offline from your own labeled data"
-        loading="lazy">
+      <picture>
+        <source media="(max-width: 720px)" srcset="/assets/decision_flow_m.svg" type="image/svg+xml" width="340" height="1064">
+        <img style="--minw:1043px" src="/assets/decision_flow.svg" width="1756" height="724"
+          alt="The Reflex decision flow, numbered along the path in four lanes. 1 your question — a state plus typed questions (choice, score or yes-no) on your machine. 2 embed and route: hashed features, the domain argmax picks your corpus. 3 score every option — corpus-is-the-model. 4 calibrate: a sigmoid gate turns the signal into confidence. If there is signal, 5a answers with one pick per question plus calibrated confidence; if not, 5b abstains — declines rather than guesses, the full distribution still riding. 6 loops back to the calibrator: thresholds refitted offline, one-off, from your own labeled data."
+          loading="lazy">
+      </picture>
       <figcaption>The Reflex decision flow — the same figure as the <a href="/#flow">home page</a>
-        (one asset, two readers, no copy).</figcaption>
+        (one asset, two readers, no copy). Numbered steps in path order; lanes group the stages —
+        your machine, the modelless engine, and the two outcomes (answered, abstained). Write-up:
+        <a href="https://github.com/gist-rs/riir-reflex/blob/HEAD/.docs/03_decision_flow/decision_flow.md">decision_flow.md</a>.</figcaption>
     </figure>
 
     <div class="teaser">
@@ -487,11 +483,16 @@
       controlled hardware. [HOSTED-ONLY: weights that never leave our servers — you call, we think.]</p>
 
     <figure class="figure scrolls">
-      <img style="--minw:993px" src="/assets/rethink_flow.svg" width="1444" height="407"
-        alt="One rung deeper than the bag specialist: when the modelless engine abstains, hashed-bag specialists answer fast on CPU, and the harder cases rise to a trained encoder head served HOSTED-ONLY from our GPU hosts, so the weights never leave our servers"
-        loading="lazy">
+      <picture>
+        <source media="(max-width: 720px)" srcset="/assets/rethink_flow_m.svg" type="image/svg+xml" width="340" height="1072">
+        <img style="--minw:1043px" src="/assets/rethink_flow.svg" width="1756" height="546"
+          alt="The Rethink rung flow, numbered along the path in three lanes. 1 your question on your machine. 2 the fused gate — the free floor's confidence check. If sure, 3a answers with a receipt, microseconds on your machine, nothing leaves. If not sure it abstains and 3b.1 the bag rung: hashed-bag specialists score the survivors, CPU-class. If still too coarse, 3b.2 the encoder — a trained head reads the question whole on our GPU hosts — and 4 the hosted vessel: one locked file holds the head, weights never leaving our servers. Confident bag picks and encoder thinks return to 3a with a receipt attached."
+          loading="lazy">
+      </picture>
       <figcaption>The Rethink flow — from question to answer, with the rung model drawn in.
-        Write-up: <a href="/docs/rethink/resources.md">resources.md (mirrored — the source repo is private)</a>.</figcaption>
+        Orange = the free floor (your machine) · pink = the specialist rung (CPU) · violet = the
+        encoder rung (our GPU hosts). Write-up:
+        <a href="/docs/rethink/resources.md">resources.md (mirrored — the source repo is private)</a>.</figcaption>
     </figure>
 
     <div class="teaser">

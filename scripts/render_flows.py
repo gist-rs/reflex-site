@@ -133,6 +133,16 @@ def reflexer_root() -> Path:
     return _checkout("REFLEXER_CHECKOUT", "riir-reflexer")
 
 
+def refine_root() -> Path:
+    return _checkout("REFINE_CHECKOUT", "riir-refine")
+
+
+def kat_service_src() -> Path:
+    # the refine.gist.rs worker: static bytes are include_str!'d from src/,
+    # so the renderer's site mirror root is the src dir (assets/ under it)
+    return _checkout("DAPPS_CHECKOUT", "riir-dapps") / "cloudflare/kat-service/src"
+
+
 def reflex_site() -> Path:
     return SITE
 
@@ -170,6 +180,15 @@ SOURCES = (
     Source(rethink_root, ".docs/06_trust_flow/trust_flow.md", {}, site=rethink_site),
     # the Reflex ↔ Reflexer relation figure (riir-reflexer Plan 004; F16 in 620's table)
     Source(reflexer_root, ".docs/06_resources/resources.md", {}, "family:#ff8a3d"),
+    # the rethink rung flow serves on BOTH fronts: reflex /resources#rethink
+    # (the entry above) and the rethink storefront's #how (this second pair
+    # of mirrors — same bytes, second site)
+    Source(rethink_root, ".docs/03_decision_flow/rethink_flow.md", {}, site=rethink_site),
+    # the cargo-refine self-evolve flywheel (F14 in 620's table): the refine
+    # front is a no-JS worker — the mirrors land in kat-service/src/assets
+    # and are include_str!'d (both SVGs: the swimlane + the 390 px card list,
+    # swapped by a CSS media query — <picture> needs URLs the worker lacks)
+    Source(refine_root, ".docs/10_self_evolve/self_evolve_flow.md", {}, headered_only=True, site=kat_service_src),
 )
 
 

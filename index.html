@@ -74,10 +74,14 @@
     <p class="sub">Embed → route to your corpus → score options → calibrate → answer or abstain.
       Thresholds are fitted offline from <strong>your</strong> labeled data.</p>
     <figure class="figure scrolls">
-      <img style="--minw:1043px" src="/assets/decision_flow.svg" width="1517" height="610"
-        alt="The Reflex decision flow: state plus a typed question (choice, score, or yes/no) is embedded, routed to a domain, options scored corpus-is-the-model, calibrated by a sigmoid gate, then answered in microseconds with confidence or an honest abstain — loopback only, thresholds fitted offline from your own labeled data"
-        loading="lazy">
-      <figcaption>Runs on <code>127.0.0.1:7331</code> only. Write-up:
+      <picture>
+        <source media="(max-width: 720px)" srcset="/assets/decision_flow_m.svg" type="image/svg+xml" width="340" height="1064">
+        <img style="--minw:1043px" src="/assets/decision_flow.svg" width="1756" height="724"
+          alt="The Reflex decision flow, numbered along the path in four lanes. 1 your question — a state plus typed questions (choice, score or yes-no) on your machine. 2 embed and route: hashed features, the domain argmax picks your corpus. 3 score every option — corpus-is-the-model. 4 calibrate: a sigmoid gate turns the signal into confidence. If there is signal, 5a answers with one pick per question plus calibrated confidence; if not, 5b abstains — declines rather than guesses, the full distribution still riding. 6 loops back to the calibrator: thresholds refitted offline, one-off, from your own labeled data."
+          loading="lazy">
+      </picture>
+      <figcaption>Runs on <code>127.0.0.1:7331</code> only. Numbered steps in path order;
+        lanes group the stages. Write-up:
         <a href="https://github.com/gist-rs/riir-reflex/blob/HEAD/.docs/03_decision_flow/decision_flow.md">decision_flow.md</a>.</figcaption>
     </figure>
   </section>

@@ -6,7 +6,13 @@
       "repo": "riir-reflex",
       "src": ".docs/03_decision_flow/decision_flow.svg",
       "dst": "assets/decision_flow.svg",
-      "sha256": "cf02848f2df18a93e703bee3a3793a4083bdfeaf6c65dabf543e75ba2ccffc7a"
+      "sha256": "8319ae1eee70eb6e418ed9ca30de125e0817b4f4bd77ad83491694a76b1496e7"
+    },
+    {
+      "repo": "riir-reflex",
+      "src": ".docs/03_decision_flow/decision_flow_m.svg",
+      "dst": "assets/decision_flow_m.svg",
+      "sha256": "3c2d47c2b1d4b3ff401384b5ca263f81d126a9cde4d5256e13a629aca45587a9"
     },
     {
       "repo": "riir-reflex",
@@ -60,7 +66,13 @@
       "repo": "riir-rethink",
       "src": ".docs/03_decision_flow/rethink_flow.svg",
       "dst": "assets/rethink_flow.svg",
-      "sha256": "839f7c978371202481b692bcc25f2dd20cd1ef029cc38405ef9d3c64549e2755"
+      "sha256": "2485da7f1dc08bb493faa1b1490b802e7a03f206b6659b1c2c462a400b85ad63"
+    },
+    {
+      "repo": "riir-rethink",
+      "src": ".docs/03_decision_flow/rethink_flow_m.svg",
+      "dst": "assets/rethink_flow_m.svg",
+      "sha256": "cfed2b89a91586933da1352134575223a8c9a92336dcbacc7f8bedd1beba9a29"
     },
     {
       "repo": "riir-rethink",

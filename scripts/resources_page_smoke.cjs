@@ -234,9 +234,9 @@ function digitFindings(text, label, fail) {
   for (const w of wanted) {
     if (!imgs.some((i) => i.src === w)) fail(`expected image missing: ${w}`);
   }
-  if (imgs.length !== 12) fail(`expected 12 <img> (decision_flow reused in overview + reflex; the two #development model-class figures carry picture mobile twins), got ${imgs.length}`);
-  if (!broken.length && !noAlt.length && imgs.length === 12 && wanted.every((w) => imgs.some((i) => i.src === w))) {
-    console.log(`ok: all 12 images resolve with alts (11 unique assets, decision_flow reused, two with mobile twins)`);
+  if (imgs.length !== 11) fail(`expected 11 <img> (decision_flow lives in #reflex only — the #overview duplicate was removed 2026-10-04; decision_flow + rethink_flow + the two #development model-class figures carry picture mobile twins), got ${imgs.length}`);
+  if (!broken.length && !noAlt.length && imgs.length === 11 && wanted.every((w) => imgs.some((i) => i.src === w))) {
+    console.log(`ok: all 11 images resolve with alts (11 unique assets, three with mobile twins)`);
   }
 
   // 5. the target matrix: 4 columns, header + 6 rows

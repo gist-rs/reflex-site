@@ -122,6 +122,7 @@ MIRROR_SOURCES = (
         "public — PRIMARY (absent checkout = exit 2, the guard's loud-SKIP lane)",
         (
             (".docs/03_decision_flow/decision_flow.svg", "assets/decision_flow.svg"),
+            (".docs/03_decision_flow/decision_flow_m.svg", "assets/decision_flow_m.svg"),
             (".docs/04_agent_skill/SKILL.md", "skills/reflex-integration/SKILL.md"),
             (".docs/05_resources/resources.md", "docs/reflex/resources.md"),
             (".docs/05_resources/dev_flow.md", "docs/reflex/dev_flow.md"),
@@ -143,6 +144,7 @@ MIRROR_SOURCES = (
         "PRIVATE forever — education pairs ONLY (the mirror fence, layers 1-2 above)",
         (
             (".docs/03_decision_flow/rethink_flow.svg", "assets/rethink_flow.svg"),
+            (".docs/03_decision_flow/rethink_flow_m.svg", "assets/rethink_flow_m.svg"),
             (".docs/05_resources/resources.md", "docs/rethink/resources.md"),
             (".docs/05_resources/dev_flow.md", "docs/rethink/dev_flow.md"),
             (".docs/05_resources/dev_flow.svg", "assets/rethink_dev_flow.svg"),
