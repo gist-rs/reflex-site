@@ -296,6 +296,34 @@ const CORPUS_CASES = [
     },
     expect: { status: 200, answered: false },
   },
+  // The worked business example (issue 007 T6): ticket triage on the same
+  // sample corpus. Ticket 1 reads like one runbook (answered → the caller's
+  // policy can act on it); ticket 2 mixes a legal threat with a login defect
+  // so no runbook owns it (abstain → the caller escalates). Same question
+  // shape as corpus_answered on purpose — the story is what the CALLER does
+  // with each posture, not a new wire form.
+  {
+    name: "triage_auto",
+    body: {
+      state: "A customer was charged twice for the annual plan this morning and wants the duplicate charge refunded. The invoice shows two identical line items.",
+      questions: [{
+        id: "route", kind: "choice", prompt: "Which runbook applies?",
+        options: ["billing", "deploy", "onboarding"],
+      }],
+    },
+    expect: { status: 200, answered: true },
+  },
+  {
+    name: "triage_escalate",
+    body: {
+      state: "A customer says they will contact a lawyer over a double charge unless someone calls them back today, and also mentions their login stopped working after the update.",
+      questions: [{
+        id: "route", kind: "choice", prompt: "Which runbook applies?",
+        options: ["billing", "deploy", "onboarding"],
+      }],
+    },
+    expect: { status: 200, answered: false },
+  },
 ];
 for (const c of CORPUS_CASES) {
   const r = await fetch(`${BASE2}/decide`, {

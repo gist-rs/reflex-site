@@ -265,6 +265,34 @@
     </div>
   </section>
 
+  <section id="compare">
+    <h2><a class="hlink" href="#compare">Three ways to get a decision</a></h2>
+    <p class="sub">The buyer's question, answered axis by axis: a self-hosted modelless engine, a general
+      LLM API call, or a hosted decision model (the Jev class — <a href="/resources/#learn">how that works</a>).
+      Cells we can measure link the bench; what we cannot measure, we say so. Losses stay visible.</p>
+    <div class="diffs">
+      <table>
+        <thead>
+          <tr><th>axis</th><th>Reflex · self-hosted, modelless</th><th>LLM API · general chat model</th><th>Hosted decision model · Jev-style</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Price unit</td><td>free after install — you author documents, we publish the engine</td><td>per token, at the vendor's rate card</td><td>per decision or subscription, at the host's pricing</td></tr>
+          <tr><td>Latency</td><td>in-process, no network — <a href="/bench/?lane=modelless">measured p50s on the bench</a></td><td>a network round-trip plus generation time</td><td>a model forward on the host plus network</td></tr>
+          <tr><td>Your data</td><td><a href="#privacy">stays on your machine</a> — loopback bind, no telemetry</td><td>leaves with every prompt</td><td>leaves with every question</td></tr>
+          <tr><td>Knows when not to answer</td><td>yes — abstain is a designed, calibrated output</td><td>no — it always answers; thresholds are yours to build</td><td>varies by host — not a primitive you control</td></tr>
+          <tr><td>New domain</td><td>author documents, label a small slice, refit — deterministic, no GPU</td><td>wins: prompt it, works immediately, nothing to integrate</td><td>send the host your labeled decisions</td></tr>
+          <tr><td>Breadth</td><td>bounded by your corpus — off-corpus abstains</td><td>wins: pretraining covers what you never wrote down</td><td>bounded by what it was trained to decide</td></tr>
+          <tr><td>Updating</td><td>edit a document, rebuild — reviewable in a PR</td><td>vendor retrains; you re-prompt</td><td>host retrains on your outcomes</td></tr>
+          <tr><td>Licence</td><td>MIT engine — you can read, audit and fork every line</td><td>vendor terms of service</td><td>closed weights, host terms</td></tr>
+          <tr><td>Measured here</td><td><a href="/bench/">the whole board, losses included</a></td><td>not on this board — bring your own vendor bill</td><td><a href="/bench/?lane=agentjev@4090-win">the Jev-class reference lanes</a></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="sub">They compose instead of competing: Reflex answers what your corpus covers, abstains on the rest,
+      and the abstain is a clean hand-off — to a human, or to a lane you pay for only when it runs.
+      The <a href="#triage">worked example below</a> shows the flow end to end.</p>
+  </section>
+
   <section id="sizes">
     <h2><a class="hlink" href="#sizes">What each lane costs on disk</a></h2>
     <p class="sub">Measured bytes — rust env in ember, python env in blue, model weights in green; where a model stack is published (encoder checkpoint · trained specialists · trained heads) the model part splits into its own colors. Smallest first; click a bar for the full breakdown. Generated into
@@ -497,7 +525,118 @@
     <p class="sub">Download the <a href="/first-corpus.tar.gz">sample corpus</a> (3 domains, 8 documents), then:
       <div class="cmd"><code>tar xzf first-corpus.tar.gz<br>RIIR_REFLEX_CORPUS=first-corpus reflex<br>curl -s -X POST http://127.0.0.1:7331/decide -d '{"state":"our deploy regressed the error budget — run the rollback","questions":[{"id":"route","kind":"choice","prompt":"Which runbook applies?","options":["billing","deploy","onboarding"]}]}'</code><button data-copy="tar xzf first-corpus.tar.gz && RIIR_REFLEX_CORPUS=first-corpus reflex">copy</button></div>
     Write your own domains the same way — a <code>.md</code> file per domain, plain text. A corpus with no
-    domain loading cleanly refuses to boot with the reason, never a silent fallback.</p>
+      domain loading cleanly refuses to boot with the reason, never a silent fallback.</p>
+  </section>
+
+  <section id="triage">
+    <h2><a class="hlink" href="#triage">A worked example: ticket triage</a></h2>
+    <p class="sub">The same engine, the same wire, your own corpus — this is the whole product in one scroll.
+      Two support tickets go in: one the corpus covers, one no runbook owns. Real bytes from the release
+      binary on the <a href="/first-corpus.tar.gz">sample corpus</a> — nothing hosted, nothing typed by hand.</p>
+
+    <h3 class="wire-cap">Ticket 1 — the engine decides</h3>
+    <p class="sub">A duplicate charge on the annual plan. The billing runbook covers exactly this — check the
+      payment history, refund the second charge — so the engine routes it, and your policy can apply the
+      runbook and close the ticket without a human. The decision is the routing; the automation is yours.</p>
+    <!-- wire:case triage_auto --><div class="wire-pair" data-wire-case="triage_auto"><div class="wire-pane"><div class="wire-h">Request<button data-copy="curl -s -X POST http://127.0.0.1:7331/decide \
+  -H 'Content-Type: application/json' \
+  -d '{
+  &quot;state&quot;: &quot;A customer was charged twice for the annual plan this morning and wants the duplicate charge refunded. The invoice shows two identical line items.&quot;,
+  &quot;questions&quot;: [
+    {
+      &quot;id&quot;: &quot;route&quot;,
+      &quot;kind&quot;: &quot;choice&quot;,
+      &quot;prompt&quot;: &quot;Which runbook applies?&quot;,
+      &quot;options&quot;: [&quot;billing&quot;, &quot;deploy&quot;, &quot;onboarding&quot;]
+    }
+  ]
+}'">copy</button></div><pre><code>curl -s -X POST http://127.0.0.1:7331/decide \
+  -H 'Content-Type: application/json' \
+  -d '{
+  &quot;state&quot;: &quot;A customer was charged twice for the annual plan this morning and wants the duplicate charge refunded. The invoice shows two identical line items.&quot;,
+  &quot;questions&quot;: [
+    {
+      &quot;id&quot;: &quot;route&quot;,
+      &quot;kind&quot;: &quot;choice&quot;,
+      &quot;prompt&quot;: &quot;Which runbook applies?&quot;,
+      &quot;options&quot;: [&quot;billing&quot;, &quot;deploy&quot;, &quot;onboarding&quot;]
+    }
+  ]
+}'</code></pre></div><div class="wire-pane"><div class="wire-h">Response · HTTP 200</div><pre><code>{
+  &quot;answers&quot;: [
+    {
+      &quot;question_id&quot;: &quot;route&quot;,
+      &quot;outcome&quot;: {&quot;choice&quot;: {&quot;index&quot;: 0}},
+      &quot;probabilities&quot;: [0.3503429, 0.33383024, 0.3158269],
+      &quot;confidence&quot;: 0.0008147955
+    }
+  ],
+  &quot;routing&quot;: {
+    &quot;lane&quot;: &quot;modelless&quot;,
+    &quot;reason&quot;: &quot;modelless corpus routing: billing=1 deploy=0 onboarding=0; fused abstain (score+distance) armed&quot;
+  },
+  &quot;calibration&quot;: {&quot;method&quot;: &quot;none&quot;, &quot;temperature&quot;: 1.0}
+}</code></pre></div></div><!-- /wire:case -->
+
+    <h3 class="wire-cap">Ticket 2 — the engine abstains, you escalate</h3>
+    <p class="sub">A legal threat mixed with a login defect. No runbook owns that combination, and the
+      probabilities come back near-tied with <code>"outcome": null</code> — the engine refuses to guess.
+      That refusal is the product: this is the ticket a pure classifier would have silently mis-routed.</p>
+    <!-- wire:case triage_escalate --><div class="wire-pair" data-wire-case="triage_escalate"><div class="wire-pane"><div class="wire-h">Request<button data-copy="curl -s -X POST http://127.0.0.1:7331/decide \
+  -H 'Content-Type: application/json' \
+  -d '{
+  &quot;state&quot;: &quot;A customer says they will contact a lawyer over a double charge unless someone calls them back today, and also mentions their login stopped working after the update.&quot;,
+  &quot;questions&quot;: [
+    {
+      &quot;id&quot;: &quot;route&quot;,
+      &quot;kind&quot;: &quot;choice&quot;,
+      &quot;prompt&quot;: &quot;Which runbook applies?&quot;,
+      &quot;options&quot;: [&quot;billing&quot;, &quot;deploy&quot;, &quot;onboarding&quot;]
+    }
+  ]
+}'">copy</button></div><pre><code>curl -s -X POST http://127.0.0.1:7331/decide \
+  -H 'Content-Type: application/json' \
+  -d '{
+  &quot;state&quot;: &quot;A customer says they will contact a lawyer over a double charge unless someone calls them back today, and also mentions their login stopped working after the update.&quot;,
+  &quot;questions&quot;: [
+    {
+      &quot;id&quot;: &quot;route&quot;,
+      &quot;kind&quot;: &quot;choice&quot;,
+      &quot;prompt&quot;: &quot;Which runbook applies?&quot;,
+      &quot;options&quot;: [&quot;billing&quot;, &quot;deploy&quot;, &quot;onboarding&quot;]
+    }
+  ]
+}'</code></pre></div><div class="wire-pane"><div class="wire-h">Response · HTTP 200</div><pre><code>{
+  &quot;answers&quot;: [
+    {
+      &quot;question_id&quot;: &quot;route&quot;,
+      &quot;outcome&quot;: null,
+      &quot;probabilities&quot;: [0.30211508, 0.3375039, 0.36038098],
+      &quot;confidence&quot;: 0.0023708344
+    }
+  ],
+  &quot;routing&quot;: {
+    &quot;lane&quot;: &quot;modelless&quot;,
+    &quot;reason&quot;: &quot;modelless corpus routing: billing=0 deploy=0 onboarding=1; fused abstain (score+distance) armed&quot;
+  },
+  &quot;calibration&quot;: {&quot;method&quot;: &quot;none&quot;, &quot;temperature&quot;: 1.0}
+}</code></pre></div></div><!-- /wire:case -->
+
+    <h3 class="wire-cap">Your code, your policy</h3>
+    <p class="sub">An abstain is a branch, not an error. Route the outcomes the engine gives you; escalate the
+      rest to whoever owns judgement — a human queue today, a hosted lane when the volume justifies it.</p>
+    <pre class="policy"><code data-lang="off">ans = POST /decide  (ticket text, questions)
+for q in ans.answers:
+    if q.outcome is not null:      # the corpus covered it
+        apply(q.outcome)           # billing → verify the double charge, refund it, close
+    else:                          # off-corpus or mixed — the engine declined
+        escalate(ticket)           # human queue; or a paid lane, per your policy
+
+POST /feedback  (q.confidence, human's final outcome)  # refits calibration
+                                                        # from real resolutions</code></pre>
+    <p class="sub">The last line is the loop: when a human resolves an escalated ticket, the outcome refits
+      the calibration slice — the thresholds tighten against reality, and more tickets take the decided
+      path next week. No training run, no GPU; a build step.</p>
   </section>
 
   <section id="notes">

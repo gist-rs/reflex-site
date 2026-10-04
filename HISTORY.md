@@ -4,6 +4,31 @@ One hash-pinned line per removed issue (the fleet noise-reduction convention:
 an issue file is removed once its work is verifiably landed; this file is the
 durable record). Full narrative of each: `git log --follow -- .issues/<file>`.
 
+- **2026-10-05 — buyer-trust completion (Issue 007 T4/T6): the comparison table and the worked example — only the owner's T5 remains.**
+  **T4** — home `#compare` "Three ways to get a decision": the buyer's version of the Jev
+  education, a nine-axis table over Reflex (self-hosted, modelless) · LLM API (general chat
+  model) · hosted decision model (the Jev class). Every measurable cell links the instrument
+  (`/bench/?lane=modelless` for our p50s, `/bench/?lane=agentjev@4090-win` for the Jev-class
+  reference lanes, `/resources/#learn` for the primer, `#privacy` for the data promise); the
+  unmeasurable cells say so ("not on this board — bring your own vendor bill"). Losses stay
+  visible: the LLM column carries explicit "wins:" cells (new-domain immediacy, pretraining
+  breadth). The coordinate-with-1028 blocker was already resolved — 1028's Jev section landed
+  in the first trust wave (`44a8731`); this table links it instead of duplicating it.
+  **T6** — home `#triage` "A worked example: ticket triage": two new captured wire cases on
+  the sample corpus — `triage_auto` (duplicate-charge ticket → answered, routes to billing,
+  caller applies the runbook) and `triage_escalate` (legal threat mixed with a login defect →
+  `outcome: null`, caller escalates) — plus a caller-policy code block (apply / escalate /
+  `POST /feedback` refit loop; "an abstain is a branch, not an error"). Moat-safe: the open
+  lane only, with the hosted escalation as a family link. Capture discipline: `capture_wire.mjs`
+  gained the two cases (17 now); the capture ran against the **v0.2.4 tag** built in a
+  worktree (`../riir-reflex.v024`, darwin release feature set — the stamp is byte-identical to
+  the recorded one), and every pre-existing case's response verified byte-identical through
+  the recapture (git diff: only the two new cases + the captured date moved). Gates all green:
+  public_copy_gate 14 renders, home_page_smoke (10 sections), render_wire --check,
+  sync_mirror --check 32/32, render_flows --check, web_family_gate static; 390 px clean.
+  Remaining: T5 — the stability/versioning statement is an owner commitment (a public
+  deprecation policy is a promise, not a page).
+
 - **2026-10-05 — buyer-trust partial landing (Issue 007 T1/T2/T3): who runs it, what leaves your machine, and coverage beside the speed claim.**
   The site now answers the buyer's three buried questions without a scroll hunt:
   **T1** — a `gf-legal` About block on all 7 pages (run by the gist.rs team with family links,

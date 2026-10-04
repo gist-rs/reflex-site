@@ -5,7 +5,7 @@
     "version": "0.2.4",
     "features": "default laya-riir laya-riir-metal modelless nb-ridge nb-scope option-cond vessel-public-read",
     "release_notes": "https://github.com/gist-rs/reflex/releases/tag/v0.2.4",
-    "captured": "2026-10-03",
+    "captured": "2026-10-04",
     "deterministic_repeat": true,
     "demo_heads_minted": true,
     "note": "every request below was sent to a fresh engine; responses are verbatim bytes. The game heads are minted throwaway demo vessels (mint-only since v0.2.4); the corpus cases boot the vendored first-corpus sample."
@@ -124,6 +124,20 @@
       "request": "{\"state\":\"my sourdough starter stopped rising after i moved it to a colder kitchen\",\"questions\":[{\"id\":\"route\",\"kind\":\"choice\",\"prompt\":\"Which runbook applies?\",\"options\":[\"billing\",\"deploy\",\"onboarding\"]}]}",
       "status": 200,
       "response": "{\"answers\":[{\"question_id\":\"route\",\"outcome\":null,\"probabilities\":[0.31989384,0.34005812,0.34004804],\"confidence\":0.00037240982}],\"routing\":{\"lane\":\"modelless\",\"reason\":\"modelless corpus routing: billing=0 deploy=0 onboarding=1; fused abstain (score+distance) armed\"},\"calibration\":{\"method\":\"none\",\"temperature\":1.0}}"
+    },
+    "triage_auto": {
+      "method": "POST",
+      "path": "/decide",
+      "request": "{\"state\":\"A customer was charged twice for the annual plan this morning and wants the duplicate charge refunded. The invoice shows two identical line items.\",\"questions\":[{\"id\":\"route\",\"kind\":\"choice\",\"prompt\":\"Which runbook applies?\",\"options\":[\"billing\",\"deploy\",\"onboarding\"]}]}",
+      "status": 200,
+      "response": "{\"answers\":[{\"question_id\":\"route\",\"outcome\":{\"choice\":{\"index\":0}},\"probabilities\":[0.3503429,0.33383024,0.3158269],\"confidence\":0.0008147955}],\"routing\":{\"lane\":\"modelless\",\"reason\":\"modelless corpus routing: billing=1 deploy=0 onboarding=0; fused abstain (score+distance) armed\"},\"calibration\":{\"method\":\"none\",\"temperature\":1.0}}"
+    },
+    "triage_escalate": {
+      "method": "POST",
+      "path": "/decide",
+      "request": "{\"state\":\"A customer says they will contact a lawyer over a double charge unless someone calls them back today, and also mentions their login stopped working after the update.\",\"questions\":[{\"id\":\"route\",\"kind\":\"choice\",\"prompt\":\"Which runbook applies?\",\"options\":[\"billing\",\"deploy\",\"onboarding\"]}]}",
+      "status": 200,
+      "response": "{\"answers\":[{\"question_id\":\"route\",\"outcome\":null,\"probabilities\":[0.30211508,0.3375039,0.36038098],\"confidence\":0.0023708344}],\"routing\":{\"lane\":\"modelless\",\"reason\":\"modelless corpus routing: billing=0 deploy=0 onboarding=1; fused abstain (score+distance) armed\"},\"calibration\":{\"method\":\"none\",\"temperature\":1.0}}"
     }
   }
 }

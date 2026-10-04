@@ -36,6 +36,15 @@
 }
 .cmd code { background: none; border: 0; padding: 0; }
 .cmd code { white-space: nowrap; flex: 1; min-width: 0; overflow-x: auto; }
+/* #triage — the caller-policy snippet: a multi-line machine block, mono and
+   scrollable in its own wrapper (the mobile law). */
+.policy {
+  background: var(--bg-2); border: 1px solid var(--line);
+  border-radius: var(--r-2); padding: 12px 14px; margin: 10px 0;
+  font-family: var(--mono); font-size: 13.5px; line-height: 1.6;
+  overflow-x: auto;
+}
+.policy code { background: none; border: 0; padding: 0; white-space: pre; }
 .cmd .os, .cmd button { flex: none; }
 .cmd .os { color: var(--muted); min-width: 118px; }
 .cmd button, .wire-h button {
