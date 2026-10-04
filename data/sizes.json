@@ -1,6 +1,6 @@
 {
  "meta": {
-  "date_utc": "2026-10-04T03:19:27Z",
+  "date_utc": "2026-10-04T04:56:49Z",
   "release": {
    "tag": "v0.2.4",
    "url": "https://github.com/gist-rs/reflex/releases/tag/v0.2.4",
@@ -25,8 +25,22 @@
    "engine_what": "arena_head.wasm \u2014 the engine's fitted game heads as one module",
    "engine_provenance": {
     "source": "local file",
-    "detail": "assets/arena_head.wasm"
+    "detail": "assets/arena_head.wasm",
+    "parts": [
+     {
+      "source": "local file",
+      "what": "assets/arena_head.wasm"
+     }
+    ]
    },
+   "engine_stack": [
+    {
+     "label": "arena_head.wasm",
+     "kind": "module",
+     "bytes": 92057,
+     "src": 0
+    }
+   ],
    "model_bytes": 0,
    "model_what": "none \u2014 the fitted heads are compiled into the module",
    "model_provenance": null,
@@ -45,8 +59,28 @@
    "engine_what": "installed binary + THIRD_PARTY_LICENSES.md (unpacked from the aarch64-apple-darwin archive)",
    "engine_provenance": {
     "source": "measured: unpacked release archive",
-    "detail": "v0.2.4 aarch64-apple-darwin, downloaded + stat'd at publish time"
+    "detail": "v0.2.4 aarch64-apple-darwin, downloaded + stat'd at publish time",
+    "parts": [
+     {
+      "source": "measured: unpacked release archive",
+      "what": "v0.2.4 aarch64-apple-darwin, downloaded + stat'd at publish time"
+     }
+    ]
    },
+   "engine_stack": [
+    {
+     "label": "reflex binary",
+     "kind": "binary",
+     "bytes": 4329680,
+     "src": 0
+    },
+    {
+     "label": "licenses + archive metadata (5 files)",
+     "kind": "license",
+     "bytes": 52297,
+     "src": 0
+    }
+   ],
    "model_bytes": 0,
    "model_what": "none \u2014 the corpus ships inside the binary; the game heads boot-fit from embedded fixtures",
    "model_provenance": null,
@@ -67,44 +101,122 @@
    "engine_what": "the serve binary + the six t20k dataset suites (the Reflex half's corpora and question seats)",
    "engine_provenance": {
     "source": "recorded measurement (sum)",
-    "detail": "1,787,744 B (the riir-instinct `serve` release binary (aarch64-apple-darwin) \u2014 the hosted hybrid lane's serving edge, 2026-09-27 on m3-max-metal) + 20,808,524 B (the six t20k dataset suites the serving posture stages (ag_news 6,324,897 \u00b7 emotion 2,719,177 \u00b7 sst5 1,799,678 \u00b7 massive_intent_en 2,516,925 \u00b7 banking77 2,157,368 \u00b7 xnli_en 5,290,479) \u2014 the Reflex half's corpora and question seats, 2026-09-27 on m3-max-metal)"
+    "detail": "1,787,744 B (the riir-instinct `serve` release binary (aarch64-apple-darwin) \u2014 the hosted hybrid lane's serving edge, 2026-09-27 on m3-max-metal) + 20,808,524 B (the six t20k dataset suites the serving posture stages (ag_news 6,324,897 \u00b7 emotion 2,719,177 \u00b7 sst5 1,799,678 \u00b7 massive_intent_en 2,516,925 \u00b7 banking77 2,157,368 \u00b7 xnli_en 5,290,479) \u2014 the Reflex half's corpora and question seats, 2026-09-27 on m3-max-metal)",
+    "parts": [
+     {
+      "source": "recorded measurement",
+      "label": "serve binary",
+      "what": "the riir-instinct `serve` release binary (aarch64-apple-darwin) \u2014 the hosted hybrid lane's serving edge",
+      "date_utc": "2026-09-27",
+      "host": "m3-max-metal",
+      "how": "lstat over ../riir-instinct/target/release/serve (cargo build --release --bin serve)"
+     },
+     {
+      "source": "recorded measurement",
+      "label": "six t20k dataset suites",
+      "what": "the six t20k dataset suites the serving posture stages (ag_news 6,324,897 \u00b7 emotion 2,719,177 \u00b7 sst5 1,799,678 \u00b7 massive_intent_en 2,516,925 \u00b7 banking77 2,157,368 \u00b7 xnli_en 5,290,479) \u2014 the Reflex half's corpora and question seats",
+      "date_utc": "2026-09-27",
+      "host": "m3-max-metal",
+      "how": "sum of lstat sizes over ../riir-reflex/.raw/datasets_t20k/{ag_news,emotion,sst5,massive_intent_en,banking77,xnli_en} (the deploy.yaml files: rows)"
+     }
+    ]
    },
+   "engine_stack": [
+    {
+     "label": "serve binary",
+     "kind": "binary",
+     "bytes": 1787744,
+     "src": 0
+    },
+    {
+     "label": "ag_news dataset",
+     "kind": "dataset",
+     "bytes": 6324897,
+     "src": 1
+    },
+    {
+     "label": "emotion dataset",
+     "kind": "dataset",
+     "bytes": 2719177,
+     "src": 1
+    },
+    {
+     "label": "sst5 dataset",
+     "kind": "dataset",
+     "bytes": 1799678,
+     "src": 1
+    },
+    {
+     "label": "massive_intent_en dataset",
+     "kind": "dataset",
+     "bytes": 2516925,
+     "src": 1
+    },
+    {
+     "label": "banking77 dataset",
+     "kind": "dataset",
+     "bytes": 2157368,
+     "src": 1
+    },
+    {
+     "label": "xnli_en dataset",
+     "kind": "dataset",
+     "bytes": 5290479,
+     "src": 1
+    }
+   ],
    "model_bytes": 20320298,
    "model_what": "the six winner files (each pinned by a BLAKE3 digest in the manifest, checked at load \u2014 the signed HOSTED-ONLY vessel is not yet the serving path)",
    "model_provenance": {
     "source": "recorded measurement",
-    "detail": "the six winner files (BLAKE3-pinned in the manifest): ag_news 524,381 \u00b7 emotion 786,545 \u00b7 sst5 655,460 \u00b7 massive_intent_en 7,865,749 \u00b7 banking77 10,094,864 \u00b7 xnli_en 393,299 \u2014 measured 2026-09-27 on m3-max-metal: sum of lstat sizes over ../riir-train/data/instinct_specialists/{ag_news,emotion,sst5,massive_intent_en,banking77,xnli_en}_winner_v1.bin (the deploy.yaml files: rows)"
+    "detail": "the six winner files (BLAKE3-pinned in the manifest): ag_news 524,381 \u00b7 emotion 786,545 \u00b7 sst5 655,460 \u00b7 massive_intent_en 7,865,749 \u00b7 banking77 10,094,864 \u00b7 xnli_en 393,299 \u2014 measured 2026-09-27 on m3-max-metal: sum of lstat sizes over ../riir-train/data/instinct_specialists/{ag_news,emotion,sst5,massive_intent_en,banking77,xnli_en}_winner_v1.bin (the deploy.yaml files: rows)",
+    "parts": [
+     {
+      "source": "recorded measurement",
+      "label": "six specialist winner files",
+      "what": "the six winner files (BLAKE3-pinned in the manifest): ag_news 524,381 \u00b7 emotion 786,545 \u00b7 sst5 655,460 \u00b7 massive_intent_en 7,865,749 \u00b7 banking77 10,094,864 \u00b7 xnli_en 393,299",
+      "date_utc": "2026-09-27",
+      "host": "m3-max-metal",
+      "how": "sum of lstat sizes over ../riir-train/data/instinct_specialists/{ag_news,emotion,sst5,massive_intent_en,banking77,xnli_en}_winner_v1.bin (the deploy.yaml files: rows)"
+     }
+    ]
    },
    "model_stack": [
     {
      "label": "ag_news specialist",
      "kind": "specialist",
-     "bytes": 524381
+     "bytes": 524381,
+     "src": 0
     },
     {
      "label": "emotion specialist",
      "kind": "specialist",
-     "bytes": 786545
+     "bytes": 786545,
+     "src": 0
     },
     {
      "label": "sst5 specialist",
      "kind": "specialist",
-     "bytes": 655460
+     "bytes": 655460,
+     "src": 0
     },
     {
      "label": "massive_intent_en specialist",
      "kind": "specialist",
-     "bytes": 7865749
+     "bytes": 7865749,
+     "src": 0
     },
     {
      "label": "banking77 specialist",
      "kind": "specialist",
-     "bytes": 10094864
+     "bytes": 10094864,
+     "src": 0
     },
     {
      "label": "xnli_en specialist",
      "kind": "specialist",
-     "bytes": 393299
+     "bytes": 393299,
+     "src": 0
     }
    ],
    "targets": [
@@ -122,34 +234,118 @@
    "engine_what": "the serve binary (the encoder lane's GPU-host build) + the six t20k dataset suites (the seats the ENC lanes boot from)",
    "engine_provenance": {
     "source": "recorded measurement (sum)",
-    "detail": "7,940,160 B (the riir-instinct `serve` release binary built with --features serve-encoder-metal (aarch64-apple-darwin) \u2014 the Rethink encoder lane's GPU-host serving edge (the encoder lane + the laya-riir Metal backend compiled in; the CUDA twin is the same size class), 2026-10-01 on m3-max-metal) + 20,808,524 B (the six t20k dataset suites the serving posture stages (ag_news 6,324,897 \u00b7 emotion 2,719,177 \u00b7 sst5 1,799,678 \u00b7 massive_intent_en 2,516,925 \u00b7 banking77 2,157,368 \u00b7 xnli_en 5,290,479) \u2014 the Reflex half's corpora and question seats, 2026-09-27 on m3-max-metal)"
+    "detail": "7,940,160 B (the riir-instinct `serve` release binary built with --features serve-encoder-metal (aarch64-apple-darwin) \u2014 the Rethink encoder lane's GPU-host serving edge (the encoder lane + the laya-riir Metal backend compiled in; the CUDA twin is the same size class), 2026-10-01 on m3-max-metal) + 20,808,524 B (the six t20k dataset suites the serving posture stages (ag_news 6,324,897 \u00b7 emotion 2,719,177 \u00b7 sst5 1,799,678 \u00b7 massive_intent_en 2,516,925 \u00b7 banking77 2,157,368 \u00b7 xnli_en 5,290,479) \u2014 the Reflex half's corpora and question seats, 2026-09-27 on m3-max-metal)",
+    "parts": [
+     {
+      "source": "recorded measurement",
+      "label": "serve binary \u00b7 GPU-host build",
+      "what": "the riir-instinct `serve` release binary built with --features serve-encoder-metal (aarch64-apple-darwin) \u2014 the Rethink encoder lane's GPU-host serving edge (the encoder lane + the laya-riir Metal backend compiled in; the CUDA twin is the same size class)",
+      "date_utc": "2026-10-01",
+      "host": "m3-max-metal",
+      "how": "lstat over ../riir-instinct/target/release/serve (cargo build --release --bin serve --features serve-encoder-metal; the binary's build stamp carries arena-laya, serve-encoder, serve-encoder-metal)"
+     },
+     {
+      "source": "recorded measurement",
+      "label": "six t20k dataset suites",
+      "what": "the six t20k dataset suites the serving posture stages (ag_news 6,324,897 \u00b7 emotion 2,719,177 \u00b7 sst5 1,799,678 \u00b7 massive_intent_en 2,516,925 \u00b7 banking77 2,157,368 \u00b7 xnli_en 5,290,479) \u2014 the Reflex half's corpora and question seats",
+      "date_utc": "2026-09-27",
+      "host": "m3-max-metal",
+      "how": "sum of lstat sizes over ../riir-reflex/.raw/datasets_t20k/{ag_news,emotion,sst5,massive_intent_en,banking77,xnli_en} (the deploy.yaml files: rows)"
+     }
+    ]
    },
+   "engine_stack": [
+    {
+     "label": "serve binary \u00b7 GPU-host build",
+     "kind": "binary",
+     "bytes": 7940160,
+     "src": 0
+    },
+    {
+     "label": "ag_news dataset",
+     "kind": "dataset",
+     "bytes": 6324897,
+     "src": 1
+    },
+    {
+     "label": "emotion dataset",
+     "kind": "dataset",
+     "bytes": 2719177,
+     "src": 1
+    },
+    {
+     "label": "sst5 dataset",
+     "kind": "dataset",
+     "bytes": 1799678,
+     "src": 1
+    },
+    {
+     "label": "massive_intent_en dataset",
+     "kind": "dataset",
+     "bytes": 2516925,
+     "src": 1
+    },
+    {
+     "label": "banking77 dataset",
+     "kind": "dataset",
+     "bytes": 2157368,
+     "src": 1
+    },
+    {
+     "label": "xnli_en dataset",
+     "kind": "dataset",
+     "bytes": 5290479,
+     "src": 1
+    }
+   ],
    "model_bytes": 455724111,
    "model_what": "the laya-english checkpoint as the derived Q8_0 artifact (the adopted encoding \u2014 LAYA_WEIGHTS_VARIANT=q8; 53.1% of the F16 file) + the three locked NLEH heads (sst5 \u00b7 xnli_en \u00b7 ag_news v1)",
    "model_provenance": {
     "source": "sum of measured sources",
-    "detail": "447,729,135 B (recorded measurement: the laya-english checkpoint as the derived Q8_0 artifact (the ADOPTED serving encoding \u2014 LAYA_WEIGHTS_VARIANT=q8, riir-infer plan 616 Phases 1\u20132; 53.1% of the 842,609,210-byte F16 file) \u2014 the weights the Rethink encoder serving lane loads resident from boot \u2014 measured 2026-10-02 on m3-max-metal: lstat over ~/.cache/riir-reflex/laya/english/derived/model.q8.safetensors (stat -f %z \u2192 447729135); the model.q8.safetensors.blake3 sidecar sits beside it \u2014 digest NOT re-verified at record time (no blake3 CLI on the box)) + 7,994,976 B (recorded measurement: the three locked NLEH encoder heads the serving lane serves (english-checkpoint paired): sst5 t6_s0.bin 3,197,988 \u00b7 xnli_en_encoder_v1.bin 2,131,996 \u00b7 ag_news_encoder_v1.bin 2,664,992. The typed v2 head (typed_encoder_v2.bin, 1,066,004 \u2014 same dir) is NOT in this posture: it is trained over the TYPED checkpoint (encoder_serve hardcodes Checkpoint::English; 'a head trained on the typed cache is meaningless over the english encoder') and rides the arena's record-only measurement lane \u2014 measured 2026-10-01 on m3-max-metal: sum of lstat sizes over ../riir-train/.raw/t599/{t6_s0.bin,xnli_en_encoder_v1.bin,ag_news_encoder_v1.bin} (the .blake3 sidecars excluded))"
+    "detail": "447,729,135 B (recorded measurement: the laya-english checkpoint as the derived Q8_0 artifact (the ADOPTED serving encoding \u2014 LAYA_WEIGHTS_VARIANT=q8, riir-infer plan 616 Phases 1\u20132; 53.1% of the 842,609,210-byte F16 file) \u2014 the weights the Rethink encoder serving lane loads resident from boot \u2014 measured 2026-10-02 on m3-max-metal: lstat over ~/.cache/riir-reflex/laya/english/derived/model.q8.safetensors (stat -f %z \u2192 447729135); the model.q8.safetensors.blake3 sidecar sits beside it \u2014 digest NOT re-verified at record time (no blake3 CLI on the box)) + 7,994,976 B (recorded measurement: the three locked NLEH encoder heads the serving lane serves (english-checkpoint paired): sst5 t6_s0.bin 3,197,988 \u00b7 xnli_en_encoder_v1.bin 2,131,996 \u00b7 ag_news_encoder_v1.bin 2,664,992. The typed v2 head (typed_encoder_v2.bin, 1,066,004 \u2014 same dir) is NOT in this posture: it is trained over the TYPED checkpoint (encoder_serve hardcodes Checkpoint::English; 'a head trained on the typed cache is meaningless over the english encoder') and rides the arena's record-only measurement lane \u2014 measured 2026-10-01 on m3-max-metal: sum of lstat sizes over ../riir-train/.raw/t599/{t6_s0.bin,xnli_en_encoder_v1.bin,ag_news_encoder_v1.bin} (the .blake3 sidecars excluded))",
+    "parts": [
+     {
+      "source": "recorded measurement",
+      "label": "laya-english encoder \u00b7 Q8_0",
+      "what": "the laya-english checkpoint as the derived Q8_0 artifact (the ADOPTED serving encoding \u2014 LAYA_WEIGHTS_VARIANT=q8, riir-infer plan 616 Phases 1\u20132; 53.1% of the 842,609,210-byte F16 file) \u2014 the weights the Rethink encoder serving lane loads resident from boot",
+      "date_utc": "2026-10-02",
+      "host": "m3-max-metal",
+      "how": "lstat over ~/.cache/riir-reflex/laya/english/derived/model.q8.safetensors (stat -f %z \u2192 447729135); the model.q8.safetensors.blake3 sidecar sits beside it \u2014 digest NOT re-verified at record time (no blake3 CLI on the box)"
+     },
+     {
+      "source": "recorded measurement",
+      "label": "three locked encoder heads",
+      "what": "the three locked NLEH encoder heads the serving lane serves (english-checkpoint paired): sst5 t6_s0.bin 3,197,988 \u00b7 xnli_en_encoder_v1.bin 2,131,996 \u00b7 ag_news_encoder_v1.bin 2,664,992. The typed v2 head (typed_encoder_v2.bin, 1,066,004 \u2014 same dir) is NOT in this posture: it is trained over the TYPED checkpoint (encoder_serve hardcodes Checkpoint::English; 'a head trained on the typed cache is meaningless over the english encoder') and rides the arena's record-only measurement lane",
+      "date_utc": "2026-10-01",
+      "host": "m3-max-metal",
+      "how": "sum of lstat sizes over ../riir-train/.raw/t599/{t6_s0.bin,xnli_en_encoder_v1.bin,ag_news_encoder_v1.bin} (the .blake3 sidecars excluded)"
+     }
+    ]
    },
    "model_stack": [
     {
      "label": "laya-english encoder \u00b7 Q8_0",
      "kind": "encoder",
-     "bytes": 447729135
+     "bytes": 447729135,
+     "src": 0
     },
     {
      "label": "sst5 head (t6_s0)",
      "kind": "head",
-     "bytes": 3197988
+     "bytes": 3197988,
+     "src": 1
     },
     {
      "label": "xnli_en head",
      "kind": "head",
-     "bytes": 2131996
+     "bytes": 2131996,
+     "src": 1
     },
     {
      "label": "ag_news head",
      "kind": "head",
-     "bytes": 2664992
+     "bytes": 2664992,
+     "src": 1
     }
    ],
    "targets": [
@@ -167,19 +363,46 @@
    "engine_what": "the same installed binary",
    "engine_provenance": {
     "source": "measured: unpacked release archive",
-    "detail": "v0.2.4 aarch64-apple-darwin, downloaded + stat'd at publish time"
+    "detail": "v0.2.4 aarch64-apple-darwin, downloaded + stat'd at publish time",
+    "parts": [
+     {
+      "source": "measured: unpacked release archive",
+      "what": "v0.2.4 aarch64-apple-darwin, downloaded + stat'd at publish time"
+     }
+    ]
    },
+   "engine_stack": [
+    {
+     "label": "reflex binary",
+     "kind": "binary",
+     "bytes": 4329680,
+     "src": 0
+    },
+    {
+     "label": "licenses + archive metadata (5 files)",
+     "kind": "license",
+     "bytes": 52297,
+     "src": 0
+    }
+   ],
    "model_bytes": 846195716,
    "model_what": "the typed-decisions specialist checkpoint (SHA-256-pinned, downloaded at first boot)",
    "model_provenance": {
     "source": "huggingface.co tree API (exact bytes)",
-    "detail": "convaiinnovations/laya \u00b7 typed-decisions/ subtree sum"
+    "detail": "convaiinnovations/laya \u00b7 typed-decisions/ subtree sum",
+    "parts": [
+     {
+      "source": "huggingface.co tree API (exact bytes)",
+      "what": "convaiinnovations/laya \u00b7 typed-decisions/ subtree sum"
+     }
+    ]
    },
    "model_stack": [
     {
      "label": "typed-decisions checkpoint",
      "kind": "weights",
-     "bytes": 846195716
+     "bytes": 846195716,
+     "src": 0
     }
    ],
    "targets": [
@@ -199,19 +422,44 @@
    "engine_what": "the bekko lane venv (python 3.12: torch + transformers + sentence-transformers \u2014 the card's runtime pins)",
    "engine_provenance": {
     "source": "recorded measurement",
-    "detail": "the bekko lane venv (python 3.12: torch 2.10.0 + transformers 5.17.0 + sentence-transformers 6.1.0 + safetensors + tqdm + huggingface-hub \u2014 the Bench-103 repro pins) \u2014 measured 2026-10-02 on m3-max-metal: uv venv --python 3.12 .raw/bekko-env + `uv pip install torch==2.10.0 transformers==5.17.0 sentence-transformers==6.1.0 safetensors tqdm 'huggingface-hub>=1,<2'` (the Bench-103 repro block); sum of file sizes (660,436,171 over 25,866 files) + dir entries (1,064,128), the lstat convention of the sibling venv rows."
+    "detail": "the bekko lane venv (python 3.12: torch 2.10.0 + transformers 5.17.0 + sentence-transformers 6.1.0 + safetensors + tqdm + huggingface-hub \u2014 the Bench-103 repro pins) \u2014 measured 2026-10-02 on m3-max-metal: uv venv --python 3.12 .raw/bekko-env + `uv pip install torch==2.10.0 transformers==5.17.0 sentence-transformers==6.1.0 safetensors tqdm 'huggingface-hub>=1,<2'` (the Bench-103 repro block); sum of file sizes (660,436,171 over 25,866 files) + dir entries (1,064,128), the lstat convention of the sibling venv rows.",
+    "parts": [
+     {
+      "source": "recorded measurement",
+      "label": "bekko venv",
+      "what": "the bekko lane venv (python 3.12: torch 2.10.0 + transformers 5.17.0 + sentence-transformers 6.1.0 + safetensors + tqdm + huggingface-hub \u2014 the Bench-103 repro pins)",
+      "date_utc": "2026-10-02",
+      "host": "m3-max-metal",
+      "how": "uv venv --python 3.12 .raw/bekko-env + `uv pip install torch==2.10.0 transformers==5.17.0 sentence-transformers==6.1.0 safetensors tqdm 'huggingface-hub>=1,<2'` (the Bench-103 repro block); sum of file sizes (660,436,171 over 25,866 files) + dir entries (1,064,128), the lstat convention of the sibling venv rows."
+     }
+    ]
    },
+   "engine_stack": [
+    {
+     "label": "bekko venv",
+     "kind": "runtime",
+     "bytes": 661500299,
+     "src": 0
+    }
+   ],
    "model_bytes": 476225680,
    "model_what": "their 68M model tree (fp32 safetensors + tokenizer + the browser ONNX export, the card's pinned release revision 6eb1bae2) \u2014 the tree a consumer downloads incl. onnx_browser/",
    "model_provenance": {
     "source": "huggingface.co tree API (exact bytes)",
-    "detail": "hotchpotch/bekko-system-one-v0-68m"
+    "detail": "hotchpotch/bekko-system-one-v0-68m",
+    "parts": [
+     {
+      "source": "huggingface.co tree API (exact bytes)",
+      "what": "hotchpotch/bekko-system-one-v0-68m"
+     }
+    ]
    },
    "model_stack": [
     {
      "label": "bekko-68m model tree",
      "kind": "weights",
-     "bytes": 476225680
+     "bytes": 476225680,
+     "src": 0
     }
    ],
    "targets": [
@@ -229,19 +477,44 @@
    "engine_what": "the oracle's python import closure + the pinned .raw/laya checkout",
    "engine_provenance": {
     "source": "recorded measurement",
-    "detail": "python runtime for the ORIGINAL torch reference oracle: the import closure of scripts/laya_python_lane.py (torch 392.4 MB MPS build, transformers 95.4 MB, sympy, numpy, tokenizers, ... = 637497404 B) + the pinned reference checkout .raw/laya (6127616 B) \u2014 measured 2026-09-25 on m3-max-metal: sum of lstat sizes over the oracle's imported site-packages dirs (homebrew python3.14) + `du` over .raw/laya"
+    "detail": "python runtime for the ORIGINAL torch reference oracle: the import closure of scripts/laya_python_lane.py (torch 392.4 MB MPS build, transformers 95.4 MB, sympy, numpy, tokenizers, ... = 637497404 B) + the pinned reference checkout .raw/laya (6127616 B) \u2014 measured 2026-09-25 on m3-max-metal: sum of lstat sizes over the oracle's imported site-packages dirs (homebrew python3.14) + `du` over .raw/laya",
+    "parts": [
+     {
+      "source": "recorded measurement",
+      "label": "python runtime + reference checkout",
+      "what": "python runtime for the ORIGINAL torch reference oracle: the import closure of scripts/laya_python_lane.py (torch 392.4 MB MPS build, transformers 95.4 MB, sympy, numpy, tokenizers, ... = 637497404 B) + the pinned reference checkout .raw/laya (6127616 B)",
+      "date_utc": "2026-09-25",
+      "host": "m3-max-metal",
+      "how": "sum of lstat sizes over the oracle's imported site-packages dirs (homebrew python3.14) + `du` over .raw/laya"
+     }
+    ]
    },
+   "engine_stack": [
+    {
+     "label": "python runtime + reference checkout",
+     "kind": "runtime",
+     "bytes": 643625020,
+     "src": 0
+    }
+   ],
    "model_bytes": 846195716,
    "model_what": "the same typed checkpoint, loaded by the original reference",
    "model_provenance": {
     "source": "huggingface.co tree API (exact bytes)",
-    "detail": "convaiinnovations/laya \u00b7 typed-decisions/ subtree sum"
+    "detail": "convaiinnovations/laya \u00b7 typed-decisions/ subtree sum",
+    "parts": [
+     {
+      "source": "huggingface.co tree API (exact bytes)",
+      "what": "convaiinnovations/laya \u00b7 typed-decisions/ subtree sum"
+     }
+    ]
    },
    "model_stack": [
     {
      "label": "typed-decisions checkpoint",
      "kind": "weights",
-     "bytes": 846195716
+     "bytes": 846195716,
+     "src": 0
     }
    ],
    "targets": [
@@ -259,19 +532,44 @@
    "engine_what": "their service venv (torch + transformers + fastapi/uvicorn + their openthai_systemone package)",
    "engine_provenance": {
     "source": "recorded measurement",
-    "detail": "the openthai-systemone service venv (python 3.12: torch + transformers + numpy + pydantic + fastapi/uvicorn + their openthai_systemone package installed from source @ 5d04bcca) \u2014 measured 2026-09-28 on m3-max-metal: uv venv --python 3.12 + `uv pip install torch transformers numpy pydantic fastapi uvicorn` + `uv pip install -e` their openthai-systemone @ iapp-technology/openthai-systemone 5d04bcca (the Bench-074 pin); sum of file sizes (676,763,544) + dir entries (850,144) over the venv, matching the lstat convention of the sibling venv rows. The Bench-074 venv itself was removed with .raw after the record \u2014 re-created once to re-measure the same dep set."
+    "detail": "the openthai-systemone service venv (python 3.12: torch + transformers + numpy + pydantic + fastapi/uvicorn + their openthai_systemone package installed from source @ 5d04bcca) \u2014 measured 2026-09-28 on m3-max-metal: uv venv --python 3.12 + `uv pip install torch transformers numpy pydantic fastapi uvicorn` + `uv pip install -e` their openthai-systemone @ iapp-technology/openthai-systemone 5d04bcca (the Bench-074 pin); sum of file sizes (676,763,544) + dir entries (850,144) over the venv, matching the lstat convention of the sibling venv rows. The Bench-074 venv itself was removed with .raw after the record \u2014 re-created once to re-measure the same dep set.",
+    "parts": [
+     {
+      "source": "recorded measurement",
+      "label": "openthai service venv",
+      "what": "the openthai-systemone service venv (python 3.12: torch + transformers + numpy + pydantic + fastapi/uvicorn + their openthai_systemone package installed from source @ 5d04bcca)",
+      "date_utc": "2026-09-28",
+      "host": "m3-max-metal",
+      "how": "uv venv --python 3.12 + `uv pip install torch transformers numpy pydantic fastapi uvicorn` + `uv pip install -e` their openthai-systemone @ iapp-technology/openthai-systemone 5d04bcca (the Bench-074 pin); sum of file sizes (676,763,544) + dir entries (850,144) over the venv, matching the lstat convention of the sibling venv rows. The Bench-074 venv itself was removed with .raw after the record \u2014 re-created once to re-measure the same dep set."
+     }
+    ]
    },
+   "engine_stack": [
+    {
+     "label": "openthai service venv",
+     "kind": "runtime",
+     "bytes": 677613688,
+     "src": 0
+    }
+   ],
    "model_bytes": 1540237483,
    "model_what": "their model tree (Qwen3.5-0.8B text tower + the 256-slot decision head, safetensors + tokenizer)",
    "model_provenance": {
     "source": "huggingface.co tree API (exact bytes)",
-    "detail": "iapp/OpenThai-SystemOne"
+    "detail": "iapp/OpenThai-SystemOne",
+    "parts": [
+     {
+      "source": "huggingface.co tree API (exact bytes)",
+      "what": "iapp/OpenThai-SystemOne"
+     }
+    ]
    },
    "model_stack": [
     {
      "label": "Qwen3.5-0.8B + decision head",
      "kind": "weights",
-     "bytes": 1540237483
+     "bytes": 1540237483,
+     "src": 0
     }
    ],
    "targets": [
@@ -289,19 +587,44 @@
    "engine_what": "the bekko lane venv (python 3.12: torch + transformers + sentence-transformers \u2014 the card's runtime pins)",
    "engine_provenance": {
     "source": "recorded measurement",
-    "detail": "the bekko lane venv (python 3.12: torch 2.10.0 + transformers 5.17.0 + sentence-transformers 6.1.0 + safetensors + tqdm + huggingface-hub \u2014 the Bench-103 repro pins) \u2014 measured 2026-10-02 on m3-max-metal: uv venv --python 3.12 .raw/bekko-env + `uv pip install torch==2.10.0 transformers==5.17.0 sentence-transformers==6.1.0 safetensors tqdm 'huggingface-hub>=1,<2'` (the Bench-103 repro block); sum of file sizes (660,436,171 over 25,866 files) + dir entries (1,064,128), the lstat convention of the sibling venv rows."
+    "detail": "the bekko lane venv (python 3.12: torch 2.10.0 + transformers 5.17.0 + sentence-transformers 6.1.0 + safetensors + tqdm + huggingface-hub \u2014 the Bench-103 repro pins) \u2014 measured 2026-10-02 on m3-max-metal: uv venv --python 3.12 .raw/bekko-env + `uv pip install torch==2.10.0 transformers==5.17.0 sentence-transformers==6.1.0 safetensors tqdm 'huggingface-hub>=1,<2'` (the Bench-103 repro block); sum of file sizes (660,436,171 over 25,866 files) + dir entries (1,064,128), the lstat convention of the sibling venv rows.",
+    "parts": [
+     {
+      "source": "recorded measurement",
+      "label": "bekko venv",
+      "what": "the bekko lane venv (python 3.12: torch 2.10.0 + transformers 5.17.0 + sentence-transformers 6.1.0 + safetensors + tqdm + huggingface-hub \u2014 the Bench-103 repro pins)",
+      "date_utc": "2026-10-02",
+      "host": "m3-max-metal",
+      "how": "uv venv --python 3.12 .raw/bekko-env + `uv pip install torch==2.10.0 transformers==5.17.0 sentence-transformers==6.1.0 safetensors tqdm 'huggingface-hub>=1,<2'` (the Bench-103 repro block); sum of file sizes (660,436,171 over 25,866 files) + dir entries (1,064,128), the lstat convention of the sibling venv rows."
+     }
+    ]
    },
+   "engine_stack": [
+    {
+     "label": "bekko venv",
+     "kind": "runtime",
+     "bytes": 661500299,
+     "src": 0
+    }
+   ],
    "model_bytes": 3012643664,
    "model_what": "their 400M model tree (fp32 safetensors + tokenizer + the browser ONNX export, the card's pinned release revision 4aeb85b) \u2014 the tree a consumer downloads incl. onnx_browser/",
    "model_provenance": {
     "source": "huggingface.co tree API (exact bytes)",
-    "detail": "hotchpotch/bekko-system-one-v0-400m"
+    "detail": "hotchpotch/bekko-system-one-v0-400m",
+    "parts": [
+     {
+      "source": "huggingface.co tree API (exact bytes)",
+      "what": "hotchpotch/bekko-system-one-v0-400m"
+     }
+    ]
    },
    "model_stack": [
     {
      "label": "bekko-400m model tree",
      "kind": "weights",
-     "bytes": 3012643664
+     "bytes": 3012643664,
+     "src": 0
     }
    ],
    "targets": [
@@ -319,19 +642,44 @@
    "engine_what": "the gliner2 venv (torch-cu + transformers + peft + accelerate)",
    "engine_provenance": {
     "source": "recorded measurement",
-    "detail": "the gliner2 venv (torch-cu + transformers + peft + accelerate + their gliner2 package) \u2014 measured 2026-09-25 on 4090-win: PowerShell (Get-ChildItem -Recurse -Force -File | Measure-Object -Sum Length).Sum over E:\\git\\riir-reflex\\.raw\\gliner-env \u2192 4234.7 MiB \u00d7 1048576"
+    "detail": "the gliner2 venv (torch-cu + transformers + peft + accelerate + their gliner2 package) \u2014 measured 2026-09-25 on 4090-win: PowerShell (Get-ChildItem -Recurse -Force -File | Measure-Object -Sum Length).Sum over E:\\git\\riir-reflex\\.raw\\gliner-env \u2192 4234.7 MiB \u00d7 1048576",
+    "parts": [
+     {
+      "source": "recorded measurement",
+      "label": "gliner2 venv",
+      "what": "the gliner2 venv (torch-cu + transformers + peft + accelerate + their gliner2 package)",
+      "date_utc": "2026-09-25",
+      "host": "4090-win",
+      "how": "PowerShell (Get-ChildItem -Recurse -Force -File | Measure-Object -Sum Length).Sum over E:\\git\\riir-reflex\\.raw\\gliner-env \u2192 4234.7 MiB \u00d7 1048576"
+     }
+    ]
    },
+   "engine_stack": [
+    {
+     "label": "gliner2 venv",
+     "kind": "runtime",
+     "bytes": 4440404787,
+     "src": 0
+    }
+   ],
    "model_bytes": 1954840997,
    "model_what": "their model + tokenizer tree (HF, exact bytes)",
    "model_provenance": {
     "source": "huggingface.co tree API (exact bytes)",
-    "detail": "fastino/GLiNER2.5-Decide"
+    "detail": "fastino/GLiNER2.5-Decide",
+    "parts": [
+     {
+      "source": "huggingface.co tree API (exact bytes)",
+      "what": "fastino/GLiNER2.5-Decide"
+     }
+    ]
    },
    "model_stack": [
     {
      "label": "model + tokenizer tree",
      "kind": "weights",
-     "bytes": 1954840997
+     "bytes": 1954840997,
+     "src": 0
     }
    ],
    "targets": [
@@ -349,19 +697,44 @@
    "engine_what": "the clef-flash (9B) lane venv (python 3.12: mlx + mlx-lm + mlx-vlm \u2014 the MLX port's tested pins)",
    "engine_provenance": {
     "source": "recorded measurement",
-    "detail": "the clef-flash (9B) lane venv (python 3.12: mlx 0.32.3 + mlx-lm 0.32.0 + mlx-vlm 0.7.4 \u2014 the community MLX port's tested pins, riir-reflex Bench 113) \u2014 measured 2026-10-04 on m3-max-metal: uv venv --python 3.12 /tmp/clef-env + `uv pip install mlx==0.32.3 mlx-lm==0.32.0 mlx-vlm==0.7.4` (Bench 113's recorded pins; the bench-time env was an ephemeral uv run, so this rebuilds it from the pins); sum of file sizes (584,274,775 over 10,506 files) + dir entries (487,680), the lstat convention of the sibling venv rows."
+    "detail": "the clef-flash (9B) lane venv (python 3.12: mlx 0.32.3 + mlx-lm 0.32.0 + mlx-vlm 0.7.4 \u2014 the community MLX port's tested pins, riir-reflex Bench 113) \u2014 measured 2026-10-04 on m3-max-metal: uv venv --python 3.12 /tmp/clef-env + `uv pip install mlx==0.32.3 mlx-lm==0.32.0 mlx-vlm==0.7.4` (Bench 113's recorded pins; the bench-time env was an ephemeral uv run, so this rebuilds it from the pins); sum of file sizes (584,274,775 over 10,506 files) + dir entries (487,680), the lstat convention of the sibling venv rows.",
+    "parts": [
+     {
+      "source": "recorded measurement",
+      "label": "mlx venv",
+      "what": "the clef-flash (9B) lane venv (python 3.12: mlx 0.32.3 + mlx-lm 0.32.0 + mlx-vlm 0.7.4 \u2014 the community MLX port's tested pins, riir-reflex Bench 113)",
+      "date_utc": "2026-10-04",
+      "host": "m3-max-metal",
+      "how": "uv venv --python 3.12 /tmp/clef-env + `uv pip install mlx==0.32.3 mlx-lm==0.32.0 mlx-vlm==0.7.4` (Bench 113's recorded pins; the bench-time env was an ephemeral uv run, so this rebuilds it from the pins); sum of file sizes (584,274,775 over 10,506 files) + dir entries (487,680), the lstat convention of the sibling venv rows."
+     }
+    ]
    },
+   "engine_stack": [
+    {
+     "label": "mlx venv",
+     "kind": "runtime",
+     "bytes": 584762455,
+     "src": 0
+    }
+   ],
    "model_bytes": 6213976673,
    "model_what": "their Clef-flash (9B) decision model as the community 4-bit MLX quant (two safetensors shards + the joint decision head + tokenizer) \u2014 the tree a consumer downloads",
    "model_provenance": {
     "source": "huggingface.co tree API (exact bytes)",
-    "detail": "mlx-community/clef-flash-4bit"
+    "detail": "mlx-community/clef-flash-4bit",
+    "parts": [
+     {
+      "source": "huggingface.co tree API (exact bytes)",
+      "what": "mlx-community/clef-flash-4bit"
+     }
+    ]
    },
    "model_stack": [
     {
      "label": "clef-flash (9B) 4-bit tree",
      "kind": "weights",
-     "bytes": 6213976673
+     "bytes": 6213976673,
+     "src": 0
     }
    ],
    "targets": [
@@ -379,19 +752,44 @@
    "engine_what": "their service venv (torch-cu + deps)",
    "engine_provenance": {
     "source": "recorded measurement",
-    "detail": "their jev_service venv (torch-cu + deps) \u2014 measured 2026-09-25 on 4090-win: PowerShell (Get-ChildItem -Recurse -Force -File | Measure-Object -Sum Length).Sum over E:\\git\\riir-reflex\\.raw\\agentjev-env \u2192 4309.6 MiB \u00d7 1048576"
+    "detail": "their jev_service venv (torch-cu + deps) \u2014 measured 2026-09-25 on 4090-win: PowerShell (Get-ChildItem -Recurse -Force -File | Measure-Object -Sum Length).Sum over E:\\git\\riir-reflex\\.raw\\agentjev-env \u2192 4309.6 MiB \u00d7 1048576",
+    "parts": [
+     {
+      "source": "recorded measurement",
+      "label": "jev_service venv",
+      "what": "their jev_service venv (torch-cu + deps)",
+      "date_utc": "2026-09-25",
+      "host": "4090-win",
+      "how": "PowerShell (Get-ChildItem -Recurse -Force -File | Measure-Object -Sum Length).Sum over E:\\git\\riir-reflex\\.raw\\agentjev-env \u2192 4309.6 MiB \u00d7 1048576"
+     }
+    ]
    },
+   "engine_stack": [
+    {
+     "label": "jev_service venv",
+     "kind": "runtime",
+     "bytes": 4518943130,
+     "src": 0
+    }
+   ],
    "model_bytes": 3925763870,
    "model_what": "their agent-jev tensors + the Qwen3-0.6B backbone their service loads at boot",
    "model_provenance": {
     "source": "huggingface.co tree API (exact bytes)",
-    "detail": "aimeigaoshou/agent-jev + Qwen/Qwen3-0.6B"
+    "detail": "aimeigaoshou/agent-jev + Qwen/Qwen3-0.6B",
+    "parts": [
+     {
+      "source": "huggingface.co tree API (exact bytes)",
+      "what": "aimeigaoshou/agent-jev + Qwen/Qwen3-0.6B"
+     }
+    ]
    },
    "model_stack": [
     {
      "label": "agent-jev + Qwen3-0.6B",
      "kind": "weights",
-     "bytes": 3925763870
+     "bytes": 3925763870,
+     "src": 0
     }
    ],
    "targets": [
@@ -409,19 +807,58 @@
    "engine_what": "the vLLM serving image + their CLM repo/head checkout",
    "engine_provenance": {
     "source": "recorded measurement (sum)",
-    "detail": "30,700,000,000 B (the vLLM serving image (vllm/vllm-openai:nightly) their CLM stack boots in, 2026-09-25 on 4090-win) + 77,804,339 B (their CLM repo checkout @ cca045ff + the trained head (checkpoints/CLM_v0.1-8B.pt), 2026-09-25 on 4090-win)"
+    "detail": "30,700,000,000 B (the vLLM serving image (vllm/vllm-openai:nightly) their CLM stack boots in, 2026-09-25 on 4090-win) + 77,804,339 B (their CLM repo checkout @ cca045ff + the trained head (checkpoints/CLM_v0.1-8B.pt), 2026-09-25 on 4090-win)",
+    "parts": [
+     {
+      "source": "recorded measurement",
+      "label": "vLLM docker image",
+      "what": "the vLLM serving image (vllm/vllm-openai:nightly) their CLM stack boots in",
+      "date_utc": "2026-09-25",
+      "host": "4090-win",
+      "how": "docker images --format '{{.Repository}}:{{.Tag}} {{.Size}}' \u2192 '30.7GB' (docker-reported, one decimal, decimal GB)"
+     },
+     {
+      "source": "recorded measurement",
+      "label": "CLM repo + trained head",
+      "what": "their CLM repo checkout @ cca045ff + the trained head (checkpoints/CLM_v0.1-8B.pt)",
+      "date_utc": "2026-09-25",
+      "host": "4090-win",
+      "how": "PowerShell recursive file-length sum over E:\\git\\riir-reflex\\.raw\\CLM \u2192 74.2 MiB \u00d7 1048576"
+     }
+    ]
    },
+   "engine_stack": [
+    {
+     "label": "vLLM docker image",
+     "kind": "runtime",
+     "bytes": 30700000000,
+     "src": 0
+    },
+    {
+     "label": "CLM repo + trained head",
+     "kind": "runtime",
+     "bytes": 77804339,
+     "src": 1
+    }
+   ],
    "model_bytes": 16473292630,
    "model_what": "the Qwen3-8B encoder weights + the trained head (CLM_v0.1-8B.pt)",
    "model_provenance": {
     "source": "huggingface.co tree API (exact bytes)",
-    "detail": "Qwen/Qwen3-8B + Contrastive-LM/CLM-v0.1-8B"
+    "detail": "Qwen/Qwen3-8B + Contrastive-LM/CLM-v0.1-8B",
+    "parts": [
+     {
+      "source": "huggingface.co tree API (exact bytes)",
+      "what": "Qwen/Qwen3-8B + Contrastive-LM/CLM-v0.1-8B"
+     }
+    ]
    },
    "model_stack": [
     {
      "label": "Qwen3-8B + CLM head",
      "kind": "weights",
-     "bytes": 16473292630
+     "bytes": 16473292630,
+     "src": 0
     }
    ],
    "targets": [

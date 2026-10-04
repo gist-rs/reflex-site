@@ -17,8 +17,11 @@ generated data, never hand-typed. Three source classes:
     import closure), each with host + command provenance. A record may
     carry a `files` array — the same measurement's per-file values,
     structured — which `recorded_files` turns into the row's `model_stack`
-    (the sub-bar + tooltip-bullet split); the split sum is asserted against
-    the record total, so a drifted files list refuses loudly.
+    (the sub-bar + tooltip-bullet split), and which an engine record (the
+    dataset suites) turns into `engine_stack` parts; the split sum is
+    asserted against the record total, so a drifted files list refuses
+    loudly. Both stacks feed the per-row breakdown chart; each leaf's `src`
+    indexes its side's provenance `parts` (the structured source list).
 
 Refuses loudly (exit 1) when any LIVE source fails or any RECORDED key is
 missing: a partial size report must never render as a confident complete
@@ -320,13 +323,15 @@ def local_bytes(rel: str) -> int:
     return p.stat().st_size
 
 
-# ── model-source resolution ──────────────────────────────────────────────
+# ── source resolution (engine + model) ───────────────────────────────────
 
-# A stack LEAF: the shape the size chart splits the model segment into.
-# `what`/provenance stay row-level; the leaf carries only what a bar
-# segment and a tooltip bullet need.
-def _leaf(label: str, kind: str, bytes_: int) -> dict:
-    return {"label": label, "kind": kind, "bytes": bytes_}
+# A stack LEAF: the shape the size chart splits a side into — one bar in
+# the row's breakdown chart, one sub-segment / tooltip bullet on the model
+# side of the main bar. `src` indexes the side's provenance `parts` (the
+# structured source list the breakdown's "how measured" list renders), so
+# every leaf names the measurement it came from.
+def _leaf(label: str, kind: str, bytes_: int, src: int = 0) -> dict:
+    return {"label": label, "kind": kind, "bytes": bytes_, "src": src}
 
 
 def _opts(spec: tuple) -> tuple[tuple, dict]:
@@ -337,13 +342,55 @@ def _opts(spec: tuple) -> tuple[tuple, dict]:
     return spec, {}
 
 
+# A structured SOURCE: one measurement, as the breakdown's source list
+# reads it — the same facts the flat `detail` string carries, unjoined.
+def _live_src(source: str, what: str) -> dict:
+    return {"source": source, "what": what}
+
+
+def _rec_src(m: dict) -> dict:
+    return {"source": "recorded measurement", "label": m.get("label") or m["key"],
+            "what": m["what"], "date_utc": m["date_utc"], "host": m["host"], "how": m["how"]}
+
+
+def _rec_detail(m: dict) -> str:
+    return f"{m['what']} — measured {m['date_utc']} on {m['host']}: {m['how']}"
+
+
+def _record(recorded: dict, key: str, side: str) -> dict:
+    m = recorded.get(key)
+    if m is None:
+        die(f"recorded measurement {key!r} ({side}) missing from sizes.measurements.json")
+    return m
+
+
+def _record_leaves(m: dict, opts: dict, default_label: str, default_kind: str,
+                   src: int, split: bool) -> list:
+    """One record → its stack leaves. With `split` and a `files` array, one
+    leaf per file — the record's own per-file values, sum ASSERTED against
+    the record total (a drifted files list refuses loudly, never renders as
+    a confident split). Otherwise one leaf for the whole record."""
+    kind = opts.get("kind") or m.get("kind") or default_kind
+    files = m.get("files")
+    if split and isinstance(files, list) and files:
+        stack = [_leaf(str(f.get("label", "component")), f.get("kind", kind),
+                       int(f["bytes"]), src) for f in files]
+        s = sum(f["bytes"] for f in stack)
+        if s != m["bytes"]:
+            die(f"recorded measurement {m['key']!r}: files sum to {s:,} but the "
+                f"record says {m['bytes']:,} — refusing a drifted split")
+        return stack
+    return [_leaf(opts.get("label") or m.get("label") or default_label, kind, m["bytes"], src)]
+
+
 def resolve_model(spec: tuple, recorded: dict) -> tuple[int, dict, list]:
     """One model spec tuple → (bytes, provenance, stack). The stack is the
     model's COMPONENT list in composition order — one leaf per measured
     part — which the chart renders as sub-bar segments and tooltip bullets.
     `sum` composes child specs (any kinds, recursively) so one row can
     carry a LIVE HF tree AND a RECORDED artifact side by side — the Rethink
-    lane's checkpoints plus its locked heads.
+    lane's checkpoints plus its locked heads. The provenance carries the
+    flat `detail` string AND the structured `parts` list the leaves index.
 
     Conservative contract: only recorded leaves split into per-file
     components (via `recorded_files`, backed by the record's own `files`
@@ -352,59 +399,32 @@ def resolve_model(spec: tuple, recorded: dict) -> tuple[int, dict, list]:
     about granularity."""
     src, opts = _opts(spec)
     mk = src[0]
-    if mk == "hf_subtree":
-        _, repo, prefix = src
-        total = hf_tree_bytes(repo, prefix=prefix)
-        return total, {
-            "source": "huggingface.co tree API (exact bytes)",
-            "detail": f"{repo} · {prefix or '(repo root)'} subtree sum"}, [
-            _leaf(opts.get("label", "model / weights"), opts.get("kind", "weights"), total)]
-    if mk == "hf_subtree_diff":
-        _, repo, excludes = src
-        total = hf_tree_bytes(repo) - sum(hf_tree_bytes(repo, prefix=p) for p in excludes)
-        if total <= 0:
-            die(f"{repo} whole-minus-{excludes} summed to {total} — refusing to publish an empty tree")
-        return total, {
-            "source": "huggingface.co tree API (exact bytes)",
-            "detail": f"{repo} · whole tree minus {' + '.join(excludes)} (the root-level english checkpoint)"}, [
-            _leaf(opts.get("label", "model / weights"), opts.get("kind", "weights"), total)]
-    if mk == "hf_total":
-        repos = src[1:]
-        total = sum(hf_tree_bytes(r) for r in repos)
-        return total, {
-            "source": "huggingface.co tree API (exact bytes)",
-            "detail": " + ".join(repos)}, [
-            _leaf(opts.get("label", "model / weights"), opts.get("kind", "weights"), total)]
-    if mk == "recorded":
-        m = recorded.get(src[1])
-        if m is None:
-            die(f"recorded measurement {src[1]!r} (model) missing from sizes.measurements.json")
-        return m["bytes"], {
-            "source": "recorded measurement",
-            "detail": f"{m['what']} — measured {m['date_utc']} on {m['host']}: {m['how']}"}, [
-            _leaf(opts.get("label", "model / weights"), opts.get("kind", "weights"), m["bytes"])]
-    if mk == "recorded_files":
-        # The recorded entry's own `files` array (the same record's per-file
-        # lstat values, structured) becomes the stack. The sum is ASSERTED
-        # against the record's total — a drifted files list refuses loudly,
-        # never renders as a confident split.
-        m = recorded.get(src[1])
-        if m is None:
-            die(f"recorded measurement {src[1]!r} (model) missing from sizes.measurements.json")
-        files = m.get("files")
-        if not isinstance(files, list) or not files:
+    label, kind = opts.get("label", "model / weights"), opts.get("kind", "weights")
+    if mk in ("hf_subtree", "hf_subtree_diff", "hf_total"):
+        if mk == "hf_subtree":
+            _, repo, prefix = src
+            total = hf_tree_bytes(repo, prefix=prefix)
+            detail = f"{repo} · {prefix or '(repo root)'} subtree sum"
+        elif mk == "hf_subtree_diff":
+            _, repo, excludes = src
+            total = hf_tree_bytes(repo) - sum(hf_tree_bytes(repo, prefix=p) for p in excludes)
+            if total <= 0:
+                die(f"{repo} whole-minus-{excludes} summed to {total} — refusing to publish an empty tree")
+            detail = f"{repo} · whole tree minus {' + '.join(excludes)} (the root-level english checkpoint)"
+        else:
+            total = sum(hf_tree_bytes(r) for r in src[1:])
+            detail = " + ".join(src[1:])
+        source = "huggingface.co tree API (exact bytes)"
+        return total, {"source": source, "detail": detail,
+                       "parts": [_live_src(source, detail)]}, [_leaf(label, kind, total)]
+    if mk in ("recorded", "recorded_files"):
+        m = _record(recorded, src[1], "model")
+        if mk == "recorded_files" and not (isinstance(m.get("files"), list) and m["files"]):
             die(f"recorded measurement {src[1]!r} carries no files array — "
                 f"recorded_files needs the record's per-file values")
-        leaf_kind = opts.get("kind", "weights")
-        stack = [_leaf(str(f.get("label", "component")), f.get("kind", leaf_kind),
-                       int(f["bytes"])) for f in files]
-        s = sum(f["bytes"] for f in stack)
-        if s != m["bytes"]:
-            die(f"recorded measurement {src[1]!r}: files sum to {s:,} but the "
-                f"record says {m['bytes']:,} — refusing a drifted split")
-        return m["bytes"], {
-            "source": "recorded measurement",
-            "detail": f"{m['what']} — measured {m['date_utc']} on {m['host']}: {m['how']}"}, stack
+        stack = _record_leaves(m, opts, "model / weights", "weights", 0, mk == "recorded_files")
+        return m["bytes"], {"source": "recorded measurement", "detail": _rec_detail(m),
+                            "parts": [_rec_src(m)]}, stack
     if mk == "recorded_sum":
         missing_keys = [k for k in src[1:] if k not in recorded]
         if missing_keys:
@@ -412,17 +432,66 @@ def resolve_model(spec: tuple, recorded: dict) -> tuple[int, dict, list]:
         parts = [recorded[k] for k in src[1:]]
         return (sum(p["bytes"] for p in parts), {
             "source": "recorded measurement (sum)",
-            "detail": " + ".join(f"{p['bytes']:,} B ({p['what']}, {p['date_utc']} on {p['host']})" for p in parts)},
-            [_leaf(opts.get("label", "model / weights"), opts.get("kind", "weights"),
-                   sum(p["bytes"] for p in parts))])
+            "detail": " + ".join(f"{p['bytes']:,} B ({p['what']}, {p['date_utc']} on {p['host']})" for p in parts),
+            "parts": [_rec_src(p) for p in parts]},
+            [lf for i, p in enumerate(parts) for lf in _record_leaves(p, {}, p["key"], kind, i, False)])
     if mk == "sum":
-        parts = [resolve_model(child, recorded) for child in src[1:]]
-        total = sum(b for b, _, _ in parts)
-        stack = [leaf for _, _, st in parts for leaf in st]
+        kids = [resolve_model(child, recorded) for child in src[1:]]
+        total = sum(b for b, _, _ in kids)
+        parts, stack = [], []
+        for _, prov, st in kids:
+            stack += [{**lf, "src": lf["src"] + len(parts)} for lf in st]
+            parts += prov["parts"]
         return total, {
             "source": "sum of measured sources",
-            "detail": " + ".join(f"{b:,} B ({p['source']}: {p['detail']})" for b, p, _ in parts)}, stack
+            "detail": " + ".join(f"{b:,} B ({p['source']}: {p['detail']})" for b, p, _ in kids),
+            "parts": parts}, stack
     die(f"unknown model source kind {mk!r}")
+
+
+def resolve_engine(spec: tuple, release: dict, recorded: dict, row: str) -> tuple[int, dict, list]:
+    """One engine spec tuple → (bytes, provenance, stack) — the runtime
+    side's breakdown, same leaf + `parts` contract as resolve_model. A
+    recorded record with a `files` array (the dataset suites) splits per
+    file; the unpacked release splits into its archive members."""
+    src, opts = _opts(spec)
+    kind = src[0]
+    if kind == "local":
+        total = local_bytes(src[1])
+        return total, {"source": "local file", "detail": src[1],
+                       "parts": [_live_src("local file", src[1])]}, [
+            _leaf(opts.get("label", Path(src[1]).name), opts.get("kind", "module"), total)]
+    if kind == "release_installed":
+        detail = f"{release['tag']} aarch64-apple-darwin, downloaded + stat'd at publish time"
+        source = "measured: unpacked release archive"
+        # the binary (the largest member) as its own bar; the rest — license
+        # texts + the archive's metadata entries — as one, so a 163-byte
+        # `._reflex` never earns a bar of its own
+        files = sorted(release.get("installed_files") or [(release["installed_bytes"], "reflex")],
+                       key=lambda f: -f[0])
+        stack = [_leaf(Path(files[0][1]).name + " binary", "binary", files[0][0])]
+        if len(files) > 1:
+            stack.append(_leaf(f"licenses + archive metadata ({len(files) - 1} file{'s' if len(files) > 2 else ''})", "license",
+                               sum(b for b, _ in files[1:])))
+        if sum(f["bytes"] for f in stack) != release["installed_bytes"]:
+            die("release installed_files do not sum to installed_bytes — refusing a drifted split")
+        return release["installed_bytes"], {"source": source, "detail": detail,
+                                            "parts": [_live_src(source, detail)]}, stack
+    if kind == "recorded":
+        m = _record(recorded, src[1], f"engine of {row}")
+        return m["bytes"], {"source": "recorded measurement", "detail": _rec_detail(m),
+                            "parts": [_rec_src(m)]}, _record_leaves(m, opts, "runtime env", "runtime", 0, True)
+    if kind == "recorded_sum":
+        missing_keys = [k for k in src[1:] if k not in recorded]
+        if missing_keys:
+            die(f"recorded measurements missing for {row}: {missing_keys}")
+        parts = [recorded[k] for k in src[1:]]
+        return sum(p["bytes"] for p in parts), {
+            "source": "recorded measurement (sum)",
+            "detail": " + ".join(f"{p['bytes']:,} B ({p['what']}, {p['date_utc']} on {p['host']})" for p in parts),
+            "parts": [_rec_src(p) for p in parts]}, [
+            lf for i, p in enumerate(parts) for lf in _record_leaves(p, {}, p["key"], "runtime", i, True)]
+    die(f"unknown engine source kind {kind!r}")
 
 
 # ── merge ────────────────────────────────────────────────────────────────
@@ -433,32 +502,7 @@ def build(release: dict, recorded: dict) -> dict:
     now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     rows = []
     for spec in CANDIDATES:
-        engine_prov, engine_bytes = None, 0
-        kind = spec["engine"][0]
-        if kind == "local":
-            engine_bytes = local_bytes(spec["engine"][1])
-            engine_prov = {"source": "local file", "detail": spec["engine"][1]}
-        elif kind == "release_installed":
-            engine_bytes = release["installed_bytes"]
-            engine_prov = {"source": "measured: unpacked release archive",
-                           "detail": f"{release['tag']} aarch64-apple-darwin, downloaded + stat'd at publish time"}
-        elif kind == "recorded":
-            m = recorded.get(spec["engine"][1])
-            if m is None:
-                die(f"recorded measurement {spec['engine'][1]!r} (engine of {spec['key']}) missing from sizes.measurements.json")
-            engine_bytes, engine_prov = m["bytes"], {
-                "source": "recorded measurement",
-                "detail": f"{m['what']} — measured {m['date_utc']} on {m['host']}: {m['how']}"}
-        elif kind == "recorded_sum":
-            missing_keys = [k for k in spec["engine"][1:] if k not in recorded]
-            if missing_keys:
-                die(f"recorded measurements missing for {spec['key']}: {missing_keys}")
-            parts = [recorded[k] for k in spec["engine"][1:]]
-            engine_bytes = sum(p["bytes"] for p in parts)
-            engine_prov = {"source": "recorded measurement (sum)",
-                           "detail": " + ".join(f"{p['bytes']:,} B ({p['what']}, {p['date_utc']} on {p['host']})" for p in parts)}
-        else:
-            die(f"unknown engine source kind {kind!r}")
+        engine_bytes, engine_prov, engine_stack = resolve_engine(spec["engine"], release, recorded, spec["key"])
 
         model_bytes, model_prov, model_stack = 0, None, []
         if spec["model"] is not None:
@@ -481,6 +525,9 @@ def build(release: dict, recorded: dict) -> dict:
             "engine_bytes": engine_bytes,
             "engine_what": spec["engine_what"],
             "engine_provenance": engine_prov,
+            # the runtime side's breakdown (the row's breakdown chart) —
+            # same leaf contract as model_stack, sums to engine_bytes
+            "engine_stack": engine_stack,
             "model_bytes": model_bytes,
             "model_what": spec["model_what"],
             "model_provenance": model_prov,
@@ -554,7 +601,17 @@ def check_committed() -> None:
             die(f"{c['key']}: negative model_bytes")
         if c.get("engine_kind") not in ("rust", "python"):
             die(f"{c['key']}: engine_kind must be 'rust' or 'python', got {c.get('engine_kind')!r}")
-    print(f"sizes --check PASS ({len(totals)} candidates, ascending, all fields present)")
+        # the breakdown contract: each side's stack sums to its bytes and
+        # every leaf points at a source its provenance actually lists
+        for side in ("engine", "model"):
+            st, prov = c.get(f"{side}_stack") or [], c.get(f"{side}_provenance")
+            if c[f"{side}_bytes"] > 0:
+                if sum(f["bytes"] for f in st) != c[f"{side}_bytes"]:
+                    die(f"{c['key']}: {side}_stack does not sum to {side}_bytes")
+                n = len((prov or {}).get("parts") or [])
+                if any(not (0 <= f.get("src", -1) < n) for f in st):
+                    die(f"{c['key']}: a {side}_stack leaf points at no listed source")
+    print(f"sizes --check PASS ({len(totals)} candidates, ascending, all fields present, stacks sum + cite their sources)")
 
 
 if __name__ == "__main__":

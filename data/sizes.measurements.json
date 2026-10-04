@@ -1,7 +1,7 @@
 {
  "meta": {
   "recorded_utc": "2026-09-25T09:30:00Z",
-  "law": "box-specific footprint facts, measured once per bench window with the command in `how` recorded verbatim; the live half of the size report (release archives, HF model trees, local wasm) refreshes in data/sizes.json on every publish_sizes run. A recorded row is a MEASUREMENT, never an estimate. A `files` array on a record restates that record's own per-file lstat values in structured form (same measurement, no new numbers); `publish_sizes.py` recorded_files turns it into the row's model_stack and asserts the sum against the record total.",
+  "law": "box-specific footprint facts, measured once per bench window with the command in `how` recorded verbatim; the live half of the size report (release archives, HF model trees, local wasm) refreshes in data/sizes.json on every publish_sizes run. A recorded row is a MEASUREMENT, never an estimate. A `files` array on a record restates that record's own per-file lstat values in structured form (same measurement, no new numbers); `publish_sizes.py` recorded_files turns it into the row's model_stack and asserts the sum against the record total. An optional `label` / `kind` names a record's bar in the per-row breakdown chart (editorial words, never a number).",
   "hosts": {
    "m3-max-metal": "Apple M3 Max, macOS \u2014 the host that runs the modelless + laya (rust) + laya (python) lanes",
    "4090-win": "RTX 4090, Windows \u2014 the host that runs the gliner / agentjev / clm comparison lanes"
@@ -10,6 +10,8 @@
  "measurements": [
   {
    "key": "laya_python_runtime",
+   "label": "python runtime + reference checkout",
+   "kind": "runtime",
    "bytes": 643625020,
    "what": "python runtime for the ORIGINAL torch reference oracle: the import closure of scripts/laya_python_lane.py (torch 392.4 MB MPS build, transformers 95.4 MB, sympy, numpy, tokenizers, ... = 637497404 B) + the pinned reference checkout .raw/laya (6127616 B)",
    "host": "m3-max-metal",
@@ -18,6 +20,8 @@
   },
   {
    "key": "gliner_venv",
+   "label": "gliner2 venv",
+   "kind": "runtime",
    "bytes": 4440404787,
    "what": "the gliner2 venv (torch-cu + transformers + peft + accelerate + their gliner2 package)",
    "host": "4090-win",
@@ -26,6 +30,8 @@
   },
   {
    "key": "agentjev_venv",
+   "label": "jev_service venv",
+   "kind": "runtime",
    "bytes": 4518943130,
    "what": "their jev_service venv (torch-cu + deps)",
    "host": "4090-win",
@@ -34,6 +40,8 @@
   },
   {
    "key": "clm_docker",
+   "label": "vLLM docker image",
+   "kind": "runtime",
    "bytes": 30700000000,
    "what": "the vLLM serving image (vllm/vllm-openai:nightly) their CLM stack boots in",
    "host": "4090-win",
@@ -42,6 +50,8 @@
   },
   {
    "key": "clm_repo",
+   "label": "CLM repo + trained head",
+   "kind": "runtime",
    "bytes": 77804339,
    "what": "their CLM repo checkout @ cca045ff + the trained head (checkpoints/CLM_v0.1-8B.pt)",
    "host": "4090-win",
@@ -50,6 +60,8 @@
   },
   {
    "key": "instinct_serve_binary",
+   "label": "serve binary",
+   "kind": "binary",
    "bytes": 1787744,
    "what": "the riir-instinct `serve` release binary (aarch64-apple-darwin) \u2014 the hosted hybrid lane's serving edge",
    "host": "m3-max-metal",
@@ -58,14 +70,44 @@
   },
   {
    "key": "instinct_datasets_t20k",
+   "label": "six t20k dataset suites",
+   "kind": "dataset",
    "bytes": 20808524,
    "what": "the six t20k dataset suites the serving posture stages (ag_news 6,324,897 \u00b7 emotion 2,719,177 \u00b7 sst5 1,799,678 \u00b7 massive_intent_en 2,516,925 \u00b7 banking77 2,157,368 \u00b7 xnli_en 5,290,479) \u2014 the Reflex half's corpora and question seats",
    "host": "m3-max-metal",
    "date_utc": "2026-09-27",
-   "how": "sum of lstat sizes over ../riir-reflex/.raw/datasets_t20k/{ag_news,emotion,sst5,massive_intent_en,banking77,xnli_en} (the deploy.yaml files: rows)"
+   "how": "sum of lstat sizes over ../riir-reflex/.raw/datasets_t20k/{ag_news,emotion,sst5,massive_intent_en,banking77,xnli_en} (the deploy.yaml files: rows)",
+   "files": [
+    {
+     "label": "ag_news dataset",
+     "bytes": 6324897
+    },
+    {
+     "label": "emotion dataset",
+     "bytes": 2719177
+    },
+    {
+     "label": "sst5 dataset",
+     "bytes": 1799678
+    },
+    {
+     "label": "massive_intent_en dataset",
+     "bytes": 2516925
+    },
+    {
+     "label": "banking77 dataset",
+     "bytes": 2157368
+    },
+    {
+     "label": "xnli_en dataset",
+     "bytes": 5290479
+    }
+   ]
   },
   {
    "key": "instinct_winner_vessels",
+   "label": "six specialist winner files",
+   "kind": "specialist",
    "bytes": 20320298,
    "what": "the six winner files (BLAKE3-pinned in the manifest): ag_news 524,381 \u00b7 emotion 786,545 \u00b7 sst5 655,460 \u00b7 massive_intent_en 7,865,749 \u00b7 banking77 10,094,864 \u00b7 xnli_en 393,299",
    "host": "m3-max-metal",
@@ -100,6 +142,8 @@
   },
   {
    "key": "openthai_venv",
+   "label": "openthai service venv",
+   "kind": "runtime",
    "bytes": 677613688,
    "what": "the openthai-systemone service venv (python 3.12: torch + transformers + numpy + pydantic + fastapi/uvicorn + their openthai_systemone package installed from source @ 5d04bcca)",
    "host": "m3-max-metal",
@@ -108,6 +152,8 @@
   },
   {
    "key": "rethink_serve_binary",
+   "label": "serve binary \u00b7 GPU-host build",
+   "kind": "binary",
    "bytes": 7940160,
    "what": "the riir-instinct `serve` release binary built with --features serve-encoder-metal (aarch64-apple-darwin) \u2014 the Rethink encoder lane's GPU-host serving edge (the encoder lane + the laya-riir Metal backend compiled in; the CUDA twin is the same size class)",
    "host": "m3-max-metal",
@@ -116,6 +162,8 @@
   },
   {
    "key": "rethink_encoder_heads",
+   "label": "three locked encoder heads",
+   "kind": "head",
    "bytes": 7994976,
    "what": "the three locked NLEH encoder heads the serving lane serves (english-checkpoint paired): sst5 t6_s0.bin 3,197,988 \u00b7 xnli_en_encoder_v1.bin 2,131,996 \u00b7 ag_news_encoder_v1.bin 2,664,992. The typed v2 head (typed_encoder_v2.bin, 1,066,004 \u2014 same dir) is NOT in this posture: it is trained over the TYPED checkpoint (encoder_serve hardcodes Checkpoint::English; 'a head trained on the typed cache is meaningless over the english encoder') and rides the arena's record-only measurement lane",
    "host": "m3-max-metal",
@@ -138,6 +186,8 @@
   },
   {
    "key": "laya_english_q8_artifact",
+   "label": "laya-english encoder \u00b7 Q8_0",
+   "kind": "encoder",
    "bytes": 447729135,
    "what": "the laya-english checkpoint as the derived Q8_0 artifact (the ADOPTED serving encoding \u2014 LAYA_WEIGHTS_VARIANT=q8, riir-infer plan 616 Phases 1\u20132; 53.1% of the 842,609,210-byte F16 file) \u2014 the weights the Rethink encoder serving lane loads resident from boot",
    "host": "m3-max-metal",
@@ -146,6 +196,8 @@
   },
   {
    "key": "rethink_datasets_typed_full",
+   "label": "typed full-pool corpus",
+   "kind": "dataset",
    "bytes": 7151877,
    "what": "the typed full-pool corpus of the TYPED-CELL measurement lane (riir-train Issue 581 / Bench 614's dir \u2014 NOT reflex's 800-row t20k envelope; deploy.yaml stages it as datasets/typed_decisions for the typed BAG serving row). NOT part of the Rethink encoder serving posture \u2014 the ENC lanes boot their seats from the t20k suites",
    "host": "m3-max-metal",
@@ -154,6 +206,8 @@
   },
   {
    "key": "bekko_venv",
+   "label": "bekko venv",
+   "kind": "runtime",
    "bytes": 661500299,
    "what": "the bekko lane venv (python 3.12: torch 2.10.0 + transformers 5.17.0 + sentence-transformers 6.1.0 + safetensors + tqdm + huggingface-hub \u2014 the Bench-103 repro pins)",
    "host": "m3-max-metal",
@@ -162,6 +216,8 @@
   },
   {
    "key": "clef_venv",
+   "label": "mlx venv",
+   "kind": "runtime",
    "bytes": 584762455,
    "what": "the clef-flash (9B) lane venv (python 3.12: mlx 0.32.3 + mlx-lm 0.32.0 + mlx-vlm 0.7.4 \u2014 the community MLX port's tested pins, riir-reflex Bench 113)",
    "host": "m3-max-metal",

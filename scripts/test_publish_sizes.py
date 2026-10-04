@@ -98,6 +98,13 @@ FAKE_RECORDED["rethink_encoder_heads"]["files"] = [
     {"label": "ag_news head", "bytes": 3_000_000},
 ]
 
+FAKE_RECORDED["instinct_datasets_t20k"]["files"] = [
+    {"label": "ag_news dataset", "bytes": 12_000_000},
+    {"label": "sst5 dataset", "bytes": 8_000_000},
+]
+FAKE_RECORDED["instinct_serve_binary"]["label"] = "serve binary"
+FAKE_RECORDED["instinct_serve_binary"]["kind"] = "binary"
+
 FAILURES = []
 
 
@@ -217,7 +224,7 @@ def _():
     # a lone leaf names itself (stack_label) — the tooltip bullet is the
     # component, never a generic "model / weights" where a name is known
     assert by["reflex_laya_typed"]["model_stack"] == [
-        {"label": "typed-decisions checkpoint", "kind": "weights", "bytes": 813_501_000}
+        {"label": "typed-decisions checkpoint", "kind": "weights", "bytes": 813_501_000, "src": 0}
     ], by["reflex_laya_typed"]["model_stack"]
     assert by["clm"]["model_stack"][0]["label"] == "Qwen3-8B + CLM head"
 
@@ -269,6 +276,45 @@ def _():
     assert [f["kind"] for f in st] == ["encoder", "head", "head", "head"], st
     assert st[0]["label"] == "laya-english encoder · Q8_0", st
     assert sum(f["bytes"] for f in st) == r["model_bytes"], st
+
+
+@case("engine_stack: every row's runtime side splits into leaves summing to engine_bytes")
+def _():
+    d = patched_build()
+    by = {c["key"]: c for c in d["candidates"]}
+    for c in d["candidates"]:
+        st = c["engine_stack"]
+        assert st and sum(f["bytes"] for f in st) == c["engine_bytes"], c["key"]
+        n = len(c["engine_provenance"]["parts"])
+        assert all(0 <= f["src"] < n for f in st), (c["key"], st)
+    # the release unpack splits into its archive members, largest first
+    assert [f["label"] for f in by["reflex_native"]["engine_stack"]] == ["reflex binary", "licenses + archive metadata (1 file)"]
+    # recorded_sum: the binary as one leaf (its record label), the dataset
+    # record split per suite file, each pointing at its own source
+    h = by["instinct_hybrid"]["engine_stack"]
+    assert [(f["label"], f["kind"], f["src"]) for f in h] == [
+        ("serve binary", "binary", 0), ("ag_news dataset", "runtime", 1), ("sst5 dataset", "runtime", 1)], h
+    assert by["instinct_hybrid"]["engine_provenance"]["parts"][1]["how"] == "fake"
+
+
+@case("model provenance parts: a sum re-indexes its children's sources")
+def _():
+    d = patched_build()
+    r = {c["key"]: c for c in d["candidates"]}["rethink_encoder"]
+    parts = r["model_provenance"]["parts"]
+    assert [p["what"] for p in parts] == ["laya_english_q8_artifact fake", "rethink_encoder_heads fake"], parts
+    assert [f["src"] for f in r["model_stack"]] == [0, 1, 1, 1], r["model_stack"]
+
+
+@case("an engine files array that drifts from its record total refuses")
+def _():
+    drifted = json.loads(json.dumps(FAKE_RECORDED))
+    drifted["instinct_datasets_t20k"]["files"][0]["bytes"] += 1
+    try:
+        patched_build(recorded=drifted)
+        raise AssertionError("built with a drifted engine files split")
+    except SystemExit:
+        pass
 
 
 @case("hf_subtree_diff resolves and refuses an empty result")

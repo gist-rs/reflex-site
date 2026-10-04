@@ -209,5 +209,30 @@ const fail = (msg) => { console.error("FAIL: " + msg); process.exit(1); };
   if (carets !== d.candidates.length) fail(`carets ${carets} != candidates ${d.candidates.length}`);
   if (!/click the bar for the full breakdown/.test(html)) fail("the expand affordance is not disclosed in the tooltip");
 
-  console.log(`size chart render smoke PASS (${d.candidates.length} stacks · ${rustBars} rust + ${pythonBars} python + ${modelBars} model segments · stack color law · ascending · broken-linear bars, ${nBroken} past the break · byte-share segments · under-bar labels · ${details.length} tap-to-expand details)`);
+  // 10. each detail is a breakdown CHART: one labeled bar per published
+  // engine_stack + model_stack leaf, each width in (0, 100]% (scaled to its
+  // side's largest part, so exactly one bar per side is 100%), the value
+  // column printing the leaf's bytes; the provenance folds into a
+  // collapsed <details> — never a raw "a B (…) + b B (…)" line on the chart
+  const blocks = html.split('<div class="sz-detail" id="szd-').slice(1).map((b) => b.split('<div class="sz-row">')[0]);
+  if (blocks.length !== d.candidates.length) fail(`breakdown blocks parsed ${blocks.length} != candidates ${d.candidates.length}`);
+  let nParts = 0;
+  d.candidates.forEach((c, i) => {
+    const b = blocks[i];
+    const want = (c.engine_stack || []).length + (c.model_stack || []).length;
+    const widths = [...b.matchAll(/class="sz-bd-track"><i style="width:([\d.]+)%/g)].map((m) => +m[1]);
+    if (widths.length !== want) fail(`${c.key}: breakdown bars ${widths.length} != stack leaves ${want}`);
+    if (widths.some((w) => !(w > 0 && w <= 100))) fail(`${c.key}: a breakdown bar width is outside (0, 100]%`);
+    const sides = (c.engine_stack || []).length ? 1 : 0;
+    if (widths.filter((w) => w === 100).length < sides + ((c.model_stack || []).length ? 1 : 0))
+      fail(`${c.key}: a side has no 100% bar (not scaled to its largest part)`);
+    for (const f of [...(c.engine_stack || []), ...(c.model_stack || [])])
+      if (!b.includes(`>${window.SizeCharts.human(f.bytes)} <span`)) fail(`${c.key}: ${f.label} value not printed`);
+    if (!/<details class="sz-src">/.test(b)) fail(`${c.key}: provenance not folded into a collapsed source list`);
+    const chart = b.split('<details class="sz-src">')[0];
+    if (/\d B \(/.test(chart)) fail(`${c.key}: a raw provenance sum leaked onto the chart`);
+    nParts += widths.length;
+  });
+
+  console.log(`size chart render smoke PASS (${d.candidates.length} stacks · ${rustBars} rust + ${pythonBars} python + ${modelBars} model segments · stack color law · ascending · broken-linear bars, ${nBroken} past the break · byte-share segments · under-bar labels · ${details.length} tap-to-expand details · ${nParts} breakdown bars)`);
 })().catch((e) => { console.error("FAIL: " + (e && e.message || e)); process.exit(1); });

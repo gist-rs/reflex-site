@@ -30,9 +30,11 @@
 // block behind a wall of provenance text.
 //
 // Tap-to-expand: hover tooltips have no touch equivalent, so every bar (and
-// Enter/Space on a focused one) toggles a detail block UNDER its row — the
-// tooltip's bullets plus the full what/provenance lines. Mobile reads the
-// same content by tapping; the caret in the totals column marks it.
+// Enter/Space on a focused one) toggles a detail block UNDER its row — a
+// BREAKDOWN CHART (one labeled bar per engine_stack / model_stack part, by
+// side) with the per-source provenance and the row note folded into a
+// collapsed list beneath it, never a joined "a B (…) + b B (…)" wall. Mobile
+// reads the same content by tapping; the caret in the totals column marks it.
 //
 // Palette: the engine segment follows the runtime's ENVIRONMENT — rust env =
 // the site accent (family --accent, #ff8a3d), python env = the laya lane blue (#3987e5);
@@ -201,15 +203,77 @@
       `<br><span class="bc-mut">click the bar for the full breakdown</span>`;
   };
 
-  // The expanded detail: everything the tooltip shortens — full provenance
-  // lines, framework, note. Toggled by clicking the bar (touch-friendly).
-  const detailHtml = (c, comps) => {
-    const prov = (p) => p ? `<p class="sz-prov"><b>${esc(p.source)}</b> — ${esc(p.detail)}</p>` : "";
-    return `<b>${esc(c.name)}</b>${c.framework ? ` <span class="bc-mut">· ${esc(c.framework)}</span>` : ""}` +
-      bulletList(c, comps) +
-      `<b>total (engine + model): ${human(totalOf(c))}</b>` +
-      prov(c.engine_provenance) + prov(c.model_provenance) +
-      (c.note ? `<p class="sz-prov">${esc(c.note)}</p>` : "");
+  // ── the expanded detail: a breakdown CHART, not a wall of provenance ──
+  // One labeled bar per measured part (publish_sizes.py engine_stack /
+  // model_stack), grouped by side. Bars scale within their side (so a
+  // 1.8 MB dataset next to a 7.9 MB binary still reads); the value column
+  // carries bytes + share of the ROW total, so cross-side size is never
+  // implied by bar length. The provenance (what / when / host / how per
+  // source) and the row note fold into a collapsed list under the chart.
+
+  // The side's parts: the published stack, else one leaf for the side (an
+  // older sizes.json still renders a one-bar chart).
+  function partsOf(c, side) {
+    const st = side === "engine" ? c.engine_stack : stackOf(c);
+    if (Array.isArray(st) && st.length) return st;
+    const b = c[side + "_bytes"];
+    return b > 0 ? [{ label: side === "engine" ? envLabel(envKind(c)) : "model / weights", kind: side, bytes: b, src: 0 }] : [];
+  }
+  // The side's structured sources (provenance `parts`), else the flat line.
+  function sourcesOf(p) {
+    if (!p) return [];
+    return Array.isArray(p.parts) && p.parts.length ? p.parts : [{ source: p.source, what: p.detail }];
+  }
+  const pct = (b, total) => {
+    const v = total > 0 ? (b / total) * 100 : 0;
+    return v >= 10 ? v.toFixed(0) + "%" : v >= 0.1 ? v.toFixed(1) + "%" : "<0.1%";
+  };
+
+  function sideChart(c, side, total) {
+    const parts = partsOf(c, side);
+    if (!parts.length) return "";
+    const bytes = c[side + "_bytes"];
+    const color = (f) => side === "engine" ? envColor(envKind(c)) : stackColor(f.kind);
+    const head = side === "engine"
+      ? `<i class="bc-sw" style="background:${envColor(envKind(c))}"></i>${envLabel(envKind(c))} (runtime)`
+      : `<i class="bc-sw" style="background:${MODEL_COLOR}"></i>model / weights`;
+    const what = side === "engine" ? c.engine_what : c.model_what;
+    const max = Math.max(...parts.map((f) => f.bytes));
+    const rows = parts.map((f) =>
+      `<div class="sz-bd-row">` +
+      `<span class="sz-bd-lbl">${esc(f.label || stackLabel(f.kind))}</span>` +
+      `<span class="sz-bd-val">${human(f.bytes)} <span class="bc-mut">· ${pct(f.bytes, total)}</span></span>` +
+      `<span class="sz-bd-track"><i style="width:${((f.bytes / max) * 100).toFixed(2)}%;background:${color(f)}"></i></span>` +
+      `</div>`).join("");
+    return `<div class="sz-bd-side">` +
+      `<div class="sz-bd-head"><span>${head}</span><b>${human(bytes)} <span class="bc-mut">· ${pct(bytes, total)}</span></b></div>` +
+      (what ? `<p class="sz-bd-what">${esc(what)}</p>` : "") + rows + `</div>`;
+  }
+
+  // The collapsed source list: one item per measurement (each side's
+  // `parts`), the long `what` + verbatim `how` living here, not on the chart.
+  function sourcesHtml(c) {
+    const items = [...sourcesOf(c.engine_provenance), ...sourcesOf(c.model_provenance)].map((s) => {
+      const meta = [s.source, s.date_utc, s.host].filter(Boolean).map(esc).join(" · ");
+      return `<li>${s.label ? `<b>${esc(s.label)}</b> — ` : ""}${esc(s.what || "")}` +
+        `<br><span class="bc-mut">${meta}</span>` +
+        (s.how ? `<br><span class="sz-src-how">${esc(s.how)}</span>` : "") + `</li>`;
+    });
+    if (!items.length && !c.note) return "";
+    return `<details class="sz-src"><summary>How each number was measured · ${items.length} source${items.length === 1 ? "" : "s"}` +
+      `${c.note ? " + note" : ""}</summary>` +
+      (items.length ? `<ol>${items.join("")}</ol>` : "") +
+      (c.note ? `<p class="sz-prov"><b>note</b> — ${esc(c.note)}</p>` : "") + `</details>`;
+  }
+
+  // Toggled by clicking the bar (touch-friendly).
+  const detailHtml = (c) => {
+    const total = totalOf(c);
+    return `<div class="sz-bd-title"><b>${esc(c.name)}</b>${c.framework ? ` <span class="bc-mut">· ${esc(c.framework)}</span>` : ""}</div>` +
+      `<div class="sz-bd">${sideChart(c, "engine", total)}${sideChart(c, "model", total)}</div>` +
+      `<p class="sz-bd-total"><b>total on disk: ${human(total)}</b> ` +
+      `<span class="bc-mut">· bars scale within each side; % is the share of this row's total</span></p>` +
+      sourcesHtml(c);
   };
 
   function render(d, el) {
@@ -270,7 +334,7 @@
         `<div class="bc-hlabel sz-label"><span class="sz-name">${esc(c.name)}</span><span class="sz-chips">${chips}</span></div>` +
         `<div class="bc-htrack">${grid}${stack}</div>` +
         `<div class="bc-val sz-total">${human(total)}<span class="sz-caret" aria-hidden="true"> ▾</span></div>` +
-        `<div class="sz-detail" id="${did}" hidden>${detailHtml(c, comps)}</div>` +
+        `<div class="sz-detail" id="${did}" hidden>${detailHtml(c)}</div>` +
         `</div>`;
     }).join("");
 
