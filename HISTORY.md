@@ -825,3 +825,47 @@ not a measurement) — `digitFindings` now strips licence identifiers by name
 smoke PASS, public_copy_gate PASS (7 pages × 2 sizes, 42 served md/svg). The
 storefront feed refresh deploys from riir-rethink; the write-up mirror + page copy
 deploy here.
+
+## 2026-10-06 — Issues 006 + 007 CLOSED: the developer quickstart and buyer-trust audit items landed; the two owner-gated residues recorded
+
+Both issues were filed 2026-10-03 from riir-ai Issue 1028 (the web trust
+audit). Everything actionable has landed; the remaining tasks are owner
+decisions, recorded here so the asks survive the file removal.
+
+**Issue 006 (developer quickstart / API reference):**
+- T1 `/#try-it` — generated request/response block on the home page
+  (one answered, one abstained), captured from the release binary.
+- T2 `/docs/api/` — routes, schema, the three wire type names, errors,
+  limits, versioning, "HTTP-only, any language".
+- T4 the 5-minute first-corpus walkthrough (v0.2.4 recapture `cce66a5`):
+  captured `corpus_answered` bytes, `/first-corpus.tar.gz`, the
+  three-command walkthrough, `/docs/api/#corpus`; the capture mints
+  throwaway demo vessels (heads are mint-only since v0.2.4).
+- T5 the footer engine stamp + release-notes link on every page
+  (`[data-wire-version]`).
+- **T3 (owner, OPEN ask): decide the stateless hosted text-wire demo for
+  the playground** — an owner product call (it moves a piece of the wire
+  behind a Worker); the playground still needs the local engine until
+  decided.
+
+**Issue 007 (buyer trust):**
+- T1 About/contact on every page — `.well-known/security.txt`
+  (`security@gist.rs`, the rethink precedent) + the `gf-legal` About
+  block on all 7 pages with the licence facts.
+- T2 the "What leaves your machine" hero box (nothing by default; the
+  two optional paths disclosed).
+- T3 coverage + selective accuracy in the TL;DR — median answer rate +
+  median selective accuracy rendered from `data/bench.json` in-browser
+  (numbers law), e.g. "answers a median 52% of questions at 65% accuracy
+  when it answers".
+- T4 the `#compare` buyer table — Reflex · LLM API · hosted decision
+  model over nine axes, cells linked to the bench lanes; losses visible.
+- T6 the `#triage` worked example — two captured wire cases
+  (`triage_auto` answered / `triage_escalate` honest `null`) + the
+  caller-policy snippet; bytes from the v0.2.4 tag build, moat-safe.
+- **T5 (owner, OPEN ask): the stability / versioning statement** — a
+  public deprecation policy is an owner commitment; until supplied the
+  site says nothing about wire/corpus stability guarantees.
+
+Issue files removed per the noise rule — this row is the durable record
+of both landings and both owner asks.
