@@ -74,8 +74,12 @@ function visibleTextOfRawHtml(html) {
 }
 
 function digitFindings(text, label, fail) {
-  const dec = text.match(new RegExp(DECIMAL_RE, "g")) || [];
-  const unit = text.match(new RegExp(UNIT_RE, "g")) || [];
+  // Licence identifiers are names, not measurements (the FAQ_FIGURE_ALLOW
+  // pattern in public_copy_gate.cjs): strip them before the scans so the
+  // footer's licence line (issue 007 T1) does not read as a figure.
+  const LICENCE_ALLOW = /Apache-2\.0/g;
+  const dec = text.replace(LICENCE_ALLOW, "Apache-two").match(new RegExp(DECIMAL_RE, "g")) || [];
+  const unit = text.replace(LICENCE_ALLOW, "Apache-two").match(new RegExp(UNIT_RE, "g")) || [];
   if (dec.length) fail(`${label}: ${dec.length} decimal figure(s) in visible text: ${JSON.stringify(dec.slice(0, 5))}`);
   if (unit.length) fail(`${label}: ${unit.length} digit+unit claim(s) in visible text: ${JSON.stringify(unit.slice(0, 5))}`);
   if (!dec.length && !unit.length) console.log(`ok: numbers law clean on ${label} (no decimals, no digit+unit)`);

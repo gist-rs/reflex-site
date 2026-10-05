@@ -120,7 +120,7 @@
       "repo": "riir-rethink",
       "src": ".docs/05_resources/resources.md",
       "dst": "docs/rethink/resources.md",
-      "sha256": "c9022b994e997d41dd90145a326914be3fa8672ed0e0d9ab14b841fe596c04cc"
+      "sha256": "b541733c662dae7d6e001fea619d95aa5554a926f861798143dc13b49bae2215"
     },
     {
       "repo": "riir-rethink",

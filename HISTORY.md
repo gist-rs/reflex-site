@@ -800,3 +800,28 @@ Web trust audit (riir-ai Issue 1028): 14 claims checked by fetching every link o
   (riir-refine `7aee4497`, Issue 144 T5; gist-rs/cargo-refine `c957411`).
 
 - **2026-10-03 — the #instinct section reframed as "Rethink vs Others" (owner ask: the fallback is the design, stop scoring the family against itself; verdict ping-pong rounds 1–3, AGREE).** Five pieces. (1) ROW 1 is the encoderless claim: hybrid cells only (`isHybrid`), head "Reflex vs Instinct · trained specialists (encoderless), accuracy", the specialists' honest 7/12 (was 8/12 on the union — one win was riding an encoder read), plus the Rethink CTA after the counts. (2) ROW 2 renamed "Rethink vs Others, accuracy — the rung stack (Reflex → Instinct → Rethink; Rethink reads record-only until its serving deploy)": the comparator pool now refuses DERIVED tier-fallback rows wearing the Rethink name (`isFamilyServing`) — they carry the serving tier's own number, so banking77/prompt_injections had been comparing the stack against ITSELF and rendering false ties; the honest board is 3/12 strictly best (two hidden wins surfaced), 5 to take, 4 level; the live "1/12" was this bug. (3) COLOR LAW: green ahead / yellow tied (`--warn`) / red behind; within-noise trails moved to ember with their ≈ glyph; A0-seated suites (the seated arm IS the floor — `hybrid.serves === "A0"`) split out of the ties as their own grey "floor-seated (A0 — no specialist earned a seat) on 5" segment + legend entry + hover, KEPT in the denominator (the mark stays warn; nothing softened). (4) CHIP: rung-model framing ("the fallback to Reflex/Instinct is by design: you pay for thinking only where the floor abstains; the open race is Rethink vs Others") with to-go arithmetic counting ties (9 to go = 5 behind + 4 level); GOAT/`strictlyAll` flip condition untouched. (5) SMOKE: 4 label pins updated, `hybOf`/`hybServesOf` split from `famOf` (row 1's population and A0 classification derive from the data, never suite names), record-only qualifier pinned; bench_page_smoke + public_copy_gate green, rendered-DOM probe verified colors/heads/deltas. The old mark-only smoke check had masked the comparator bug (1/12 and 3/12 share the gap band) — the mirror now computes the same pool, so drift reds. Commits: `c8b2f57` (reframe + comparator-pool leak), `b0b1162` (floor-seated split + record-only qualifier). Follow-up noted, not owed: an explicit smoke arm failing when an A0 cell's accuracy differs from the floor's number (today the count-mismatch path already fails the floor-seated assertion). Issue file removed per this convention; full narrative: `git log --follow -- .issues/010_rethink_vs_others_reframe.md`.
+
+## 2026-10-05 — Rethink write-up: escalation lane + storefront-live fix; storefront feed refreshed
+
+Two doc-sync fixes on the Rethink education surfaces plus the feed refresh the
+check found. (1) The mirrored write-up source (`riir-rethink/.docs/05_resources/resources.md`,
+landed here as `docs/rethink/resources.md` + manifest sha) still said the storefront
+was "incoming / the link may be dark" — it has been live since 2026-10-03; reworded
+live, and the write-up gained a concept-level "How escalation works" section (only
+abstentions go up; per-suite arming where the encoder measured ahead; runtime rate
+guard demotes to the cheaper rung, named in the receipt; hosted API still forming —
+no suite names, no numbers: the licence demotion of rethink Issue 023 T2 is in
+flight and the copy is written to survive it). (2) `/resources/` Rethink section
+carries the same fact as a short paragraph ("Escalation is built, not just drawn"),
+linking the board only (moat law). (3) The storefront feed had gone stale: `site/data/why.json`
++ `provenance.json` (riir-rethink) were built from bench sha `aa4bc12e…` while the
+published feed moved to `f82f648b…` at the Bench-123 publish (`3529710`); rebuilt
+with `build_why_data.py` — Rethink cell values byte-unchanged (the four 4090 lane
+re-runs touch neither Rethink nor clef), only the provenance sha/date stamps moved.
+Gate fix en route: the resources smoke's numbers-law scan flagged the footer's
+licence line "Apache-2.0" (pre-existing since the 007-T1 landing, a licence name
+not a measurement) — `digitFindings` now strips licence identifiers by name
+(the FAQ_FIGURE_ALLOW pattern). Gates: sync_mirror 32/32 + --check, resources_page
+smoke PASS, public_copy_gate PASS (7 pages × 2 sizes, 42 served md/svg). The
+storefront feed refresh deploys from riir-rethink; the write-up mirror + page copy
+deploy here.

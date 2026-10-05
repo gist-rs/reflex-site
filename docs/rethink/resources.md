@@ -45,15 +45,28 @@ that is the whole point of the class.
 
 ## How to see it
 
-- **The storefront** — [rethink.gist.rs](https://rethink.gist.rs)
-  (**incoming**): the product surface once it deploys. Until then the
-  link may be dark.
+- **The storefront** — [rethink.gist.rs](https://rethink.gist.rs):
+  what the hosted tier does, how your data is handled, and the roadmap
+  each step's state lives on. It is live; the hosted API itself is
+  still forming — the storefront marks each card live, test network
+  or planned.
 - **The measured side** — the site's [/bench/](/bench/) Rethink rows:
   every seated cell is the encoder arm measured against the open lanes
-  on the same frozen test read. If the storefront has not opened yet,
-  the bench rows are live today.
+  on the same frozen test read — live today, beside the storefront.
 
 The free floor is always on, and always answers first: Rethink is paid
 only where the free engine's confidence check [the fused gate — the
 calibrated signal that decides whether a specialist is worth consulting]
 abstains.
+
+## How escalation works
+
+Only abstentions ever go up: a sure answer never reaches a paid rung.
+The step from the specialist rung to the encoder is built, not just
+drawn — the hosted serve arms the encoder rung per suite [one benchmark
+task], and only where the encoder measured ahead of the rung below on
+the public board. A runtime rate guard rides every arming: if the share
+of questions escalated drifts outside the band it was measured at, the
+lane demotes itself to the cheaper rung and says so in the answer's
+receipt. The hosted API that exposes this ladder is still forming; the
+board's Rethink rows carry the measured side today.
