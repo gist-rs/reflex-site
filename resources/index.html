@@ -1200,6 +1200,18 @@
           card's state lives on. The buy card carries its honest state (not open yet — nothing is charged today).
           The <a href="/bench/">bench Rethink rows</a> are the measured side of everything this section claims.</p>
       </details>
+      <details class="faq">
+        <summary>Could the encoder be smaller — 4-bit weights?</summary>
+        <p>We measured it rather than guessed. The serving weights already have a half-size step: an
+          8-bit tier (each weight stored in half the bytes), which passed the quality gates we declare
+          before every measurement — its answers stayed within a couple of accuracy points of the
+          full-precision reads on every test set. Cutting in half again, to 4-bit, failed the same
+          gates: on the hardest test set — the one with the most answer classes — accuracy fell by
+          double digits, and the confidence numbers got less honest with it. So 4-bit stays a
+          measurement lane, never a shipping posture. If it ever comes back, it comes back through
+          retraining with the small format built in, judged by the same gates. Until then, "smaller"
+          means the 8-bit tier — what we serve when footprint matters.</p>
+      </details>
     </div>
   </section>
 
