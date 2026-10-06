@@ -19,7 +19,7 @@ durable record). Full narrative of each: `git log --follow -- .issues/<file>`.
 - **2026-10-04 — #rethink refined against the storefront roadmap; #reflexer moved under #reflex (owner asks).**
   Two-phase shape (v1 hosted-only keyed API; v2 planned download with leaseable specialists), receipts claim split live-vs-planned, the FAQ answers v2's planned download (not the stale "never a public download"), buy-card matches the storefront's words ("not open yet — nothing is charged today").
 
-- **2026-10-04 — the `#reflexer` relation section + the Plan 620 P1 takeover.**
+- **2026-10-04 — the `#reflexer` relation section + the riir-ai Plan 620 P1 takeover.**
   P1 (the gfflow renderer + generalised walker + trust-flow golden) taken over, completed, landed across three repos: reflex-site `fe69bd2`, riir-rethink `7b86e8b`, riir-ai `0d5f852a1`. riir-reflexer Plan 004: `/resources #reflexer` (relation figure + deep write-up mirror) landed `12538b9`, riir-reflexer `ba943d8`.
 
 - **2026-10-03 — the bekko 400M timing LANDED (riir-reflex bench 115, 067 T1–T5): 9/9 quotable cells, p50 geomean 231.7 ms.**
@@ -73,14 +73,14 @@ durable record). Full narrative of each: `git log --follow -- .issues/<file>`.
 - **2026-10-01 — #areas shows every selected lane + qualifier-free lane names (owner calls).**
   `compute_areas()` v2: `AREA_LANES` extended to every lane, extra-host lanes roll up under host-tagged keys (`clm@4090-win`, RIG_LABELS legend, one chip per posture-set); LANE_DISPLAY = `Instinct` / `Rethink` with every legacy spelling mapped (dual-spelling law); re-published in place; publish self-test 66/66.
 
-- **2026-09-30 — the modelless lane re-published at the promoted gate posture (Issue 056 close-out); the deploy ships the pending typed-H2 publish too.**
+- **2026-09-30 — the modelless lane re-published at the promoted gate posture (reflex Issue 056 close-out); the deploy ships the pending typed-H2 publish too.**
   reflex Bench 096 (m3) + 097 (4090-windows, UNJUDGED-standing) at `d4051c8`: hard accuracy bit-identical on all 15 suites BOTH hosts, gate cells `--gate-fit-calibrated`; deployed from the M3 (the CF-creded box); known gap filed reflex Issue 057 (owner-gated).
 
 - **2026-09-29 — the typed H2 serving posture published (`4b729d4`); DEPLOY PENDING on this box (no CF token).**
   typed hybrid A1 0.6300 → H2(β=0.5, nmin=2, τ=2) 0.6475, stamps re-attributed to instinct `8bbff09`; lane-scoped publish: `PUBLISH_BENCH_LANES=hybrid sh scripts/republish_bench.sh data/bench.json ../riir-instinct/.benchmarks/020_typed_h2_full_pool/hybrid_lane_doc.json`; wrangler needs Node ≥ 22 (box had v20) + `CLOUDFLARE_API_TOKEN` (lives on the M3) — shipping command: `cd reflex-site && npx wrangler deploy`.
 
 - **Issue 003 — 26 published latency cells from runs that judged their own box unfit: RESOLVED 2026-09-30 (unfit cells on the board: 0).**
-  T1+T2 (Bench 076+077 m3 re-measure + `carry_beats_incumbent` suppression), T4 per-cell `source_run` stamps, T3 the ANE re-measure (reflex [Bench 098]). En-route find: the ANE lane had been BROKEN at HEAD since reflex `6535b75` — fixed substrate-side riir-infer `7eae0e7` with a regression pin; T5's 4090-laya residual stays a documented defer.
+  T1+T2 (reflex Bench 076+077 m3 re-measure + `carry_beats_incumbent` suppression), T4 per-cell `source_run` stamps, T3 the ANE re-measure (reflex [Bench 098]). En-route find: the ANE lane had been BROKEN at HEAD since reflex `6535b75` — fixed substrate-side riir-infer `7eae0e7` with a regression pin; T5's 4090-laya residual stays a documented defer.
 
 - **Issue 001 — arena four lanes + honest µs timing + bench-driven TL;DR: DONE 2026-09-24.**
   All 7 tasks; verified by `scripts/arena_demo_check.mjs` + `arena_head_parity.mjs` + the page smokes; the two measured gaps tracked in riir-reflex Issue 020 (closed upstream 09-26; the accuracy gap stays published on the TL;DR).
@@ -105,9 +105,9 @@ durable record). Full narrative of each: `git log --follow -- .issues/<file>`.
 
 ## 2026-10-02 — the /families/ quarantined section removed with its suites (same owner call, this commit)
 
-Removed `/families/` + `data/families.json` + the `publish_families.py` / `build_family_lane_doc.py` / `test_publish_families.py` / `families_page_smoke.cjs` pipeline (Plan 009's quarantined our-lanes section, reflex issue 059): with the suites retired upstream (reflex `31b11d2`) and the board rows gone (`f1731fc`) there was nothing left to show. Home link + bench FAQ updated; `publish_bench.py`'s RETIRED_SUITES comment records it and the quarantine gate still forbids the bench publisher from ever naming or ingesting that surface.
+Removed `/families/` + `data/families.json` + the `publish_families.py` / `build_family_lane_doc.py` / `test_publish_families.py` / `families_page_smoke.cjs` pipeline (riir-reflex Plan 009's quarantined our-lanes section, reflex issue 059): with the suites retired upstream (reflex `31b11d2`) and the board rows gone (`f1731fc`) there was nothing left to show. Home link + bench FAQ updated; `publish_bench.py`'s RETIRED_SUITES comment records it and the quarantine gate still forbids the bench publisher from ever naming or ingesting that surface.
 
-## 2026-10-03 — the instinct_flow.svg mirror pair managed (the Proposal 053 miss, pre-ratification)
+## 2026-10-03 — the instinct_flow.svg mirror pair managed (the riir-ai Proposal 053 miss, pre-ratification)
 
 The served figure (live since the 2026-09-29 owner pass) was unmanaged — the miss riir-ai Proposal 053 files. `sync_mirror.py` gained per-pair source roots (riir-reflex PRIMARY, absent → exit 2; riir-instinct SECONDARY, absent checkout = loud per-root skip, never silent green) and now owns `assets/mirror_manifest.json` (per-file repo/src/dst/sha256; git refs deliberately omitted — the 052 Phase-C leak class); self-test 9 arms, three postures live-verified, pair byte-identity sha256 `96a40d5f…`. `render_tetris_flows.py` stays the figure's PRODUCER — after a re-render run `sync_mirror.py`, else a named `MANIFEST-STALE`.
 
