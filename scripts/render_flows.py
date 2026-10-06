@@ -407,10 +407,15 @@ def validate(doc: dict, site: Path | None) -> list:
         col = st.get("col")
         if not isinstance(col, int) or col < 0:
             errs.append(f"step {sid!r}: col must be an integer ≥ 0")
-        elif (st.get("lane"), col) in slots:
-            errs.append(f"step {sid!r}: grid slot ({st.get('lane')}, {col}) already holds {slots[(st.get('lane'), col)]!r}")
         else:
-            slots[(st.get("lane"), col)] = sid
+            # a (lane, col) cell may STACK several steps — declaration order is
+            # the top-to-bottom row order, and it must read in path order
+            slots.setdefault((st.get("lane"), col), []).append(sid)
+    for (lid, col_), ids in slots.items():
+        if len(ids) > 1:
+            keys = [sort_key(by_id[i]["n"]) for i in ids]
+            if keys != sorted(keys):
+                errs.append(f"lane {lid!r} col {col_}: stacked steps must be declared in path order ({', '.join(ids)})")
         if not st.get("title") or not st.get("body"):
             errs.append(f"step {sid!r}: title and body are required")
         if st.get("status") not in STATUS:
@@ -602,6 +607,7 @@ def markers(sid: str, colors: list) -> str:
 # every label is ≥ 13 units (≥ 11 px rendered, §6).
 
 D = dict(card_w=230, pitch=294, x0=30, card_h=108, head=42, foot=16, tag=30, lane_gap=12, top=12,
+         stack_gap=24,
          title=16, body=13.5, body_lh=19, mono=13, lane=13, badge=13, r=12, pad=16, aside_lines=4)
 
 
@@ -611,17 +617,33 @@ def render_desktop(doc: dict, sid: str) -> str:
     by_id = {s["id"]: s for s in steps}
     ncols = max(s["col"] for s in steps) + 1
     W = D["x0"] + ncols * D["pitch"] - (D["pitch"] - D["card_w"]) + 26
-    lane_y, lane_h, y = {}, {}, D["top"]
+    # a (lane, col) cell may hold several steps (a stack); declaration order is
+    # the top-to-bottom row order (validate enforces path order within a cell)
+    row_of = {}
+    seen_cells = {}
+    for i, s in enumerate(steps):
+        row_of[s["id"]] = seen_cells.get((s["lane"], s["col"]), 0)
+        seen_cells[(s["lane"], s["col"])] = row_of[s["id"]] + 1
+    lane_y, lane_h, row_y, y = {}, {}, {}, D["top"]
     for ln in lanes:
-        has_tag = any(s.get("tag") and s["lane"] == ln["id"] for s in steps)
-        h = D["head"] + D["card_h"] + (D["tag"] if has_tag else D["foot"])
-        lane_y[ln["id"]], lane_h[ln["id"]] = y, h
+        lid = ln["id"]
+        lane_steps = [s for s in steps if s["lane"] == lid]
+        nrows = max(row_of[s["id"]] for s in lane_steps) + 1
+        off = 0.0
+        for r in range(nrows):
+            row_y[(lid, r)] = off
+            rtag = any(s.get("tag") for s in lane_steps if row_of[s["id"]] == r)
+            off += D["card_h"] + (D["tag"] if rtag else 0) + D["stack_gap"]
+        h = D["head"] + off - D["stack_gap"] + (0 if any(s.get("tag") for s in lane_steps) else D["foot"])
+        lane_y[lid], lane_h[lid] = y, h
         y += h + D["lane_gap"]
     H = y - D["lane_gap"] + D["top"]
     color = {ln["id"]: LANE_COLORS[ln["color"]] for ln in lanes}
     box = {}
     for s in steps:
-        box[s["id"]] = Box(D["x0"] + s["col"] * D["pitch"], lane_y[s["lane"]] + D["head"], D["card_w"], D["card_h"])
+        box[s["id"]] = Box(D["x0"] + s["col"] * D["pitch"],
+                           lane_y[s["lane"]] + D["head"] + row_y[(s["lane"], row_of[s["id"]])],
+                           D["card_w"], D["card_h"])
     obstacles = []  # (Box, owner) — labels must avoid these
     out_lanes, out_cards, out_edges = [], [], []
     inner = D["card_w"] - 2 * D["pad"]
@@ -705,29 +727,35 @@ def render_desktop(doc: dict, sid: str) -> str:
         la = [ln["id"] for ln in lanes].index(a["lane"])
         lt = [ln["id"] for ln in lanes].index(t["lane"])
         skip = {a["id"], t["id"]}
-        if e.get("via") == "gutter" or (a["col"] == t["col"] and between((A.x + A.w / 2, A.b), (T.x + T.w / 2, T.y), skip)
-                                         and la != lt):
+        below = T.y + T.h / 2 > A.y + A.h / 2  # geometry, not lane order: a cell may stack rows
+        if e.get("via") == "gutter":
             plan.append((e, "gutter", "w", "w"))
         elif e.get("exit") or e.get("enter"):
             plan.append((e, "auto", e.get("exit"), e.get("enter")))
-        elif la == lt:
+        elif a["col"] == t["col"] and (la != lt or row_of[a["id"]] != row_of[t["id"]]):
+            # a vertical run: same column across lanes, or down a stack. It is
+            # a straight only when no card sits between the two ends; else the
+            # gutter walks around (the pub→lease class)
+            if between((A.x + A.w / 2, A.b), (T.x + T.w / 2, T.y), skip):
+                plan.append((e, "gutter", "w", "w"))
+            else:
+                plan.append((e, "straight", "s" if below else "n", "n" if below else "s"))
+        elif la == lt and row_of[a["id"]] == row_of[t["id"]]:
             plan.append((e, "straight", "e" if t["col"] > a["col"] else "w", "w" if t["col"] > a["col"] else "e"))
-        elif a["col"] == t["col"]:
-            plan.append((e, "straight", "s" if lt > la else "n", "n" if lt > la else "s"))
         else:
             # one bend: horizontal-first, else vertical-first (centre test;
             # the final route is re-checked after the ports are spread)
-            hx, vy = ("e" if t["col"] > a["col"] else "w"), ("s" if lt > la else "n")
+            hx = "e" if t["col"] > a["col"] else "w"
             ax_ = A.r if hx == "e" else A.x
             tx_ = T.x if hx == "e" else T.r
-            ay_ = A.b if vy == "s" else A.y
-            ty_ = T.y if vy == "s" else T.b
+            ay_ = A.b if below else A.y
+            ty_ = T.y if below else T.b
             h_first = [(ax_, A.y + A.h / 2), (T.x + T.w / 2, A.y + A.h / 2), (T.x + T.w / 2, ty_)]
             v_first = [(A.x + A.w / 2, ay_), (A.x + A.w / 2, T.y + T.h / 2), (tx_, T.y + T.h / 2)]
             if not any(between(q0, q1, skip) for q0, q1 in zip(h_first, h_first[1:])):
-                plan.append((e, "bend", hx, "n" if lt > la else "s"))
+                plan.append((e, "bend", hx, "n" if below else "s"))
             elif not any(between(q0, q1, skip) for q0, q1 in zip(v_first, v_first[1:])):
-                plan.append((e, "bend", vy, "w" if hx == "e" else "e"))
+                plan.append((e, "bend", "s" if below else "n", "w" if hx == "e" else "e"))
             else:
                 raise FlowError(f"edge {a['n']}->{t['n']}: no one-bend route clears the cards — set exit/enter or via")
     # ports: spread the edges sharing one side of one card, ordered by the
@@ -1291,6 +1319,48 @@ def selftest() -> int:
             sizes += [float(x) for x in re.findall(r'font-size="([\d.]+)"', svg)]
             assert sizes and min(sizes) >= M["min_font"], f"label sizes {sorted(set(sizes))}"
         arm("_m.svg: no text below 11 units at 340 wide", mobile_floor)
+
+        _ST_STACK = """
+file = "t_stack.svg"; title = "Stack"; accent = "refine"
+[[lane]]
+id = "me"; label = "Your machine"; color = "refine"
+[[lane]]
+id = "net"; label = "The network"; color = "ai"
+[[step]]
+id = "a"; n = "1"; lane = "me"; col = 0; title = "One"; body = "first"; status = "live"
+[[step]]
+id = "b"; n = "2"; lane = "me"; col = 0; title = "Two"; body = "second"; status = "live"
+[[step]]
+id = "c"; n = "3"; lane = "me"; col = 1; title = "Three"; body = "third"; status = "live"
+[[step]]
+id = "d"; n = "4"; lane = "net"; col = 1; title = "Four"; body = "fourth"; status = "live"
+[[edge]]
+from = "a"; to = "b"
+[[edge]]
+from = "b"; to = "c"
+[[edge]]
+from = "c"; to = "d"
+"""
+
+        def card_y(svg, sid):
+            m = re.search(r'<g data-step="' + sid + r'"[^>]*><rect class="gf-cb" x="[\d.]+" y="([\d.]+)"', svg)
+            assert m, f"step {sid} card not found"
+            return float(m.group(1))
+
+        def stack_rows():
+            doc = load_flow(_ST_STACK)
+            out = render_block(doc, "t_stack", None)
+            assert out == render_block(load_flow(_ST_STACK), "t_stack", None), "stacked render not deterministic"
+            svg = out["t_stack.svg"]
+            assert card_y(svg, "b") == card_y(svg, "a") + D["card_h"] + D["stack_gap"], "b does not stack under a"
+            assert card_y(svg, "c") == card_y(svg, "a"), "c sits at row 0 of its cell"
+            m = re.search(r'data-edge="a->b"><path class="e" d="M([\d.]+),([\d.]+) ([\d.]+),([\d.]+)"', svg)
+            assert m and m.group(1) == m.group(3), "a→b is not a straight vertical"
+        arm("stack: two steps share one lane-column, a→b runs straight down", stack_rows)
+
+        arm("refuse: a stack declared out of path order", lambda: refused(
+            _ST_STACK.replace('id = "a"; n = "1"', 'id = "a"; n = "2"').replace('id = "b"; n = "2"', 'id = "b"; n = "1"'),
+            "path order"))
 
         def fallback():
             doc = load_flow(_ST_BASE)
