@@ -2775,6 +2775,131 @@ def fb_cell(lane, acc, model=None):
     }
 
 
+# ── plan-001 task 6 (2026-10-06): the abstention-cause rollup arms.
+# The harness stamps the abstain CAUSE per case (reflex a7475c7); the
+# publisher sums those stamps per lane over the index population. Never
+# a rate-derived number, never a padded zero.
+
+def case_abstention_rollup_sums_stamped_cells():
+    d = area_doc()
+    d["suites"][0]["modelless"]["abstain_causes"] = {
+        "score_gate": 30, "distance_gate": 10, "grammar_invalid": 0}
+    d["suites"][1]["modelless"]["abstain_causes"] = {
+        "score_gate": 0, "distance_gate": 6, "grammar_invalid": 0}
+    a = pb.compute_areas(d)
+    ab = pb.compute_abstention(d)
+    ml = ab["lanes"]["modelless"]
+    # zero-count causes are dropped from the rollup — the page renders
+    # only the causes that fired (a stamped-and-clean cell is the
+    # all-zero case, tested separately)
+    assert ml["causes"] == {"distance_gate": 16, "score_gate": 30}
+    assert ml["total"] == 46
+    assert ml["shares"] == {"distance_gate": round(16 / 46, 4),
+                            "score_gate": round(30 / 46, 4)}
+    assert ml["suites_with_stamps"] == 2
+    assert ml["suites_covered"] == 9
+    assert ab["version"] == 1 and ab["edition"] == pb.EDITION
+
+
+def case_abstention_absent_without_stamps():
+    """No stamps anywhere → no block at all. A lane absent from the
+    block means 'not recorded', never 'abstained zero' — the two read
+    identically as a 0 and the publisher refuses to guess."""
+    d = area_doc()
+    a = pb.compute_areas(d)
+    assert pb.compute_abstention(d) is None
+    assert "abstention" not in a
+
+
+def case_abstention_none_is_data_never_zero():
+    """laya publishes abstain_causes None — it CANNOT abstain (the
+    reflex-side law). None is no stamp: the lane stays absent from the
+    block, never a zero row wearing a made-up count."""
+    d = area_doc()
+    for s in d["suites"]:
+        if s["name"] == "ag_news":
+            s["laya"]["english"]["abstain_causes"] = None
+    a = pb.compute_areas(d)
+    assert pb.compute_abstention(d) is None
+
+
+def case_abstention_checkpoint_keyed_and_mirrored_cells_never_match():
+    """The read matches only a top-level primary lane cell. Checkpoint-
+    keyed lane dicts (laya) never match — stamps parked on a losing
+    checkpoint surface nowhere; host mirrors live nested under
+    extra_host_lanes and never match — a mirrored run cannot double-
+    count its primary."""
+    d = area_doc()
+    for s in d["suites"]:
+        if s["name"] == "ag_news":
+            s["laya"]["english"]["abstain_causes"] = {"score_gate": 7}
+            s["laya"]["typed"]["abstain_causes"] = {"score_gate": 999}
+            s["modelless"]["abstain_causes"] = {"score_gate": 50}
+        cell = area_cell("modelless", 0.9)
+        cell["abstain_causes"] = {"score_gate": 50}
+        s["extra_host_lanes"] = {"4090-win": {"modelless": cell}}
+    a = pb.compute_areas(d)
+    ab = pb.compute_abstention(d)
+    assert "laya" not in (ab or {}).get("lanes", {})
+    ml = ab["lanes"]["modelless"]
+    # primary stamps only — the nine mirrors (50 each) add nothing
+    assert ml["causes"] == {"score_gate": 50}
+    assert ml["suites_with_stamps"] == 1
+    assert ml["suites_covered"] == 9
+
+
+def case_abstention_unknown_cause_never_dropped():
+    """A cause name the publisher does not know is summed, never dropped —
+    the shares must keep describing every stamped abstain even when the
+    harness taxonomy grows past the fixed three."""
+    d = area_doc()
+    d["suites"][0]["modelless"]["abstain_causes"] = {"score_gate": 2,
+                                                     "new_cause": 3}
+    pb.compute_areas(d)
+    ab = pb.compute_abstention(d)
+    ml = ab["lanes"]["modelless"]
+    assert ml["causes"] == {"new_cause": 3, "score_gate": 2}
+    assert ml["total"] == 5
+    assert abs(sum(ml["shares"].values()) - 1.0) < 1e-3
+
+
+def case_abstention_stamped_and_clean_is_not_absent():
+    """A stamped cell whose counts are all zero yields a total-0 entry —
+    'stamped and clean' stays distinguishable from 'never stamped'."""
+    d = area_doc()
+    d["suites"][0]["modelless"]["abstain_causes"] = {
+        "score_gate": 0, "distance_gate": 0, "grammar_invalid": 0}
+    pb.compute_areas(d)
+    ab = pb.compute_abstention(d)
+    ml = ab["lanes"]["modelless"]
+    assert ml["total"] == 0 and ml["shares"] == {}
+    assert ml["suites_with_stamps"] == 1
+
+
+def case_abstention_derived_cells_never_double_count():
+    """A derived tier-fallback cell carries the ANSWERING tier's measured
+    fields; if it ever rode an abstain_causes stamp, summing it would
+    count the same abstains twice (once under the tier, once under the
+    lane it filled). Derived cells are skipped outright."""
+    d = area_doc()
+    for s in d["suites"]:
+        s["encoder"] = dict(area_cell("Rethink", 0.7), derived=True,
+                            serves="tier-fallback", served_by="Instinct (A0)",
+                            abstain_causes={"score_gate": 99})
+    pb.compute_areas(d)
+    ab = pb.compute_abstention(d)
+    assert "encoder" not in (ab or {}).get("lanes", {})
+
+
+def case_abstention_rollup_is_idempotent():
+    d = area_doc()
+    d["suites"][0]["modelless"]["abstain_causes"] = {"score_gate": 3}
+    a = pb.compute_areas(d)
+    first = pb.compute_abstention(d)
+    second = pb.compute_abstention(d)
+    assert first == second
+
+
 CASES = [
     case_fallback_cells_close_product_lane_holes,
     case_fallback_cells_need_a_measurable_source,
@@ -2860,6 +2985,14 @@ CASES = [
     case_rederive_preserves_cells,
     case_rederive_archives_on_edition_bump,
     case_retired_suites_never_publish,
+    case_abstention_rollup_sums_stamped_cells,
+    case_abstention_absent_without_stamps,
+    case_abstention_none_is_data_never_zero,
+    case_abstention_checkpoint_keyed_and_mirrored_cells_never_match,
+    case_abstention_unknown_cause_never_dropped,
+    case_abstention_derived_cells_never_double_count,
+    case_abstention_stamped_and_clean_is_not_absent,
+    case_abstention_rollup_is_idempotent,
 ]
 
 def main() -> int:

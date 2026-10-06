@@ -1122,6 +1122,89 @@ def compute_areas(d):
     return d["areas"]
 
 
+# ── plan-001 task 6: the abstention-cause rollup ──────────────────────
+# The harness stamps WHY the calibrated gate abstained per case (reflex
+# a7475c7's AbstainCause: score_gate / distance_gate / grammar_invalid;
+# laya publishes None — it cannot abstain — and that None is data, never
+# a fake zero). Today the stamps live on the modelless lane's results
+# only, and on the DECISION-SET suites (s1mb_noul/score/choice) — the
+# suites where the calibrated gate actually abstains — so the rollup
+# walks every suite row's primary lane cells rather than one curated
+# population, and lets the stamped lanes surface wherever they are.
+
+
+def compute_abstention(d):
+    """Emit d["abstention"] — per lane, the harness's own abstain-cause
+    stamps summed over the lane's PRIMARY-HOST cells across ALL suite
+    rows (dataset + decision-set). The read is deliberately simple and
+    exclusion-safe: a top-level dict carrying both `hard` and `lane` is a
+    lane cell; checkpoint-keyed lane dicts (laya) never match, host
+    mirrors live nested under extra_host_lanes and never match (they
+    duplicate the primary run — summing both would double-count), and
+    derived tier-fallback cells are skipped (their measured fields are
+    the ANSWERING tier's, so their abstains already counted under that
+    tier).
+
+    A lane with no stamped cells is ABSENT from the block — never a
+    zero: its abstains either predate the field or its lane has no
+    abstention path, and picking between those would be a made-up
+    number. A stamped cell whose counts are all zero yields a total-0
+    entry, so "stamped and clean" stays distinguishable from "never
+    stamped". Unknown cause names are summed, never dropped — the shares
+    must keep describing every stamped abstain even when the taxonomy
+    grows. Shares round to 4dp and may miss 1.0 by rounding; re-running
+    replaces the block wholesale (idempotent under --rederive)."""
+    d.pop("abstention", None)
+    cells_by_lane = {}
+    for s in d.get("suites", []):
+        name = s.get("name")
+        if not name:
+            continue
+        for k, v in s.items():
+            if not isinstance(v, dict) or "hard" not in v or "lane" not in v:
+                continue
+            if v.get("derived"):
+                continue
+            cells_by_lane.setdefault(k, {})[name] = v
+    out = {}
+    for cls in sorted(cells_by_lane):
+        cells = cells_by_lane[cls]
+        causes, stamped = {}, 0
+        for cell in cells.values():
+            ac = cell.get("abstain_causes")
+            if not isinstance(ac, dict):
+                continue
+            stamped += 1
+            for c, v in ac.items():
+                if isinstance(v, (int, float)) and v > 0:
+                    causes[c] = causes.get(c, 0) + int(v)
+        if not stamped:
+            continue
+        total = sum(causes.values())
+        out[cls] = {
+            "causes": {c: causes[c] for c in sorted(causes)},
+            "total": total,
+            "shares": ({c: round(v / total, 4)
+                        for c, v in sorted(causes.items())} if total else {}),
+            "suites_with_stamps": stamped,
+            "suites_covered": len(cells),
+        }
+    if not out:
+        return None
+    d["abstention"] = {
+        "version": 1,
+        "edition": EDITION,
+        "lanes": out,
+        "scope": ("per-lane abstain-cause rollups over the primary host's "
+                  "own cells, all suites (dataset + decision-set); counts "
+                  "are the harness's own abstain-cause stamps, never "
+                  "derived from rates; the harness stamps causes on the "
+                  "modelless lane's results (reflex a7475c7), so other "
+                  "lanes are absent here — never zeros"),
+    }
+    return d["abstention"]
+
+
 # ── The S1MB external-benchmark section (reflex plan 010) ─────────────
 # The System One Mosaic Benchmark judged by OUR three serving lanes under
 # OUR metric (forced-pick accuracy on the deterministic 50/50 corpus/test
@@ -2810,6 +2893,11 @@ def finalize(d):
     n_paired = compute_pairings(d)
     compute_areas(d)
     compute_s1mb(d)
+    # The plan-001 task-6 abstention rollup walks every suite row's primary
+    # lane cells (the stamps live on the decision-set suites) and only ever
+    # READS cell fields (abstain_causes), never writes one, so the rederive
+    # byte-guard's measurement identity is untouched.
+    compute_abstention(d)
     # The plan-011 C3 crosswalk (after the fallback derivation — derived
     # cells are excluded by construction, and the digest pin reads the
     # final cells): replaces the block wholesale (idempotent under

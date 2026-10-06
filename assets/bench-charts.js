@@ -1557,9 +1557,22 @@
     const geoTxt = num(t.p50_geomean_ms)
       ? lat(t.p50_geomean_ms)
       : `not plotted (${t.n_unjudged || 0} unjudged / ${t.n_unquotable || 0} unfit of ${t.suites || 0} cells)`;
+    // The abstention-cause line (plan-001 task 6): the block exists only
+    // where the harness stamped causes — an absent lane renders the
+    // absence, never a zero (its abstains predate the field or its lane
+    // cannot abstain; the publisher's scope note owns the distinction).
+    const ab = ((d.abstention || {}).lanes || {})[key];
+    const abTxt = ab
+      ? `abstains ${ab.total} — ` + (Object.keys(ab.causes || {}).length
+        ? Object.entries(ab.causes).sort((a, b) => b[1] - a[1])
+          .map(([c, v]) => `${esc(c)} ${pct((ab.shares || {})[c])} (${v})`).join(" · ")
+        : "0 abstained") +
+        ` · cause stamps on ${ab.suites_with_stamps}/${ab.suites_covered} measured cells`
+      : "abstain causes: none recorded (counts live only where the harness stamped them)";
     el.innerHTML = `<div class="lane-profile" style="border-left:4px solid ${meta.color};padding-left:12px">` +
       `<h3>${esc(sizedDisplay(ld.display || meta.label))}${host} <span class="bc-mut">· ${esc(ld.kind || "")}</span></h3>` +
       `<p class="bc-note">cc index <b>${num(ld.index) ? pct(ld.index) : "—"}</b> · coverage ${ld.coverage.suites}/${ld.coverage.of}${ld.complete ? " (complete)" : " (partial — pending suites stay pending, never zero)"} · clock ${esc(t.clock || "?")} — ${esc(t.method || "")} · p50 geo ${geoTxt}</p>` +
+      `<p class="bc-note">${abTxt}</p>` +
       `<div class="scroll"><table class="bench"><thead><tr><th>suite</th><th>acc</th><th>cc</th><th>p50</th><th>timing</th><th>det</th><th>source run</th></tr></thead><tbody>${rows}</tbody></table></div>` +
       `<p class="bc-note"><a href="/bench/">← full board</a> — this view is read-only and does not touch your saved lane filter.</p>` +
       `</div>`;

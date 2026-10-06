@@ -379,7 +379,6 @@ durable record). Full narrative of each: `git log --follow -- .issues/<file>`.
   hollow — 5 lanes plotted, 7 honestly not); **(4)** lane `kind` classification
   (modelless-in-process / trained-head / encoder / http-oracle / python-subprocess /
   compiled-program) with a both-ways completeness test; **(5)** the audit layer:
-  **(5)** the audit layer:
   `meta.edition` 2026-10 forced by the append-only EDITIONS ledger digest pin (an
   AREA_CHANCE / area-membership / lane-set edit refuses every publish AND every
   --rederive until the edition bumps + a changes.json row lands — the round-2 verdict
@@ -394,6 +393,31 @@ durable record). Full narrative of each: `git log --follow -- .issues/<file>`.
   filed as riir-reflex `.issues/060`; task 11 og.png stays optional. The work rode
   a gitignored `.wt-jev` worktree (branch `jev-decision-index`) against the
   concurrent bench-chart session on main.
+  CLOSE-OUT 2026-10-06 — the plan file is REMOVED per the noise rule with
+  everything decided: **task 6's site half landed** — `compute_abstention`
+  in `publish_bench.py` (per-lane abstain-cause rollups over the primary
+  host's own cells across ALL suites, dataset + decision-set; counts are
+  the harness's own stamps, never rate-derived; a lane with no stamps is
+  ABSENT, never a zero — its abstains predate the field or its lane cannot
+  abstain; checkpoint-keyed laya dicts, host mirrors and derived fallback
+  cells are excluded, so nothing double-counts; unknown cause names sum,
+  never drop) + the profile view's abstention line (`?lane=modelless`:
+  6,463 abstains — distance_gate 58.4% / score_gate 41.6%, stamps on 3/12
+  measured cells, the decision-set suites where the calibrated gate
+  actually abstains; the marginal cause is DistanceGate, matching the
+  reflex-side finding) + two data-derived page-smoke arms (shares render;
+  unstamped lanes render "none recorded"). Gates: publish self-test 92/92,
+  page/chart/home smokes + pairing gate green, bench.json rederived with
+  cells byte-identical. The harness half was reflex `a7475c7` (issue 060,
+  closed there). Follow-up states: the Laya JDI citation landed `39da3de`
+  (Decision Index 0.2.1 in the bench References); task 9's repeat count
+  was delivered harness-side at reflex `95c2dac` (`determinism_n`) — the
+  site render rides the next plan touching the det column; task 11 og.png
+  stays optional, not landed; the community contribution path stays
+  not-planned (owner-gated); the hybrid lane's latency verdicts stay a
+  reflex-side stamped re-measure (data-validated: zero box_state records
+  exist for the hybrid lane — backfill resolves 0 over both benchmark
+  roots).
 
 - **2026-10-01 (later) — the Rethink size row CORRECTED: 1.74 GB → 885 MB
   (owner's size audit: "did Rethink really need that huge encoder?").** The

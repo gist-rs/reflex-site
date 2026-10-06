@@ -899,6 +899,29 @@ const server = http.createServer((req, res) => {
     else if (!prof.head.includes("@4090-win")) fail("profile: host tag missing");
     else if (prof.neg !== Object.values(clmLane.per_suite).filter((e) => e.cc < 0).length) fail(`profile: below-chance marks ${prof.neg}`);
     else console.log(`ok: ?lane= profile view (clm@4090-win, ${prof.rows} suite rows, ${prof.neg} below-chance)`);
+
+    // 5b) the abstention-cause line (plan-001 task 6): the stamped lane
+    // renders its shares data-derived; an unstamped lane renders the
+    // absence wording (never a zero).
+    const abData = bench2.abstention && bench2.abstention.lanes
+      ? bench2.abstention.lanes["modelless"] : null;
+    if (!abData) fail("bench.json carries no abstention block for modelless");
+    else {
+      await page.goto(`${BASE}/bench/?lane=modelless`, { waitUntil: "networkidle" });
+      await page.waitForFunction(() => document.querySelector("#lane-profile .lane-profile"), null, { timeout: 10000 });
+      const abProf = await page.$eval("#lane-profile", (el) => el.textContent);
+      const share = Object.entries(abData.causes).sort((a, b) => b[1] - a[1])[0];
+      const wantPct = (abData.shares[share[0]] * 100).toFixed(1) + "%";
+      if (!abProf.includes(`abstains ${abData.total}`)) fail(`abstention line: total ${abData.total} missing`);
+      else if (!abProf.includes(share[0]) || !abProf.includes(wantPct)) fail(`abstention line: top cause ${share[0]} ${wantPct} missing`);
+      else if (!abProf.includes(`${abData.suites_with_stamps}/${abData.suites_covered}`)) fail("abstention line: stamp coverage missing");
+      else console.log(`ok: abstention line (modelless, ${abData.total} abstains, ${share[0]} ${wantPct}, ${abData.suites_with_stamps}/${abData.suites_covered} stamped)`);
+      await page.goto(`${BASE}/bench/?lane=laya`, { waitUntil: "networkidle" });
+      await page.waitForFunction(() => document.querySelector("#lane-profile .lane-profile"), null, { timeout: 10000 });
+      const layaProf = await page.$eval("#lane-profile", (el) => el.textContent);
+      if (!layaProf.includes("none recorded")) fail("abstention absence: unstamped lane must render 'none recorded', never a zero");
+      else console.log("ok: abstention absence wording (laya renders none-recorded)");
+    }
     // back to the main page posture for the screenshot
     await page.goto(`${BASE}/bench/`, { waitUntil: "networkidle" });
     await page.waitForFunction(() => document.querySelectorAll("#tables table.bench").length >= 10, { timeout: 15000 });

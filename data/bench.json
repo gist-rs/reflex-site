@@ -17510,6 +17510,26 @@
   ],
   "disclosure": "forced-pick accuracy on our own 50/50 corpus/test split of the benchmark (every lane reads the same halves) \u2014 NOT comparable to the benchmark's own leaderboard, whose skill score is a different scale we do not publish. avg is the unweighted mean over the three suite accuracies. A missing cell is a disclosed gap, never a zero."
  },
+ "abstention": {
+  "version": 1,
+  "edition": "2026-10-2",
+  "lanes": {
+   "modelless": {
+    "causes": {
+     "distance_gate": 3777,
+     "score_gate": 2686
+    },
+    "total": 6463,
+    "shares": {
+     "distance_gate": 0.5844,
+     "score_gate": 0.4156
+    },
+    "suites_with_stamps": 3,
+    "suites_covered": 12
+   }
+  },
+  "scope": "per-lane abstain-cause rollups over the primary host's own cells, all suites (dataset + decision-set); counts are the harness's own abstain-cause stamps, never derived from rates; the harness stamps causes on the modelless lane's results (reflex a7475c7), so other lanes are absent here \u2014 never zeros"
+ },
  "crosswalk": {
   "caveat": "JDI-comparable crosswalk, NOT a JDI board row \u2014 different corpus, protocol caps, hardware; board membership requires their full frozen suite.",
   "suites": [
