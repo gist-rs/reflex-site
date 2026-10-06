@@ -31,15 +31,14 @@ output, screenshots or notes to the root — use the gitignored `scripts/out/`.
 
 ## Before a deploy
 
-Run the self-tests, the smokes and the parity check, commit + push, then
-`npx wrangler deploy` (manual; the custom domain is dashboard-attached —
-`wrangler.toml` has the why). Verify the live pages afterwards.
+Self-tests + smokes + parity check, commit + push, then `npx wrangler deploy`
+(manual; the custom domain is dashboard-attached — `wrangler.toml` has the why).
+Verify the live pages afterwards.
 
-The flow-figure gates (riir-ai Plan 620): `python3 scripts/render_flows.py
---check` (every figure fresh + embedded) and `python3 scripts/sync_mirror.py
---check` (every mirror pair byte-identical) are part of the pre-deploy list;
-the family-wide `node ../riir-ai/scripts/web_family_gate.mjs` S4 arm pins the
-un-migrated flow figures by name (a new flow lands as a `gfflow` block).
+Flow-figure gates (riir-ai Plan 620): `python3 scripts/render_flows.py --check`
++ `python3 scripts/sync_mirror.py --check` are on the pre-deploy list; the
+family-wide `node ../riir-ai/scripts/web_family_gate.mjs` S4 arm pins un-migrated
+flow figures by name (a new flow lands as a `gfflow` block).
 
 ## Branch
 
