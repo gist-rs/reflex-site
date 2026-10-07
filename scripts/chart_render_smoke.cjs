@@ -134,8 +134,8 @@ if (!byLane["Instinct"] || !byLane["Rethink"]) {
   console.error(`FAIL[p50-family]: Instinct/Rethink missing from the p50 summary — got ${JSON.stringify(byLane)}`);
   process.exit(1);
 }
-if (byLane["Instinct"].n !== 9 || byLane["Rethink"].n !== 8) {
-  console.error(`FAIL[p50-family]: served coverage moved (Instinct ${byLane["Instinct"].n}/9, Rethink ${byLane["Rethink"].n}/8) — re-pin`);
+if (byLane["Instinct"].n !== 9 || byLane["Rethink"].n !== 9) {
+  console.error(`FAIL[p50-family]: served coverage moved (Instinct ${byLane["Instinct"].n}/9, Rethink ${byLane["Rethink"].n}/9) — re-pin`);
   process.exit(1);
 }
 // Rethink's row is mostly the base lane answering: the ↩ tag must say so.
@@ -188,7 +188,7 @@ if (!p50Html.includes("Unfit timing")) {
   console.error("FAIL[p50-family]: the note must disclose the unfit-exclusion rule");
   process.exit(1);
 }
-console.log(`[p50-family] Instinct ${byLane["Instinct"].val} over 9 · Rethink ${byLane["Rethink"].val} over 8 (↩5 served) · bekko 400M plots (quotable 9/9, reflex bench 115) · unjudged lanes plot marked · ${covTagged} coverage tags`);
+console.log(`[p50-family] Instinct ${byLane["Instinct"].val} over 9 · Rethink ${byLane["Rethink"].val} over 9 (↩5 served) · bekko 400M plots (quotable 9/9, reflex bench 115) · unjudged lanes plot marked · ${covTagged} coverage tags`);
 
 // Switch the metric via the captured click handler (accuracy: log=false path).
 const toggle = captured[".bc-toggle"];

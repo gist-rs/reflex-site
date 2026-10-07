@@ -93,8 +93,8 @@
       "date_utc": "2026-09-28T16:27:36Z"
      },
      "encoder": {
-      "git_sha": "c2c5dc3",
-      "date_utc": "2026-10-01T14:59:02Z"
+      "git_sha": "e493c56",
+      "date_utc": "2026-10-07T01:37:41Z"
      },
      "bekko": {
       "git_sha": "e8328de",
@@ -2386,20 +2386,20 @@
     "consult_rate": 1.0,
     "latency_scope": "arm-only",
     "latency_rows": "questions",
-    "latency_p50_ms": 364.486,
-    "latency_p99_ms": 782.684,
+    "latency_p50_ms": 47.335,
+    "latency_p99_ms": 74.193,
     "serves": "\u2717 (encoder class refused at serve \u2014 the incumbent arm serves; instinct issue 014 C1, seating per issue 017)",
-    "gate": "acc 0.7550 (1510/2000 question rows) \u00b7 paired vs the incumbent A1: mean +0.1250 \u00b7 LB95 +0.1032 \u00b7 per-row p50 364.486 ms (metal device, laya-typed). Serve REFUSED (014 class-wide latency class); record-only cell, seated per the owner call 2026-10-01 (instinct issue 017). Train-side (riir-train t608 / Bench 040): NLEH v2 per-option head over the typed-checkpoint TRAIN cache (4000 gold-only rows, widths 2/4/5), holdout 0.7975 vs the reference 0.7762 (EARN); artifact blake3 c2e9f346\u2026; trainer-side frozen read 0.7550 (1510/2000) \u2014 this arena read is the third-posture cell-identity witness.",
+    "gate": "acc 0.7550 (1510/2000 question rows) \u00b7 paired vs the incumbent arm (H2(\u03b2=0.5,nmin=2,\u03c4=2)): mean +0.1075 \u00b7 LB95 +0.0862 \u00b7 per-row p50 47.335 ms (metal device, laya-typed). Serve REFUSED (014 class-wide latency class); record-only cell, seated per the owner call 2026-10-01 (instinct issue 017).",
     "device": "metal",
     "head_kind": "v2 per-option",
     "ckpt": "typed",
     "shape_desc": "d 1024 \u00b7 hidden 128 \u00b7 widths 2/4/5",
     "record_only": true,
     "cases_digest": "fnv1a64-6e37760ee2a5b6c9",
-    "latency_quotable": false,
+    "latency_quotable": true,
     "source_run": {
-     "git_sha": "c2c5dc3",
-     "date_utc": "2026-10-01T14:59:02Z"
+     "git_sha": "e493c56",
+     "date_utc": "2026-10-07T01:37:41Z"
     }
    },
    "bekko": {
@@ -17282,9 +17282,9 @@
     "clock": "in-process",
     "method": "Rust in-process GPU encode+head forward (Metal on the m3 hosts; the cell's `device` field names it)",
     "suites": 9,
-    "p50_geomean_ms": 16.7464,
-    "n_used": 2,
-    "n_unquotable": 1,
+    "p50_geomean_ms": 23.6778,
+    "n_used": 3,
+    "n_unquotable": 0,
     "n_unjudged": 6,
     "note": "population = the suites behind the lane's index; p50 geometric mean over latency_quotable cells only (unfit timing is shown in the tables, never plotted); 5 fallback spoke(s) carry the answering tier's timing, unjudged here \u2014 shown in the suite tables, never plotted"
    },
