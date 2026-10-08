@@ -1951,6 +1951,17 @@ def merge(primary, extras):
                 updated_lanes["clef"] = True
             elif ecl:
                 skipped_variant_lanes.append(f"clef@{ehost}")
+            # The pplx comparison lane (reflex 082): the same carry law —
+            # Perplexity's decision model measured per-host at the local
+            # MLX 4-bit posture; their bf16 hosted posture is a different
+            # row, never pooled (the model field names the posture).
+            epx = s.get("pplx")
+            if epx and not device_variant:
+                stamp_cell(epx, s, emeta)
+                entry["pplx"] = epx
+                updated_lanes["pplx"] = True
+            elif epx:
+                skipped_variant_lanes.append(f"pplx@{ehost}")
             # The Issue-024 leak block (T4): a slice property of the
             # DATASETS + registry caps, not of the host — the latest
             # run's scan is the published one (a doc without it never
@@ -2569,7 +2580,8 @@ def _carry_into(lane, incumbent):
 # the inventory expands it per checkpoint key, because a publish that drops
 # one checkpoint drops published cells even though the class survives.
 LANE_CLASSES = ("modelless", "laya", "clm", "gliner", "bekko", "agentjev",
-                "hybrid", "encoder", "paw", "paw_local", "openthai", "clef")
+                "hybrid", "encoder", "paw", "paw_local", "openthai", "clef",
+                "pplx")
 
 
 def lane_inventory(d):

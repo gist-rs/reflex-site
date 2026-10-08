@@ -107,6 +107,10 @@
      "clef": {
       "git_sha": "fec0d7c",
       "date_utc": "2026-10-03T22:33:58Z"
+     },
+     "pplx": {
+      "git_sha": "0413dcd",
+      "date_utc": "2026-10-08T21:33:44Z"
      }
     },
     "head_posture": "OFF (head_scale 0 \u2014 the published baseline posture)"
@@ -180,7 +184,7 @@
    }
   ],
   "head_posture": "OFF (head_scale 0 \u2014 the published baseline posture)",
-  "edition": "2026-10-2"
+  "edition": "2026-10-9"
  },
  "suites": [
   {
@@ -2632,6 +2636,97 @@
      "git_sha": "91dd0cb",
      "date_utc": "2026-10-03T20:18:10Z"
     }
+   },
+   "pplx": {
+    "lane": "pplx (local)",
+    "model": "autojev-qwen3.8-27b@pplx-decider-v1.1-27b-4bit",
+    "hard": {
+     "n": 2000,
+     "accuracy": 0.735,
+     "macro_f1": 0.7219508452915961,
+     "ece": 0.07999853553377613,
+     "brier": 0.3730202811735602,
+     "nll": 0.6533279436680843,
+     "aurc": 0.12563936761624653,
+     "mean_confidence": 0.8109832233224313,
+     "acc_at_50_coverage": 0.88,
+     "acc_at_80_coverage": 0.794375
+    },
+    "readout_ece": 0.06699284937669191,
+    "readout_brier": 0.1726679498349063,
+    "raw_abstain": null,
+    "calibrated_abstain": null,
+    "abstain_causes": null,
+    "readout_ece_raw": null,
+    "readout_ece_calibrated": null,
+    "floor_ece": null,
+    "g1_pass": null,
+    "g1_verdict": null,
+    "by_question_type": {
+     "choice": {
+      "n": 600,
+      "accuracy": 0.68,
+      "macro_f1": 0.6714846501772543,
+      "ece": 0.09919407403004055,
+      "brier": 0.4247064127825122,
+      "nll": 0.7303590904814541,
+      "aurc": 0.14561867897705566,
+      "mean_confidence": 0.7751998195064207,
+      "acc_at_50_coverage": 0.8566666666666667,
+      "acc_at_80_coverage": 0.7520833333333333
+     },
+     "noul": {
+      "n": 600,
+      "accuracy": 0.84,
+      "macro_f1": 0.8398861412560042,
+      "ece": 0.07004587443062507,
+      "brier": 0.2465721595982678,
+      "nll": 0.4439093407281271,
+      "aurc": 0.06347971560925621,
+      "mean_confidence": 0.9067888301944846,
+      "acc_at_50_coverage": 0.9433333333333334,
+      "acc_at_80_coverage": 0.8895833333333333
+     },
+     "score": {
+      "n": 800,
+      "accuracy": 0.6975,
+      "macro_f1": 0.6841403664572553,
+      "ece": 0.0756673390543597,
+      "brier": 0.42909177364831186,
+      "nll": 0.7526185357630252,
+      "aurc": 0.1938021997111977,
+      "mean_confidence": 0.7659665710304011,
+      "acc_at_50_coverage": 0.8125,
+      "acc_at_80_coverage": 0.7390625
+     }
+    },
+    "soft_acc": 0.5631760183336487,
+    "brier_soft": 0.16464016855256186,
+    "score_mae": 0.3280957041724921,
+    "within_1": 0.965,
+    "determinism_ok": true,
+    "determinism_n": 10,
+    "n_cases": 400,
+    "n_questions": 2000,
+    "score_threshold": null,
+    "distance_threshold": null,
+    "threshold_recommendation": null,
+    "corpus_cap": null,
+    "head_selection": null,
+    "nb_selection": null,
+    "oc_selection": null,
+    "ridge_selection": null,
+    "genome_selection": null,
+    "transductive": null,
+    "confusion": null,
+    "pair_head_ab": null,
+    "jdi_chance": 0.2925,
+    "jdi_skill": 0.6254416961130742,
+    "cases_digest": "fnv1a64-6e37760ee2a5b6c9",
+    "source_run": {
+     "git_sha": "0413dcd",
+     "date_utc": "2026-10-08T21:33:44Z"
+    }
    }
   },
   {
@@ -4106,6 +4201,60 @@
     "source_run": {
      "git_sha": "fec0d7c",
      "date_utc": "2026-10-03T22:29:34Z"
+    }
+   },
+   "pplx": {
+    "lane": "pplx (local)",
+    "model": "autojev-qwen3.8-27b@pplx-decider-v1.1-27b-4bit",
+    "hard": {
+     "n": 400,
+     "accuracy": 0.89,
+     "macro_f1": 0.8807080810359893,
+     "ece": 0.05604267134801089,
+     "brier": 0.16837005809027647,
+     "nll": 0.35469409878055763,
+     "aurc": 0.03328516636848431,
+     "mean_confidence": 0.9277402427217694,
+     "acc_at_50_coverage": 0.965,
+     "acc_at_80_coverage": 0.946875
+    },
+    "readout_ece": 0.07183897108149026,
+    "readout_brier": 0.08100043333889548,
+    "raw_abstain": null,
+    "calibrated_abstain": null,
+    "abstain_causes": null,
+    "readout_ece_raw": null,
+    "readout_ece_calibrated": null,
+    "floor_ece": null,
+    "g1_pass": null,
+    "g1_verdict": null,
+    "by_question_type": null,
+    "soft_acc": null,
+    "brier_soft": null,
+    "score_mae": null,
+    "within_1": null,
+    "determinism_ok": true,
+    "determinism_n": 10,
+    "n_cases": 400,
+    "n_questions": 400,
+    "score_threshold": null,
+    "distance_threshold": null,
+    "threshold_recommendation": null,
+    "corpus_cap": null,
+    "head_selection": null,
+    "nb_selection": null,
+    "oc_selection": null,
+    "ridge_selection": null,
+    "genome_selection": null,
+    "transductive": null,
+    "confusion": null,
+    "pair_head_ab": null,
+    "jdi_chance": 0.3075,
+    "jdi_skill": 0.8411552346570398,
+    "cases_digest": "fnv1a64-07eff23c06505584",
+    "source_run": {
+     "git_sha": "0413dcd",
+     "date_utc": "2026-10-08T21:33:44Z"
     }
    }
   },
@@ -5586,6 +5735,60 @@
      "git_sha": "fec0d7c",
      "date_utc": "2026-10-03T22:26:05Z"
     }
+   },
+   "pplx": {
+    "lane": "pplx (local)",
+    "model": "autojev-qwen3.8-27b@pplx-decider-v1.1-27b-4bit",
+    "hard": {
+     "n": 400,
+     "accuracy": 0.64,
+     "macro_f1": 0.5364780003205954,
+     "ece": 0.07491385941093745,
+     "brier": 0.5005753878430622,
+     "nll": 1.0192086304308254,
+     "aurc": 0.1886208212578937,
+     "mean_confidence": 0.7115529372890493,
+     "acc_at_50_coverage": 0.805,
+     "acc_at_80_coverage": 0.696875
+    },
+    "readout_ece": 0.08786401394714044,
+    "readout_brier": 0.19824695821849192,
+    "raw_abstain": null,
+    "calibrated_abstain": null,
+    "abstain_causes": null,
+    "readout_ece_raw": null,
+    "readout_ece_calibrated": null,
+    "floor_ece": null,
+    "g1_pass": null,
+    "g1_verdict": null,
+    "by_question_type": null,
+    "soft_acc": null,
+    "brier_soft": null,
+    "score_mae": null,
+    "within_1": null,
+    "determinism_ok": true,
+    "determinism_n": 10,
+    "n_cases": 400,
+    "n_questions": 400,
+    "score_threshold": null,
+    "distance_threshold": null,
+    "threshold_recommendation": null,
+    "corpus_cap": null,
+    "head_selection": null,
+    "nb_selection": null,
+    "oc_selection": null,
+    "ridge_selection": null,
+    "genome_selection": null,
+    "transductive": null,
+    "confusion": null,
+    "pair_head_ab": null,
+    "jdi_chance": 0.2975,
+    "jdi_skill": 0.48754448398576516,
+    "cases_digest": "fnv1a64-6feefd1c947dd008",
+    "source_run": {
+     "git_sha": "0413dcd",
+     "date_utc": "2026-10-08T21:33:44Z"
+    }
    }
   },
   {
@@ -7060,6 +7263,60 @@
      "git_sha": "fec0d7c",
      "date_utc": "2026-10-03T22:33:58Z"
     }
+   },
+   "pplx": {
+    "lane": "pplx (local)",
+    "model": "autojev-qwen3.8-27b@pplx-decider-v1.1-27b-4bit",
+    "hard": {
+     "n": 600,
+     "accuracy": 0.57,
+     "macro_f1": 0.5137560655946953,
+     "ece": 0.05736454698077388,
+     "brier": 0.5377834597652177,
+     "nll": 0.9124600823718955,
+     "aurc": 0.33888394116185194,
+     "mean_confidence": 0.6220284529784216,
+     "acc_at_50_coverage": 0.65,
+     "acc_at_80_coverage": 0.6125
+    },
+    "readout_ece": 0.08035967002983975,
+    "readout_brier": 0.23991928155349418,
+    "raw_abstain": null,
+    "calibrated_abstain": null,
+    "abstain_causes": null,
+    "readout_ece_raw": null,
+    "readout_ece_calibrated": null,
+    "floor_ece": null,
+    "g1_pass": null,
+    "g1_verdict": null,
+    "by_question_type": null,
+    "soft_acc": null,
+    "brier_soft": null,
+    "score_mae": null,
+    "within_1": null,
+    "determinism_ok": true,
+    "determinism_n": 10,
+    "n_cases": 600,
+    "n_questions": 600,
+    "score_threshold": null,
+    "distance_threshold": null,
+    "threshold_recommendation": null,
+    "corpus_cap": null,
+    "head_selection": null,
+    "nb_selection": null,
+    "oc_selection": null,
+    "ridge_selection": null,
+    "genome_selection": null,
+    "transductive": null,
+    "confusion": null,
+    "pair_head_ab": null,
+    "jdi_chance": 0.2733333333333333,
+    "jdi_skill": 0.4082568807339449,
+    "cases_digest": "fnv1a64-ad64a6cb0039e916",
+    "source_run": {
+     "git_sha": "0413dcd",
+     "date_utc": "2026-10-08T21:33:44Z"
+    }
    }
   },
   {
@@ -8525,6 +8782,60 @@
     "source_run": {
      "git_sha": "fec0d7c",
      "date_utc": "2026-10-03T22:14:49Z"
+    }
+   },
+   "pplx": {
+    "lane": "pplx (local)",
+    "model": "autojev-qwen3.8-27b@pplx-decider-v1.1-27b-4bit",
+    "hard": {
+     "n": 116,
+     "accuracy": 0.9224137931034483,
+     "macro_f1": 0.9222693768148313,
+     "ece": 0.05892976281315476,
+     "brier": 0.12575097420856407,
+     "nll": 0.2872869806599655,
+     "aurc": 0.02121076376069987,
+     "mean_confidence": 0.9602459462785918,
+     "acc_at_50_coverage": 1.0,
+     "acc_at_80_coverage": 0.9565217391304348
+    },
+    "readout_ece": 0.05892976281315476,
+    "readout_brier": 0.06287548710428202,
+    "raw_abstain": null,
+    "calibrated_abstain": null,
+    "abstain_causes": null,
+    "readout_ece_raw": null,
+    "readout_ece_calibrated": null,
+    "floor_ece": null,
+    "g1_pass": null,
+    "g1_verdict": null,
+    "by_question_type": null,
+    "soft_acc": null,
+    "brier_soft": null,
+    "score_mae": null,
+    "within_1": null,
+    "determinism_ok": true,
+    "determinism_n": 10,
+    "n_cases": 116,
+    "n_questions": 116,
+    "score_threshold": null,
+    "distance_threshold": null,
+    "threshold_recommendation": null,
+    "corpus_cap": null,
+    "head_selection": null,
+    "nb_selection": null,
+    "oc_selection": null,
+    "ridge_selection": null,
+    "genome_selection": null,
+    "transductive": null,
+    "confusion": null,
+    "pair_head_ab": null,
+    "jdi_chance": 0.5172413793103449,
+    "jdi_skill": 0.8392857142857143,
+    "cases_digest": "fnv1a64-5080803ec29f2423",
+    "source_run": {
+     "git_sha": "0413dcd",
+     "date_utc": "2026-10-08T21:33:44Z"
     }
    }
   },
@@ -10041,6 +10352,60 @@
      "git_sha": "fec0d7c",
      "date_utc": "2026-10-03T22:17:04Z"
     }
+   },
+   "pplx": {
+    "lane": "pplx (local)",
+    "model": "autojev-qwen3.8-27b@pplx-decider-v1.1-27b-4bit",
+    "hard": {
+     "n": 300,
+     "accuracy": 0.9566666666666667,
+     "macro_f1": 0.9568105065666042,
+     "ece": 0.0412692383139186,
+     "brier": 0.08378799680663888,
+     "nll": 0.16575445091689936,
+     "aurc": 0.007702602669968632,
+     "mean_confidence": 0.9153974283527483,
+     "acc_at_50_coverage": 1.0,
+     "acc_at_80_coverage": 0.9791666666666666
+    },
+    "readout_ece": 0.08548499591989234,
+    "readout_brier": 0.05759809975306793,
+    "raw_abstain": null,
+    "calibrated_abstain": null,
+    "abstain_causes": null,
+    "readout_ece_raw": null,
+    "readout_ece_calibrated": null,
+    "floor_ece": null,
+    "g1_pass": null,
+    "g1_verdict": null,
+    "by_question_type": null,
+    "soft_acc": null,
+    "brier_soft": null,
+    "score_mae": null,
+    "within_1": null,
+    "determinism_ok": true,
+    "determinism_n": 10,
+    "n_cases": 300,
+    "n_questions": 300,
+    "score_threshold": null,
+    "distance_threshold": null,
+    "threshold_recommendation": null,
+    "corpus_cap": null,
+    "head_selection": null,
+    "nb_selection": null,
+    "oc_selection": null,
+    "ridge_selection": null,
+    "genome_selection": null,
+    "transductive": null,
+    "confusion": null,
+    "pair_head_ab": null,
+    "jdi_chance": 0.3333333333333333,
+    "jdi_skill": 0.9349999999999998,
+    "cases_digest": "fnv1a64-b136750e5af1d412",
+    "source_run": {
+     "git_sha": "0413dcd",
+     "date_utc": "2026-10-08T21:33:44Z"
+    }
    }
   },
   {
@@ -11468,6 +11833,60 @@
     "source_run": {
      "git_sha": "fec0d7c",
      "date_utc": "2026-10-03T22:22:48Z"
+    }
+   },
+   "pplx": {
+    "lane": "pplx (local)",
+    "model": "autojev-qwen3.8-27b@pplx-decider-v1.1-27b-4bit",
+    "hard": {
+     "n": 300,
+     "accuracy": 0.93,
+     "macro_f1": 0.9268372783806814,
+     "ece": 0.03325216180977414,
+     "brier": 0.09811877597387934,
+     "nll": 0.20649707517769392,
+     "aurc": 0.005786967452330837,
+     "mean_confidence": 0.9509246800206347,
+     "acc_at_50_coverage": 1.0,
+     "acc_at_80_coverage": 0.9958333333333333
+    },
+    "readout_ece": 0.03130831007363033,
+    "readout_brier": 0.0411940360656454,
+    "raw_abstain": null,
+    "calibrated_abstain": null,
+    "abstain_causes": null,
+    "readout_ece_raw": null,
+    "readout_ece_calibrated": null,
+    "floor_ece": null,
+    "g1_pass": null,
+    "g1_verdict": null,
+    "by_question_type": null,
+    "soft_acc": null,
+    "brier_soft": null,
+    "score_mae": null,
+    "within_1": null,
+    "determinism_ok": true,
+    "determinism_n": 10,
+    "n_cases": 300,
+    "n_questions": 300,
+    "score_threshold": null,
+    "distance_threshold": null,
+    "threshold_recommendation": null,
+    "corpus_cap": null,
+    "head_selection": null,
+    "nb_selection": null,
+    "oc_selection": null,
+    "ridge_selection": null,
+    "genome_selection": null,
+    "transductive": null,
+    "confusion": null,
+    "pair_head_ab": null,
+    "jdi_chance": 0.08666666666666667,
+    "jdi_skill": 0.9233576642335767,
+    "cases_digest": "fnv1a64-49390c8b80475849",
+    "source_run": {
+     "git_sha": "0413dcd",
+     "date_utc": "2026-10-08T21:33:44Z"
     }
    }
   },
@@ -12934,6 +13353,60 @@
      "git_sha": "91dd0cb",
      "date_utc": "2026-10-03T20:05:58Z"
     }
+   },
+   "pplx": {
+    "lane": "pplx (local)",
+    "model": "autojev-qwen3.8-27b@pplx-decider-v1.1-27b-4bit",
+    "hard": {
+     "n": 500,
+     "accuracy": 0.804,
+     "macro_f1": 0.7897567672968737,
+     "ece": 0.06527229835170956,
+     "brier": 0.30025348438374594,
+     "nll": 0.886750909518558,
+     "aurc": 0.06106060322176921,
+     "mean_confidence": 0.8559988388277652,
+     "acc_at_50_coverage": 0.952,
+     "acc_at_80_coverage": 0.89
+    },
+    "readout_ece": 0.058423230572243634,
+    "readout_brier": 0.11893338446597215,
+    "raw_abstain": null,
+    "calibrated_abstain": null,
+    "abstain_causes": null,
+    "readout_ece_raw": null,
+    "readout_ece_calibrated": null,
+    "floor_ece": null,
+    "g1_pass": null,
+    "g1_verdict": null,
+    "by_question_type": null,
+    "soft_acc": null,
+    "brier_soft": null,
+    "score_mae": null,
+    "within_1": null,
+    "determinism_ok": true,
+    "determinism_n": 10,
+    "n_cases": 500,
+    "n_questions": 500,
+    "score_threshold": null,
+    "distance_threshold": null,
+    "threshold_recommendation": null,
+    "corpus_cap": null,
+    "head_selection": null,
+    "nb_selection": null,
+    "oc_selection": null,
+    "ridge_selection": null,
+    "genome_selection": null,
+    "transductive": null,
+    "confusion": null,
+    "pair_head_ab": null,
+    "jdi_chance": 0.014,
+    "jdi_skill": 0.8012170385395538,
+    "cases_digest": "fnv1a64-dd8ab35333abb82a",
+    "source_run": {
+     "git_sha": "0413dcd",
+     "date_utc": "2026-10-08T21:33:44Z"
+    }
    }
   },
   {
@@ -13891,6 +14364,60 @@
     "source_run": {
      "git_sha": "fec0d7c",
      "date_utc": "2026-10-03T22:13:55Z"
+    }
+   },
+   "pplx": {
+    "lane": "pplx (local)",
+    "model": "autojev-qwen3.8-27b@pplx-decider-v1.1-27b-4bit",
+    "hard": {
+     "n": 32,
+     "accuracy": 0.6875,
+     "macro_f1": 0.42641700404858296,
+     "ece": 0.18628523393277474,
+     "brier": 0.4530985070675093,
+     "nll": 1.0265452777682427,
+     "aurc": 0.12168513269063953,
+     "mean_confidence": 0.7488754627372828,
+     "acc_at_50_coverage": 0.9375,
+     "acc_at_80_coverage": 0.8
+    },
+    "readout_ece": 0.18215251650293635,
+    "readout_brier": 0.16449772415874703,
+    "raw_abstain": null,
+    "calibrated_abstain": null,
+    "abstain_causes": null,
+    "readout_ece_raw": null,
+    "readout_ece_calibrated": null,
+    "floor_ece": null,
+    "g1_pass": null,
+    "g1_verdict": null,
+    "by_question_type": null,
+    "soft_acc": null,
+    "brier_soft": null,
+    "score_mae": null,
+    "within_1": null,
+    "determinism_ok": true,
+    "determinism_n": 10,
+    "n_cases": 16,
+    "n_questions": 32,
+    "score_threshold": null,
+    "distance_threshold": null,
+    "threshold_recommendation": null,
+    "corpus_cap": null,
+    "head_selection": null,
+    "nb_selection": null,
+    "oc_selection": null,
+    "ridge_selection": null,
+    "genome_selection": null,
+    "transductive": null,
+    "confusion": null,
+    "pair_head_ab": null,
+    "jdi_chance": 0.375,
+    "jdi_skill": 0.5,
+    "cases_digest": "fnv1a64-93583fda4fc64946",
+    "source_run": {
+     "git_sha": "0413dcd",
+     "date_utc": "2026-10-08T21:33:44Z"
     }
    }
   },
@@ -16981,7 +17508,7 @@
  ],
  "areas": {
   "version": 4,
-  "edition": "2026-10-2",
+  "edition": "2026-10-9",
   "chance_digest": "9b08e3970c7a38a566ddeba3f37ad8d7",
   "scale": "chance-corrected accuracy: cc = (acc - chance) / (1 - chance); 0 = random guessing, 1 = every question right; per-suite chance = the mean per-question random-pick probability of the harness's own option construction (a dataset fact, not a measurement); values below 0 are BELOW CHANCE and stay negative on purpose \u2014 a lane scoring under random guessing must read that way, and negatives pull area means and the index down by design",
   "suites": {
@@ -17650,6 +18177,61 @@
     },
     "complete": true
    },
+   "pplx": {
+    "display": "pplx (local)",
+    "color_key": "pplx",
+    "kind": "http-oracle",
+    "per_suite": {
+     "ag_news": {
+      "acc": 0.89,
+      "cc": 0.853333
+     },
+     "massive_intent_en": {
+      "acc": 0.93,
+      "cc": 0.926316
+     },
+     "banking77": {
+      "acc": 0.804,
+      "cc": 0.801421
+     },
+     "sst5": {
+      "acc": 0.57,
+      "cc": 0.4625
+     },
+     "emotion": {
+      "acc": 0.64,
+      "cc": 0.568
+     },
+     "xnli_en": {
+      "acc": 0.956667,
+      "cc": 0.935
+     },
+     "prompt_injections": {
+      "acc": 0.922414,
+      "cc": 0.844828
+     },
+     "typed_decisions": {
+      "acc": 0.735,
+      "cc": 0.611722
+     },
+     "code_fixtures": {
+      "acc": 0.6875,
+      "cc": 0.545455
+     }
+    },
+    "areas": {
+     "language": 0.860357,
+     "sentiment": 0.51525,
+     "reasoning": 0.889914,
+     "decisions": 0.578588
+    },
+    "index": 0.711027,
+    "coverage": {
+     "suites": 9,
+     "of": 9
+    },
+    "complete": true
+   },
    "clm@4090-win": {
     "display": "clm",
     "color_key": "clm",
@@ -17908,6 +18490,16 @@
     "n_unjudged": 0,
     "note": "population = the suites behind the lane's index; p50 geometric mean over latency_quotable cells only (unfit timing is shown in the tables, never plotted)"
    },
+   "pplx": {
+    "clock": "http",
+    "method": "HTTP round-trip to a local pplx-decider-v1.1-27b (the community MLX 4-bit quant of their 27B, readout bf16; fidelity vs their bf16: 33/33 argmax, mean KL 0.0014 \u2014 the port's own validation) served on the m3 behind the reference-wire adapter; their bf16 hosted posture is a different row, never pooled",
+    "suites": 9,
+    "p50_geomean_ms": null,
+    "n_used": 0,
+    "n_unquotable": 0,
+    "n_unjudged": 9,
+    "note": "population = the suites behind the lane's index; p50 geometric mean over latency_quotable cells only (unfit timing is shown in the tables, never plotted)"
+   },
    "clm@4090-win": {
     "clock": "http",
     "method": "HTTP round-trip to their served reference (vLLM pooling on the 4090 window)",
@@ -18062,7 +18654,7 @@
  },
  "abstention": {
   "version": 1,
-  "edition": "2026-10-2",
+  "edition": "2026-10-9",
   "lanes": {
    "modelless": {
     "causes": {
@@ -18098,6 +18690,18 @@
       "macro_f1": 0.674190133619508,
       "jdi_chance": 0.2925,
       "jdi_skill": 0.5696113074204947,
+      "serves": null,
+      "record_only": false
+     },
+     {
+      "lane": "pplx",
+      "display": "pplx (local)",
+      "model": "autojev-qwen3.8-27b@pplx-decider-v1.1-27b-4bit",
+      "n": 2000,
+      "accuracy": 0.735,
+      "macro_f1": 0.7219508452915961,
+      "jdi_chance": 0.2925,
+      "jdi_skill": 0.6254416961130742,
       "serves": null,
       "record_only": false
      },
@@ -18186,6 +18790,18 @@
       "record_only": false
      },
      {
+      "lane": "pplx",
+      "display": "pplx (local)",
+      "model": "autojev-qwen3.8-27b@pplx-decider-v1.1-27b-4bit",
+      "n": 400,
+      "accuracy": 0.89,
+      "macro_f1": 0.8807080810359893,
+      "jdi_chance": 0.3075,
+      "jdi_skill": 0.8411552346570398,
+      "serves": null,
+      "record_only": false
+     },
+     {
       "lane": "hybrid",
       "display": "Instinct",
       "model": "H2(\u03b2=0.25,nmin=2,\u03c4=2)",
@@ -18255,6 +18871,18 @@
       "macro_f1": 0.4914428254411061,
       "jdi_chance": 0.2975,
       "jdi_skill": 0.41992882562277584,
+      "serves": null,
+      "record_only": false
+     },
+     {
+      "lane": "pplx",
+      "display": "pplx (local)",
+      "model": "autojev-qwen3.8-27b@pplx-decider-v1.1-27b-4bit",
+      "n": 400,
+      "accuracy": 0.64,
+      "macro_f1": 0.5364780003205954,
+      "jdi_chance": 0.2975,
+      "jdi_skill": 0.48754448398576516,
       "serves": null,
       "record_only": false
      },
@@ -18332,6 +18960,18 @@
       "record_only": false
      },
      {
+      "lane": "pplx",
+      "display": "pplx (local)",
+      "model": "autojev-qwen3.8-27b@pplx-decider-v1.1-27b-4bit",
+      "n": 600,
+      "accuracy": 0.57,
+      "macro_f1": 0.5137560655946953,
+      "jdi_chance": 0.2733333333333333,
+      "jdi_skill": 0.4082568807339449,
+      "serves": null,
+      "record_only": false
+     },
+     {
       "lane": "hybrid",
       "display": "Instinct",
       "model": "A1",
@@ -18401,6 +19041,18 @@
       "macro_f1": 0.5166666666666666,
       "jdi_chance": 0.5172413793103449,
       "jdi_skill": 0.14285714285714268,
+      "serves": null,
+      "record_only": false
+     },
+     {
+      "lane": "pplx",
+      "display": "pplx (local)",
+      "model": "autojev-qwen3.8-27b@pplx-decider-v1.1-27b-4bit",
+      "n": 116,
+      "accuracy": 0.9224137931034483,
+      "macro_f1": 0.9222693768148313,
+      "jdi_chance": 0.5172413793103449,
+      "jdi_skill": 0.8392857142857143,
       "serves": null,
       "record_only": false
      },
@@ -18478,6 +19130,18 @@
       "record_only": false
      },
      {
+      "lane": "pplx",
+      "display": "pplx (local)",
+      "model": "autojev-qwen3.8-27b@pplx-decider-v1.1-27b-4bit",
+      "n": 300,
+      "accuracy": 0.9566666666666667,
+      "macro_f1": 0.9568105065666042,
+      "jdi_chance": 0.3333333333333333,
+      "jdi_skill": 0.9349999999999998,
+      "serves": null,
+      "record_only": false
+     },
+     {
       "lane": "hybrid",
       "display": "Instinct",
       "model": "A0",
@@ -18547,6 +19211,18 @@
       "macro_f1": 0.9284468303231186,
       "jdi_chance": 0.08666666666666667,
       "jdi_skill": 0.927007299270073,
+      "serves": null,
+      "record_only": false
+     },
+     {
+      "lane": "pplx",
+      "display": "pplx (local)",
+      "model": "autojev-qwen3.8-27b@pplx-decider-v1.1-27b-4bit",
+      "n": 300,
+      "accuracy": 0.93,
+      "macro_f1": 0.9268372783806814,
+      "jdi_chance": 0.08666666666666667,
+      "jdi_skill": 0.9233576642335767,
       "serves": null,
       "record_only": false
      },
@@ -18624,6 +19300,18 @@
       "record_only": false
      },
      {
+      "lane": "pplx",
+      "display": "pplx (local)",
+      "model": "autojev-qwen3.8-27b@pplx-decider-v1.1-27b-4bit",
+      "n": 500,
+      "accuracy": 0.804,
+      "macro_f1": 0.7897567672968737,
+      "jdi_chance": 0.014,
+      "jdi_skill": 0.8012170385395538,
+      "serves": null,
+      "record_only": false
+     },
+     {
       "lane": "hybrid",
       "display": "Instinct",
       "model": "H2(\u03b2=2,nmin=8,\u03c4=8)",
@@ -18693,6 +19381,18 @@
       "macro_f1": 0.33966165413533833,
       "jdi_chance": 0.375,
       "jdi_skill": 0.35,
+      "serves": null,
+      "record_only": false
+     },
+     {
+      "lane": "pplx",
+      "display": "pplx (local)",
+      "model": "autojev-qwen3.8-27b@pplx-decider-v1.1-27b-4bit",
+      "n": 32,
+      "accuracy": 0.6875,
+      "macro_f1": 0.42641700404858296,
+      "jdi_chance": 0.375,
+      "jdi_skill": 0.5,
       "serves": null,
       "record_only": false
      },
