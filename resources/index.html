@@ -1005,7 +1005,7 @@
       &quot;prompt&quot;: &quot;Does the stack look clean?&quot;
     }
   ]
-}</pre><p class="gf-walk-from">captured from the reflex 0.2.4 release binary, 2026-10-03 · POST /decide (answered request)</p></li>
+}</pre><p class="gf-walk-from">captured from the reflex 0.2.4 release binary, 2026-10-04 · POST /decide (answered request)</p></li>
 <li><p class="gf-walk-h"><b>2 · The fused gate</b></p><p>The free floor&#x27;s confidence check runs first. On this harder triage question it abstains — every outcome comes back null — and only that abstain moves up the ladder.</p><p class="gf-walk-io">IN · POST /decide · a harder question</p><pre class="gf-code">{
   &quot;state&quot;: &quot;The staging deploy of release candidate 4.2 finished but the error budget is down to 12 percent and two health endpoints are flapping after the rollout. Rollback is one command. Decide what happens next.&quot;,
   &quot;questions&quot;: [
@@ -1034,7 +1034,7 @@
       ]
     }
   ]
-}</pre><p class="gf-walk-from">captured from the reflex 0.2.4 release binary, 2026-10-03 · POST /decide (abstained request)</p><p class="gf-walk-io">OUT · not sure: every outcome is null</p><pre class="gf-code">{
+}</pre><p class="gf-walk-from">captured from the reflex 0.2.4 release binary, 2026-10-04 · POST /decide (abstained request)</p><p class="gf-walk-io">OUT · not sure: every outcome is null</p><pre class="gf-code">{
   &quot;answers&quot;: [
     {
       &quot;question_id&quot;: &quot;route&quot;,
@@ -1063,7 +1063,7 @@
     &quot;method&quot;: &quot;none&quot;,
     &quot;temperature&quot;: 1.0
   }
-}</pre><p class="gf-walk-from">captured from the reflex 0.2.4 release binary, 2026-10-03 · POST /decide (abstained response)</p></li>
+}</pre><p class="gf-walk-from">captured from the reflex 0.2.4 release binary, 2026-10-04 · POST /decide (abstained response)</p></li>
 <li><p class="gf-walk-h"><b>3a · Sure — nothing leaves</b></p><p>When the floor is sure, the answer returns in microseconds with a receipt — hashes of the input and the decision, not your data — and no rung above is paid.</p><p class="gf-walk-io">IN · POST /decide</p><pre class="gf-code">{
   &quot;state&quot;: &quot;The piece leaves no holes under it on the left edge, sits flat on the surface, and the stack stays low.&quot;,
   &quot;questions&quot;: [
@@ -1073,7 +1073,7 @@
       &quot;prompt&quot;: &quot;Does the stack look clean?&quot;
     }
   ]
-}</pre><p class="gf-walk-from">captured from the reflex 0.2.4 release binary, 2026-10-03 · POST /decide (answered request)</p><p class="gf-walk-io">OUT · sure: outcome yes</p><pre class="gf-code">{
+}</pre><p class="gf-walk-from">captured from the reflex 0.2.4 release binary, 2026-10-04 · POST /decide (answered request)</p><p class="gf-walk-io">OUT · sure: outcome yes</p><pre class="gf-code">{
   &quot;answers&quot;: [
     {
       &quot;question_id&quot;: &quot;clean&quot;,
@@ -1094,7 +1094,7 @@
     &quot;method&quot;: &quot;none&quot;,
     &quot;temperature&quot;: 1.0
   }
-}</pre><p class="gf-walk-from">captured from the reflex 0.2.4 release binary, 2026-10-03 · POST /decide (answered response)</p></li>
+}</pre><p class="gf-walk-from">captured from the reflex 0.2.4 release binary, 2026-10-04 · POST /decide (answered response)</p></li>
 <li><p class="gf-walk-h"><b>3b.1 · The bag rung scores the survivors</b></p><p>The abstained question goes to small per-domain scorers over hashed word-count features — CPU-class, cheap enough to run anywhere. A confident bag pick answers right here.</p></li>
 <li><p class="gf-walk-h"><b>3b.2 · Too coarse — the encoder thinks</b> <span class="gf-walk-illu">○ illustrative · planned</span></p><p>Where a bag view is too coarse, a trained encoder head reads the question as a whole and thinks — GPU-hosted, weights that never leave our servers. The hosted lane is planned; this is the public request it would carry, and its reply is published when the lane opens.</p><p class="gf-walk-io">IN · the abstained question, sent up</p><pre class="gf-code">{
   &quot;state&quot;: &quot;The staging deploy of release candidate 4.2 finished but the error budget is down to 12 percent and two health endpoints are flapping after the rollout. Rollback is one command. Decide what happens next.&quot;,
@@ -1124,7 +1124,7 @@
       ]
     }
   ]
-}</pre><p class="gf-walk-from">captured from the reflex 0.2.4 release binary, 2026-10-03 · POST /decide (abstained request)</p></li>
+}</pre><p class="gf-walk-from">captured from the reflex 0.2.4 release binary, 2026-10-04 · POST /decide (abstained request)</p></li>
 <li><p class="gf-walk-h"><b>4 · The hosted vessel</b></p><p>One locked file holds the head — hashed, signed, applied whole. Weights never leave hardware we control.</p></li>
 </ol>
 </details>
