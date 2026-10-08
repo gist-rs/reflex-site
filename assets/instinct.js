@@ -79,11 +79,11 @@ function cellsOf(s) {
   const push = (l, host) => { if (l && accOf(l) != null) out.push([l, host]); };
   if (s.modelless) push(s.modelless, null);
   for (const k of Object.keys(s.laya || {})) push(s.laya[k], null);
-  for (const k of ["clm", "gliner", "bekko", "agentjev", "openthai", "paw", "paw_local", "clef", "hybrid", "encoder"]) push(s[k], null);
+  for (const k of ["clm", "gliner", "bekko", "agentjev", "openthai", "paw", "paw_local", "clef", "pplx", "hybrid", "encoder"]) push(s[k], null);
   for (const [host, hl] of Object.entries(s.extra_host_lanes || {})) {
     if (hl.modelless) push(hl.modelless, host);
     for (const k of Object.keys(hl.laya || {})) push(hl.laya[k], host);
-    for (const k of ["clm", "gliner", "bekko", "agentjev", "openthai", "paw", "paw_local", "clef", "hybrid", "encoder"]) push(hl[k], host);
+    for (const k of ["clm", "gliner", "bekko", "agentjev", "openthai", "paw", "paw_local", "clef", "pplx", "hybrid", "encoder"]) push(hl[k], host);
   }
   return out;
 }

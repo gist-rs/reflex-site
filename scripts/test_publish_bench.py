@@ -2201,7 +2201,7 @@ def case_chance_digest_and_edition_pin():
     # changes the computed digest and reds this line before any publish
     # (2026-10's frozen literal was 0133fc49a0baec3b3293f51324b5416b; the
     # 2026-10-2 bump added the clef lane — plan 011 C3)
-    assert pb.edition_basis_digest() == "4672c8b939b600e7965a402b4f2a4b7c"
+    assert pb.edition_basis_digest() == "47f99630a2a1350d122d79167caa5ae9"
     # ledger shape: EDITION is the last key; digests pairwise distinct
     assert list(pb.EDITIONS)[-1] == pb.EDITION
     assert len(set(pb.EDITIONS.values())) == len(pb.EDITIONS)

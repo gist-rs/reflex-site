@@ -284,6 +284,13 @@ LANE_DISPLAY = {
     # the paw pair. The hosted 27B cell (the C4 deciding read) stays
     # owner-gated on Workers AI creds.
     "clef": "clef (local)",
+    # reflex Issue 082: the Perplexity pplx-decider v1.1 lane --
+    # the JDI v3 board's #1 (62.75 blended). The cells on the
+    # board are the LOCAL posture (the community MLX 4-bit quant
+    # of their 27B served on the m3 behind the reference-wire
+    # adapter), so the display name carries the posture like the
+    # paw pair and clef.
+    "pplx": "pplx (local)",
 }
 
 # The hand-maintained DISCLOSURE table (2026-10-02, the full-coverage
@@ -458,6 +465,7 @@ def rename_lanes(d):
             + ([s["paw"]] if s.get("paw") else [])
             + ([s["paw_local"]] if s.get("paw_local") else [])
             + ([s["clef"]] if s.get("clef") else [])
+            + ([s["pplx"]] if s.get("pplx") else [])
             + ([s["openthai"]] if s.get("openthai") else [])
         )
         for l in lanes:
@@ -704,6 +712,7 @@ AREA_LANES = (
     ("paw", "paw (hosted)", "paw"),
     ("paw_local", "paw (local)", "paw"),
     ("clef", "clef (local)", "clef"),
+    ("pplx", "pplx (local)", "pplx"),
 )
 
 # ── Lane classification (plan 001 task 5; the Jev Index's entrant
@@ -731,6 +740,7 @@ LANE_KIND = {
     "paw": "compiled-program",
     "paw_local": "compiled-program",
     "clef": "http-oracle",
+    "pplx": "http-oracle",
 }
 
 # ── Per-lane timing-method disclosure (plan 001 task 4; their per-engine
@@ -813,6 +823,15 @@ LANE_TIMING = {
                    "loopback shim; the hosted 27B posture is owner-gated "
                    "— never pooled with these cells"),
     },
+    "pplx": {
+        "clock": "http",
+        "method": ("HTTP round-trip to a local pplx-decider-v1.1-27b "
+                   "(the community MLX 4-bit quant of their 27B, readout "
+                   "bf16; fidelity vs their bf16: 33/33 argmax, mean KL "
+                   "0.0014 — the port's own validation) served on the m3 "
+                   "behind the reference-wire adapter; their bf16 hosted "
+                   "posture is a different row, never pooled"),
+    },
 }
 
 # ── Edition (plan 001 task 7; their edition label + auditability) ─────
@@ -828,7 +847,7 @@ LANE_TIMING = {
 # the guard's refusal), point EDITION at it, freeze the outgoing table
 # (the publisher archives it automatically, on BOTH the publish and the
 # --rederive paths), and add a data/changes.json row.
-EDITION = "2026-10-2"
+EDITION = "2026-10-9"
 
 
 def _basis_payload():
@@ -859,6 +878,12 @@ EDITIONS = {
     # ask; latency acc-only until a quiet-box re-read, hosted 27B
     # owner-gated).
     "2026-10-2": "4672c8b939b600e7965a402b4f2a4b7c",
+    # 2026-10-9 (reflex 082 T3): the pplx comparison lane joins the lane
+    # set — Perplexity's pplx-decider-v1.1-27b, the JDI v3 board's #1
+    # (62.75 blended), measured on OUR suites at the local MLX 4-bit
+    # posture (the clef-lane posture class). Latency acc-only until a
+    # quiet-box re-read (the bench-131 law under sibling load).
+    "2026-10-9": "47f99630a2a1350d122d79167caa5ae9",
 }
 
 
@@ -1395,8 +1420,8 @@ def compute_s1mb(d):
 # The crosswalk's lane order (plan 011 C3): the comparison lanes carrying
 # OUR cells on OUR splits, clef first (the lane the crosswalk exists for).
 CROSSWALK_LANES = (
-    "clef", "hybrid", "encoder", "modelless", "openthai", "bekko",
-    "paw_local", "paw",
+    "clef", "pplx", "hybrid", "encoder", "modelless", "openthai",
+    "bekko", "paw_local", "paw",
 )
 
 

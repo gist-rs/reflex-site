@@ -1,52 +1,57 @@
 [
- {
-  "date": "2026-10-02",
-  "change": "The six harness_* decision-point suites removed from the board (owner call)",
-  "why": "Modelless reads at chance on them at the honest wide-eval populations (0.22–0.31 vs ~0.2–0.33 random-pick; the old small-n template-shared rows read 0.56–0.92 — the inflation the wide eval removed), and the suites are deleted from the reflex harness upstream — the board rows went with them (17 → 11 suites). The publisher drops the retired names at the load boundary of every path (fresh docs, updates, --rederive), so no older results doc can re-grow a row; the divergences line naming them is scrubbed too. The /families/ quarantined page + data/families.json — which existed only to show these six families per lane — were removed in the same call."
- },
- {
-  "date": "2026-10-02",
-  "change": "Family rows' served fallback fixed on the hero — Instinct/Rethink ↩ bars render where the Reflex matcher swallowed them",
-  "why": "laneOf()'s katgpt matcher (model === \"modelless\") classified the derived tier-fallback cells (the modelless tier's served answer riding the Instinct/Rethink lane) as Reflex cells, so the hero rendered \"Instinct — not run\" / \"Rethink — not run\" on the five harness families while the verdict card counted the same cells as family arms (2026-10-02 user report). The matcher now defers any cell whose lane names a product lane; the verdict card tags fallback arms ↩ (hover names the answering tier)."
- },
- {
-  "date": "2026-10-02",
-  "change": "Edition label + timing/kind disclosure + efficiency frontier + cc table column",
-  "why": "The Jev Decision Index distill: the scoring basis is pinned by digest under meta.edition 2026-10 (an AREA_CHANCE / area-membership / lane-set edit must bump the edition + add a row here); each lane discloses its entrant kind and its timing clock, and the frontier plots cc index vs p50 with the Pareto marks scoped to equal-coverage lanes. Below-chance cc stays negative everywhere (the ▾ / hollow-dot marks); the tables gain a cc column."
- },
- {
-  "date": "2026-10-01",
-  "change": "Corpus-reset ack hardened; typed timing refresh",
-  "why": "Timing close-out: the corpus-reset ack now fires on a carried-timing incumbent (8d33e3f), and the typed_decisions m3 timing cell re-pinned on a fit box — p50 0.517 → 0.782 ms on the 1200-row pool (2b699f0)."
- },
- {
-  "date": "2026-10-01",
-  "change": "Rethink board completed (11 encoder cells + disclosure state); family-arm law",
-  "why": "the vs-best card counts the best measured cell of Instinct + Rethink per suite, encoder rows colored violet + record-only tag; coverage literals became data-derived in both smokes (df4e558); the typed_decisions Rethink cell seated at ENC v2 0.7550, record-only serve ✗ (245bf34, 2e26f84)."
- },
- {
-  "date": "2026-09-30",
-  "change": "Chance-corrected areas rollup shipped; reflex Issue-058 board restore",
-  "why": "compute_areas emits per-suite chance-corrected cc (UNCLIPPED — below-chance cells stay negative), per-area means, per-lane index + coverage (f0185af, fixed 47f786d, documented cf23805); the full-pool basis + dated disclosure restored (d750175), with the corpus-reset ack follow-ups through 8d33e3f."
- },
- {
-  "date": "2026-10-04",
-  "change": "Clef-flash (9B) comparison lane joins the board (edition 2026-10-2: clef-flash (9B), local — community 4-bit quant, m3 loopback; banking77 + typed_decisions acc-only)",
-  "why": "the Clef-flash (9B)-vs-Rethink crosswalk starts with the local-posture cells published on the JDI axes (macro F1 + chance-corrected skill); latency stays acc-only until the quiet-box re-read, the hosted Clef (27B) cell is owner-gated"
- },
- {
-  "date": "2026-10-04",
-  "change": "The JDI crosswalk section ships on /bench/ (plan-011 C3): the side-by-side on the clef-flash (9B)-carrying suites, every measured row digest-pinned to one population",
-  "why": "the Rethink hybrid + encoder cells joined the pin (axes + cases_digest from the C2 gold join); the JDI board's own rows + Clef's blog table render as reference only under the B5 caveat, verbatim; mismatched or unpinnable lanes are excluded with the reason shown, never silently mixed"
- },
- {
-  "date": "2026-10-04",
-  "change": "clef-flash (9B)'s timing graduates to quotable (the quiet-box re-read): banking77 p50 3368 ms · typed 1690 ms — the acc-only posture retires; the p50 presence row retires with it",
-  "why": "both re-reads on a preflight-clean box (load 2.57→1.07 / 1.22→2.80, AC, High Power) with accuracy, ECE, macro-F1 and the population digests reproducing the lane's first reading exactly — the determinism witnesses; the loaded-box figures were 14-29% inflated exactly as the Issue-021 law predicts"
- },
- {
-  "date": "2026-10-04",
-  "change": "clef-flash (9B) completes its 9-suite index (the dataset-suite tail, local 4-bit rig): 7 new cells, all timing-quotable — p50 geomean 680 ms across the lane",
-  "why": "clef-flash (9B) leads sst5 (0.6033), massive_intent (0.9333) and banking77 (0.9540); bekko leads ag_news at 0.9150, openthai leads xnli_en at 0.8967, Instinct leads emotion and prompt_injections; code_fixtures is a three-way tie at 0.5938 — the crosswalk's verdict lines now say 'ties' where nobody leads, never a false leader"
- }
+  {
+    "date": "2026-10-02",
+    "change": "The six harness_* decision-point suites removed from the board (owner call)",
+    "why": "Modelless reads at chance on them at the honest wide-eval populations (0.22–0.31 vs ~0.2–0.33 random-pick; the old small-n template-shared rows read 0.56–0.92 — the inflation the wide eval removed), and the suites are deleted from the reflex harness upstream — the board rows went with them (17 → 11 suites). The publisher drops the retired names at the load boundary of every path (fresh docs, updates, --rederive), so no older results doc can re-grow a row; the divergences line naming them is scrubbed too. The /families/ quarantined page + data/families.json — which existed only to show these six families per lane — were removed in the same call."
+  },
+  {
+    "date": "2026-10-02",
+    "change": "Family rows' served fallback fixed on the hero — Instinct/Rethink ↩ bars render where the Reflex matcher swallowed them",
+    "why": "laneOf()'s katgpt matcher (model === \"modelless\") classified the derived tier-fallback cells (the modelless tier's served answer riding the Instinct/Rethink lane) as Reflex cells, so the hero rendered \"Instinct — not run\" / \"Rethink — not run\" on the five harness families while the verdict card counted the same cells as family arms (2026-10-02 user report). The matcher now defers any cell whose lane names a product lane; the verdict card tags fallback arms ↩ (hover names the answering tier)."
+  },
+  {
+    "date": "2026-10-02",
+    "change": "Edition label + timing/kind disclosure + efficiency frontier + cc table column",
+    "why": "The Jev Decision Index distill: the scoring basis is pinned by digest under meta.edition 2026-10 (an AREA_CHANCE / area-membership / lane-set edit must bump the edition + add a row here); each lane discloses its entrant kind and its timing clock, and the frontier plots cc index vs p50 with the Pareto marks scoped to equal-coverage lanes. Below-chance cc stays negative everywhere (the ▾ / hollow-dot marks); the tables gain a cc column."
+  },
+  {
+    "date": "2026-10-01",
+    "change": "Corpus-reset ack hardened; typed timing refresh",
+    "why": "Timing close-out: the corpus-reset ack now fires on a carried-timing incumbent (8d33e3f), and the typed_decisions m3 timing cell re-pinned on a fit box — p50 0.517 → 0.782 ms on the 1200-row pool (2b699f0)."
+  },
+  {
+    "date": "2026-10-01",
+    "change": "Rethink board completed (11 encoder cells + disclosure state); family-arm law",
+    "why": "the vs-best card counts the best measured cell of Instinct + Rethink per suite, encoder rows colored violet + record-only tag; coverage literals became data-derived in both smokes (df4e558); the typed_decisions Rethink cell seated at ENC v2 0.7550, record-only serve ✗ (245bf34, 2e26f84)."
+  },
+  {
+    "date": "2026-09-30",
+    "change": "Chance-corrected areas rollup shipped; reflex Issue-058 board restore",
+    "why": "compute_areas emits per-suite chance-corrected cc (UNCLIPPED — below-chance cells stay negative), per-area means, per-lane index + coverage (f0185af, fixed 47f786d, documented cf23805); the full-pool basis + dated disclosure restored (d750175), with the corpus-reset ack follow-ups through 8d33e3f."
+  },
+  {
+    "date": "2026-10-04",
+    "change": "Clef-flash (9B) comparison lane joins the board (edition 2026-10-2: clef-flash (9B), local — community 4-bit quant, m3 loopback; banking77 + typed_decisions acc-only)",
+    "why": "the Clef-flash (9B)-vs-Rethink crosswalk starts with the local-posture cells published on the JDI axes (macro F1 + chance-corrected skill); latency stays acc-only until the quiet-box re-read, the hosted Clef (27B) cell is owner-gated"
+  },
+  {
+    "date": "2026-10-04",
+    "change": "The JDI crosswalk section ships on /bench/ (plan-011 C3): the side-by-side on the clef-flash (9B)-carrying suites, every measured row digest-pinned to one population",
+    "why": "the Rethink hybrid + encoder cells joined the pin (axes + cases_digest from the C2 gold join); the JDI board's own rows + Clef's blog table render as reference only under the B5 caveat, verbatim; mismatched or unpinnable lanes are excluded with the reason shown, never silently mixed"
+  },
+  {
+    "date": "2026-10-04",
+    "change": "clef-flash (9B)'s timing graduates to quotable (the quiet-box re-read): banking77 p50 3368 ms · typed 1690 ms — the acc-only posture retires; the p50 presence row retires with it",
+    "why": "both re-reads on a preflight-clean box (load 2.57→1.07 / 1.22→2.80, AC, High Power) with accuracy, ECE, macro-F1 and the population digests reproducing the lane's first reading exactly — the determinism witnesses; the loaded-box figures were 14-29% inflated exactly as the Issue-021 law predicts"
+  },
+  {
+    "date": "2026-10-04",
+    "change": "clef-flash (9B) completes its 9-suite index (the dataset-suite tail, local 4-bit rig): 7 new cells, all timing-quotable — p50 geomean 680 ms across the lane",
+    "why": "clef-flash (9B) leads sst5 (0.6033), massive_intent (0.9333) and banking77 (0.9540); bekko leads ag_news at 0.9150, openthai leads xnli_en at 0.8967, Instinct leads emotion and prompt_injections; code_fixtures is a three-way tie at 0.5938 — the crosswalk's verdict lines now say 'ties' where nobody leads, never a false leader"
+  },
+  {
+    "date": "2026-10-09",
+    "change": "The pplx comparison lane ships (reflex 082): Perplexity's pplx-decider-v1.1-27b — the JDI v3 board's #1 (62.75 blended) — measured on our 9 comparison suites at the local MLX 4-bit posture (the clef-lane class) (edition 2026-10-9)",
+    "why": "the 623 distill-teacher read (clef-flash vs pplx v1.1) rides these cells; latency acc-only until a quiet-box re-read (the bench-131 law)"
+  }
 ]

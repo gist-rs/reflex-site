@@ -94,6 +94,14 @@
     // says neither — the label names the family AND its size off the cell's
     // model id (MODEL_FAMILIES below; 2026-10-04 owner ask).
     { key: "clef", label: "clef", color: "#a1887f", sizeFrom: "family", match: (l) => l.lane === "clef (local)" },
+    // The pplx comparison lane (reflex 082): Perplexity's decision
+    // model, the JDI v3 #1, measured at the local MLX 4-bit posture.
+    // Cyan slot — bluer than gliner's teal, greener than laya's blue
+    // (the bekko/clef relaxed-contrast disclosure: not ΔE-validated
+    // with the founding slots' rigor; the next palette pass
+    // re-checks all-pairs). sizeFrom "family": the label names the
+    // family AND size off the cell's model id (MODEL_FAMILIES).
+    { key: "pplx", label: "pplx", color: "#00acc1", sizeFrom: "family", match: (l) => l.lane === "pplx (local)" },
   ];
   const OTHER = { key: "other", label: "other", color: "#69718a" };
   const laneOf = (l) => LANES.find((x) => x.match(l)) || OTHER;
@@ -369,6 +377,7 @@
   // row keeps the bare lane label — never a guess. (riir-rethink's
   // build_why_data.py carries the same two rows for the storefront.)
   const MODEL_FAMILIES = [
+    { re: /(?:^|[^a-z0-9])pplx-decider/i, name: "pplx-decider", size: "27B" },
     { re: /(?:^|\/)clef-flash(?!\w)/i, name: "clef-flash", size: "9B" },
     { re: /(?:^|\/)clef(?!-flash)(?!\w)/i, name: "clef", size: "27B" },
   ];
