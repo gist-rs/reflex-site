@@ -20,9 +20,9 @@
       Rethink; where the encoder has no arm of its own, a lower rung's
       answer is what gets served — the ↩ badge) against the best OTHER
       published lane per suite — every comparison lane included (laya's
-      best non-multilingual checkpoint, clm, gliner, agentjev, openthai,
-      paw), any host (accuracy is box-independent, the same law the charts'
-      pick() uses). Same majority mark. The to-go arithmetic counts TIES
+      best non-multilingual checkpoint, clm, gliner, bekko, agentjev,
+      openthai, paw, clef), any host (accuracy is box-independent, the
+      same law the charts' pick() uses). Same majority mark. The to-go arithmetic counts TIES
       (GOAT = strictly best on every covered suite): "B to take · T level".
 
    Per-suite line: a loading bar — fill = the contributing arm (Instinct
@@ -79,11 +79,11 @@ function cellsOf(s) {
   const push = (l, host) => { if (l && accOf(l) != null) out.push([l, host]); };
   if (s.modelless) push(s.modelless, null);
   for (const k of Object.keys(s.laya || {})) push(s.laya[k], null);
-  for (const k of ["clm", "gliner", "agentjev", "openthai", "paw", "paw_local", "hybrid", "encoder"]) push(s[k], null);
+  for (const k of ["clm", "gliner", "bekko", "agentjev", "openthai", "paw", "paw_local", "clef", "hybrid", "encoder"]) push(s[k], null);
   for (const [host, hl] of Object.entries(s.extra_host_lanes || {})) {
     if (hl.modelless) push(hl.modelless, host);
     for (const k of Object.keys(hl.laya || {})) push(hl.laya[k], host);
-    for (const k of ["clm", "gliner", "agentjev", "openthai", "paw", "paw_local", "hybrid", "encoder"]) push(hl[k], host);
+    for (const k of ["clm", "gliner", "bekko", "agentjev", "openthai", "paw", "paw_local", "clef", "hybrid", "encoder"]) push(hl[k], host);
   }
   return out;
 }

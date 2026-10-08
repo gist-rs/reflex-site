@@ -747,10 +747,10 @@ const server = http.createServer((req, res) => {
     const isEncoder = (l) => l.lane === "Rethink" || l.lane === "Rethink (encoder)" || l.lane === "Instinct (encoder)";
     const isFamily = (l) => isHybrid(l) || isEncoder(l);
     const cells = (s) => {
-      const out = [s.modelless, ...Object.values(s.laya || {}), s.clm, s.gliner, s.agentjev, s.openthai, s.paw, s.paw_local, s.hybrid, s.encoder]
+      const out = [s.modelless, ...Object.values(s.laya || {}), s.clm, s.gliner, s.bekko, s.agentjev, s.openthai, s.paw, s.paw_local, s.clef, s.hybrid, s.encoder]
         .filter(Boolean);
       for (const hl of Object.values(s.extra_host_lanes || {}))
-        out.push(hl.modelless, ...Object.values(hl.laya || {}), hl.clm, hl.gliner, hl.agentjev, hl.openthai, hl.paw, hl.paw_local, hl.hybrid, hl.encoder);
+        out.push(hl.modelless, ...Object.values(hl.laya || {}), hl.clm, hl.gliner, hl.bekko, hl.agentjev, hl.openthai, hl.paw, hl.paw_local, hl.clef, hl.hybrid, hl.encoder);
       return out.filter(Boolean);
     };
     const armed = bench.suites.filter((s) => accOf(s.modelless) != null && cells(s).some(isFamily));
