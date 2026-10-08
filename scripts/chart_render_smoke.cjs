@@ -170,10 +170,35 @@ if (!/aria-label="clef-flash \(9B\) averaged: /.test(p50Html) || /aria-label="cl
   process.exit(1);
 }
 {
-  const presence = [...p50Html.matchAll(/aria-label="([^"]*?)\s*(?::\s*)?no verified timing[^"]*"/g)].map((m) => m[1].trim());
-  if (presence.length) {
-    console.error(`FAIL[p50-family]: a presence row survived with no legitimately-pending lane — got [${presence.join(", ")}] (a lane whose timing turned quotable must plot its bar, never keep the placeholder)`);
+  // The legitimate pending set is DERIVED from the render's own last-stats
+  // hook (bench-charts _lastSummaryStats — the same [lane, stats] pairs the
+  // body plotted), never hand-typed: bench 131's acc-only publish (m3
+  // latency unquotable under sibling load) made [Reflex · modelless]
+  // legitimately pending and the old "(currently none)" hand-pin went stale
+  // the same hour. A lane is pending iff its p50 stats are zero (cells
+  // exist, none plottable) — exactly the lanes the render gives a presence
+  // row. Both directions assert: a quotable lane keeping the placeholder is
+  // the original failure; a pending lane losing its row is the vanishing
+  // this check exists for.
+  const st = window.BenchCharts._lastSummaryStats();
+  if (!st || st.metric !== "p50") {
+    console.error(`FAIL[p50-family]: last-render stats hook missing or stale (metric ${st && st.metric}) — the pending set cannot be derived`);
     process.exit(1);
+  }
+  const pending = st.stats.filter(([, a]) => a && a.zero).map(([lane]) => lane.label);
+  const presence = [...p50Html.matchAll(/aria-label="([^"]*?)\s*(?::\s*)?no verified timing[^"]*"/g)].map((m) => m[1].trim());
+  const unexpected = presence.filter((x) => !pending.includes(x));
+  if (unexpected.length) {
+    console.error(`FAIL[p50-family]: a presence row survived with no legitimately-pending lane — got [${unexpected.join(", ")}] (a lane whose timing turned quotable must plot its bar, never keep the placeholder)`);
+    process.exit(1);
+  }
+  const vanished = pending.filter((x) => !presence.includes(x));
+  if (vanished.length) {
+    console.error(`FAIL[p50-family]: a legitimately-pending lane rendered no presence row — [${vanished.join(", ")}] (lanes never vanish)`);
+    process.exit(1);
+  }
+  if (pending.length) {
+    console.log(`[p50-family] presence rows (data-backed pending): ${pending.join(", ")}`);
   }
 }
 for (const back of ["paw", "clm", "gliner", "agentjev", "openthai"]) {
@@ -620,11 +645,27 @@ console.log(`[frontier] ${fDots} dots, ${fPartial} partial, ${fTPartial} timing-
   const labels = (fHtml.match(/class="ft-label"/g) || []).length;
   if (labels !== fDots) die(`${labels} dot label(s) vs ${fDots} dots — every dot must be named`);
   if (!fHtml.includes(">Rethink</text>")) die("the Rethink dot is unlabeled — the misread this fixes");
-  // the middle rung: a synthetic hybrid with quotable latency joins the
-  // path — 3 vertices, and Instinct must appear as a dot + label
+  // the middle rung, STATE-PROOF: the old fixture hand-assumed WHICH rung
+  // was missing (hybrid, when benches 113-118 left Instinct timing-pending)
+  // and injected it — bench 131's acc-only publish (2026-10-08) stripped
+  // modelless instead, hybrid was already quotable, and the injection
+  // became a no-op (2 vertices, FAIL). The synthetic now OWNS all three
+  // family rungs' timing: outer two quotable, middle stripped → 2 vertices
+  // (the leave direction, previously unasserted); then the middle joins →
+  // 3 vertices + its label (the join direction, the original intent).
   const dSyn2 = JSON.parse(JSON.stringify(d));
-  dSyn2.areas.timing.hybrid = Object.assign({}, dSyn2.areas.timing.hybrid,
-    { suites: 9, n_used: 9, p50_geomean_ms: 0.0016 });
+  for (const k of ["modelless", "hybrid", "encoder"]) {
+    dSyn2.areas.timing[k] = Object.assign({}, dSyn2.areas.timing[k],
+      { suites: 9, n_used: 9, p50_geomean_ms: 0.0016 });
+  }
+  dSyn2.areas.timing.hybrid.p50_geomean_ms = null;
+  dSyn2.areas.timing.hybrid.n_used = 0;
+  fakeEl("frontier-strip");
+  window.BenchCharts.frontier(dSyn2, captured["frontier-strip"]);
+  const vStrip = ((captured["frontier-strip"].innerHTML.match(/class="ft-ladder"[^>]*points="([^"]*)"/) || [,""])[1] || "").trim().split(/\s+/).filter(Boolean).length;
+  if (vStrip !== 2) die(`synthetic stripped middle rung: ladder has ${vStrip} vertices, expected 2 (outer rungs only)`);
+  dSyn2.areas.timing.hybrid.p50_geomean_ms = 0.0016;
+  dSyn2.areas.timing.hybrid.n_used = 9;
   fakeEl("frontier-ladder");
   window.BenchCharts.frontier(dSyn2, captured["frontier-ladder"]);
   const l2 = captured["frontier-ladder"].innerHTML;

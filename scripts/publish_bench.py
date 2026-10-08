@@ -624,26 +624,36 @@ CROSSWALK_B5_CAVEAT = (
 )
 
 # The JDI board's own rows (their frozen corpus, their protocol, their
-# hardware — REFERENCE ONLY). Pinned from the plan-011 B1 snapshot
-# (.benchmarks/data/jdi/index.json, gitignored local reference; the pins
-# live in the tracked PROVENANCE.md there): edition release-v2.1, generated
-# 2026-09-28T00:39:36+00:00, suite corpus sha256 b2b56d6f…d5, hardware
-# "1 × RTX PRO 6000", Jev jev-1.13.0 — recorded in reflex
-# .research/005 §crosswalk. These are CURATED constants (the AREA_CHANCE
-# precedent), never measurements by this harness.
+# hardware — REFERENCE ONLY). Pinned from the live board fetch of
+# 2026-10-09 (reflex .raw/jdi/index.json, session-local; re-derive from the
+# space URL): edition release-v3 / "Decision Index 0.3" (panel_id
+# decision-index-0.3), generated 2026-10-07T18:25:58Z, 114 entrants,
+# hardware "1 x NVIDIA RTX PRO 6000", Jev jev-1.13.0 — recorded in reflex
+# .research/005 §crosswalk (the Update 2026-10-09 note). v3 CHANGED the
+# headline: balanced_skill is now BLENDED
+# 0.20*public + 0.50*private_same_skills + 0.30*private_new_domains — the
+# public_skill column (kept in the notes here) is the closer cousin of the
+# 0.2.1-era figure; never compare across editions. These are CURATED
+# constants (the AREA_CHANCE precedent), never measurements by this
+# harness. The sha-watch on this board is scripts/watch_jdi.py (reflex).
 JDI_BOARD_REFERENCE = [
     # (entrant, balanced_raw, balanced_skill, median_ms, note)
-    ("Jev (jev-1.13.0, hosted)", 68.09, 57.91, 524.1, "ECE 0.074"),
-    ("pplx-decider-v1-27b (Qwen3.8-27B full FT)", 66.89, 56.40, 101.4,
-     "strongest open entrant"),
-    ("Rune 26B-A4B v3", 67.30, 57.44, 120.5, ""),
-    ("Winnow-12B (Q8 GGUF/llama.cpp)", 61.91, 50.02, 72.5, ""),
-    ("GLiNER2.5-Decide (our GLiNER lane)", 32.35, 11.21, 23.3, ""),
-    ("CLM-v0.1-8B (our CLM lane)", 27.94, 7.40, 46.8, ""),
-    ("laya (our laya lane's source)", 27.53, 6.04, 5.8,
+    ("Perplexity Decider v1.1 (27B)", 71.66, 62.75, 104.1,
+     "#1 blended (v3); public-only #2 (62.25)"),
+    ("Fastino GLiDE no-thinking (28B)", 69.61, 60.21, 98.4, "#2 blended"),
+    ("Torchcast Decision 27B", 73.64, 59.91, 99.9,
+     "public-only #1 (65.10); #4 blended"),
+    ("Rune 26B-A4B v3", 68.45, 57.43, 120.5, "#10 blended"),
+    ("JEV-27B (jev-1.13.0)", 65.00, 55.64, 102.1, "#14 blended (tied)"),
+    ("Cloudflare clef (27B)", 71.07, 53.08, 102.1,
+     "public-only #3 (61.71); #19 blended"),
+    ("Cloudflare clef-flash (9B)", 66.53, 47.61, 53.4,
+     "our clef lane's model; #31 blended"),
+    ("Winnow-12B (Q8 GGUF/llama.cpp)", 62.84, 49.27, 72.5, "#26 blended"),
+    ("GLiNER2.5-Decide (our GLiNER lane)", 33.08, 9.24, 23.3, ""),
+    ("CLM-v0.1-8B (our CLM lane)", 28.52, 6.24, 46.8, ""),
+    ("laya (our laya lane's source)", 28.26, 4.43, 5.8,
      "fastest on board"),
-    # Clef/clef-flash: not yet on the board (too new) — no row exists to
-    # quote; our clef cells are OUR runs, listed in the measured rows.
 ]
 
 # The blog's own BANKING77 macro-F1 table (Clef's run, not the board —
@@ -1488,10 +1498,13 @@ def compute_crosswalk(d):
         "board_reference": {
             "note": (
                 "The JDI board's own rows — their frozen corpus, their "
-                "protocol, their hardware (edition release-v2.1, generated "
-                "2026-09-28, pinned in reflex .research/005). REFERENCE "
-                "ONLY: no number here is comparable with the measured rows "
-                "above without the caveat's full weight."
+                "protocol, their hardware (edition release-v3 / Decision "
+                "Index 0.3, generated 2026-10-07, pinned in reflex "
+                ".research/005; balanced_skill is the v3 BLEND "
+                "0.20 public + 0.50 private-same-skills + 0.30 "
+                "private-new-domains — never compare across editions). "
+                "REFERENCE ONLY: no number here is comparable with the "
+                "measured rows above without the caveat's full weight."
             ),
             "columns": ["entrant", "balanced_raw", "balanced_skill",
                         "median_ms"],

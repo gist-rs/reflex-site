@@ -18753,7 +18753,7 @@
    }
   ],
   "board_reference": {
-   "note": "The JDI board's own rows \u2014 their frozen corpus, their protocol, their hardware (edition release-v2.1, generated 2026-09-28, pinned in reflex .research/005). REFERENCE ONLY: no number here is comparable with the measured rows above without the caveat's full weight.",
+   "note": "The JDI board's own rows \u2014 their frozen corpus, their protocol, their hardware (edition release-v3 / Decision Index 0.3, generated 2026-10-07, pinned in reflex .research/005; balanced_skill is the v3 BLEND 0.20 public + 0.50 private-same-skills + 0.30 private-new-domains \u2014 never compare across editions). REFERENCE ONLY: no number here is comparable with the measured rows above without the caveat's full weight.",
    "columns": [
     "entrant",
     "balanced_raw",
@@ -18762,51 +18762,79 @@
    ],
    "rows": [
     {
-     "entrant": "Jev (jev-1.13.0, hosted)",
-     "balanced_raw": 68.09,
-     "balanced_skill": 57.91,
-     "median_ms": 524.1,
-     "note": "ECE 0.074"
+     "entrant": "Perplexity Decider v1.1 (27B)",
+     "balanced_raw": 71.66,
+     "balanced_skill": 62.75,
+     "median_ms": 104.1,
+     "note": "#1 blended (v3); public-only #2 (62.25)"
     },
     {
-     "entrant": "pplx-decider-v1-27b (Qwen3.8-27B full FT)",
-     "balanced_raw": 66.89,
-     "balanced_skill": 56.4,
-     "median_ms": 101.4,
-     "note": "strongest open entrant"
+     "entrant": "Fastino GLiDE no-thinking (28B)",
+     "balanced_raw": 69.61,
+     "balanced_skill": 60.21,
+     "median_ms": 98.4,
+     "note": "#2 blended"
+    },
+    {
+     "entrant": "Torchcast Decision 27B",
+     "balanced_raw": 73.64,
+     "balanced_skill": 59.91,
+     "median_ms": 99.9,
+     "note": "public-only #1 (65.10); #4 blended"
     },
     {
      "entrant": "Rune 26B-A4B v3",
-     "balanced_raw": 67.3,
-     "balanced_skill": 57.44,
+     "balanced_raw": 68.45,
+     "balanced_skill": 57.43,
      "median_ms": 120.5,
-     "note": ""
+     "note": "#10 blended"
+    },
+    {
+     "entrant": "JEV-27B (jev-1.13.0)",
+     "balanced_raw": 65.0,
+     "balanced_skill": 55.64,
+     "median_ms": 102.1,
+     "note": "#14 blended (tied)"
+    },
+    {
+     "entrant": "Cloudflare clef (27B)",
+     "balanced_raw": 71.07,
+     "balanced_skill": 53.08,
+     "median_ms": 102.1,
+     "note": "public-only #3 (61.71); #19 blended"
+    },
+    {
+     "entrant": "Cloudflare clef-flash (9B)",
+     "balanced_raw": 66.53,
+     "balanced_skill": 47.61,
+     "median_ms": 53.4,
+     "note": "our clef lane's model; #31 blended"
     },
     {
      "entrant": "Winnow-12B (Q8 GGUF/llama.cpp)",
-     "balanced_raw": 61.91,
-     "balanced_skill": 50.02,
+     "balanced_raw": 62.84,
+     "balanced_skill": 49.27,
      "median_ms": 72.5,
-     "note": ""
+     "note": "#26 blended"
     },
     {
      "entrant": "GLiNER2.5-Decide (our GLiNER lane)",
-     "balanced_raw": 32.35,
-     "balanced_skill": 11.21,
+     "balanced_raw": 33.08,
+     "balanced_skill": 9.24,
      "median_ms": 23.3,
      "note": ""
     },
     {
      "entrant": "CLM-v0.1-8B (our CLM lane)",
-     "balanced_raw": 27.94,
-     "balanced_skill": 7.4,
+     "balanced_raw": 28.52,
+     "balanced_skill": 6.24,
      "median_ms": 46.8,
      "note": ""
     },
     {
      "entrant": "laya (our laya lane's source)",
-     "balanced_raw": 27.53,
-     "balanced_skill": 6.04,
+     "balanced_raw": 28.26,
+     "balanced_skill": 4.43,
      "median_ms": 5.8,
      "note": "fastest on board"
     }

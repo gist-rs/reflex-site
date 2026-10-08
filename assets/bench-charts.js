@@ -910,6 +910,12 @@
   // the landing page defaults to the speed story — the reason Reflex exists;
   // /bench/'s hero keeps its own accuracy default
   let summaryData = null, summaryMetric = "p50";
+  // last-render lane stats (metric + the [lane, stats] pairs the body
+  // plotted) — a READ-ONLY hook for the render smoke: the legitimate
+  // presence-row set is derived from these stats, never re-typed by
+  // hand (bench 131's acc-only publish made the modelless lane
+  // legitimately pending and a hand-pin went stale the same hour).
+  let lastSummaryStats = null;
   // The summary chart's suite scope. "shared" (default) plots every lane
   // over the SAME suite set — the areas block's curated bench, the equal
   // basis the area radar rolls up — so a 9-suite lane and an 8-suite lane
@@ -987,6 +993,7 @@
     const suitesNow = scopedSuites(d);
     const total = suitesNow.length;
     const stats = LANES.map((lane) => [lane, laneStats(d, m, lane, suitesNow)]);
+    lastSummaryStats = { metric: m, scope: summaryScope, stats };
     const ranked = stats.filter(([, a]) => a && !a.zero)
       .sort(([, x], [, y]) => (M.log ? x.value - y.value : y.value - x.value));
     const zeroStats = stats.filter(([, a]) => a && a.zero);
@@ -1764,6 +1771,6 @@
         : "");
   }
 
-  window.BenchCharts = { hero, suite, setLogDomain, summary, areas, frontier, profile, s1mb, crosswalk, suiteSortControl, setSuiteSort, setPrimaryHost, lat, accOf, ccOf, sizedDisplay };
+  window.BenchCharts = { hero, suite, setLogDomain, summary, areas, frontier, profile, s1mb, crosswalk, suiteSortControl, setSuiteSort, setPrimaryHost, lat, accOf, ccOf, sizedDisplay, _lastSummaryStats: () => lastSummaryStats };
   window.BenchRig.scoped = scopedPairs;
 })();
