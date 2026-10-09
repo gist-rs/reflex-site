@@ -58,5 +58,10 @@
     "date": "2026-10-09",
     "change": "Rethink's record cells gain their confidence-derived metrics (typed 0.8520 · ag_news 0.9950 · xnli_en 0.9733 acc@50cov, + ECE and mean confidence) — stamped from the runs' own frozen per-row data; the pplx lane joins the filter, the hero, the tables and the summary (it had rendered on the areas radar only)",
     "why": "the 2026-10-09 report: acc@50 read 5/9 beside full accuracy data — the fallback cells carried the field while the encoder's own measured suites lacked it (the metric inverted Rethink's true coverage); sst5's record predates the per-row freeze and stays honestly '—' (issue 011); pplx was missing from the lane enumerators, and an accuracy-only lane now reads 'latency not measured yet', never the loaded-box text"
+  },
+  {
+    "date": "2026-10-09",
+    "change": "Rethink's sst5 record cell gains its confidence metrics (acc@50cov 0.6400 · ECE 0.0663 · mean-conf 0.4955) — a fresh live re-read of the same sealed head over the same 600-question seat (bench 066, accuracy byte-identical at 316/600 for the fourth independent posture)",
+    "why": "the acc@50 metric's last gap (issue 011): the 029 record predates the per-row freeze, so the field needed a re-measure, never a stamp from aggregates; the re-read ran under sibling load and its latency is not quotable — the cell keeps the original quiet 14.7 ms read; Rethink's acc@50% coverage on the shared suites is now 9/9 (the 2026-10-09 report opened at 5/9)"
   }
 ]

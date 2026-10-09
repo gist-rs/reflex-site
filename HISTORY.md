@@ -4,6 +4,9 @@ One hash-pinned line per removed issue (the fleet noise-reduction convention:
 an issue file is removed once its work is verifiably landed; this file is the
 durable record). Full narrative of each: `git log --follow -- .issues/<file>`.
 
+- **2026-10-09 — Issue 011 closed (sst5 encoder acc@50 gap): the last record cell re-measured, the field complete on all 9 shared suites.**
+  The re-read machinery emits the confidence fields natively now (riir-reflex `197e855` — the acc@X%coverage law hoisted beside `ece_of`; rethink `b285d2e` — bench 066 + the 029 lineage stamp); the stamp tool grew `--from-doc` (instinct `0b926fe`); the earlier same-day stamps (typed/ag_news/xnli) + pplx's filter/hero/tables/summary wiring + the acc-only presence-row split landed at `f1d9953`, the /#sizes pplx row at `32a7ef9`. Rethink acc@50cov: 5/9 → 9/9.
+
 - **2026-10-05 — Issue 008 closed (resolved-issue hygiene): the /bench + /resources jargon and seal-wording audit fully landed, file removed.**
   T1/T2/T4/T5 at `e97247b` (internal ids stripped, the "Words used on this page" glossary, `scripts/public_copy_gate.cjs`) + T3 at `b9416c7` (rendered seal/sealed → lock/locked, the #learn primer glossary); deployed 2026-10-03.
 
