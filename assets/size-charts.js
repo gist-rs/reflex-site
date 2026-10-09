@@ -300,10 +300,20 @@
       const comps = stackOf(c);
       const split = comps.length > 1;
       const chips = (c.targets || []).map((t) => `<span class="sz-chip">${esc(t)}</span>`).join("");
-      // bar length = the total's position on the broken axis; segments split
-      // it by byte share. A non-zero segment keeps a 2px floor (CSS
-      // min-width) so a sliver stays hoverable. The model side is one green
-      // segment or the stack's colored sub-segments.
+      // bar length = the total's position on the broken axis — and every
+      // segment maps its ABSOLUTE byte range through the SAME axis function,
+      // so equal bytes draw equal lengths in every row (the 2026-10-09
+      // owner report: the ~600 MB python-env venvs split each bar's LENGTH
+      // by byte share, which rendered the same venv as a sliver in the 16 GB
+      // pplx row and half the bar in the 1.1 GB bekko-68M row — a share is
+      // of the row's own total, not a position on the shared axis). The
+      // segments tile [0, total] contiguously, so under the monotone mapping
+      // they stay contiguous: width = pos(cum_end) − pos(cum_start), the bar
+      // div spans the full track, and a segment whose range crosses the
+      // break compresses past it exactly like the bar's own tip. A non-zero
+      // segment keeps a 3px floor (CSS min-width) so a sliver stays
+      // hoverable. The model side is one green segment or the stack's
+      // colored sub-segments.
       const end = (sc.pos(total) * 100).toFixed(2);
       const segs = [];
       if (c.engine_bytes > 0)
@@ -312,10 +322,14 @@
       for (const comp of comps)
         segs.push({ color: stackColor(comp.kind), bytes: comp.bytes,
           aria: `${c.name}: model · ${esc(comp.label || stackLabel(comp.kind))} ${human(comp.bytes)}` });
-      const seg = (s) =>
-        `<i class="sz-seg" tabindex="0" data-sztip="${esc(tipHtml(c, comps))}" ` +
-        `aria-label="${esc(s.aria)}" ` +
-        `style="width:${((s.bytes / total) * 100).toFixed(3)}%;background:${s.color}"></i>`;
+      let cum = 0;
+      const seg = (s) => {
+        const w = Math.max(sc.pos(cum + s.bytes) - sc.pos(cum), 0) * 100;
+        cum += s.bytes;
+        return `<i class="sz-seg" tabindex="0" data-sztip="${esc(tipHtml(c, comps))}" ` +
+          `aria-label="${esc(s.aria)}" ` +
+          `style="width:${w.toFixed(3)}%;background:${s.color}"></i>`;
+      };
       const brk = sc.broken && total > sc.linMax
         ? `<i class="sz-break" aria-hidden="true" style="left:${(sc.span * 100).toFixed(2)}%"></i>`
         : "";
@@ -328,7 +342,7 @@
       const stack =
         `<div class="bc-hbar sz-stack" role="button" tabindex="0" aria-expanded="false" aria-controls="${did}"` +
         ` aria-label="${esc(`${c.name}: show the full disk breakdown`)}">` +
-        `<div class="sz-bar" style="width:${end}%">${segs.map(seg).join("")}</div>${brk}</div>` +
+        `<div class="sz-bar" style="width:100%">${segs.map(seg).join("")}</div>${brk}</div>` +
         `<div class="sz-lbls" style="width:${end}%">${lbls.join("")}</div>`;
       return `<div class="sz-row">` +
         `<div class="bc-hlabel sz-label"><span class="sz-name">${esc(c.name)}</span><span class="sz-chips">${chips}</span></div>` +
@@ -358,7 +372,7 @@
         ? `Axis is linear up to ${human(sc.linMax)}; a bar past the break sign runs on a compressed log scale ` +
           `(${human(sc.linMax)} … ${human(sc.max)}) — read its size from its label. `
         : `Axis is linear: a bar ends at its total. `) +
-      `Inside a bar, the runtime env (rust or python) and the model split by their share of the bytes; ` +
+      `Inside a bar, the runtime env (rust or python) and the model sit at their absolute byte positions on the same axis as the bar's end — equal sizes draw equal lengths in every row; ` +
       `where a model stack is published the model part splits into its components ` +
       `(encoder checkpoint · trained specialists · trained heads). ` +
       `Hover a segment for the stack as color-labeled bullets — or click the bar (works on touch) ` +

@@ -91,33 +91,51 @@ const fail = (msg) => { console.error("FAIL: " + msg); process.exit(1); };
   if (rustBars + pythonBars !== engineBars) fail(`env bars ${rustBars} rust + ${pythonBars} python != ${engineBars} engine bars`);
   if (modelBars !== wantModelSegs) fail(`model segments ${modelBars} != published components ${wantModelSegs} (${withModel} lanes with weights)`);
 
-  // 4. one stack per candidate; the bar ends at the total's position on the
-  // broken linear axis, carries a break sign iff total > BREAK_AT, and its
-  // segments split it by byte SHARE (sum to 100%); the under-bar label row
-  // spans the same width, one label per side (engine + model total) in the
-  // side's color. The stack div doubles as the tap-to-expand toggle, so its
+  /// 4. one stack per candidate; the bar ends at the total's position on the
+  // broken linear axis, carries a break sign iff total > BREAK_AT, and every
+  // segment occupies its ABSOLUTE byte range on that same axis (equal bytes
+  // draw equal lengths in every row — the 2026-10-09 owner report: the old
+  // byte-share split made the ~600 MB python venvs visually incomparable
+  // across rows); the under-bar label row spans the bar's end, one label per
+  // side (engine + model total) in the side's color. The stack div doubles as the tap-to-expand toggle, so its
   // open tag carries the toggle attributes between class and the bar div.
-  const stacks = [...html.matchAll(/<div class="bc-hbar sz-stack"[^>]*><div class="sz-bar" style="width:([\d.]+)%">(.*?)<\/div>(<i class="sz-break"[^>]*><\/i>)?<\/div><div class="sz-lbls" style="width:([\d.]+)%">(.*?)<\/div>/g)]
-    .map((m) => ({ barW: +m[1], inner: m[2], brk: !!m[3], lblW: +m[4], lbls: m[5] }));
+  const stacks = [...html.matchAll(/<div class="bc-hbar sz-stack"[^>]*><div class="sz-bar" style="width:100%">(.*?)<\/div>(<i class="sz-break"[^>]*><\/i>)?<\/div><div class="sz-lbls" style="width:([\d.]+)%">(.*?)<\/div>/g)]
+    .map((m) => ({ inner: m[1], brk: !!m[2], lblW: +m[3], lbls: m[4] }));
   if (stacks.length !== d.candidates.length) fail(`stacks ${stacks.length} != candidates ${d.candidates.length}`);
   const sc = window.SizeCharts.scale(d);
   const BREAK_AT = window.SizeCharts.BREAK_AT;
   let nBroken = 0;
-  stacks.forEach(({ barW, inner, brk, lblW, lbls }, i) => {
+  stacks.forEach(({ inner, brk, lblW, lbls }, i) => {
     const c = d.candidates[i];
-    if (!(barW >= 0 && barW <= 100.5)) fail(`bar ${i} width out of track: ${barW}%`);
-    const want = sc.pos(totals[i]) * 100;
-    if (Math.abs(barW - want) > 0.01) fail(`bar ${i} ends at ${barW.toFixed(2)}%, total sits at ${want.toFixed(2)}%`);
+    const barW = sc.pos(totals[i]) * 100; // the segments' absolute sum
     if (totals[i] <= sc.linMax && Math.abs(barW - (100 * sc.span * totals[i]) / sc.linMax) > 0.01)
       fail(`bar ${i} (${totals[i]} B, under the break) is not on the linear scale`);
     if (brk !== totals[i] > BREAK_AT) fail(`bar ${i}: break sign ${brk} but total ${totals[i]} vs BREAK_AT ${BREAK_AT}`);
     if (brk) nBroken++;
-    if (lblW !== barW) fail(`bar ${i}: label row width ${lblW}% != bar ${barW}%`);
+    if (Math.abs(lblW - barW) > 0.02) fail(`bar ${i}: label row width ${lblW}% != bar ${barW.toFixed(2)}%`);
+    // the ABSOLUTE law: each segment spans pos(cum_end) − pos(cum_start) on
+    // the shared axis — the engine's width is pos(engine_bytes), not a share
+    // of the row; contiguous segments sum to the bar's end.
     const widths = [...inner.matchAll(/style="width:([\d.]+)%/g)].map((m) => +m[1]);
     const sum = widths.reduce((a, b) => a + b, 0);
-    if (Math.abs(sum - 100) > 0.05) fail(`bar ${i} segments sum to ${sum}%, not 100%`);
-    if (c.engine_bytes > 0 && Math.abs(widths[0] - (100 * c.engine_bytes) / totals[i]) > 0.01)
-      fail(`bar ${i} engine share ${widths[0]}% != bytes share`);
+    if (Math.abs(sum - barW) > 0.05) fail(`bar ${i} segments sum to ${sum}%, the total sits at ${barW.toFixed(2)}%`);
+    if (c.engine_bytes > 0 && Math.abs(widths[0] - sc.pos(c.engine_bytes) * 100) > 0.01)
+      fail(`bar ${i} engine segment ${widths[0]}% != its absolute axis position ${sc.pos(c.engine_bytes) * 100}%`);
+    // the cross-row comparability the fix exists for: two rows whose engine
+    // bytes are within 15% must draw engine segments within 15% (the old
+    // share split broke exactly this — 662 MB vs 610 MB read as half-bar vs
+    // sliver)
+    const engWidthOf = (c2) => sc.pos(c2.engine_bytes) * 100;
+    if (c.engine_bytes > 0 && i > 0) {
+      const prev = d.candidates.slice(0, i).find((p) => p.engine_bytes > 0);
+      if (prev) {
+        const a = engWidthOf(c), b = engWidthOf(prev);
+        const byteRatio = Math.max(c.engine_bytes, prev.engine_bytes) / Math.min(c.engine_bytes, prev.engine_bytes);
+        const pxRatio = Math.max(a, b) / Math.min(a, b);
+        if (byteRatio < 1.15 && pxRatio > 1.15)
+          fail(`bar ${i}: engine segments incomparable — ${c.engine_bytes} B vs ${prev.engine_bytes} B (bytes within 15%) draw ${a.toFixed(1)}% vs ${b.toFixed(1)}%`);
+      }
+    }
     const labels = [...lbls.matchAll(/class="sz-lbl sz-lbl-(engine|model)" style="color:([^"]+)">([^<]+)</g)].map((m) => [m[1], m[2], m[3]]);
     if (labels.length !== (c.model_bytes > 0 ? 2 : 1)) fail(`bar ${i}: ${labels.length} under-bar labels (engine + model-total expected)`);
     if (/class="sz-lbl/.test(inner)) fail(`bar ${i}: a label is still drawn on the bar`);
@@ -146,10 +164,12 @@ const fail = (msg) => { console.error("FAIL: " + msg); process.exit(1); };
         if (col !== window.SizeCharts.stackColor(comps[k].kind))
           fail(`bar ${i} (${c.key}) stack segment ${k} (${comps[k].kind}) color ${col} != palette ${window.SizeCharts.stackColor(comps[k].kind)}`);
       });
-      // the model segments together carry exactly the model share
+      // the model segments together span the model's absolute byte range on
+      // the shared axis: pos(total) − pos(engine_bytes)
       const modelW = widths.slice(c.engine_bytes > 0 ? 1 : 0).reduce((a, b) => a + b, 0);
-      if (Math.abs(modelW - (100 * c.model_bytes) / totals[i]) > 0.05)
-        fail(`bar ${i} (${c.key}) stack widths sum to ${modelW.toFixed(2)}%, model share is ${(100 * c.model_bytes / totals[i]).toFixed(2)}%`);
+      const wantModelW = (sc.pos(totals[i]) - (c.engine_bytes > 0 ? sc.pos(c.engine_bytes) : 0)) * 100;
+      if (Math.abs(modelW - wantModelW) > 0.05)
+        fail(`bar ${i} (${c.key}) stack widths sum to ${modelW.toFixed(2)}%, the model's absolute range is ${wantModelW.toFixed(2)}%`);
     } else if (c.model_bytes > 0 && segColors[segColors.length - 1] !== "#199e70")
       fail(`bar ${i} (${c.key}) model segment ${segColors[segColors.length - 1]} != #199e70`);
   });
@@ -234,5 +254,5 @@ const fail = (msg) => { console.error("FAIL: " + msg); process.exit(1); };
     nParts += widths.length;
   });
 
-  console.log(`size chart render smoke PASS (${d.candidates.length} stacks · ${rustBars} rust + ${pythonBars} python + ${modelBars} model segments · stack color law · ascending · broken-linear bars, ${nBroken} past the break · byte-share segments · under-bar labels · ${details.length} tap-to-expand details · ${nParts} breakdown bars)`);
+  console.log(`size chart render smoke PASS (${d.candidates.length} stacks · ${rustBars} rust + ${pythonBars} python + ${modelBars} model segments · stack color law · ascending · broken-linear bars, ${nBroken} past the break · absolute-axis segments · under-bar labels · ${details.length} tap-to-expand details · ${nParts} breakdown bars)`);
 })().catch((e) => { console.error("FAIL: " + (e && e.message || e)); process.exit(1); });
