@@ -62,6 +62,10 @@ FAKE_HF = {
     ]},
     "Contrastive-LM/CLM-v0.1-8B": {"siblings": [{"rfilename": "CLM_v0.1-8B.pt", "size": 75_000_000}]},
     "mlx-community/clef-flash-4bit": {"siblings": [{"rfilename": "model.safetensors", "size": 6_000_000_000}]},
+    "mlx-community/pplx-decider-v1.1-27b-4bit": {"siblings": [
+        {"rfilename": "model-00001-of-00002.safetensors", "size": 8_000_000_000},
+        {"rfilename": "model-00002-of-00002.safetensors", "size": 7_360_000_000},
+    ]},
 }
 
 FAKE_RECORDED = {k: {"key": k, "bytes": v, "what": f"{k} fake", "host": "fake-host", "date_utc": "2026-01-01", "how": "fake"}
@@ -81,6 +85,7 @@ FAKE_RECORDED = {k: {"key": k, "bytes": v, "what": f"{k} fake", "host": "fake-ho
                      "openthai_venv": 700_000_000,
                      "bekko_venv": 660_000_000,
                      "clef_venv": 580_000_000,
+                     "pplx_venv": 610_000_000,
                  }.items()}
 # the two recorded_files records carry their per-file values (the real
 # entries restate the same measurement's lstat values; sums asserted)
@@ -157,7 +162,7 @@ def local_bytes_patcher():
 @case("every candidate renders with the full field set")
 def _():
     d = patched_build()
-    assert len(d["candidates"]) == 13, len(d["candidates"])
+    assert len(d["candidates"]) == 14, len(d["candidates"])
     for c in d["candidates"]:
         for f in ("key", "name", "framework", "engine_bytes", "engine_what",
                   "model_what", "targets", "engine_provenance"):
@@ -209,7 +214,7 @@ def _():
         "wasm_heads", "reflex_native", "reflex_laya_typed", "instinct_hybrid", "rethink_encoder",
     }
     assert {k for k, c in by.items() if c["engine_kind"] == "python"} == {
-        "laya_python", "gliner", "agentjev", "openthai", "bekko", "bekko68m", "clef", "clm",
+        "laya_python", "gliner", "agentjev", "openthai", "bekko", "bekko68m", "clef", "pplx", "clm",
     }
     assert all(c["engine_kind"] in ("rust", "python") for c in by.values())
 

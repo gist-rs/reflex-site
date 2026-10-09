@@ -1,6 +1,6 @@
 {
  "meta": {
-  "date_utc": "2026-10-04T04:56:49Z",
+  "date_utc": "2026-10-09T14:27:00Z",
   "release": {
    "tag": "v0.2.4",
    "url": "https://github.com/gist-rs/reflex/releases/tag/v0.2.4",
@@ -662,7 +662,7 @@
      "src": 0
     }
    ],
-   "model_bytes": 1954840997,
+   "model_bytes": 1954845268,
    "model_what": "their model + tokenizer tree (HF, exact bytes)",
    "model_provenance": {
     "source": "huggingface.co tree API (exact bytes)",
@@ -678,7 +678,7 @@
     {
      "label": "model + tokenizer tree",
      "kind": "weights",
-     "bytes": 1954840997,
+     "bytes": 1954845268,
      "src": 0
     }
    ],
@@ -717,7 +717,7 @@
      "src": 0
     }
    ],
-   "model_bytes": 6213976673,
+   "model_bytes": 6213978733,
    "model_what": "their Clef-flash (9B) decision model as the community 4-bit MLX quant (two safetensors shards + the joint decision head + tokenizer) \u2014 the tree a consumer downloads",
    "model_provenance": {
     "source": "huggingface.co tree API (exact bytes)",
@@ -733,7 +733,7 @@
     {
      "label": "clef-flash (9B) 4-bit tree",
      "kind": "weights",
-     "bytes": 6213976673,
+     "bytes": 6213978733,
      "src": 0
     }
    ],
@@ -797,6 +797,61 @@
     "GPU (CUDA)"
    ],
    "note": "their boot loads BOTH the agent-jev checkpoint and the Qwen3-0.6B base from the HF cache \u2014 both counted"
+  },
+  {
+   "key": "pplx",
+   "name": "pplx-decider (27B) \u00b7 local 4-bit",
+   "framework": "the MLX 4-bit port behind a loopback adapter (the reference wire)",
+   "engine_kind": "python",
+   "engine_bytes": 609572881,
+   "engine_what": "the pplx lane venv (python 3.12: mlx + mlx-vlm + transformers \u2014 the port's tested pins)",
+   "engine_provenance": {
+    "source": "recorded measurement",
+    "detail": "the pplx lane venv (python 3.12: mlx 0.32.3 + mlx-vlm 0.7.6 + transformers 5.19.0 \u2014 the MLX port's tested pins, riir-reflex Bench 132) + the adapter rig \u2014 measured 2026-10-09 on m3-max-metal: the bench-time env itself (.raw/pplx_srv/.venv, uv-built from the port's requirements.txt): sum of file sizes (609,047,889 over 11,246 files) + dir entries (524,992), the lstat convention of the sibling venv rows",
+    "parts": [
+     {
+      "source": "recorded measurement",
+      "label": "mlx venv",
+      "what": "the pplx lane venv (python 3.12: mlx 0.32.3 + mlx-vlm 0.7.6 + transformers 5.19.0 \u2014 the MLX port's tested pins, riir-reflex Bench 132) + the adapter rig",
+      "date_utc": "2026-10-09",
+      "host": "m3-max-metal",
+      "how": "the bench-time env itself (.raw/pplx_srv/.venv, uv-built from the port's requirements.txt): sum of file sizes (609,047,889 over 11,246 files) + dir entries (524,992), the lstat convention of the sibling venv rows"
+     }
+    ]
+   },
+   "engine_stack": [
+    {
+     "label": "mlx venv",
+     "kind": "runtime",
+     "bytes": 609572881,
+     "src": 0
+    }
+   ],
+   "model_bytes": 15362258534,
+   "model_what": "Perplexity's pplx-decider-v1.1-27b as the community 4-bit MLX quant (affine 4-bit g64 backbone; readout + vision tower bf16) \u2014 the tree a consumer downloads",
+   "model_provenance": {
+    "source": "huggingface.co tree API (exact bytes)",
+    "detail": "mlx-community/pplx-decider-v1.1-27b-4bit",
+    "parts": [
+     {
+      "source": "huggingface.co tree API (exact bytes)",
+      "what": "mlx-community/pplx-decider-v1.1-27b-4bit"
+     }
+    ]
+   },
+   "model_stack": [
+    {
+     "label": "pplx-decider (27B) 4-bit tree",
+     "kind": "weights",
+     "bytes": 15362258534,
+     "src": 0
+    }
+   ],
+   "targets": [
+    "python env",
+    "Apple GPU (MLX)"
+   ],
+   "note": "the bench board's pplx comparison lane (perplexity-ai/pplx-decider-v1.1-27b, Apache-2.0, not affiliated \u2014 the JDI v3 board's #1): the LOCAL posture the board measures, the clef lane's class exactly; upstream bf16 weights are not downloaded"
   },
   {
    "key": "clm",
