@@ -511,6 +511,12 @@
     if (s.paw) out.push(s.paw);
     if (s.paw_local) out.push(s.paw_local);
     if (s.clef) out.push(s.clef);
+    // pplx rides the same enumerators as every other lane (the 2026-10-09
+    // user report: the lane rendered on the #areas radar — which reads the
+    // published areas block directly — but had NO filter chip, no hero bar
+    // and no table row, because these two walks never listed it; a lane a
+    // reader cannot filter is a lane the filter does not govern).
+    if (s.pplx) out.push(s.pplx);
     if (s.hybrid) out.push(s.hybrid);
     if (s.encoder) out.push(s.encoder);
     return out;
@@ -528,6 +534,7 @@
       if (hl.paw) out.push([hl.paw, host]);
       if (hl.paw_local) out.push([hl.paw_local, host]);
       if (hl.clef) out.push([hl.clef, host]);
+      if (hl.pplx) out.push([hl.pplx, host]);
       if (hl.hybrid) out.push([hl.hybrid, host]);
       if (hl.encoder) out.push([hl.encoder, host]);
     }
@@ -948,7 +955,7 @@
   function laneStats(d, m, lane, suites) {
     const vals = [], perSuite = [];
     const hosts = new Set();
-    let seen = 0, unfit = 0, served = 0, unverified = 0;
+    let seen = 0, unfit = 0, served = 0, unverified = 0, untimed = 0;
     for (const s of suites || []) {
       // pick() returns [lane, host] — host names the extra-host cell when the
       // primary host never ran this lane (the comparison-lane fallback)
@@ -969,7 +976,14 @@
       // is counted unverified — an unknown, not a known-bad.
       const fb = l.serves === "tier-fallback";
       if (METRICS[m].log && !fb && l.latency_quotable === false) { unfit++; continue; }
-      if (!num(v) || (METRICS[m].log && v <= 0)) continue;
+      if (!num(v) || (METRICS[m].log && v <= 0)) {
+        // An ACC-ONLY cell (no timing published, no verdict — the bench-131
+        // class: latency lands with a quiet-box re-read) is a different
+        // state from a FAILED box check; counted so the presence row can
+        // say which, never the loaded-box text for a lane never timed.
+        if (METRICS[m].log) untimed++;
+        continue;
+      }
       if (METRICS[m].log) {
         if (fb) served++;
         else if (l.latency_quotable !== true) unverified++;
@@ -981,7 +995,7 @@
     // The lane renders on this metric but nothing plottable — a presence row
     // the caller renders IN PLACE (never a vanished lane): every timed cell
     // failed the box-state check.
-    if (!vals.length) return seen ? { zero: true, unfit, served, unverified } : null;
+    if (!vals.length) return seen ? { zero: true, unfit, untimed, served, unverified } : null;
     const avg = METRICS[m].log
       ? Math.exp(vals.reduce((a, v) => a + Math.log(v), 0) / vals.length)
       : vals.reduce((a, v) => a + v, 0) / vals.length;
@@ -1053,19 +1067,32 @@
         `${band}${brk}<i class="bc-mark" style="left:${(fAv * 100).toFixed(2)}%;background:${lane.color}"></i><span class="bc-val" style="${valStyle}">${f(a.value)}</span></div></div>` +
         `<div class="bc-detail" id="${did}" hidden>${tip}</div>`;
     }).join("") +
-      zeroStats.map(([lane, a]) =>
+      zeroStats.map(([lane, a]) => {
         // presence row: the lane keeps its slot on the chart with the REASON
         // where a value would be — a vanished lane reads as lost results
-        // (2026-10-03 user report); the unfit numbers themselves never plot
-        `<div class="bc-hlabel"><i class="bc-sw" style="background:${lane.color}"></i>${esc(lane.label)}</div>` +
-        `<div class="bc-htrack">` +
-        `<div class="bc-hbar bc-none" data-tip="${esc(`${lane.label}: every timed cell failed the box-state check (loaded box at run time) — ${a.unfit} unfit cell(s) excluded; the values sit in the benchmark tables`)}" aria-label="${esc(`${lane.label}: no verified timing`)}">timing failed the loaded-box check — re-run pending, values on /bench/</div></div>`
-      ).join("") +
+        // (2026-10-03 user report); the unfit numbers themselves never plot.
+        // TWO zero states, never pooled (the 2026-10-09 report): a lane
+        // whose run was judged UNFIT (loaded box — timing measured and
+        // stripped) vs a lane whose cells are ACCURACY-ONLY (never timed;
+        // the bench-131 law — pplx read as a failed box check on its first
+        // render). The row names which state the lane is in.
+        const accOnly = a.unfit === 0 && (a.untimed || 0) > 0;
+        const body = accOnly
+          ? { text: "latency not measured yet — accuracy-only cells, quiet-box re-read pending",
+              tip: `${lane.label}: the published cells are accuracy-only — no timing measured yet; it lands with this lane's quiet-box re-read. Accuracy values sit in the benchmark tables`,
+              aria: `${lane.label}: latency not measured yet` }
+          : { text: "timing failed the loaded-box check — re-run pending, values on /bench/",
+              tip: `${lane.label}: every timed cell failed the box-state check (loaded box at run time) — ${a.unfit} unfit cell(s) excluded; the values sit in the benchmark tables`,
+              aria: `${lane.label}: no verified timing` };
+        return `<div class="bc-hlabel"><i class="bc-sw" style="background:${lane.color}"></i>${esc(lane.label)}</div>` +
+          `<div class="bc-htrack"><div class="bc-hbar bc-none" data-tip="${esc(body.tip)}" aria-label="${esc(body.aria)}">${esc(body.text)}</div></div>`;
+      }).join("") +
       absent.map(([lane]) =>
         `<div class="bc-hlabel"><i class="bc-sw" style="background:${lane.color}"></i>${esc(lane.label)}</div>` +
         `<div class="bc-htrack"><div class="bc-hbar bc-none" aria-label="${esc(`${lane.label}: no cell on the plotted suites`)}">${scopedNote ? "not run on the shared suites — switch the scope to all" : "no published cell"}</div></div>`
       ).join("");
     const anyServed = ranked.some(([, a]) => a.served);
+    const anyUntimed = zeroStats.some(([, a]) => a && a.unfit === 0 && (a.untimed || 0) > 0);
     const scopeNote = scopedNote
       ? `Scoped to the ${total} shared suites — the equal bench, one denominator for every row (the same suites the area radar rolls up on /bench/). `
       : `Over ${total} published suites — the count beside a lane is its plotted suites, and each lane averages its own suites — the like-for-like view is the benchmark page's area radar. `;
@@ -1081,6 +1108,7 @@
       `Hover a bar for per-suite values (tap or click a bar to expand them under the row).` +
       (M.log
         ? (anyServed ? " ↩k = k suites answered by the base lane — the served product (Rethink ≈ Reflex where the encoder declines). " : "") +
+          (anyUntimed ? " A not-measured-yet row = accuracy-only cells — that lane's timing lands with its quiet-box re-read." : "") +
           " Unfit timing (a loaded-box run) never plots — those lanes carry the reason in place; unverified = the run's host has no box-state probes."
         : "");
     return `<div class="bc-hgrid"><div></div>${axis(m)}${rows}<div></div>${axis(m)}</div><p class="bc-note">${esc(note)}</p>`;

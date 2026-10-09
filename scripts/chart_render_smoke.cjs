@@ -186,7 +186,12 @@ if (!/aria-label="clef-flash \(9B\) averaged: /.test(p50Html) || /aria-label="cl
     process.exit(1);
   }
   const pending = st.stats.filter(([, a]) => a && a.zero).map(([lane]) => lane.label);
-  const presence = [...p50Html.matchAll(/aria-label="([^"]*?)\s*(?::\s*)?no verified timing[^"]*"/g)].map((m) => m[1].trim());
+  // TWO presence states, both counted (the 2026-10-09 report): a lane whose
+  // run was judged unfit ("no verified timing") and a lane whose cells are
+  // accuracy-only ("latency not measured yet" — never the loaded-box text
+  // for a lane that was never timed; pplx wore exactly that mislabel for
+  // its first render).
+  const presence = [...p50Html.matchAll(/aria-label="([^"]*?): (?:no verified timing|latency not measured yet)"/g)].map((m) => m[1].trim());
   const unexpected = presence.filter((x) => !pending.includes(x));
   if (unexpected.length) {
     console.error(`FAIL[p50-family]: a presence row survived with no legitimately-pending lane — got [${unexpected.join(", ")}] (a lane whose timing turned quotable must plot its bar, never keep the placeholder)`);
@@ -199,6 +204,17 @@ if (!/aria-label="clef-flash \(9B\) averaged: /.test(p50Html) || /aria-label="cl
   }
   if (pending.length) {
     console.log(`[p50-family] presence rows (data-backed pending): ${pending.join(", ")}`);
+  }
+  // the acc-only class pins its OWN text: pplx (bench 132's acc-only cells)
+  // must never read as a failed box check, and the distinction is asserted
+  // both ways so a future regression cannot silently pool the two states.
+  if (/aria-label="pplx-decider \(27B\): no verified timing/.test(p50Html)) {
+    console.error("FAIL[p50-family]: pplx is accuracy-only — it must wear the not-measured-yet text, never the loaded-box text");
+    process.exit(1);
+  }
+  if (!/aria-label="pplx-decider \(27B\): latency not measured yet"/.test(p50Html)) {
+    console.error("FAIL[p50-family]: pplx's not-measured-yet presence row missing (lanes never vanish)");
+    process.exit(1);
   }
 }
 for (const back of ["paw", "clm", "gliner", "agentjev", "openthai"]) {

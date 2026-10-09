@@ -2380,7 +2380,10 @@
      "accuracy": 0.755,
      "macro_f1": 0.7445330507017898,
      "jdi_chance": 0.2925,
-     "jdi_skill": 0.6537102473498233
+     "jdi_skill": 0.6537102473498233,
+     "ece": 0.05995282201096416,
+     "mean_confidence": 0.7145579666681587,
+     "acc_at_50_coverage": 0.852
     },
     "consult_rate": 1.0,
     "latency_scope": "arm-only",
@@ -4027,7 +4030,10 @@
     "model": "ENC-ag_news_encoder_v1 (laya-english encoder + NLEH v1 head)",
     "hard": {
      "n": 400,
-     "accuracy": 0.9475
+     "accuracy": 0.9475,
+     "ece": 0.03893379544839259,
+     "mean_confidence": 0.980914422031492,
+     "acc_at_50_coverage": 0.995
     },
     "consult_rate": 1.0,
     "latency_scope": "arm-only",
@@ -10177,7 +10183,10 @@
     "model": "ENC-xnli_en_encoder_v1 (laya-english encoder + NLEH v1 head)",
     "hard": {
      "n": 300,
-     "accuracy": 0.86
+     "accuracy": 0.86,
+     "ece": 0.09030396024386092,
+     "mean_confidence": 0.947332436243693,
+     "acc_at_50_coverage": 0.9733333333333334
     },
     "consult_rate": 1.0,
     "latency_scope": "arm-only",

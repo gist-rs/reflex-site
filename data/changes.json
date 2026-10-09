@@ -53,5 +53,10 @@
     "date": "2026-10-09",
     "change": "The pplx comparison lane ships (reflex 082): Perplexity's pplx-decider-v1.1-27b — the JDI v3 board's #1 (62.75 blended) — measured on our 9 comparison suites at the local MLX 4-bit posture (the clef-lane class) (edition 2026-10-9)",
     "why": "the 623 distill-teacher read (clef-flash vs pplx v1.1) rides these cells; latency acc-only until a quiet-box re-read (the bench-131 law)"
+  },
+  {
+    "date": "2026-10-09",
+    "change": "Rethink's record cells gain their confidence-derived metrics (typed 0.8520 · ag_news 0.9950 · xnli_en 0.9733 acc@50cov, + ECE and mean confidence) — stamped from the runs' own frozen per-row data; the pplx lane joins the filter, the hero, the tables and the summary (it had rendered on the areas radar only)",
+    "why": "the 2026-10-09 report: acc@50 read 5/9 beside full accuracy data — the fallback cells carried the field while the encoder's own measured suites lacked it (the metric inverted Rethink's true coverage); sst5's record predates the per-row freeze and stays honestly '—' (issue 011); pplx was missing from the lane enumerators, and an accuracy-only lane now reads 'latency not measured yet', never the loaded-box text"
   }
 ]
