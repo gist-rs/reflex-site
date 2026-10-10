@@ -71,7 +71,7 @@ const server = http.createServer((req, res) => {
   // 2) the filter bar: 5 chips (the two laya spellings may both exist)
   const chips = await page.$$eval("#lane-filter input[type=checkbox]", (xs) => xs.map((x) => x.dataset.key));
   console.log("chips:", chips.join(","));
-  for (const k of ["katgpt", "rust", "python", "clm", "gliner", "agentjev", "openthai", "pplx"]) {
+  for (const k of ["katgpt", "rust", "python", "clm", "gliner", "agentjev", "openthai", "pplx", "drex"]) {
     if (!chips.includes(k)) fail(`filter chip missing: ${k}`);
   }
   if (chips.length >= 5) console.log("ok: filter chips present");
@@ -135,6 +135,16 @@ const server = http.createServer((req, res) => {
   const expectedPplx = expectedLaneRows("pplx");
   if (pplxRows !== expectedPplx || expectedPplx < 1) fail(`pplx rows ${pplxRows} != data ${expectedPplx}`);
   else console.log(`ok: ${pplxRows} pplx table rows (data-derived)`);
+
+  // 3h) drex rows (reflex 085 T1: the lane was measured 2026-10-08 but
+  //     never registered — the invisible-lane class). Same data-derived
+  //     law as clef/pplx: a zero here is the class, never an absence.
+  //     Bare label "drex" — the DLM's size is not on the model card, the
+  //     site never guesses.
+  const drexRows = await page.$$eval("#tables tr", (trs) => trs.filter((t) => { const c = t.querySelector("td"); return c && /^drex · /.test(c.textContent); }).length);
+  const expectedDrex = expectedLaneRows("drex");
+  if (drexRows !== expectedDrex || expectedDrex < 1) fail(`drex rows ${drexRows} != data ${expectedDrex}`);
+  else console.log(`ok: ${drexRows} drex table rows (data-derived)`);
 
   // 3f) the JDI crosswalk (plan 011 C3): the section renders per data.
   //     crosswalk — one table per crosswalk suite (the clef-carrying set),
@@ -208,7 +218,7 @@ const server = http.createServer((req, res) => {
   // "Instinct — not run" / "Rethink — not run" on every family row beside
   // a verdict card counting the same cells as family arms (2026-10-02
   // user report) — a not-run on a suite WITH a cell, this exact class.
-  for (const [key, label] of [["gliner", "gliner"], ["agentjev", "agentjev"], ["openthai", "openthai"], ["paw", "paw"], ["clef", "clef"], ["pplx", "pplx"], ["hybrid", "Instinct"], ["encoder", "Rethink"]]) {
+  for (const [key, label] of [["gliner", "gliner"], ["agentjev", "agentjev"], ["openthai", "openthai"], ["paw", "paw"], ["clef", "clef"], ["pplx", "pplx"], ["drex", "drex"], ["hybrid", "Instinct"], ["encoder", "Rethink"]]) {
     const expected = benchData.suites.filter((s) => !laneHasCell(s, key)).length;
     const got = notRun.filter((t) => t.startsWith(label)).length;
     if (got !== expected) fail(`${label}: ${got} hero not-run bars vs ${expected} suites without a ${label} cell — a not-run on a measured suite means the extra-host fallback failed`);
@@ -662,7 +672,7 @@ const server = http.createServer((req, res) => {
       const hl = (s.extra_host_lanes || {})[host];
       if (!hl) return n;
       return n + (hl.modelless ? 1 : 0) + Object.keys(hl.laya || {}).length
-        + ["clm", "gliner", "agentjev", "openthai", "paw", "paw_local", "hybrid"].filter((k) => hl[k]).length;
+        + ["clm", "gliner", "agentjev", "openthai", "paw", "paw_local", "hybrid", "clef", "pplx", "drex"].filter((k) => hl[k]).length;
     }, 0);
 
     // RTX 4090 scope: no m3 rows (primary rows are unlabeled — the

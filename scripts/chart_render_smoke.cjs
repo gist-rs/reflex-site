@@ -271,7 +271,7 @@ if (!/aria-label="clef-flash \(9B\) averaged: /.test(p50Html) || /aria-label="cl
     process.exit(1);
   }
 }
-for (const back of ["paw", "clm", "gliner", "agentjev", "openthai"]) {
+for (const back of ["paw", "clm", "gliner", "agentjev", "openthai", "drex"]) {
   if (!new RegExp(`aria-label="${back} averaged`).test(p50Html)) {
     console.error(`FAIL[p50-family]: ${back} lost its p50 bar — lanes never vanish`);
     process.exit(1);

@@ -111,10 +111,6 @@
      "pplx": {
       "git_sha": "0413dcd",
       "date_utc": "2026-10-08T21:33:44Z"
-     },
-     "drex": {
-      "git_sha": "0a3c79e",
-      "date_utc": "2026-10-08T01:38:13Z"
      }
     },
     "head_posture": "OFF (head_scale 0 \u2014 the published baseline posture)"
@@ -182,17 +178,13 @@
      "openthai": {
       "git_sha": "5a52ff9",
       "date_utc": "2026-10-04T17:23:40Z"
-     },
-     "drex": {
-      "git_sha": "7162840",
-      "date_utc": "2026-10-08T02:36:48Z"
      }
     },
     "head_posture": "OFF (head_scale 0 \u2014 the published baseline posture)"
    }
   ],
   "head_posture": "OFF (head_scale 0 \u2014 the published baseline posture)",
-  "edition": "2026-10-10"
+  "edition": "2026-10-9"
  },
  "suites": [
   {
@@ -2203,124 +2195,6 @@
        "git_sha": "5a52ff9",
        "date_utc": "2026-10-04T17:23:40Z"
       }
-     },
-     "drex": {
-      "lane": "drex (reference)",
-      "model": "drex-dlm",
-      "hard": {
-       "n": 2000,
-       "accuracy": 0.5865,
-       "macro_f1": 0.5802987467662611,
-       "ece": 0.10819204999999996,
-       "brier": 0.5438868918900003,
-       "nll": 0.9371348971982383,
-       "aurc": 0.2847039238141745,
-       "mean_confidence": 0.6808192500000004,
-       "acc_at_50_coverage": 0.691,
-       "acc_at_80_coverage": 0.6225
-      },
-      "readout_ece": 0.1928557500000001,
-      "readout_brier": 0.2663099949850001,
-      "raw_abstain": null,
-      "calibrated_abstain": null,
-      "abstain_causes": null,
-      "readout_ece_raw": null,
-      "readout_ece_calibrated": null,
-      "floor_ece": null,
-      "g1_pass": null,
-      "g1_verdict": null,
-      "drex_conf_readout": {
-       "choice": {
-        "n": 600,
-        "ece": 0.1471298333333334,
-        "brier": 0.23891225341666658
-       },
-       "score": {
-        "n": 800,
-        "ece": 0.24774887500000006,
-        "brier": 0.2876990959624999
-       },
-       "noul": null,
-       "floor_ece": 0.12199103321785201,
-       "floor_n_cal": 700,
-       "floor_n_test": 700,
-       "floor_posture": "split-half conformal (first half cal, second half test) \u2014 this lane has no dedicated cal slice"
-      },
-      "by_question_type": {
-       "choice": {
-        "n": 600,
-        "accuracy": 0.6166666666666667,
-        "macro_f1": 0.5986425345380547,
-        "ece": 0.12052533333333346,
-        "brier": 0.5410055013166669,
-        "nll": 1.0193013141720357,
-        "aurc": 0.24645347271504708,
-        "mean_confidence": 0.7359016666666661,
-        "acc_at_50_coverage": 0.7233333333333334,
-        "acc_at_80_coverage": 0.66875
-       },
-       "noul": {
-        "n": 600,
-        "accuracy": 0.5716666666666667,
-        "macro_f1": 0.5187250896538379,
-        "ece": 0.1874288333333333,
-        "brier": 0.5303778705000013,
-        "nll": 0.7878827847309335,
-        "aurc": 0.2961348428659781,
-        "mean_confidence": 0.7590955000000001,
-        "acc_at_50_coverage": 0.69,
-        "acc_at_80_coverage": 0.6
-       },
-       "score": {
-        "n": 800,
-        "accuracy": 0.575,
-        "macro_f1": 0.6013650035333423,
-        "ece": 0.06176450000000007,
-        "brier": 0.5561797008624992,
-        "nll": 0.9874491688183723,
-        "aurc": 0.28973144355001207,
-        "mean_confidence": 0.5808002499999998,
-        "acc_at_50_coverage": 0.6675,
-        "acc_at_80_coverage": 0.6140625
-       }
-      },
-      "soft_acc": 0.461749687739992,
-      "brier_soft": 0.22050576685344442,
-      "score_mae": 0.3906310500000003,
-      "within_1": 0.92125,
-      "latency_p50_ms": 106.0,
-      "latency_p99_ms": 167.0,
-      "latency_tail_support": 5,
-      "latency_extremes": {
-       "first_ms": 165.0,
-       "max_ms": 170.0,
-       "argmax_case": 119
-      },
-      "determinism_ok": true,
-      "determinism_n": 10,
-      "seconds": 50.7448774,
-      "n_cases": 400,
-      "n_questions": 2000,
-      "score_threshold": null,
-      "distance_threshold": null,
-      "threshold_recommendation": null,
-      "corpus_cap": null,
-      "head_selection": null,
-      "nb_selection": null,
-      "oc_selection": null,
-      "ridge_selection": null,
-      "genome_selection": null,
-      "transductive": null,
-      "confusion": null,
-      "pair_head_ab": null,
-      "jdi_chance": 0.2925,
-      "jdi_skill": 0.41554770318021206,
-      "cases_digest": "fnv1a64-6e37760ee2a5b6c9",
-      "latency_quotable": true,
-      "source_run": {
-       "git_sha": "7162840",
-       "date_utc": "2026-10-08T02:36:48Z"
-      }
      }
     }
    },
@@ -2865,113 +2739,6 @@
     "source_run": {
      "git_sha": "0413dcd",
      "date_utc": "2026-10-08T21:33:44Z"
-    }
-   },
-   "drex": {
-    "lane": "drex (reference)",
-    "model": "drex-dlm",
-    "hard": {
-     "n": 2000,
-     "accuracy": 0.5855,
-     "macro_f1": 0.5788517787061889,
-     "ece": 0.10553430000000033,
-     "brier": 0.5443953298449985,
-     "nll": 0.937999554928506,
-     "aurc": 0.2846085209990927,
-     "mean_confidence": 0.6800911999999993,
-     "acc_at_50_coverage": 0.689,
-     "acc_at_80_coverage": 0.6225
-    },
-    "readout_ece": 0.10553430000000033,
-    "raw_abstain": null,
-    "calibrated_abstain": null,
-    "abstain_causes": null,
-    "readout_ece_raw": null,
-    "readout_ece_calibrated": null,
-    "floor_ece": null,
-    "g1_pass": null,
-    "g1_verdict": null,
-    "drex_conf_readout": {
-     "choice": {
-      "n": 600,
-      "ece": 0.14601283333333334,
-      "brier": 0.2376375493833334
-     },
-     "score": {
-      "n": 800,
-      "ece": 0.2494627499999999,
-      "brier": 0.2894427336249999
-     },
-     "noul": null,
-     "floor_ece": 0.11581618096596694,
-     "floor_n_cal": 700,
-     "floor_n_test": 700,
-     "floor_posture": "split-half conformal (first half cal, second half test) \u2014 this lane has no dedicated cal slice"
-    },
-    "by_question_type": {
-     "choice": {
-      "n": 600,
-      "accuracy": 0.6166666666666667,
-      "macro_f1": 0.599781605844419,
-      "ece": 0.12936550000000008,
-      "brier": 0.5395994695999993,
-      "nll": 1.0156477654914284,
-      "aurc": 0.24501003549092526,
-      "mean_confidence": 0.7349198333333333,
-      "acc_at_50_coverage": 0.7266666666666667,
-      "acc_at_80_coverage": 0.66875
-     },
-     "noul": {
-      "n": 600,
-      "accuracy": 0.575,
-      "macro_f1": 0.5224704196954423,
-      "ece": 0.18530716666666663,
-      "brier": 0.5322140476999991,
-      "nll": 0.7914105865373074,
-      "aurc": 0.2965439337753797,
-      "mean_confidence": 0.7603071666666673,
-      "acc_at_50_coverage": 0.6866666666666666,
-      "acc_at_80_coverage": 0.6
-     },
-     "score": {
-      "n": 800,
-      "accuracy": 0.57,
-      "macro_f1": 0.5979793787732504,
-      "ece": 0.059286999999999965,
-      "brier": 0.5571281866375002,
-      "nll": 0.9897051232997081,
-      "aurc": 0.2906095294764057,
-      "mean_confidence": 0.5788077499999997,
-      "acc_at_50_coverage": 0.6625,
-      "acc_at_80_coverage": 0.61875
-     }
-    },
-    "soft_acc": 0.46141827546461234,
-    "brier_soft": 0.22035116608827357,
-    "score_mae": 0.39117767749999943,
-    "within_1": 0.92125,
-    "determinism_ok": true,
-    "determinism_n": 10,
-    "n_cases": 400,
-    "n_questions": 2000,
-    "score_threshold": null,
-    "distance_threshold": null,
-    "threshold_recommendation": null,
-    "corpus_cap": null,
-    "head_selection": null,
-    "nb_selection": null,
-    "oc_selection": null,
-    "ridge_selection": null,
-    "genome_selection": null,
-    "transductive": null,
-    "confusion": null,
-    "pair_head_ab": null,
-    "jdi_chance": 0.2925,
-    "jdi_skill": 0.4141342756183746,
-    "cases_digest": "fnv1a64-6e37760ee2a5b6c9",
-    "source_run": {
-     "git_sha": "0a3c79e",
-     "date_utc": "2026-10-08T01:38:13Z"
     }
    }
   },
@@ -4514,72 +4281,6 @@
     "source_run": {
      "git_sha": "0413dcd",
      "date_utc": "2026-10-08T21:33:44Z"
-    }
-   },
-   "drex": {
-    "lane": "drex (reference)",
-    "model": "drex-dlm",
-    "hard": {
-     "n": 400,
-     "accuracy": 0.895,
-     "macro_f1": 0.8859395200866416,
-     "ece": 0.0575575000000001,
-     "brier": 0.16363134985000038,
-     "nll": 0.34518013062910813,
-     "aurc": 0.0298156889884093,
-     "mean_confidence": 0.9398579999999999,
-     "acc_at_50_coverage": 0.97,
-     "acc_at_80_coverage": 0.959375
-    },
-    "readout_ece": 0.0575575000000001,
-    "raw_abstain": null,
-    "calibrated_abstain": null,
-    "abstain_causes": null,
-    "readout_ece_raw": null,
-    "readout_ece_calibrated": null,
-    "floor_ece": null,
-    "g1_pass": null,
-    "g1_verdict": null,
-    "drex_conf_readout": {
-     "choice": {
-      "n": 400,
-      "ece": 0.058848750000000484,
-      "brier": 0.07801197997500009
-     },
-     "score": null,
-     "noul": null,
-     "floor_ece": 0.383134328358209,
-     "floor_n_cal": 200,
-     "floor_n_test": 200,
-     "floor_posture": "split-half conformal (first half cal, second half test) \u2014 this lane has no dedicated cal slice"
-    },
-    "by_question_type": null,
-    "soft_acc": null,
-    "brier_soft": null,
-    "score_mae": null,
-    "within_1": null,
-    "determinism_ok": true,
-    "determinism_n": 10,
-    "n_cases": 400,
-    "n_questions": 400,
-    "score_threshold": null,
-    "distance_threshold": null,
-    "threshold_recommendation": null,
-    "corpus_cap": null,
-    "head_selection": null,
-    "nb_selection": null,
-    "oc_selection": null,
-    "ridge_selection": null,
-    "genome_selection": null,
-    "transductive": null,
-    "confusion": null,
-    "pair_head_ab": null,
-    "jdi_chance": 0.3075,
-    "jdi_skill": 0.848375451263538,
-    "cases_digest": "fnv1a64-07eff23c06505584",
-    "source_run": {
-     "git_sha": "0a3c79e",
-     "date_utc": "2026-10-08T01:38:13Z"
     }
    }
   },
@@ -18818,7 +18519,7 @@
  ],
  "areas": {
   "version": 4,
-  "edition": "2026-10-10",
+  "edition": "2026-10-9",
   "chance_digest": "9b08e3970c7a38a566ddeba3f37ad8d7",
   "scale": "chance-corrected accuracy: cc = (acc - chance) / (1 - chance); 0 = random guessing, 1 = every question right; per-suite chance = the mean per-question random-pick probability of the harness's own option construction (a dataset fact, not a measurement); values below 0 are BELOW CHANCE and stay negative on purpose \u2014 a lane scoring under random guessing must read that way, and negatives pull area means and the index down by design",
   "suites": {
@@ -19542,31 +19243,6 @@
     },
     "complete": true
    },
-   "drex": {
-    "display": "drex",
-    "color_key": "drex",
-    "kind": "http-oracle",
-    "per_suite": {
-     "ag_news": {
-      "acc": 0.895,
-      "cc": 0.86
-     },
-     "typed_decisions": {
-      "acc": 0.5855,
-      "cc": 0.392674
-     }
-    },
-    "areas": {
-     "language": 0.86,
-     "decisions": 0.392674
-    },
-    "index": 0.626337,
-    "coverage": {
-     "suites": 2,
-     "of": 9
-    },
-    "complete": false
-   },
    "clm@4090-win": {
     "display": "clm",
     "color_key": "clm",
@@ -19836,16 +19512,6 @@
     "n_unjudged": 9,
     "note": "population = the suites behind the lane's index; p50 geometric mean over latency_quotable cells only (unfit timing is shown in the tables, never plotted)"
    },
-   "drex": {
-    "clock": "http",
-    "method": "HTTP round-trip to their Drex-DLM SystemOne server (4090: their Python serve.py, BF16 CUDA \u2014 quotable timing; m3: their llama.cpp edlm fork, Q8_0 Metal \u2014 accuracy-only, its preflight REFUSED and the ms figures are never quoted; the postures agree to 0.001 on the headline). Weights CC BY-NC 4.0 \u2014 measurement-only, never a distill teacher, never a product",
-    "suites": 2,
-    "p50_geomean_ms": null,
-    "n_used": 0,
-    "n_unquotable": 0,
-    "n_unjudged": 2,
-    "note": "population = the suites behind the lane's index; p50 geometric mean over latency_quotable cells only (unfit timing is shown in the tables, never plotted)"
-   },
    "clm@4090-win": {
     "clock": "http",
     "method": "HTTP round-trip to their served reference (vLLM pooling on the 4090 window)",
@@ -20003,7 +19669,7 @@
  },
  "abstention": {
   "version": 1,
-  "edition": "2026-10-10",
+  "edition": "2026-10-9",
   "lanes": {
    "modelless": {
     "causes": {
@@ -20051,18 +19717,6 @@
       "macro_f1": 0.7219508452915961,
       "jdi_chance": 0.2925,
       "jdi_skill": 0.6254416961130742,
-      "serves": null,
-      "record_only": false
-     },
-     {
-      "lane": "drex",
-      "display": "drex (reference)",
-      "model": "drex-dlm",
-      "n": 2000,
-      "accuracy": 0.5855,
-      "macro_f1": 0.5788517787061889,
-      "jdi_chance": 0.2925,
-      "jdi_skill": 0.4141342756183746,
       "serves": null,
       "record_only": false
      },
@@ -20159,18 +19813,6 @@
       "macro_f1": 0.8807080810359893,
       "jdi_chance": 0.3075,
       "jdi_skill": 0.8411552346570398,
-      "serves": null,
-      "record_only": false
-     },
-     {
-      "lane": "drex",
-      "display": "drex (reference)",
-      "model": "drex-dlm",
-      "n": 400,
-      "accuracy": 0.895,
-      "macro_f1": 0.8859395200866416,
-      "jdi_chance": 0.3075,
-      "jdi_skill": 0.848375451263538,
       "serves": null,
       "record_only": false
      },

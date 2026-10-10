@@ -102,6 +102,15 @@
     // re-checks all-pairs). sizeFrom "family": the label names the
     // family AND size off the cell's model id (MODEL_FAMILIES).
     { key: "pplx", label: "pplx", color: "#00acc1", sizeFrom: "family", match: (l) => l.lane === "pplx (local)" },
+    // The Drex comparison lane (reflex 085): Nace AI's Drex-DLM decision
+    // model, measured on our suites at two postures (their Python BF16
+    // CUDA serve; their llama.cpp edlm fork Q8_0). Weights CC BY-NC —
+    // measurement-only. Red slot — the deepest-saturation red, distinct
+    // from bekko's soft rose (the bekko/clef/pplx relaxed-contrast
+    // disclosure: not ΔE-validated; the next palette pass re-checks
+    // all-pairs). No sizeFrom: the DLM's parameter count is not stated
+    // on the model card, and the site never guesses a size.
+    { key: "drex", label: "drex", color: "#e53935", match: (l) => l.lane === "drex (reference)" },
   ];
   const OTHER = { key: "other", label: "other", color: "#69718a" };
   const laneOf = (l) => LANES.find((x) => x.match(l)) || OTHER;
@@ -517,6 +526,7 @@
     // and no table row, because these two walks never listed it; a lane a
     // reader cannot filter is a lane the filter does not govern).
     if (s.pplx) out.push(s.pplx);
+    if (s.drex) out.push(s.drex);
     if (s.hybrid) out.push(s.hybrid);
     if (s.encoder) out.push(s.encoder);
     return out;
@@ -535,6 +545,7 @@
       if (hl.paw_local) out.push([hl.paw_local, host]);
       if (hl.clef) out.push([hl.clef, host]);
       if (hl.pplx) out.push([hl.pplx, host]);
+      if (hl.drex) out.push([hl.drex, host]);
       if (hl.hybrid) out.push([hl.hybrid, host]);
       if (hl.encoder) out.push([hl.encoder, host]);
     }

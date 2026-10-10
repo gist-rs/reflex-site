@@ -291,6 +291,15 @@ LANE_DISPLAY = {
     # adapter), so the display name carries the posture like the
     # paw pair and clef.
     "pplx": "pplx (local)",
+    # reflex Issue 085: the Drex comparison lane — Nace AI's Drex-DLM
+    # decision model, the open 32K release (nace-ai/drex-dlm). Weights
+    # CC BY-NC 4.0 — MEASUREMENT-ONLY (never a distill teacher, never a
+    # product); the (reference) qualifier like the clm/gliner family
+    # (their model, our measurement). The cells carry TWO postures under
+    # one lane (4090: their Python serve.py BF16 CUDA; m3: their
+    # llama.cpp edlm fork Q8_0 Metal) — the per-cell model id + the
+    # timing-method table name the posture.
+    "drex": "drex (reference)",
 }
 
 # The hand-maintained DISCLOSURE table (2026-10-02, the full-coverage
@@ -466,6 +475,7 @@ def rename_lanes(d):
             + ([s["paw_local"]] if s.get("paw_local") else [])
             + ([s["clef"]] if s.get("clef") else [])
             + ([s["pplx"]] if s.get("pplx") else [])
+            + ([s["drex"]] if s.get("drex") else [])
             + ([s["openthai"]] if s.get("openthai") else [])
         )
         for l in lanes:
@@ -713,6 +723,7 @@ AREA_LANES = (
     ("paw_local", "paw (local)", "paw"),
     ("clef", "clef (local)", "clef"),
     ("pplx", "pplx (local)", "pplx"),
+    ("drex", "drex", "drex"),
 )
 
 # ── Lane classification (plan 001 task 5; the Jev Index's entrant
@@ -741,6 +752,7 @@ LANE_KIND = {
     "paw_local": "compiled-program",
     "clef": "http-oracle",
     "pplx": "http-oracle",
+    "drex": "http-oracle",
 }
 
 # ── Per-lane timing-method disclosure (plan 001 task 4; their per-engine
@@ -834,6 +846,17 @@ LANE_TIMING = {
                    "behind the reference-wire adapter; their bf16 hosted "
                    "posture is a different row, never pooled"),
     },
+    "drex": {
+        "clock": "http",
+        "method": ("HTTP round-trip to their Drex-DLM SystemOne server "
+                   "(4090: their Python serve.py, BF16 CUDA — quotable "
+                   "timing; m3: their llama.cpp edlm fork, Q8_0 Metal — "
+                   "accuracy-only, its preflight REFUSED and the ms "
+                   "figures are never quoted; the postures agree to "
+                   "0.001 on the headline). Weights CC BY-NC 4.0 — "
+                   "measurement-only, never a distill teacher, never a "
+                   "product"),
+    },
 }
 
 # ── Edition (plan 001 task 7; their edition label + auditability) ─────
@@ -849,7 +872,7 @@ LANE_TIMING = {
 # the guard's refusal), point EDITION at it, freeze the outgoing table
 # (the publisher archives it automatically, on BOTH the publish and the
 # --rederive paths), and add a data/changes.json row.
-EDITION = "2026-10-9"
+EDITION = "2026-10-10"
 
 
 def _basis_payload():
@@ -886,6 +909,14 @@ EDITIONS = {
     # posture (the clef-lane posture class). Latency acc-only until a
     # quiet-box re-read (the bench-131 law under sibling load).
     "2026-10-9": "47f99630a2a1350d122d79167caa5ae9",
+    # 2026-10-10 (reflex 085 T1): the drex comparison lane joins the lane
+    # set — Nace AI's Drex-DLM (the open 32K release), measured on OUR
+    # suites at two postures (4090: their Python serve.py BF16 CUDA,
+    # quotable timing, det re-verified 10/10; m3: their llama.cpp edlm
+    # fork Q8_0 Metal, acc-only — its preflight REFUSED). Weights
+    # CC BY-NC 4.0 — measurement-only. The open drex-v1.5 (9B, RAIL-M)
+    # is a DIFFERENT lane, owner-gated (reflex .issues/085 T0).
+    "2026-10-10": "7dfc19ac74fdb0ee61bd75f9737587f1",
 }
 
 
@@ -1464,7 +1495,7 @@ def compute_s1mb(d):
 # The crosswalk's lane order (plan 011 C3): the comparison lanes carrying
 # OUR cells on OUR splits, clef first (the lane the crosswalk exists for).
 CROSSWALK_LANES = (
-    "clef", "pplx", "hybrid", "encoder", "modelless", "openthai",
+    "clef", "pplx", "drex", "hybrid", "encoder", "modelless", "openthai",
     "bekko", "paw_local", "paw",
 )
 
@@ -2006,6 +2037,20 @@ def merge(primary, extras):
                 updated_lanes["pplx"] = True
             elif epx:
                 skipped_variant_lanes.append(f"pplx@{ehost}")
+            # The Drex comparison lane (reflex .issues/085): the same
+            # carry law — Nace's decision model measured per-host. The
+            # 4090 cells are their Python serve.py BF16 CUDA (quotable
+            # timing); the m3 cells their llama.cpp edlm fork Q8_0 Metal
+            # (published acc-only — its preflight REFUSED, the ms
+            # figures never quoted). Weights CC BY-NC 4.0 —
+            # measurement-only, never a teacher, never a product.
+            edx = s.get("drex")
+            if edx and not device_variant:
+                stamp_cell(edx, s, emeta)
+                entry["drex"] = edx
+                updated_lanes["drex"] = True
+            elif edx:
+                skipped_variant_lanes.append(f"drex@{ehost}")
             # The Issue-024 leak block (T4): a slice property of the
             # DATASETS + registry caps, not of the host — the latest
             # run's scan is the published one (a doc without it never
@@ -2637,7 +2682,7 @@ def _carry_into(lane, incumbent):
 # one checkpoint drops published cells even though the class survives.
 LANE_CLASSES = ("modelless", "laya", "clm", "gliner", "bekko", "agentjev",
                 "hybrid", "encoder", "paw", "paw_local", "openthai", "clef",
-                "pplx")
+                "pplx", "drex")
 
 
 def lane_inventory(d):
@@ -3031,6 +3076,9 @@ def finalize(d):
                    else [])
                 + ([host_lanes["openthai"]] if host_lanes.get("openthai")
                    else [])
+                + ([host_lanes["clef"]] if host_lanes.get("clef") else [])
+                + ([host_lanes["pplx"]] if host_lanes.get("pplx") else [])
+                + ([host_lanes["drex"]] if host_lanes.get("drex") else [])
             )
             for l in lanes:
                 l["lane"] = LANE_DISPLAY.get(l.get("lane"), l.get("lane"))
