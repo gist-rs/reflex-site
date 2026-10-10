@@ -134,8 +134,34 @@ if (!byLane["Instinct"] || !byLane["Rethink"]) {
   console.error(`FAIL[p50-family]: Instinct/Rethink missing from the p50 summary — got ${JSON.stringify(byLane)}`);
   process.exit(1);
 }
-if (byLane["Instinct"].n !== 9 || byLane["Rethink"].n !== 9) {
-  console.error(`FAIL[p50-family]: served coverage moved (Instinct ${byLane["Instinct"].n}/9, Rethink ${byLane["Rethink"].n}/9) — re-pin`);
+// The composition-marginal law (2026-10-10, instinct Issue 007 completed
+// for the chart): Instinct's arm-only cells (the µs fusion forward, no seat
+// solve) never enter the shared-axis geomean — its row plots the SEAT+ARM
+// cells only (2 today: emotion 0.115, xnli 0.087 → ~0.10 ms, honestly ABOVE
+// Reflex's 0.157), and the ＋margN tag discloses the excluded marginals.
+if (byLane["Instinct"].n !== 2 || byLane["Rethink"].n !== 9) {
+  console.error(`FAIL[p50-family]: coverage moved (Instinct ${byLane["Instinct"].n}/9 — 2 seat+arm expected, the arm-only marginals excluded; Rethink ${byLane["Rethink"].n}/9) — re-pin`);
+  process.exit(1);
+}
+// the marginal exclusion is VISIBLE on the row (the ＋marg7 tag) — a silent
+// exclusion is the 2026-10-10 user-report class reading as lost cells
+if (!/＋marg7/.test(p50Html)) {
+  console.error(`FAIL[p50-family]: Instinct's ＋marg7 disclosure tag missing — the arm-only exclusion must be visible on the row`);
+  process.exit(1);
+}
+// physics pin (the 2026-10-10 user report): PER-SUITE, the composite must
+// never read below its substrate — the seat+arm cell carries the seat in
+// it. The 2-suite geomean may sit under Reflex's 9-suite geomean (different
+// suites); the PER-SUITE floor is the invariant. Read both lanes' aria
+// labels, then re-derive the per-suite floor from the shared data below.
+const katRow = (p50Html.match(/aria-label="Reflex · modelless averaged: (.+?) over/) || [])[1];
+const insRow = byLane["Instinct"].val;
+if (!katRow) {
+  console.error(`FAIL[p50-family]: Reflex row missing — the physics pin needs the substrate row`);
+  process.exit(1);
+}
+if (!/µs|ms/.test(insRow)) {
+  console.error(`FAIL[p50-family]: Instinct value unreadable (${insRow})`);
   process.exit(1);
 }
 // Rethink's row is mostly the base lane answering: the ↩ tag must say so.

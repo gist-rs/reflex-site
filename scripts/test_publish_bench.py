@@ -2297,6 +2297,55 @@ def case_lane_tables_complete():
         assert t["n_used"] + t["n_unquotable"] + t["n_unjudged"] == t["suites"]
 
 
+def case_hybrid_arm_only_cells_are_marginals_never_the_geomean():
+    """The composition-marginal law (instinct Issue 007, completed for the
+    aggregate 2026-10-10 — the Instinct-faster-than-Reflex user report): a
+    hybrid arm-only cell is the µs fusion forward over the modelless seat —
+    the seat solve is NOT in the number, so it can never enter the lane's
+    p50 geomean (which feeds the efficiency frontier). It counts as
+    n_arm_only and the note names it; a hybrid seat+arm cell plots as
+    measured. Any OTHER lane's arm-only cell IS its own decision (the
+    encoder's forward) and enters the geomean unchanged."""
+    d = area_doc()
+    # hybrid: 2 seat+arm cells (0.1, 0.4 ms) + 6 arm-only marginals
+    # (µs-class) + 1 unquotable
+    for i, s in enumerate(d["suites"][:9]):
+        h = s["hybrid"]
+        h["latency_p50_ms"] = 2.0
+        h["latency_quotable"] = True
+    d["suites"][0]["hybrid"]["latency_p50_ms"] = 0.1
+    d["suites"][0]["hybrid"]["latency_scope"] = "seat+arm"
+    d["suites"][1]["hybrid"]["latency_p50_ms"] = 0.4
+    d["suites"][1]["hybrid"]["latency_scope"] = "seat+arm"
+    for s in d["suites"][2:8]:
+        s["hybrid"]["latency_p50_ms"] = 0.003
+        s["hybrid"]["latency_scope"] = "arm-only"
+    d["suites"][8]["hybrid"]["latency_p50_ms"] = 0.003
+    d["suites"][8]["hybrid"]["latency_scope"] = "arm-only"
+    d["suites"][8]["hybrid"]["latency_quotable"] = False
+    # the encoder lane: arm-only cells ARE the decision — geomean unchanged
+    enc_fixed = 0
+    for s in d["suites"][:3]:
+        e = s.get("encoder")
+        if isinstance(e, dict):
+            e["latency_p50_ms"] = 16.0
+            e["latency_quotable"] = True
+            e["latency_scope"] = "arm-only"
+            enc_fixed += 1
+    a = pb.compute_areas(d)
+    hy = a["timing"]["hybrid"]
+    assert hy["n_used"] == 2, "only the seat+arm cells enter the geomean"
+    assert hy["n_arm_only"] == 6, "the marginals count, disclosed"
+    assert hy["n_unquotable"] == 1
+    assert hy["p50_geomean_ms"] == round(math.sqrt(0.1 * 0.4), 4)
+    assert "composition marginal" in hy["note"], "the note names the class"
+    if enc_fixed and "encoder" in a["timing"]:
+        enc = a["timing"]["encoder"]
+        assert enc["n_used"] == enc_fixed, \
+            "a non-hybrid arm-only cell IS the decision - it plots"
+        assert "n_arm_only" not in enc
+
+
 def case_area_timing_population_and_quotable():
     """Plan 001 task 4 (the verdict's three changes): the p50 geometric
     mean covers EXACTLY the suites behind the lane's index (never other
@@ -3019,6 +3068,7 @@ CASES = [
     case_area_zero_fill_regression,
     case_chance_digest_and_edition_pin,
     case_lane_tables_complete,
+    case_hybrid_arm_only_cells_are_marginals_never_the_geomean,
     case_area_timing_population_and_quotable,
     case_rederive_preserves_cells,
     case_rederive_archives_on_edition_bump,

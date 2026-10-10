@@ -762,8 +762,10 @@ LANE_TIMING = {
     },
     "hybrid": {
         "clock": "in-process",
-        "method": ("Rust in-process over the same seat (specialist compose "
-                   "+ modelless base, one process)"),
+        "method": ("Rust in-process; seat+arm cells time the full composed "
+                   "path (modelless seat + arm), arm-only cells (A1/H2) time "
+                   "the composition forward alone - the modelless seat is "
+                   "NOT in that number (instinct Issue 007)"),
     },
     "encoder": {
         "clock": "in-process",
@@ -1027,12 +1029,24 @@ def compute_areas(d):
         cell carries p50_geomean_ms: null — the page lists it as "not
         plotted: no quotable latency", never draws it at 0."""
         cls = key.split("@")[0]
-        used, unquotable, unjudged = [], 0, 0
+        used, unquotable, unjudged, arm_only = [], 0, 0, 0
         for _name, (cell, _ck) in cells.items():
             p50 = cell.get("latency_p50_ms")
             q = cell.get("latency_quotable")
             if q is True and isinstance(p50, (int, float)) and p50 > 0:
-                used.append(p50)
+                # The composition-marginal law (instinct Issue 007, completed
+                # for the aggregate 2026-10-10): the hybrid lane composes
+                # OVER the modelless seat, so its arm-only cells (A1/H2 - the
+                # fusion forward alone, no reflex solve in the measurement)
+                # are the MARGINAL compose cost, never the product latency.
+                # They count, they disclose, and they never enter the
+                # shared-axis geomean (which feeds the frontier). Any other
+                # lane's arm-only cell IS its own decision (the encoder's
+                # forward is the product) and enters as measured.
+                if cls == "hybrid" and cell.get("latency_scope") == "arm-only":
+                    arm_only += 1
+                else:
+                    used.append(p50)
             elif q is False:
                 unquotable += 1
             else:
@@ -1048,7 +1062,12 @@ def compute_areas(d):
             note += (f"; {n_fb} fallback spoke(s) carry the answering "
                      "tier's timing, unjudged here — shown in the suite "
                      "tables, never plotted")
-        return {
+        if arm_only:
+            note += (f"; {arm_only} arm-only cell(s) are the composition "
+                     "marginal (the fusion forward over the modelless seat - "
+                     "the seat solve is not in that number), counted, "
+                     "never plotted")
+        out = {
             "clock": LANE_TIMING[cls]["clock"],
             "method": LANE_TIMING[cls]["method"],
             "suites": len(cells),
@@ -1058,6 +1077,30 @@ def compute_areas(d):
             "n_unjudged": unjudged,
             "note": note,
         }
+        if arm_only:
+            out["n_arm_only"] = arm_only
+        return out
+
+    def _anti_physics_advisory():
+        """The 2026-10-10 user report's invariant, as an ADVISORY: a hybrid
+        seat+arm cell contains the modelless seat solve in its measurement,
+        so per-suite it should read at or above the modelless cell. The two
+        numbers come from DIFFERENT runs (instinct's arena vs the reflex
+        harness), so small inversions are cross-run noise - printed, never
+        a refusal. A LARGE inversion (the arm-only marginal class leaking
+        back) is exactly what the composition-marginal law excluded."""
+        for s in d.get("suites", []):
+            hy = s.get("hybrid") or {}
+            ml = s.get("modelless") or {}
+            if (hy.get("latency_scope") == "seat+arm"
+                    and isinstance(hy.get("latency_p50_ms"), (int, float))
+                    and isinstance(ml.get("latency_p50_ms"), (int, float))
+                    and hy["latency_p50_ms"] < ml["latency_p50_ms"]):
+                print(f"note: seat+arm hybrid {s['name']} p50 "
+                      f"{hy['latency_p50_ms']} < modelless "
+                      f"{ml['latency_p50_ms']} - cross-run variance unless "
+                      f"large (the arm-only marginals are excluded by law)",
+                      file=sys.stderr)
 
     def _lane_block(lane_key, display, color_key, per_suite, area_vals,
                     cells=None, host=None):
@@ -1126,6 +1169,7 @@ def compute_areas(d):
                     host=host)
                 cells_by_key[f"{key}@{host}"] = cells
 
+    _anti_physics_advisory()
     timing_out = {key: _lane_timing(key, cells_by_key[key])
                   for key in lanes_out}
 

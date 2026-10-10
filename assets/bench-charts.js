@@ -634,6 +634,10 @@
     return `<span class="bc-sw" style="background:${lane.color}"></span><b>${esc(shortLane(l))} · ${esc(l.model)}</b>${extra ? ` <span class="bc-mut">${esc(extra)}</span>` : ""}<br>` +
       `accuracy ${num(acc) ? pct(acc) : "—"} · acc@50cov ${num(h.acc_at_50_coverage) ? pct(h.acc_at_50_coverage) : "—"}<br>` +
       `p50 ${num(l.latency_p50_ms) ? lat(l.latency_p50_ms) : "—"} · p99 ${num(l.latency_p99_ms) ? lat(l.latency_p99_ms) : "—"}` +
+      (l.latency_scope === "arm-only"
+        ? ` <span class="bc-mut">(${laneOf(l).key === "instinct" ? "composition marginal — the modelless seat solve is not in this number" : "arm-only — the arm's own forward is the decision"})</span>`
+        : "") +
+      (num(l.server_latency_p50_ms) ? `<br><span class="bc-mut">their server-side p50 ${lat(l.server_latency_p50_ms)} — the round-trip above is transport + server; this is their own clock</span>` : "") +
       (num(h.n) ? ` · n=${h.n}` : "") +
       (cc != null ? `<br>cc ${pct(cc)}${cc < 0 ? " — below chance" : ""}` : "") + fb;
   };
@@ -926,6 +930,17 @@
   // the landing page defaults to the speed story — the reason Reflex exists;
   // /bench/'s hero keeps its own accuracy default
   let summaryData = null, summaryMetric = "p50";
+  // Clock-posture toggle (owner 2026-10-10): the latency axis mixes native
+  // in-process lanes with HTTP/subprocess round-trips — the transport
+  // premium is the python-side lanes' deployment reality (they cannot embed
+  // into the device; the API hop is how they are consumable), not a native
+  // cost we or they measured without it. ON = like-for-like: only
+  // in-process-clocked lanes plot on the LATENCY metric, the excluded lanes
+  // named in the note; OFF = the full board. It never edits a number —
+  // a lane carrying a dual clock (paw's server_latency_p50_ms) shows both
+  // in its tooltip either way.
+  let clockNative = false;
+  try { clockNative = localStorage.getItem("bench-clock-native") === "1"; } catch (e) { /* default full board */ }
   // last-render lane stats (metric + the [lane, stats] pairs the body
   // plotted) — a READ-ONLY hook for the render smoke: the legitimate
   // presence-row set is derived from these stats, never re-typed by
@@ -955,7 +970,7 @@
   function laneStats(d, m, lane, suites) {
     const vals = [], perSuite = [];
     const hosts = new Set();
-    let seen = 0, unfit = 0, served = 0, unverified = 0, untimed = 0;
+    let seen = 0, unfit = 0, served = 0, unverified = 0, untimed = 0, armOnly = 0;
     for (const s of suites || []) {
       // pick() returns [lane, host] — host names the extra-host cell when the
       // primary host never ran this lane (the comparison-lane fallback)
@@ -976,6 +991,15 @@
       // is counted unverified — an unknown, not a known-bad.
       const fb = l.serves === "tier-fallback";
       if (METRICS[m].log && !fb && l.latency_quotable === false) { unfit++; continue; }
+      // The composition-marginal law (instinct Issue 007, completed for the
+      // chart 2026-10-10): the Instinct lane composes OVER the modelless
+      // seat, so its arm-only cells (the µs-class fusion forward, no reflex
+      // solve in the measurement) are the marginal compose cost — NEVER the
+      // product latency. They never enter the shared-axis geomean; counted
+      // and disclosed like unfit. Any OTHER lane's arm-only cell IS its own
+      // decision (the encoder's forward is the product) and plots as
+      // measured.
+      if (METRICS[m].log && !fb && lane.key === "instinct" && l.latency_scope === "arm-only") { armOnly++; continue; }
       if (!num(v) || (METRICS[m].log && v <= 0)) {
         // An ACC-ONLY cell (no timing published, no verdict — the bench-131
         // class: latency lands with a quiet-box re-read) is a different
@@ -995,11 +1019,11 @@
     // The lane renders on this metric but nothing plottable — a presence row
     // the caller renders IN PLACE (never a vanished lane): every timed cell
     // failed the box-state check.
-    if (!vals.length) return seen ? { zero: true, unfit, untimed, served, unverified } : null;
+    if (!vals.length) return seen ? { zero: true, unfit, untimed, served, unverified, armOnly } : null;
     const avg = METRICS[m].log
       ? Math.exp(vals.reduce((a, v) => a + Math.log(v), 0) / vals.length)
       : vals.reduce((a, v) => a + v, 0) / vals.length;
-    return { value: avg, min: Math.min(...vals), max: Math.max(...vals), n: vals.length, perSuite, hosts: [...hosts], unfit, served, unverified };
+    return { value: avg, min: Math.min(...vals), max: Math.max(...vals), n: vals.length, perSuite, hosts: [...hosts], unfit, served, unverified, armOnly };
   }
 
   function summaryBody() {
@@ -1015,7 +1039,20 @@
     // results being lost. No lane ever vanishes from this chart.
     const suitesNow = scopedSuites(d);
     const total = suitesNow.length;
-    const stats = LANES.map((lane) => [lane, laneStats(d, m, lane, suitesNow)]);
+    // the clock filter (latency metric only): invert AREA_LANE_KEYS to find
+    // each lane's timing block; no timing block = the lane never published
+    // one, keep it (never hide for absence of metadata)
+    const timingOf = {};
+    for (const [tk, pk] of Object.entries(AREA_LANE_KEYS)) timingOf[pk] = tk;
+    const offClock = M.log && clockNative
+      ? LANES.filter((lane) => {
+          const t = areasBlock && areasBlock.timing && areasBlock.timing[timingOf[lane.key]];
+          return t && t.clock && t.clock !== "in-process";
+        }).map((lane) => lane.label)
+      : [];
+    const stats = LANES
+      .filter((lane) => !offClock.some((x) => x === lane.label))
+      .map((lane) => [lane, laneStats(d, m, lane, suitesNow)]);
     lastSummaryStats = { metric: m, scope: summaryScope, stats };
     const ranked = stats.filter(([, a]) => a && !a.zero)
       .sort(([, x], [, y]) => (M.log ? x.value - y.value : y.value - x.value));
@@ -1024,6 +1061,9 @@
     // reason (the no-vanishing law, 2026-10-03) — in the shared scope that
     // is a lane the equal bench never measured
     const absent = stats.filter(([, a]) => !a);
+    const clockNote = offClock.length
+      ? `<p class="bc-note">like-for-like clocks: ${offClock.map((x) => esc(x)).join(", ")} hidden — their p50 is an HTTP/subprocess round-trip (the transport is those lanes' deployment reality, not a measured native cost); uncheck to show every posture</p>`
+      : "";
     const scopedNote = summaryScope === "shared" && sharedBasis();
     const rows = ranked.map(([lane, a]) => {
       const fLo = frac(m, a.min), fHi = frac(m, a.max), fAv = frac(m, a.value);
@@ -1035,11 +1075,13 @@
       // as a full row (the reason Instinct/Rethink had been hidden instead)
       const cov = a.n < total ? ` <span class="bc-mut">· ${a.n}/${total}</span>` : "";
       const fbTag = a.served ? ` <span class="bc-mut" title="suites the lane's own arm declined — the base lane answered">↩${a.served}</span>` : "";
+      const armTag = a.armOnly ? ` <span class="bc-mut" title="arm-only cells excluded — the composition marginal (fusion over the modelless seat; the seat solve is not in that number)">＋marg${a.armOnly}</span>` : "";
       const tip = `<span class="bc-sw" style="background:${lane.color}"></span><b>${esc(lane.label)}</b><br>` +
         `${how} over <b>${a.n}</b> suites: <b>${f(a.value)}</b> — band = per-suite range (${spread})` +
         (a.served ? `<br><span class="bc-mut">↩ ${a.served} of ${a.n} answered by the base lane — the served product</span>` : "") +
         (a.unverified ? `<br><span class="bc-mut">⚠ ${a.unverified} cell(s) unverified — that host runs no box-state probes</span>` : "") +
         (a.unfit ? `<br><span class="bc-mut">${a.unfit} unfit cell(s) excluded — a loaded-box run; values in the benchmark tables</span>` : "") +
+        (a.armOnly ? `<br><span class="bc-mut">${a.armOnly} arm-only cell(s) excluded — the composition marginal (the µs fusion forward over the modelless seat; the seat solve is not in that number), never the product latency</span>` : "") +
         (a.hosts.length ? `<br><span class="bc-mut">includes extra-host cells: ${a.hosts.map((h) => "@" + esc(h)).join(", ")}</span>` : "") +
         `<br><span class="bc-mut">${per}</span>`;
       const band = a.n > 1
@@ -1061,7 +1103,7 @@
       // tap-to-expand: the same tip content renders under the row (hidden
       // until the bar is clicked/tapped — hover has no touch equivalent)
       const did = `bcd-${lane.key}`;
-      return `<div class="bc-hlabel"><i class="bc-sw" style="background:${lane.color}"></i>${esc(lane.label)}${cov}${fbTag}</div>` +
+      return `<div class="bc-hlabel"><i class="bc-sw" style="background:${lane.color}"></i>${esc(lane.label)}${cov}${fbTag}${armTag}</div>` +
         `<div class="bc-htrack">${grid(m)}` +
         `<div class="bc-hbar" tabindex="0" role="button" aria-expanded="false" aria-controls="${did}" data-tip="${esc(tip)}" aria-label="${esc(`${lane.label} averaged: ${f(a.value)} over ${a.n} suites (min ${f(a.min)}, max ${f(a.max)})`)}">` +
         `${band}${brk}<i class="bc-mark" style="left:${(fAv * 100).toFixed(2)}%;background:${lane.color}"></i><span class="bc-val" style="${valStyle}">${f(a.value)}</span></div></div>` +
@@ -1111,7 +1153,8 @@
           (anyUntimed ? " A not-measured-yet row = accuracy-only cells — that lane's timing lands with its quiet-box re-read." : "") +
           " Unfit timing (a loaded-box run) never plots — those lanes carry the reason in place; unverified = the run's host has no box-state probes."
         : "");
-    return `<div class="bc-hgrid"><div></div>${axis(m)}${rows}<div></div>${axis(m)}</div><p class="bc-note">${esc(note)}</p>`;
+    return `<div class="bc-hgrid"><div></div>${axis(m)}${rows}<div></div>${axis(m)}</div>` +
+      `<p class="bc-note">${esc(note)}</p>${clockNote}`;
   }
 
   function summaryShell(d) {
@@ -1128,8 +1171,11 @@
     const legend = scopedNow
       ? `the ${sharedN} shared suites, one min–avg–max range per lane — the equal basis of <a href="/bench/">the full benchmark</a>'s area radar`
       : `every published suite, one min–avg–max range per lane — the same data as <a href="/bench/">the full benchmark</a>`;
+    const clockBtn = `<div class="bc-toggle bc-clock" role="group" aria-label="clock posture">` +
+        `<button type="button" data-clock="native" aria-pressed="${clockNative}" title="show only native in-process clocks on the latency rows — the round-trip lanes are hidden, never re-timed">native clocks${clockNative ? " ✓" : ""}</button></div>`;
     return `<div class="bc-bar"><div class="bc-legend"><span>${legend}</span></div>` +
-      `<div class="bc-toggle" role="group" aria-label="metric">${btns}</div>${scopeBtns}</div><div class="bc-summary-body">${summaryBody()}</div>`;
+      `<div class="bc-toggle" role="group" aria-label="metric">${btns}</div>${scopeBtns}${clockBtn}</div>` +
+      `<div class="bc-summary-body">${summaryBody()}</div>`;
   }
 
   function summary(d, el) {
@@ -1170,6 +1216,14 @@
         const b = e.target.closest("button[data-scope]");
         if (!b || b.dataset.scope === summaryScope) return;
         summaryScope = b.dataset.scope;
+        render();
+      });
+      const clockBtnEl = el.querySelector(".bc-clock");
+      if (clockBtnEl) clockBtnEl.addEventListener("click", (e) => {
+        const b = e.target.closest("button[data-clock]");
+        if (!b) return;
+        clockNative = !clockNative;
+        try { localStorage.setItem("bench-clock-native", clockNative ? "1" : "0"); } catch (err) { /* non-fatal */ }
         render();
       });
     };
@@ -1589,7 +1643,11 @@
         cellc = e.ck ? (container.laya || {})[e.ck] : container[cls];
       }
       const ccTxt = e ? pct(e.cc) + (e.cc < 0 ? " — below chance" : "") : "not run";
-      const p50 = cellc && num(cellc.latency_p50_ms) ? lat(cellc.latency_p50_ms) : "—";
+      const p50 = cellc && num(cellc.latency_p50_ms)
+        ? lat(cellc.latency_p50_ms) + (cellc.latency_scope === "arm-only"
+            ? ` <span class="bc-mut" title="${cellc.latency_rows === "questions" ? "" : ""}">(arm-only${key === "hybrid" ? " — composition marginal, the seat solve is not in this number" : ""})</span>`
+            : "")
+        : "—";
       const q = cellc ? cellc.latency_quotable : undefined;
       const qTxt = q === true ? "quotable" : q === false ? "unfit box" : q === null ? "unjudged" : "—";
       const det = cellc && cellc.determinism_ok === true ? "✓" : cellc && cellc.determinism_ok === false ? "✗" : "—";

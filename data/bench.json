@@ -19413,13 +19413,14 @@
    },
    "hybrid": {
     "clock": "in-process",
-    "method": "Rust in-process over the same seat (specialist compose + modelless base, one process)",
+    "method": "Rust in-process; seat+arm cells time the full composed path (modelless seat + arm), arm-only cells (A1/H2) time the composition forward alone - the modelless seat is NOT in that number (instinct Issue 007)",
     "suites": 9,
-    "p50_geomean_ms": 0.0035,
-    "n_used": 9,
+    "p50_geomean_ms": 0.1,
+    "n_used": 2,
     "n_unquotable": 0,
     "n_unjudged": 0,
-    "note": "population = the suites behind the lane's index; p50 geometric mean over latency_quotable cells only (unfit timing is shown in the tables, never plotted)"
+    "note": "population = the suites behind the lane's index; p50 geometric mean over latency_quotable cells only (unfit timing is shown in the tables, never plotted); 7 arm-only cell(s) are the composition marginal (the fusion forward over the modelless seat - the seat solve is not in that number), counted, never plotted",
+    "n_arm_only": 7
    },
    "encoder": {
     "clock": "in-process",
