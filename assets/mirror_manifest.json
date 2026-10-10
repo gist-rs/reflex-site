@@ -84,7 +84,7 @@
       "repo": "riir-instinct",
       "src": ".docs/05_resources/dev_flow.md",
       "dst": "docs/instinct/dev_flow.md",
-      "sha256": "3f620b65918ffd395f5df6b2edc5ca184ac6ad809382d83d3c85af8d8fb30a9d"
+      "sha256": "69760065db6f9ea284b161a7ba6c132d158f72ea30a07dccb6ed3bf01455b348"
     },
     {
       "repo": "riir-instinct",
