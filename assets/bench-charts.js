@@ -635,7 +635,11 @@
       `accuracy ${num(acc) ? pct(acc) : "—"} · acc@50cov ${num(h.acc_at_50_coverage) ? pct(h.acc_at_50_coverage) : "—"}<br>` +
       `p50 ${num(l.latency_p50_ms) ? lat(l.latency_p50_ms) : "—"} · p99 ${num(l.latency_p99_ms) ? lat(l.latency_p99_ms) : "—"}` +
       (l.latency_scope === "arm-only"
-        ? ` <span class="bc-mut">(${laneOf(l).key === "instinct" ? "composition marginal — the modelless seat solve is not in this number" : "arm-only — the arm's own forward is the decision"})</span>`
+        ? ` <span class="bc-mut">(${fb
+            ? "the answering tier's arm-only marginal — that tier served this suite; the clock is its fusion forward, not this lane's"
+            : laneOf(l).key === "instinct"
+              ? "composition marginal — the modelless seat solve is not in this number"
+              : "arm-only — the arm's own forward is the decision"})</span>`
         : "") +
       (num(l.server_latency_p50_ms) ? `<br><span class="bc-mut">their server-side p50 ${lat(l.server_latency_p50_ms)} — the round-trip above is transport + server; this is their own clock</span>` : "") +
       (num(h.n) ? ` · n=${h.n}` : "") +
@@ -970,7 +974,7 @@
   function laneStats(d, m, lane, suites) {
     const vals = [], perSuite = [];
     const hosts = new Set();
-    let seen = 0, unfit = 0, served = 0, unverified = 0, untimed = 0, armOnly = 0;
+    let seen = 0, unfit = 0, served = 0, unverified = 0, untimed = 0, armOnly = 0, fbMarg = 0;
     for (const s of suites || []) {
       // pick() returns [lane, host] — host names the extra-host cell when the
       // primary host never ran this lane (the comparison-lane fallback)
@@ -991,6 +995,14 @@
       // is counted unverified — an unknown, not a known-bad.
       const fb = l.serves === "tier-fallback";
       if (METRICS[m].log && !fb && l.latency_quotable === false) { unfit++; continue; }
+      // The fallback spoke's clock is the ANSWERING arm's — when that arm's
+      // own measurement is the arm-only marginal class (the A1/H2 fusion
+      // forward, no seat solve), the spoke inherits a marginal, not a
+      // product latency. The serving event is real (disclosed), but its
+      // clock never plots on this lane either — the Rethink-min-under-Reflex
+      // report (2026-10-10): the marginal class excluded from the Instinct
+      // row leaked back in through the product-lane fallback spokes.
+      if (METRICS[m].log && fb && l.latency_scope === "arm-only") { fbMarg++; continue; }
       // The composition-marginal law (instinct Issue 007, completed for the
       // chart 2026-10-10): the Instinct lane composes OVER the modelless
       // seat, so its arm-only cells (the µs-class fusion forward, no reflex
@@ -1019,11 +1031,11 @@
     // The lane renders on this metric but nothing plottable — a presence row
     // the caller renders IN PLACE (never a vanished lane): every timed cell
     // failed the box-state check.
-    if (!vals.length) return seen ? { zero: true, unfit, untimed, served, unverified, armOnly } : null;
+    if (!vals.length) return seen ? { zero: true, unfit, untimed, served, unverified, armOnly, fbMarg } : null;
     const avg = METRICS[m].log
       ? Math.exp(vals.reduce((a, v) => a + Math.log(v), 0) / vals.length)
       : vals.reduce((a, v) => a + v, 0) / vals.length;
-    return { value: avg, min: Math.min(...vals), max: Math.max(...vals), n: vals.length, perSuite, hosts: [...hosts], unfit, served, unverified, armOnly };
+    return { value: avg, min: Math.min(...vals), max: Math.max(...vals), n: vals.length, perSuite, hosts: [...hosts], unfit, served, unverified, armOnly, fbMarg };
   }
 
   function summaryBody() {
@@ -1082,6 +1094,7 @@
         (a.unverified ? `<br><span class="bc-mut">⚠ ${a.unverified} cell(s) unverified — that host runs no box-state probes</span>` : "") +
         (a.unfit ? `<br><span class="bc-mut">${a.unfit} unfit cell(s) excluded — a loaded-box run; values in the benchmark tables</span>` : "") +
         (a.armOnly ? `<br><span class="bc-mut">${a.armOnly} arm-only cell(s) excluded — the composition marginal (the µs fusion forward over the modelless seat; the seat solve is not in that number), never the product latency</span>` : "") +
+        (a.fbMarg ? `<br><span class="bc-mut">${a.fbMarg} fallback spoke(s) excluded — the answering tier served those suites, but its clock there is its own arm-only marginal, not this lane's latency (shown in the suite tables with the scope named)</span>` : "") +
         (a.hosts.length ? `<br><span class="bc-mut">includes extra-host cells: ${a.hosts.map((h) => "@" + esc(h)).join(", ")}</span>` : "") +
         `<br><span class="bc-mut">${per}</span>`;
       const band = a.n > 1
@@ -1645,7 +1658,11 @@
       const ccTxt = e ? pct(e.cc) + (e.cc < 0 ? " — below chance" : "") : "not run";
       const p50 = cellc && num(cellc.latency_p50_ms)
         ? lat(cellc.latency_p50_ms) + (cellc.latency_scope === "arm-only"
-            ? ` <span class="bc-mut" title="${cellc.latency_rows === "questions" ? "" : ""}">(arm-only${key === "hybrid" ? " — composition marginal, the seat solve is not in this number" : ""})</span>`
+            ? ` <span class="bc-mut">(arm-only${cellc.serves === "tier-fallback"
+                ? " — the answering tier's marginal, not this lane's clock"
+                : key === "hybrid"
+                  ? " — composition marginal, the seat solve is not in this number"
+                  : ""})</span>`
             : "")
         : "—";
       const q = cellc ? cellc.latency_quotable : undefined;

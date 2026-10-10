@@ -139,8 +139,14 @@ if (!byLane["Instinct"] || !byLane["Rethink"]) {
 // solve) never enter the shared-axis geomean — its row plots the SEAT+ARM
 // cells only (2 today: emotion 0.115, xnli 0.087 → ~0.10 ms, honestly ABOVE
 // Reflex's 0.157), and the ＋margN tag discloses the excluded marginals.
-if (byLane["Instinct"].n !== 2 || byLane["Rethink"].n !== 9) {
-  console.error(`FAIL[p50-family]: coverage moved (Instinct ${byLane["Instinct"].n}/9 — 2 seat+arm expected, the arm-only marginals excluded; Rethink ${byLane["Rethink"].n}/9) — re-pin`);
+// The fallback-spoke marginal law (2026-10-10, the Rethink-min-under-Reflex
+// report): a tier-fallback spoke whose scope is arm-only carries the
+// ANSWERING arm's fusion marginal — served (real) but never plotted as this
+// lane's latency. Rethink plots 5: its 4 own encoder forwards + the emotion
+// A0 seat+arm fallback (a real composed clock); its 4 arm-only spokes
+// (0.54–8.5 µs) are excluded — they read 44× under Reflex's fastest cell.
+if (byLane["Instinct"].n !== 2 || byLane["Rethink"].n !== 5) {
+  console.error(`FAIL[p50-family]: coverage moved (Instinct ${byLane["Instinct"].n}/9 — 2 seat+arm expected; Rethink ${byLane["Rethink"].n}/9 — 5 expected, the arm-only fallback spokes excluded) — re-pin`);
   process.exit(1);
 }
 // the marginal exclusion is VISIBLE on the row (the ＋marg7 tag) — a silent
@@ -166,9 +172,31 @@ if (!/µs|ms/.test(insRow)) {
 }
 // Rethink's row is mostly the base lane answering: the ↩ tag must say so.
 const rethinkTag = (p50Html.match(/<span class="bc-mut" title="[^"]*">↩(\d+)<\/span>/g) || []);
-if (!rethinkTag.some((t) => t.endsWith("↩5</span>"))) {
-  console.error(`FAIL[p50-family]: Rethink's ↩5 served tag missing — got ${rethinkTag.join(", ")}`);
+if (!rethinkTag.some((t) => t.endsWith("↩1</span>"))) {
+  console.error(`FAIL[p50-family]: Rethink's ↩1 served tag missing (only the emotion seat+arm fallback's clock plots; the arm-only spokes are excluded) — got ${rethinkTag.join(", ")}`);
   process.exit(1);
+}
+// physics pin (the 2026-10-10 report): Rethink's plotted geomean must sit
+// ABOVE Reflex's — the encoder lane's cells are ms-class forwards plus real
+// composed fallbacks; a sub-Reflex reading means a marginal leaked back in
+const katGeo = (p50Html.match(/aria-label="Reflex · modelless averaged: (.+?) over/) || [])[1];
+if (katGeo && byLane["Rethink"].val) {
+  // unit-normalize (the row values carry µs/ms suffixes): everything to ms
+  const toMs = (s) => {
+    const m = String(s).match(/^([\d.]+)\s*(µs|us|ms|s)?/);
+    if (!m) return null;
+    const v = parseFloat(m[1]);
+    return m[2] === "µs" || m[2] === "us" ? v / 1000 : m[2] === "s" ? v * 1000 : v;
+  };
+  const r = toMs(byLane["Rethink"].val), k = toMs(katGeo);
+  if (r == null || k == null) {
+    console.error(`FAIL[p50-family]: physics pin unreadable (Rethink ${byLane["Rethink"].val}, Reflex ${katGeo})`);
+    process.exit(1);
+  }
+  if (!(r > k)) {
+    console.error(`FAIL[p50-family]: anti-physics — Rethink ${byLane["Rethink"].val} must sit ABOVE Reflex ${katGeo} (an encoder lane under its modelless substrate = a leaked composition marginal)`);
+    process.exit(1);
+  }
 }
 // every lane keeps its slot: a lane with verified timing plots it, an
 // unjudged lane (4090) plots with its disclosure. The bekko label
@@ -255,7 +283,7 @@ if (!p50Html.includes("Unfit timing")) {
   console.error("FAIL[p50-family]: the note must disclose the unfit-exclusion rule");
   process.exit(1);
 }
-console.log(`[p50-family] Instinct ${byLane["Instinct"].val} over 9 · Rethink ${byLane["Rethink"].val} over 9 (↩5 served) · bekko 400M plots (quotable 9/9, reflex bench 115) · unjudged lanes plot marked · ${covTagged} coverage tags`);
+console.log(`[p50-family] Instinct ${byLane["Instinct"].val} (2 seat+arm; ＋marg7 excluded) · Rethink ${byLane["Rethink"].val} (4 own forwards + 1 seat+arm fallback; ＋marg4 spokes excluded) · bekko 400M plots (quotable 9/9, reflex bench 115) · ${covTagged} coverage tags`);
 
 // Switch the metric via the captured click handler (accuracy: log=false path).
 const toggle = captured[".bc-toggle"];
