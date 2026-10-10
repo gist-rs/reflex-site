@@ -2467,6 +2467,18 @@ def apply_lane_carry(d, incumbent_snapshot, extras):
                 src_lane = _host_lane_slot(snap, host, lane_key)
                 if src_lane is None:
                     continue
+                # A VACUOUS carry donates nothing (bench 137, 2026-10-10):
+                # an acc-only-stripped incumbent owns NONE of the five
+                # latency fields - there is no timing to carry, so the only
+                # effect of firing would be popping the update's own
+                # latency_quotable verdict and stamping a false
+                # latency_provenance note. The stripped incumbent is the
+                # invalidated side with its verdict stored as ABSENT (the
+                # acc-only publish strips it with the timing), which the
+                # Issue-003 T2 suppression (verdict is False) cannot see;
+                # this guard is that law completed for the stripped shape.
+                if not any(k in src_lane for k in LANE_LATENCY_FIELDS):
+                    continue
                 # A lane this publish did not refresh carries its own run's
                 # identity on BOTH sides (same `source_run`): re-stamping it
                 # as "carried from the incumbent" would serve a provenance

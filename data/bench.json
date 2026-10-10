@@ -53,8 +53,8 @@
     "corpus_cap_mode": "registry defaults",
     "lane_sources": {
      "modelless": {
-      "git_sha": "0413dcd",
-      "date_utc": "2026-10-08T19:22:50Z"
+      "git_sha": "197e855",
+      "date_utc": "2026-10-10T06:52:15Z"
      },
      "laya:english": {
       "git_sha": "8ca8770",
@@ -270,8 +270,17 @@
     "brier_soft": 0.2106513235327601,
     "score_mae": 0.6697793511115953,
     "within_1": 0.76,
+    "latency_p50_ms": 0.762,
+    "latency_p99_ms": 1.623,
+    "latency_tail_support": 5,
+    "latency_extremes": {
+     "first_ms": 0.204,
+     "max_ms": 6.173,
+     "argmax_case": 200
+    },
     "determinism_ok": true,
     "determinism_n": 10,
+    "seconds": 6.5459362500000005,
     "n_cases": 400,
     "n_questions": 2000,
     "score_threshold": 0.56503725,
@@ -560,9 +569,10 @@
     },
     "corpus_digest": "fnv1a64-2fe9ec3132dbc924",
     "cases_digest": "fnv1a64-6e37760ee2a5b6c9",
+    "latency_quotable": true,
     "source_run": {
-     "git_sha": "f068ae6",
-     "date_utc": "2026-10-08T15:09:13Z"
+     "git_sha": "197e855",
+     "date_utc": "2026-10-10T06:52:15Z"
     }
    },
    "laya": {
@@ -2778,8 +2788,17 @@
     "brier_soft": null,
     "score_mae": null,
     "within_1": null,
+    "latency_p50_ms": 0.143,
+    "latency_p99_ms": 0.24,
+    "latency_tail_support": 5,
+    "latency_extremes": {
+     "first_ms": 0.238,
+     "max_ms": 0.251,
+     "argmax_case": 5
+    },
     "determinism_ok": true,
     "determinism_n": 10,
+    "seconds": 4.300983583,
     "n_cases": 400,
     "n_questions": 400,
     "score_threshold": 0.8358875,
@@ -3041,9 +3060,10 @@
     },
     "corpus_digest": "fnv1a64-58e669a512102140",
     "cases_digest": "fnv1a64-07eff23c06505584",
+    "latency_quotable": true,
     "source_run": {
-     "git_sha": "f068ae6",
-     "date_utc": "2026-10-08T15:09:13Z"
+     "git_sha": "197e855",
+     "date_utc": "2026-10-10T06:52:15Z"
     }
    },
    "laya": {
@@ -4310,8 +4330,17 @@
     "brier_soft": null,
     "score_mae": null,
     "within_1": null,
+    "latency_p50_ms": 0.11,
+    "latency_p99_ms": 0.121,
+    "latency_tail_support": 5,
+    "latency_extremes": {
+     "first_ms": 0.116,
+     "max_ms": 0.125,
+     "argmax_case": 154
+    },
     "determinism_ok": true,
     "determinism_n": 10,
+    "seconds": 10.029595333,
     "n_cases": 400,
     "n_questions": 400,
     "score_threshold": 0.7631245,
@@ -4573,9 +4602,10 @@
     },
     "corpus_digest": "fnv1a64-dfde0f5a6091008c",
     "cases_digest": "fnv1a64-6feefd1c947dd008",
+    "latency_quotable": true,
     "source_run": {
-     "git_sha": "f068ae6",
-     "date_utc": "2026-10-08T15:09:13Z"
+     "git_sha": "197e855",
+     "date_utc": "2026-10-10T06:52:15Z"
     }
    },
    "laya": {
@@ -5843,8 +5873,17 @@
     "brier_soft": null,
     "score_mae": 1.1170251806701224,
     "within_1": 0.54,
+    "latency_p50_ms": 0.09,
+    "latency_p99_ms": 0.094,
+    "latency_tail_support": 7,
+    "latency_extremes": {
+     "first_ms": 0.091,
+     "max_ms": 0.098,
+     "argmax_case": 181
+    },
     "determinism_ok": true,
     "determinism_n": 10,
+    "seconds": 3.83934575,
     "n_cases": 600,
     "n_questions": 600,
     "score_threshold": 0.28131148,
@@ -6106,9 +6145,10 @@
     },
     "corpus_digest": "fnv1a64-726f717634ca24fb",
     "cases_digest": "fnv1a64-ad64a6cb0039e916",
+    "latency_quotable": true,
     "source_run": {
-     "git_sha": "f068ae6",
-     "date_utc": "2026-10-08T15:09:13Z"
+     "git_sha": "197e855",
+     "date_utc": "2026-10-10T06:52:15Z"
     }
    },
    "laya": {
@@ -7374,8 +7414,17 @@
     "brier_soft": null,
     "score_mae": null,
     "within_1": null,
+    "latency_p50_ms": 0.076,
+    "latency_p99_ms": 0.085,
+    "latency_tail_support": 2,
+    "latency_extremes": {
+     "first_ms": 0.084,
+     "max_ms": 0.09,
+     "argmax_case": 8
+    },
     "determinism_ok": true,
     "determinism_n": 10,
+    "seconds": 1.512909667,
     "n_cases": 116,
     "n_questions": 116,
     "score_threshold": 0.7991401,
@@ -7634,9 +7683,10 @@
     },
     "corpus_digest": "fnv1a64-91324bedb87d226f",
     "cases_digest": "fnv1a64-5080803ec29f2423",
+    "latency_quotable": true,
     "source_run": {
-     "git_sha": "f068ae6",
-     "date_utc": "2026-10-08T15:09:13Z"
+     "git_sha": "197e855",
+     "date_utc": "2026-10-10T06:52:15Z"
     }
    },
    "laya": {
@@ -8894,8 +8944,17 @@
     "brier_soft": null,
     "score_mae": null,
     "within_1": null,
+    "latency_p50_ms": 0.084,
+    "latency_p99_ms": 0.088,
+    "latency_tail_support": 4,
+    "latency_extremes": {
+     "first_ms": 0.089,
+     "max_ms": 0.089,
+     "argmax_case": 0
+    },
     "determinism_ok": true,
     "determinism_n": 10,
+    "seconds": 3.495122333,
     "n_cases": 300,
     "n_questions": 300,
     "score_threshold": 0.55691224,
@@ -9191,9 +9250,10 @@
     },
     "corpus_digest": "fnv1a64-ec79d4c41953d288",
     "cases_digest": "fnv1a64-b136750e5af1d412",
+    "latency_quotable": true,
     "source_run": {
-     "git_sha": "f068ae6",
-     "date_utc": "2026-10-08T15:09:13Z"
+     "git_sha": "197e855",
+     "date_utc": "2026-10-10T06:52:15Z"
     }
    },
    "laya": {
@@ -10466,8 +10526,17 @@
     "brier_soft": null,
     "score_mae": null,
     "within_1": null,
+    "latency_p50_ms": 0.111,
+    "latency_p99_ms": 0.133,
+    "latency_tail_support": 4,
+    "latency_extremes": {
+     "first_ms": 0.122,
+     "max_ms": 0.15,
+     "argmax_case": 94
+    },
     "determinism_ok": true,
     "determinism_n": 10,
+    "seconds": 37.828576583,
     "n_cases": 300,
     "n_questions": 300,
     "score_threshold": 0.11058739,
@@ -10729,9 +10798,10 @@
     },
     "corpus_digest": "fnv1a64-8e7cc94319af1108",
     "cases_digest": "fnv1a64-49390c8b80475849",
+    "latency_quotable": true,
     "source_run": {
-     "git_sha": "f068ae6",
-     "date_utc": "2026-10-08T15:09:13Z"
+     "git_sha": "197e855",
+     "date_utc": "2026-10-10T06:52:15Z"
     }
    },
    "laya": {
@@ -11948,8 +12018,17 @@
     "brier_soft": null,
     "score_mae": null,
     "within_1": null,
+    "latency_p50_ms": 0.357,
+    "latency_p99_ms": 0.666,
+    "latency_tail_support": 6,
+    "latency_extremes": {
+     "first_ms": 0.312,
+     "max_ms": 0.681,
+     "argmax_case": 72
+    },
     "determinism_ok": true,
     "determinism_n": 10,
+    "seconds": 50.875362959,
     "n_cases": 500,
     "n_questions": 500,
     "score_threshold": 0.74778104,
@@ -12211,9 +12290,10 @@
     },
     "corpus_digest": "fnv1a64-07e3c974b5ae1bda",
     "cases_digest": "fnv1a64-dd8ab35333abb82a",
+    "latency_quotable": true,
     "source_run": {
-     "git_sha": "f068ae6",
-     "date_utc": "2026-10-08T15:09:13Z"
+     "git_sha": "197e855",
+     "date_utc": "2026-10-10T06:52:15Z"
     }
    },
    "laya": {
@@ -13467,8 +13547,17 @@
     "brier_soft": null,
     "score_mae": null,
     "within_1": null,
+    "latency_p50_ms": 0.215,
+    "latency_p99_ms": 0.372,
+    "latency_tail_support": 1,
+    "latency_extremes": {
+     "first_ms": 0.178,
+     "max_ms": 0.372,
+     "argmax_case": 9
+    },
     "determinism_ok": true,
     "determinism_n": 10,
+    "seconds": 0.060256625,
     "n_cases": 16,
     "n_questions": 32,
     "score_threshold": 0.4606726,
@@ -13606,9 +13695,10 @@
     },
     "corpus_digest": "fnv1a64-58c275cd1d2ec9c0",
     "cases_digest": "fnv1a64-93583fda4fc64946",
+    "latency_quotable": true,
     "source_run": {
-     "git_sha": "f068ae6",
-     "date_utc": "2026-10-08T15:09:13Z"
+     "git_sha": "197e855",
+     "date_utc": "2026-10-10T06:52:15Z"
     }
    },
    "laya": {
@@ -14781,8 +14871,17 @@
     "brier_soft": null,
     "score_mae": null,
     "within_1": null,
+    "latency_p50_ms": 0.373,
+    "latency_p99_ms": 1.819,
+    "latency_tail_support": 44,
+    "latency_extremes": {
+     "first_ms": 0.432,
+     "max_ms": 9.735,
+     "argmax_case": 351
+    },
     "determinism_ok": true,
     "determinism_n": 10,
+    "seconds": 558.808362584,
     "n_cases": 4329,
     "n_questions": 4329,
     "score_threshold": 0.010039693,
@@ -15505,12 +15604,10 @@
     ],
     "corpus_digest": "fnv1a64-e5cf849bd33ea8e1",
     "cases_digest": "fnv1a64-46281107df052d0e",
+    "latency_quotable": true,
     "source_run": {
-     "git_sha": "0413dcd",
-     "date_utc": "2026-10-08T19:22:50Z"
-    },
-    "latency_provenance": {
-     "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
+     "git_sha": "197e855",
+     "date_utc": "2026-10-10T06:52:15Z"
     }
    },
    "hybrid": {
@@ -16382,8 +16479,17 @@
     "brier_soft": null,
     "score_mae": null,
     "within_1": null,
+    "latency_p50_ms": 0.291,
+    "latency_p99_ms": 0.431,
+    "latency_tail_support": 62,
+    "latency_extremes": {
+     "first_ms": 0.279,
+     "max_ms": 1.038,
+     "argmax_case": 3626
+    },
     "determinism_ok": true,
     "determinism_n": 10,
+    "seconds": 5.9449105,
     "n_cases": 6173,
     "n_questions": 6173,
     "score_threshold": 0.45501745,
@@ -16637,12 +16743,10 @@
     },
     "corpus_digest": "fnv1a64-0c8778c6d51742f4",
     "cases_digest": "fnv1a64-a887ca350a4a8b7c",
+    "latency_quotable": true,
     "source_run": {
-     "git_sha": "0413dcd",
-     "date_utc": "2026-10-08T19:22:50Z"
-    },
-    "latency_provenance": {
-     "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
+     "git_sha": "197e855",
+     "date_utc": "2026-10-10T06:52:15Z"
     }
    },
    "hybrid": {
@@ -17110,8 +17214,17 @@
     "brier_soft": null,
     "score_mae": 1.4454512679107152,
     "within_1": 0.26059898872034226,
+    "latency_p50_ms": 0.245,
+    "latency_p99_ms": 0.379,
+    "latency_tail_support": 26,
+    "latency_extremes": {
+     "first_ms": 0.069,
+     "max_ms": 0.438,
+     "argmax_case": 2040
+    },
     "determinism_ok": true,
     "determinism_n": 10,
+    "seconds": 8.995764375,
     "n_cases": 2571,
     "n_questions": 2571,
     "score_threshold": 0.23013774,
@@ -17375,12 +17488,10 @@
     ],
     "corpus_digest": "fnv1a64-f5d9f67a1fd69443",
     "cases_digest": "fnv1a64-81f40d7a9b57e9b6",
+    "latency_quotable": true,
     "source_run": {
-     "git_sha": "0413dcd",
-     "date_utc": "2026-10-08T19:22:50Z"
-    },
-    "latency_provenance": {
-     "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
+     "git_sha": "197e855",
+     "date_utc": "2026-10-10T06:52:15Z"
     }
    },
    "hybrid": {
@@ -17858,8 +17969,17 @@
     "brier_soft": null,
     "score_mae": null,
     "within_1": null,
+    "latency_p50_ms": 0.024,
+    "latency_p99_ms": 0.026,
+    "latency_tail_support": 2,
+    "latency_extremes": {
+     "first_ms": 0.025,
+     "max_ms": 0.026,
+     "argmax_case": 5
+    },
     "determinism_ok": true,
     "determinism_n": 10,
+    "seconds": 0.128910583,
     "n_cases": 102,
     "n_questions": 102,
     "score_threshold": 0.0026944876,
@@ -18069,9 +18189,10 @@
     "jdi_skill": 0.32941176470588235,
     "corpus_digest": "fnv1a64-d0a395518fca2bdb",
     "cases_digest": "fnv1a64-8032fe33f25653bc",
+    "latency_quotable": true,
     "source_run": {
-     "git_sha": "f068ae6",
-     "date_utc": "2026-10-08T15:09:13Z"
+     "git_sha": "197e855",
+     "date_utc": "2026-10-10T06:52:15Z"
     }
    },
    "extra_host_lanes": {
@@ -19284,10 +19405,10 @@
     "clock": "in-process",
     "method": "Rust in-process per-decision read (the engine's own decision-time measurement; zero network, zero IPC)",
     "suites": 9,
-    "p50_geomean_ms": null,
-    "n_used": 0,
+    "p50_geomean_ms": 0.1572,
+    "n_used": 9,
     "n_unquotable": 0,
-    "n_unjudged": 9,
+    "n_unjudged": 0,
     "note": "population = the suites behind the lane's index; p50 geometric mean over latency_quotable cells only (unfit timing is shown in the tables, never plotted)"
    },
    "hybrid": {
@@ -19439,15 +19560,18 @@
     "cells": {
      "s1mb_noul": {
       "n": 6173,
-      "acc": 0.7055
+      "acc": 0.7055,
+      "latency_quotable": true
      },
      "s1mb_score": {
       "n": 2571,
-      "acc": 0.4982
+      "acc": 0.4982,
+      "latency_quotable": true
      },
      "s1mb_choice": {
       "n": 4329,
-      "acc": 0.2296
+      "acc": 0.2296,
+      "latency_quotable": true
      }
     },
     "avg": 0.4778,

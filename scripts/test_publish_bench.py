@@ -1562,6 +1562,43 @@ def case_wall_judges_a_quotable_update_over_an_unfit_incumbent():
         "a suppressed carry publishes the update's own timing — the wall must judge it"
 
 
+def case_stripped_incumbent_cannot_vacuously_carry():
+    """Bench 137 (2026-10-10): an acc-only-stripped incumbent owns NO timing
+    cells, so the LANE-CARRY law has nothing to donate - firing would only
+    pop the quotable update's own latency_quotable verdict and stamp a false
+    latency_provenance note. The stripped incumbent is the invalidated side
+    with its verdict stored as ABSENT (the acc-only publish strips the
+    verdict with the timing), which the Issue-003 T2 suppression (verdict
+    is False) cannot see; the vacuous-carry guard is that law completed for
+    the stripped shape. The live specimen: the bench-137 quiet-box re-read
+    published p50s onto cells the d3aeeae load-wall had stripped."""
+    published = doc("m3", "sha-base", {"s1": {"modelless_acc": 0.5}})
+    pb.rename_hosts(published)
+    cell = published["suites"][0]["modelless"]
+    cell["source_run"] = {"git_sha": "sha-old", "date_utc": "2026-10-08T00:00:00Z"}
+    cell["corpus_digest"] = "fnv1a64-abc"
+    # the acc-only shape: NO latency fields, NO latency_quotable key at all
+    assert not any(k in cell for k in pb.LANE_LATENCY_FIELDS)
+    update = doc("m3", "sha-fit", {"s1": {"modelless_acc": 0.5}})
+    update["meta"]["box_state"] = _box(True, True)
+    upd_cell = update["suites"][0]["modelless"]
+    upd_cell["corpus_digest"] = "fnv1a64-abc"      # digit-match, no exemption
+    upd_cell["latency_p50_ms"] = 0.762
+    upd_cell["latency_p99_ms"] = 1.623
+    upd_cell["latency_tail_support"] = 5
+    upd_cell["latency_extremes"] = {"first_ms": 0.2, "max_ms": 6.0, "argmax_case": 200}
+    upd_cell["seconds"] = 6.5
+    pb.rename_hosts(update)
+    merged, err = merge_refusing(published, update)
+    assert merged is not None, err
+    lane = merged["suites"][0]["modelless"]
+    assert lane["latency_p50_ms"] == 0.762, "the update's own timing publishes"
+    assert lane.get("latency_quotable") is True, \
+        "the update's own verdict stays - a vacuous carry must not pop it"
+    assert "latency_provenance" not in lane, \
+        "no carry note - the stripped incumbent donated nothing"
+
+
 def case_corpus_digest_gates_the_carry():
     """Issue 057: a corpus change (the typed 800→1200-row lift — question
     set byte-identical, so the population reset cannot fire) must not
@@ -2953,6 +2990,7 @@ CASES = [
     case_published_primary_meta_verdict_is_not_stamped,
     case_quotable_update_replaces_unfit_incumbent_carry,
     case_carry_still_serves_an_unquotable_update,
+    case_stripped_incumbent_cannot_vacuously_carry,
     case_carry_still_serves_an_unjudged_update,
     case_wall_judges_a_quotable_update_over_an_unfit_incumbent,
     case_corpus_digest_gates_the_carry,

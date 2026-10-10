@@ -63,5 +63,10 @@
     "date": "2026-10-09",
     "change": "Rethink's sst5 record cell gains its confidence metrics (acc@50cov 0.6400 · ECE 0.0663 · mean-conf 0.4955) — a fresh live re-read of the same sealed head over the same 600-question seat (bench 066, accuracy byte-identical at 316/600 for the fourth independent posture)",
     "why": "the acc@50 metric's last gap (issue 011): the 029 record predates the per-row freeze, so the field needed a re-measure, never a stamp from aggregates; the re-read ran under sibling load and its latency is not quotable — the cell keeps the original quiet 14.7 ms read; Rethink's acc@50% coverage on the shared suites is now 9/9 (the 2026-10-09 report opened at 5/9)"
+  },
+  {
+    "date": "2026-10-10",
+    "change": "Reflex modelless timing graduates to quotable (the quiet-box re-read, reflex bench 137): p50 geomean 0.14 ms across the 13 published modelless suites — typed 0.762 ms · banking77 0.357 ms · s1mb_score 0.245 ms — the 'timing failed the loaded-box check' presence row retires from the home chart",
+    "why": "the re-read ran preflight-clean end to end (load 4.0 start / 2.5 end, AC, High Power — the first quotable m3 window since the 09-24 primary; the two armed attempts before it ended unquotable when siblings returned mid-run, exactly as the Issue-021 wall demands); accuracy digit-matches every published cell (13/13, corpus digests equal) so this is a pure timing attach; the publish also fixed a publisher defect the re-read surfaced — an acc-only-stripped incumbent could VACUOUSLY carry (donating no timing, popping the update's quotable verdict, stamping a false provenance note; self-test 93/93, prove-fires without the guard)"
   }
 ]
