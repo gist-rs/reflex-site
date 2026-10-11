@@ -83,5 +83,10 @@
     "date": "2026-10-10",
     "change": "The drex comparison lane joins the board — Nace AI's Drex-DLM, measured on our suites (reflex 085 T1, edition 2026-10-10)",
     "why": "The lane was measured 2026-10-08 (reflex benches 073/125/126) but never registered on the publish surface — the cells sat in-repo only while every other comparison lane shipped as a (reference) row. Registered across the full surface: filter chip, radar, hero, tables, crosswalk, JDI-class disclosure (http-oracle). Two postures publish under one lane: 4090-win their Python serve.py BF16 CUDA (quotable timing, determinism re-verified 10/10 after the timing-tail strip — the det-✗ attribution in their own T5 record measured their latency_ms clock, not the decision); m3 their llama.cpp edlm fork Q8_0 Metal (accuracy-only — its preflight REFUSED at load 13–16, the ms figures are never quoted, the record's own law). Cross-posture agreement 0.5855–0.5865 on typed_decisions; NOT CALIBRATED on our split — their own model-card disclaimer, confirmed. Weights CC BY-NC 4.0 — measurement-only, never a distill teacher, never a product. The open drex-v1.5 (9B) is a DIFFERENT artifact under the RAIL-M license and stays owner-gated (reflex .issues/085 T0)."
+  },
+  {
+    "date": "2026-10-11",
+    "change": "code_fixtures removed from the board (owner call; edition 2026-10-11)",
+    "why": "The last self-authored synthetic suite — generated from riir-reflex's own fn spans (n=32 questions / 16 cases, gold programmatic, seat-marked synthetic) — retired and deleted from the reflex harness itself (reflex 658e920). The gap row it carried (-12.5 vs the pplx (local) bar) was the noisiest cell on the public table (one question = +/-3.1 pt at n=32; ECE 0.186 at that population). The chance table drops its entry, the 'Decisions & code' area narrows to 'Decisions' (typed_decisions only), and the row drops at the load boundary of every publish path, so no older results doc can re-grow it. Board 9 -> 8 dataset-backed suites; its bench records stay in reflex .benchmarks as history."
   }
 ]

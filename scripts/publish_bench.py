@@ -324,14 +324,6 @@ DISCLOSURES = {
             "shown"
         ),
     },
-    "code_fixtures": {
-        "instinct-encoder": (
-            "encoder head dead by law — the encoder reference reads "
-            "0.3575, 26.7 pt under the bar, and the class's measured "
-            "head-lift ceiling (+14.7 pt) cannot close it (riir-train "
-            "issue 600 T5) — the served answer is the cell shown"
-        ),
-    },
 }
 # Suite retirement (owner call, 2026-10-02): the six harness_* decision-point
 # families are REMOVED from the board everywhere — the modelless engine reads
@@ -356,6 +348,14 @@ RETIRED_SUITES = (
     "harness_routing",
     "harness_sensitivity",
     "harness_cache_reuse",
+
+    # Owner call 2026-10-11: code_fixtures — the last self-authored
+    # synthetic suite (generated from riir-reflex's own fn spans, n=32
+    # questions / 16 cases, seat-marked synthetic) — retired and deleted
+    # from the reflex harness itself (reflex 658e920). Same law as the
+    # six above: dropped at the LOAD boundary, so no older results doc
+    # can ever re-grow the row.
+    "code_fixtures",
 )
 RETIRED = frozenset(RETIRED_SUITES)
 
@@ -618,8 +618,6 @@ def compute_pairings(d):
 #   typed_decisions 20 head types (the dataset manifest's table): eleven
 #     4-way choice/score, three 5-way, six 2-way noul → unweighted mean
 #     over head types (11·¼ + 3·⅕ + 6·½) / 20 = 0.3175
-#   code_fixtures one 8-way module choice + one 2-way noul per case
-#     (code_case) → (1/8 + 1/2) / 2 = 0.3125
 AREA_CHANCE = {
     "ag_news": 1 / 4,
     "massive_intent_en": 1 / 20,
@@ -629,7 +627,6 @@ AREA_CHANCE = {
     "xnli_en": 1 / 3,
     "prompt_injections": 1 / 2,
     "typed_decisions": 6.35 / 20,
-    "code_fixtures": (1 / 8 + 1 / 2) / 2,
 }
 
 # ── the JDI crosswalk (plan 011 C3) ──────────────────────────────────────
@@ -693,7 +690,7 @@ AREA_DEFS = (
      ("ag_news", "massive_intent_en", "banking77")),
     ("sentiment", "Sentiment", ("sst5", "emotion")),
     ("reasoning", "Reasoning & safety", ("xnli_en", "prompt_injections")),
-    ("decisions", "Decisions & code", ("typed_decisions", "code_fixtures")),
+    ("decisions", "Decisions", ("typed_decisions",)),
 )
 
 # The radar's lane rows: a stable key (the areas block's per-lane key), the
@@ -872,7 +869,7 @@ LANE_TIMING = {
 # the guard's refusal), point EDITION at it, freeze the outgoing table
 # (the publisher archives it automatically, on BOTH the publish and the
 # --rederive paths), and add a data/changes.json row.
-EDITION = "2026-10-10"
+EDITION = "2026-10-11"
 
 
 def _basis_payload():
@@ -917,6 +914,13 @@ EDITIONS = {
     # CC BY-NC 4.0 — measurement-only. The open drex-v1.5 (9B, RAIL-M)
     # is a DIFFERENT lane, owner-gated (reflex .issues/085 T0).
     "2026-10-10": "7dfc19ac74fdb0ee61bd75f9737587f1",
+    # 2026-10-11 (owner call): code_fixtures — the last self-authored
+    # synthetic suite (reflex's own fn spans, n=32) — leaves the chance
+    # table and the areas ("Decisions & code" narrows to "Decisions");
+    # the board goes 9 -> 8 dataset-backed suites. The row drops at the
+    # LOAD boundary (RETIRED_SUITES), the reflex harness row is deleted
+    # upstream (reflex 658e920).
+    "2026-10-11": "7615ae2e353abc350568048aea353941",
 }
 
 

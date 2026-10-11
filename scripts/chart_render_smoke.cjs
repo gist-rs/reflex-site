@@ -138,7 +138,8 @@ if (!byLane["Instinct"] || !byLane["Rethink"]) {
 // for the chart): Instinct's arm-only cells (the µs fusion forward, no seat
 // solve) never enter the shared-axis geomean — its row plots the SEAT+ARM
 // cells only (2 today: emotion 0.115, xnli 0.087 → ~0.10 ms, honestly ABOVE
-// Reflex's 0.157), and the ＋margN tag discloses the excluded marginals.
+// Reflex's 0.157), and the ＋margN tag discloses the excluded marginals
+// (6 since the 2026-10-11 code_fixtures retirement — was 7).
 // The fallback-spoke marginal law (2026-10-10, the Rethink-min-under-Reflex
 // report): a tier-fallback spoke whose scope is arm-only carries the
 // ANSWERING arm's fusion marginal — served (real) but never plotted as this
@@ -146,13 +147,13 @@ if (!byLane["Instinct"] || !byLane["Rethink"]) {
 // A0 seat+arm fallback (a real composed clock); its 4 arm-only spokes
 // (0.54–8.5 µs) are excluded — they read 44× under Reflex's fastest cell.
 if (byLane["Instinct"].n !== 2 || byLane["Rethink"].n !== 5) {
-  console.error(`FAIL[p50-family]: coverage moved (Instinct ${byLane["Instinct"].n}/9 — 2 seat+arm expected; Rethink ${byLane["Rethink"].n}/9 — 5 expected, the arm-only fallback spokes excluded) — re-pin`);
+  console.error(`FAIL[p50-family]: coverage moved (Instinct ${byLane["Instinct"].n}/8 — 2 seat+arm expected; Rethink ${byLane["Rethink"].n}/5 — 5 expected, the arm-only fallback spokes excluded) — re-pin`);
   process.exit(1);
 }
-// the marginal exclusion is VISIBLE on the row (the ＋marg7 tag) — a silent
+// the marginal exclusion is VISIBLE on the row (the ＋marg6 tag) — a silent
 // exclusion is the 2026-10-10 user-report class reading as lost cells
-if (!/＋marg7/.test(p50Html)) {
-  console.error(`FAIL[p50-family]: Instinct's ＋marg7 disclosure tag missing — the arm-only exclusion must be visible on the row`);
+if (!/＋marg6/.test(p50Html)) {
+  console.error(`FAIL[p50-family]: Instinct's ＋marg6 disclosure tag missing — the arm-only exclusion must be visible on the row`);
   process.exit(1);
 }
 // physics pin (the 2026-10-10 user report): PER-SUITE, the composite must
@@ -283,7 +284,7 @@ if (!p50Html.includes("Unfit timing")) {
   console.error("FAIL[p50-family]: the note must disclose the unfit-exclusion rule");
   process.exit(1);
 }
-console.log(`[p50-family] Instinct ${byLane["Instinct"].val} (2 seat+arm; ＋marg7 excluded) · Rethink ${byLane["Rethink"].val} (4 own forwards + 1 seat+arm fallback; ＋marg4 spokes excluded) · bekko 400M plots (quotable 9/9, reflex bench 115) · ${covTagged} coverage tags`);
+console.log(`[p50-family] Instinct ${byLane["Instinct"].val} (2 seat+arm; ＋marg6 excluded) · Rethink ${byLane["Rethink"].val} (4 own forwards + 1 seat+arm fallback; ＋marg4 spokes excluded) · bekko 400M plots (quotable 9/9, reflex bench 115) · ${covTagged} coverage tags`);
 
 // Switch the metric via the captured click handler (accuracy: log=false path).
 const toggle = captured[".bc-toggle"];
@@ -669,32 +670,37 @@ console.log(`[frontier] ${fDots} dots, ${fPartial} partial, ${fTPartial} timing-
 // recomputation — with a basis-only marker when the shared-basis indices
 // are EQUAL while the published ones differ (a coverage gap reading as a
 // quality win). Current data is complete (0 disclosures expected), so the
-// fire-path is pinned on a SYNTHETIC clone: delete code_fixtures from the
-// python lane — the exact state the live site shipped in — and require
-// all three disclosures to render with the right numbers.
+// fire-path is pinned on a SYNTHETIC clone: delete emotion from the
+// python lane (code_fixtures — the state the live site shipped in — left
+// the board 2026-10-11) and require all three disclosures to render with
+// the right numbers.
 (function basisDisclosure() {
   const dSyn = JSON.parse(JSON.stringify(d));
   const A = dSyn.areas;
-  delete A.lanes.python.per_suite.code_fixtures;
-  A.lanes.python.coverage = { suites: 8, of: 9 };
+  delete A.lanes.python.per_suite.emotion;
+  A.lanes.python.coverage = { suites: 7, of: 8 };
   A.lanes.python.complete = false;
   // the regression's inconsistent state, faithfully: a published index
-  // computed over MORE suites than the lane carries (0.5642 over 8 cells
+  // computed over MORE suites than the lane carries (0.5642 over 7 cells
   // — the value that drew the user's wtf on the live site)
   A.lanes.python.index = 0.564171;
   fakeEl("frontier-syn");
   window.BenchCharts.frontier(dSyn, captured["frontier-syn"]);
   const syn = captured["frontier-syn"].innerHTML;
   const die = (m) => { console.error(`FAIL[basis]: ${m}`); process.exit(1); };
-  if (!syn.includes("missing: code_fixtures")) die("the missing-suite disclosure did not render");
+  if (!syn.includes("missing: emotion")) die("the missing-suite disclosure did not render");
   if (!(syn.match(/on shared suites:/g) || []).length) die("the shared-basis line did not render");
-  // python 56.4% vs rust 56.4% on the shared 8 — equal shared basis,
-  // published 0.5642 vs 0.5030 differ → the gap must be marked basis-only
-  if (!syn.includes("basis-only gap")) die("an equal shared basis with differing published indices must be marked basis-only");
-  if (!syn.includes("56.4% vs laya (rust) 56.4%")) die(`shared-basis numbers wrong`);
+  // shared-basis recomputation: python vs rust on the shared 7 — the two
+  // lanes' per-suite cells are byte-equal, so the shared indices agree
+  // (52.7% vs 52.7%)
+  if (!syn.includes("52.7% vs laya (rust) 52.7%")) die(`shared-basis numbers wrong`);
+  // published python (0.5642) vs published rust (0.5642) are EQUAL since
+  // the 2026-10-11 board re-basis — no basis-only gap may be invented
+  // where the published indices agree (the mark exists for a real gap)
+  if (syn.includes("basis-only gap")) die("a basis-only gap marked where the published indices agree");
   // and the published index must be disclosed with its basis, never alone
-  if (!syn.includes("partial coverage — 8/9")) die("partial coverage line lost");
-  console.log("[basis] missing-suite + shared-basis + basis-only disclosures fire on the synthetic partial lane");
+  if (!syn.includes("partial coverage — 7/8")) die("partial coverage line lost");
+  console.log("[basis] missing-suite + shared-basis disclosures fire on the synthetic partial lane; no basis-only mark where the published indices agree");
 })();
 
 // The product ladder (Reflex → Instinct → Rethink) + dot labels: the path

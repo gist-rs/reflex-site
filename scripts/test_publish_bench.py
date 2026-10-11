@@ -304,23 +304,23 @@ def case_population_reset_replaces_the_row():
     re-pin replaces the row facts, DROPS the other hosts' stale-population
     lanes, lands the update's own lanes, and exempts the suite from
     LANE_CARRY (the incumbent timing measured the old questions)."""
-    primary = doc("m3", "sha-m3", {"code_fixtures": {"modelless_acc": 0.25,
+    primary = doc("m3", "sha-m3", {"s9": {"modelless_acc": 0.25,
                                                      "nq": 24,
                                                      "laya_p50": 59.0}})
-    join = doc("4090", "sha-join", {"code_fixtures": {"modelless_acc": 0.31,
+    join = doc("4090", "sha-join", {"s9": {"modelless_acc": 0.25,
                                                       "nq": 24}})
     merged, err = merge_refusing(primary, join)
     assert merged is not None, err
-    s1 = next(s for s in merged["suites"] if s["name"] == "code_fixtures")
+    s1 = next(s for s in merged["suites"] if s["name"] == "s9")
     assert s1["n_questions"] == 24  # baseline: no reset, facts stand
 
-    reset = doc("m3", "sha-reset", {"code_fixtures": {"modelless_acc": 0.375,
+    reset = doc("m3", "sha-reset", {"s9": {"modelless_acc": 0.375,
                                                       "nq": 32,
                                                       "laya_p50": 0.235}})
-    primary2 = doc("m3", "sha-m3", {"code_fixtures": {"modelless_acc": 0.25,
+    primary2 = doc("m3", "sha-m3", {"s9": {"modelless_acc": 0.25,
                                                       "nq": 24,
                                                       "laya_p50": 59.0}})
-    restore = _with_env(PUBLISH_BENCH_POPULATION_RESET="code_fixtures")
+    restore = _with_env(PUBLISH_BENCH_POPULATION_RESET="s9")
     try:
         merged2, err2 = merge_refusing(primary2, join, reset)
     finally:
@@ -328,7 +328,7 @@ def case_population_reset_replaces_the_row():
     assert merged2 is not None, f"acked reset must merge: {err2}"
     assert "re-pinned nq 24 -> 32" in err2, err2
     assert "4090" in err2, "the dropped stale host lanes must be named"
-    row = next(s for s in merged2["suites"] if s["name"] == "code_fixtures")
+    row = next(s for s in merged2["suites"] if s["name"] == "s9")
     assert row["n_questions"] == 32, "the row facts must carry the new population"
     assert row["modelless"]["hard"]["accuracy"] == 0.375
     assert row["laya"]["laya-riir"]["p50_ms"] == 0.235, \
@@ -340,9 +340,9 @@ def case_population_reset_replaces_the_row():
 def case_population_reset_stale_ack_refuses():
     """An ack naming a suite the extras do not carry refuses — an
     acknowledgement cannot outlive its purpose."""
-    primary = doc("m3", "sha-m3", {"code_fixtures": {"modelless_acc": 0.25, "nq": 24},
+    primary = doc("m3", "sha-m3", {"s9": {"modelless_acc": 0.25, "nq": 24},
                                    "s2": {"modelless_acc": 0.6}})
-    reset = doc("m3", "sha-reset", {"code_fixtures": {"modelless_acc": 0.375, "nq": 32}})
+    reset = doc("m3", "sha-reset", {"s9": {"modelless_acc": 0.375, "nq": 32}})
     restore = _with_env(PUBLISH_BENCH_POPULATION_RESET="s2")
     try:
         merged, err = merge_refusing(primary, reset)
@@ -354,9 +354,9 @@ def case_population_reset_stale_ack_refuses():
 def case_population_reset_ack_without_mismatch_refuses():
     """An ack naming a suite whose population MATCHES the update is stale —
     the guard never fired, so the ack acknowledges nothing."""
-    primary = doc("m3", "sha-m3", {"code_fixtures": {"modelless_acc": 0.25, "nq": 24}})
-    update = doc("m3", "sha-same", {"code_fixtures": {"modelless_acc": 0.30, "nq": 24}})
-    restore = _with_env(PUBLISH_BENCH_POPULATION_RESET="code_fixtures")
+    primary = doc("m3", "sha-m3", {"s9": {"modelless_acc": 0.25, "nq": 24}})
+    update = doc("m3", "sha-same", {"s9": {"modelless_acc": 0.25, "nq": 24}})
+    restore = _with_env(PUBLISH_BENCH_POPULATION_RESET="s9")
     try:
         merged, err = merge_refusing(primary, update)
     finally:
@@ -609,36 +609,6 @@ def case_end_to_end_main():
         assert served["meta"]["hosts"][-1]["host"] == "4090-win"
 
 
-def case_code_fixtures_population_excluded_from_drift_gate():
-    # The suite draws REAL fn spans from riir-reflex's own sources — its
-    # population is commit-dependent, so cross-host accuracy CANNOT be
-    # bit-identical by construction (the Issue 018 close-out's recorded
-    # "population-excluded"). The drift gate must skip it while still
-    # deciding every other suite.
-    primary = doc("m3", "sha-m3", {
-        "code_fixtures": {"modelless_acc": 0.2917},
-        "s1": {"modelless_acc": PRE_ACC},
-    })
-    join = doc("4090-windows", "sha-join", {
-        "code_fixtures": {"modelless_acc": 0.5417},  # drifted — by design
-        "s1": {"modelless_acc": PRE_ACC},
-    })
-    merged, err = merge_refusing(primary, join)
-    assert merged is not None, f"code_fixtures drift must not refuse, got: {err}"
-    # and the gate still walls the comparable suites:
-    bad = doc("m3", "sha-m3", {
-        "code_fixtures": {"modelless_acc": 0.2917},
-        "s1": {"modelless_acc": PRE_ACC},
-    })
-    bad_join = doc("4090-windows", "sha-join", {
-        "code_fixtures": {"modelless_acc": 0.2917},
-        "s1": {"modelless_acc": 0.5},  # a REAL drift — must refuse
-    })
-    merged2, err2 = merge_refusing(bad, bad_join)
-    assert merged2 is None, "s1 drift must still refuse"
-    assert "DRIFT" in err2 and "s1" in err2
-
-
 def case_device_posture_refreshes_on_laya_update():
     # riir-reflex Issue 026: an update contributing laya lanes refreshes the
     # host row's `laya_device` — the published file must not say "cpu"
@@ -843,7 +813,6 @@ def case_agentjev_lane_rides_an_update():
     d = {"suites": [{"agentjev": {"lane": "agentjev"}}]}
     pb.rename_lanes(d)
     assert d["suites"][0]["agentjev"]["lane"] == "agentjev (reference)"
-
 
 
 
@@ -1904,7 +1873,6 @@ def case_published_primary_meta_verdict_is_not_stamped():
     assert "latency_quotable" not in merged["suites"][0]["laya"]["english"]
 
 
-
 def case_unknown_host_refused_at_load():
     # The runner's last-resort host label (REFLEX_BENCH_HOST unset AND
     # uname unreadable — the 4090's PowerShell probe, reflex Bench 082)
@@ -1950,7 +1918,6 @@ def area_doc():
         "ag_news": 0.8625, "massive_intent_en": 0.4066667, "banking77": 0.402,
         "sst5": 0.2016667, "emotion": 0.77, "xnli_en": 0.5033333,
         "prompt_injections": 0.7672414, "typed_decisions": 0.5725,
-        "code_fixtures": 0.375,
     }
     hyb = dict(acc, sst5=0.4216667)
     rows = []
@@ -1979,11 +1946,11 @@ def cc_of(name, a):
 def case_area_rollups_math_and_coverage():
     a = pb.compute_areas(area_doc())
     assert a["version"] == 4
-    # every area suite present → coverage floor 9
-    assert len(a["suites"]) == 9 and [x["id"] for x in a["areas"]] == \
+    # every area suite present → coverage floor 8
+    assert len(a["suites"]) == 8 and [x["id"] for x in a["areas"]] == \
         ["language", "sentiment", "reasoning", "decisions"]
     ml = a["lanes"]["modelless"]
-    assert ml["complete"] and ml["coverage"] == {"suites": 9, "of": 9}
+    assert ml["complete"] and ml["coverage"] == {"suites": 8, "of": 8}
     # cc math, spot-checked
     assert ml["per_suite"]["ag_news"]["cc"] == cc_of("ag_news", 0.8625)
     assert ml["per_suite"]["sst5"]["cc"] == cc_of("sst5", 0.2016667)
@@ -2018,7 +1985,7 @@ def case_area_python_laya_lane_picks_py_checkpoint():
     assert py["display"] == "laya (python)" and py["color_key"] == "python"
     assert py["per_suite"]["ag_news"]["acc"] == 0.93
     assert py["per_suite"]["ag_news"]["ck"] == "english"
-    assert py["coverage"] == {"suites": 1, "of": 9}
+    assert py["coverage"] == {"suites": 1, "of": 8}
     # the rust lane never reads a py/ checkpoint as its pick
     assert a["lanes"]["laya"]["per_suite"]["ag_news"]["acc"] == 0.95
     assert a["lanes"]["laya"]["per_suite"]["ag_news"]["ck"] == "english"
@@ -2037,7 +2004,7 @@ def case_area_comparison_lanes_roll_up():
     assert paw["display"] == "paw (hosted)" and paw["color_key"] == "paw"
     assert paw["per_suite"]["ag_news"]["acc"] == 0.55
     assert paw["per_suite"]["ag_news"]["cc"] == cc_of("ag_news", 0.55)
-    assert paw["coverage"] == {"suites": 1, "of": 9} and paw["complete"] is False
+    assert paw["coverage"] == {"suites": 1, "of": 8} and paw["complete"] is False
     ot = a["lanes"]["openthai"]
     assert ot["display"] == "openthai"
     assert ot["per_suite"]["massive_intent_en"]["acc"] == 0.6
@@ -2062,7 +2029,7 @@ def case_area_serving_host_lane_rolls_up_host_tagged():
     assert clm["host"] == "4090-win" and clm["color_key"] == "clm"
     assert clm["per_suite"]["ag_news"]["acc"] == 0.4
     assert clm["per_suite"]["ag_news"]["cc"] == cc_of("ag_news", 0.4)
-    assert clm["coverage"] == {"suites": 2, "of": 9} and clm["complete"] is False
+    assert clm["coverage"] == {"suites": 2, "of": 8} and clm["complete"] is False
     assert "clm" not in a["lanes"]
     # the primary lane's extra-host row never becomes a second radar lane
     assert "modelless@4090-win" not in a["lanes"]
@@ -2072,7 +2039,7 @@ def case_area_serving_host_lane_rolls_up_host_tagged():
 def case_area_partial_lane_discloses_and_never_pads():
     a = pb.compute_areas(area_doc())
     enc = a["lanes"]["encoder"]
-    assert enc["coverage"] == {"suites": 1, "of": 9}
+    assert enc["coverage"] == {"suites": 1, "of": 8}
     assert enc["complete"] is False
     # the index is the mean over WHAT WAS MEASURED (one suite), disclosed as
     # partial — never padded with zeros
@@ -2088,9 +2055,9 @@ def case_area_absent_lane_and_absent_suite_shrink_honestly():
     d["suites"] = [s for s in d["suites"] if s["name"] != "banking77"]
     a = pb.compute_areas(d)
     assert "hybrid" not in a["lanes"]
-    # the denominators re-derive from what the doc carries (8 suites)
+    # the denominators re-derive from what the doc carries (7 suites)
     for lane in a["lanes"].values():
-        assert lane["coverage"]["of"] == 8
+        assert lane["coverage"]["of"] == 7
     assert "banking77" not in a["suites"]
 
 
@@ -2122,9 +2089,9 @@ def case_area_fallback_spokes_roll_up_marked():
         s["encoder"] = cell
     a = pb.compute_areas(d)
     enc = a["lanes"]["encoder"]
-    assert enc["coverage"] == {"suites": 1, "of": 9}
+    assert enc["coverage"] == {"suites": 1, "of": 8}
     assert enc["complete"] is False
-    assert enc["served_coverage"] == {"suites": 9, "of": 9}
+    assert enc["served_coverage"] == {"suites": 8, "of": 8}
     assert enc["fallback_suites"] == fb_names
     # the lane's own cell stays UNMARKED
     assert enc["per_suite"]["sst5"] == {"acc": 0.526667,
@@ -2163,9 +2130,9 @@ def case_area_timing_note_names_fallback_population():
                                 latency_p50_ms=3.0)
     a = pb.compute_areas(d)
     lt = a["timing"]["encoder"]
-    assert lt["suites"] == 9 and lt["n_used"] == 0
+    assert lt["suites"] == 8 and lt["n_used"] == 0
     assert lt["p50_geomean_ms"] is None
-    assert lt["n_unjudged"] == 9
+    assert lt["n_unjudged"] == 8
     assert "fallback" in lt["note"]
 
 
@@ -2195,8 +2162,8 @@ def case_area_negative_cc_survives_rollup():
             ("ag_news", 0.8625), ("massive_intent_en", 0.4066667),
             ("banking77", 0.402), ("sst5", 0.2016667),
             ("xnli_en", 0.5033333), ("prompt_injections", 0.7672414),
-            ("typed_decisions", 0.5725), ("code_fixtures", 0.375),
-        )) / 8
+            ("typed_decisions", 0.5725),
+        )) / 7
     # the published scale names the below-chance law
     assert "BELOW CHANCE" in a["scale"] and "negative" in a["scale"]
 
@@ -2214,7 +2181,7 @@ def case_area_zero_fill_regression():
     a = pb.compute_areas(d)
     ml = a["lanes"]["modelless"]
     assert "emotion" not in ml["per_suite"] and "xnli_en" not in ml["per_suite"]
-    assert ml["coverage"] == {"suites": 7, "of": 9} and ml["complete"] is False
+    assert ml["coverage"] == {"suites": 6, "of": 8} and ml["complete"] is False
     # a suite gap never pads the area mean: reasoning survives on its one
     # measured suite (xnli_en removed, prompt_injections kept), sentiment
     # on sst5 alone
@@ -2234,11 +2201,12 @@ def case_chance_digest_and_edition_pin():
     a = pb.compute_areas(area_doc())
     assert a["chance_digest"] == pb.chance_digest()
     assert a["edition"] == pb.EDITION
-    # the 2026-10-2 digest is FROZEN HERE as a literal — a silent basis edit
-    # changes the computed digest and reds this line before any publish
-    # (2026-10's frozen literal was 0133fc49a0baec3b3293f51324b5416b; the
-    # 2026-10-2 bump added the clef lane — plan 011 C3)
-    assert pb.edition_basis_digest() == "7dfc19ac74fdb0ee61bd75f9737587f1"
+    # the current-edition digest is FROZEN HERE as a literal — a silent
+    # basis edit changes the computed digest and reds this line before any
+    # publish (2026-10's literal was 0133fc49a0baec3b3293f51324b5416b;
+    # 2026-10-2 added the clef lane — plan 011 C3; 2026-10-11 retired
+    # code_fixtures — the chance table + "Decisions" area narrowed)
+    assert pb.edition_basis_digest() == "7615ae2e353abc350568048aea353941"
     # ledger shape: EDITION is the last key; digests pairwise distinct
     assert list(pb.EDITIONS)[-1] == pb.EDITION
     assert len(set(pb.EDITIONS.values())) == len(pb.EDITIONS)
@@ -2317,12 +2285,12 @@ def case_hybrid_arm_only_cells_are_marginals_never_the_geomean():
     d["suites"][0]["hybrid"]["latency_scope"] = "seat+arm"
     d["suites"][1]["hybrid"]["latency_p50_ms"] = 0.4
     d["suites"][1]["hybrid"]["latency_scope"] = "seat+arm"
-    for s in d["suites"][2:8]:
+    for s in d["suites"][2:7]:
         s["hybrid"]["latency_p50_ms"] = 0.003
         s["hybrid"]["latency_scope"] = "arm-only"
-    d["suites"][8]["hybrid"]["latency_p50_ms"] = 0.003
-    d["suites"][8]["hybrid"]["latency_scope"] = "arm-only"
-    d["suites"][8]["hybrid"]["latency_quotable"] = False
+    d["suites"][7]["hybrid"]["latency_p50_ms"] = 0.003
+    d["suites"][7]["hybrid"]["latency_scope"] = "arm-only"
+    d["suites"][7]["hybrid"]["latency_quotable"] = False
     # the encoder lane: arm-only cells ARE the decision — geomean unchanged
     enc_fixed = 0
     for s in d["suites"][:3]:
@@ -2335,7 +2303,7 @@ def case_hybrid_arm_only_cells_are_marginals_never_the_geomean():
     a = pb.compute_areas(d)
     hy = a["timing"]["hybrid"]
     assert hy["n_used"] == 2, "only the seat+arm cells enter the geomean"
-    assert hy["n_arm_only"] == 6, "the marginals count, disclosed"
+    assert hy["n_arm_only"] == 5, "the marginals count, disclosed"
     assert hy["n_unquotable"] == 1
     assert hy["p50_geomean_ms"] == round(math.sqrt(0.1 * 0.4), 4)
     assert "composition marginal" in hy["note"], "the note names the class"
@@ -2362,6 +2330,16 @@ def case_area_timing_population_and_quotable():
     d["suites"][0]["laya"]["typed"]["latency_quotable"] = True
     d["suites"][7]["laya"]["typed"]["latency_p50_ms"] = 32.0
     d["suites"][7]["laya"]["typed"]["latency_quotable"] = True
+    # the modelless lane: quotable everywhere → geomean over 8
+    for i, s in enumerate(d["suites"]):
+        s["modelless"]["latency_p50_ms"] = 1.0 * (i + 1)
+        s["modelless"]["latency_quotable"] = True
+    # one UNFIT cell: shown in tables, excluded from the geomean
+    d["suites"][0]["hybrid"]["latency_p50_ms"] = 5.0
+    d["suites"][0]["hybrid"]["latency_quotable"] = False
+    for s in d["suites"][1:]:
+        s["hybrid"]["latency_p50_ms"] = 2.0
+        s["hybrid"]["latency_quotable"] = True
     # a THIRD suite the lane measured but the areas rollup never covers
     # (a Thai probe with no chance baseline) must stay OUT of the population
     d["suites"].append({
@@ -2369,26 +2347,16 @@ def case_area_timing_population_and_quotable():
         "laya": {"english": dict(area_cell("laya (rust)", 0.5, model="english"),
                                  latency_p50_ms=100000.0, latency_quotable=True)},
     })
-    # the modelless lane: quotable everywhere → geomean over 9
-    for i, s in enumerate(d["suites"][:9]):
-        s["modelless"]["latency_p50_ms"] = 1.0 * (i + 1)
-        s["modelless"]["latency_quotable"] = True
-    # one UNFIT cell: shown in tables, excluded from the geomean
-    d["suites"][0]["hybrid"]["latency_p50_ms"] = 5.0
-    d["suites"][0]["hybrid"]["latency_quotable"] = False
-    for s in d["suites"][1:9]:
-        s["hybrid"]["latency_p50_ms"] = 2.0
-        s["hybrid"]["latency_quotable"] = True
     a = pb.compute_areas(d)
     lt = a["timing"]["laya"]
     assert lt["suites"] == 2 and lt["n_used"] == 2
     assert lt["p50_geomean_ms"] == round(math.sqrt(8.0 * 32.0), 4)
     ml = a["timing"]["modelless"]
-    assert ml["suites"] == 9 and ml["n_used"] == 9
+    assert ml["suites"] == 8 and ml["n_used"] == 8
     assert ml["p50_geomean_ms"] == round(math.exp(
-        sum(math.log(i) for i in range(1, 10)) / 9), 4)
+        sum(math.log(i) for i in range(1, 9)) / 8), 4)
     hy = a["timing"]["hybrid"]
-    assert hy["n_unquotable"] == 1 and hy["n_used"] == 8
+    assert hy["n_unquotable"] == 1 and hy["n_used"] == 7
     assert hy["p50_geomean_ms"] == 2.0
     # acc-only cells (no latency fields at all) count as unjudged, and a
     # lane with NO quotable cell carries null — the not-plotted case
@@ -2398,7 +2366,7 @@ def case_area_timing_population_and_quotable():
                     "latency_quotable": False}
     a2 = pb.compute_areas(d2)
     pt = a2["timing"]["paw"]
-    assert pt["p50_geomean_ms"] is None and pt["n_unquotable"] == 9
+    assert pt["p50_geomean_ms"] is None and pt["n_unquotable"] == 8
 
 
 def case_rederive_preserves_cells():
@@ -2669,9 +2637,13 @@ def case_retired_suites_never_publish():
     # publish path so no older results doc can re-grow a row, the
     # divergences line naming a retired suite goes with it, and the
     # hand-maintained DISCLOSURES table carries no stale retired rows.
+    # 2026-10-11: code_fixtures joins them (owner call — the last
+    # self-authored synthetic suite, deleted from the reflex harness
+    # itself).
     assert set(pb.RETIRED_SUITES) == {
         "harness_visibility", "harness_permissions", "harness_tool_fit",
         "harness_routing", "harness_sensitivity", "harness_cache_reuse",
+        "code_fixtures",
     }
     for n in pb.RETIRED_SUITES:
         assert n not in pb.DISCLOSURES, f"stale disclosure row for retired suite {n}"
@@ -2883,7 +2855,7 @@ def case_abstention_rollup_sums_stamped_cells():
     assert ml["shares"] == {"distance_gate": round(16 / 46, 4),
                             "score_gate": round(30 / 46, 4)}
     assert ml["suites_with_stamps"] == 2
-    assert ml["suites_covered"] == 9
+    assert ml["suites_covered"] == 8
     assert ab["version"] == 1 and ab["edition"] == pb.EDITION
 
 
@@ -2931,7 +2903,7 @@ def case_abstention_checkpoint_keyed_and_mirrored_cells_never_match():
     # primary stamps only — the nine mirrors (50 each) add nothing
     assert ml["causes"] == {"score_gate": 50}
     assert ml["suites_with_stamps"] == 1
-    assert ml["suites_covered"] == 9
+    assert ml["suites_covered"] == 8
 
 
 def case_abstention_unknown_cause_never_dropped():
@@ -3009,7 +2981,6 @@ CASES = [
     case_population_reset_replaces_the_row,
     case_population_reset_stale_ack_refuses,
     case_population_reset_ack_without_mismatch_refuses,
-    case_code_fixtures_population_excluded_from_drift_gate,
     case_device_posture_refreshes_on_laya_update,
     case_clm_lane_and_leak_block_ride_an_update,
     case_host_display_rename_at_load_boundary,
