@@ -233,6 +233,16 @@
    "host": "m3-max-metal",
    "date_utc": "2026-10-09",
    "how": "the bench-time env itself (.raw/pplx_srv/.venv, uv-built from the port's requirements.txt): sum of file sizes (609,047,889 over 11,246 files) + dir entries (524,992), the lstat convention of the sibling venv rows"
+  },
+  {
+   "key": "drex_venv",
+   "label": "torch-cu venv",
+   "kind": "runtime",
+   "bytes": 4871417003,
+   "what": "the drex lane venv (.raw/drex-env: torch cu124 + transformers 5.19 — their serve.py's tested pins, riir-reflex Issue 073/Bench 125)",
+   "host": "4090-win",
+   "date_utc": "2026-10-12",
+   "how": "the bench-time env itself (.raw/drex-env on the 4090 box): sum of file sizes (4,871,415,165 over 20,623 files) + dir entries (1,838), the lstat convention of the sibling venv rows"
   }
  ]
 }

@@ -244,6 +244,19 @@ CANDIDATES = [
         "targets": ["docker container", "GPU (CUDA)"],
         "note": None,
     },
+    {
+        "key": "drex",
+        "name": "Drex-DLM (8B)",
+        "framework": "their serve.py in a torch-cu venv behind the TypeSafe-wire HTTP shim",
+        "engine_kind": "python",
+        "engine": ("recorded", "drex_venv"),
+        "engine_what": "their service venv (torch cu124 + transformers — their serve.py's tested pins)",
+        "model": ("hf_total", "nace-ai/drex-dlm",
+                  {"label": "drex-dlm (Efficient-DLM-8B) BF16 tree"}),
+        "model_what": "the Drex-DLM decision model as the full BF16 safetensors tree (4 shards + the decision head.pt + tokenizer) — the tree a consumer downloads",
+        "targets": ["python env", "GPU (CUDA)"],
+        "note": "the bench board's drex comparison lane (Nace.AI drex-dlm @ 6c63df2, backbone nvidia/Efficient-DLM-8B): repo code MIT, model weights CC BY-NC 4.0 — measurement only: comparison lane yes, distill teacher no, product serving no. The board's second posture (their llama.cpp edlm fork, Q8_0 on Metal) reads the same decision model re-quantized — one download, two runtimes",
+    },
 ]
 
 

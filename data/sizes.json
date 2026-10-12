@@ -1,6 +1,6 @@
 {
  "meta": {
-  "date_utc": "2026-10-09T14:27:00Z",
+  "date_utc": "2026-10-12T04:46:06Z",
   "release": {
    "tag": "v0.2.4",
    "url": "https://github.com/gist-rs/reflex/releases/tag/v0.2.4",
@@ -852,6 +852,61 @@
     "Apple GPU (MLX)"
    ],
    "note": "the bench board's pplx comparison lane (perplexity-ai/pplx-decider-v1.1-27b, Apache-2.0, not affiliated \u2014 the JDI v3 board's #1): the LOCAL posture the board measures, the clef lane's class exactly; upstream bf16 weights are not downloaded"
+  },
+  {
+   "key": "drex",
+   "name": "Drex-DLM (8B)",
+   "framework": "their serve.py in a torch-cu venv behind the TypeSafe-wire HTTP shim",
+   "engine_kind": "python",
+   "engine_bytes": 4871417003,
+   "engine_what": "their service venv (torch cu124 + transformers \u2014 their serve.py's tested pins)",
+   "engine_provenance": {
+    "source": "recorded measurement",
+    "detail": "the drex lane venv (.raw/drex-env: torch cu124 + transformers 5.19 \u2014 their serve.py's tested pins, riir-reflex Issue 073/Bench 125) \u2014 measured 2026-10-12 on 4090-win: the bench-time env itself (.raw/drex-env on the 4090 box): sum of file sizes (4,871,415,165 over 20,623 files) + dir entries (1,838), the lstat convention of the sibling venv rows",
+    "parts": [
+     {
+      "source": "recorded measurement",
+      "label": "torch-cu venv",
+      "what": "the drex lane venv (.raw/drex-env: torch cu124 + transformers 5.19 \u2014 their serve.py's tested pins, riir-reflex Issue 073/Bench 125)",
+      "date_utc": "2026-10-12",
+      "host": "4090-win",
+      "how": "the bench-time env itself (.raw/drex-env on the 4090 box): sum of file sizes (4,871,415,165 over 20,623 files) + dir entries (1,838), the lstat convention of the sibling venv rows"
+     }
+    ]
+   },
+   "engine_stack": [
+    {
+     "label": "torch-cu venv",
+     "kind": "runtime",
+     "bytes": 4871417003,
+     "src": 0
+    }
+   ],
+   "model_bytes": 16403005719,
+   "model_what": "the Drex-DLM decision model as the full BF16 safetensors tree (4 shards + the decision head.pt + tokenizer) \u2014 the tree a consumer downloads",
+   "model_provenance": {
+    "source": "huggingface.co tree API (exact bytes)",
+    "detail": "nace-ai/drex-dlm",
+    "parts": [
+     {
+      "source": "huggingface.co tree API (exact bytes)",
+      "what": "nace-ai/drex-dlm"
+     }
+    ]
+   },
+   "model_stack": [
+    {
+     "label": "drex-dlm (Efficient-DLM-8B) BF16 tree",
+     "kind": "weights",
+     "bytes": 16403005719,
+     "src": 0
+    }
+   ],
+   "targets": [
+    "python env",
+    "GPU (CUDA)"
+   ],
+   "note": "the bench board's drex comparison lane (Nace.AI drex-dlm @ 6c63df2, backbone nvidia/Efficient-DLM-8B): repo code MIT, model weights CC BY-NC 4.0 \u2014 measurement only: comparison lane yes, distill teacher no, product serving no. The board's second posture (their llama.cpp edlm fork, Q8_0 on Metal) reads the same decision model re-quantized \u2014 one download, two runtimes"
   },
   {
    "key": "clm",

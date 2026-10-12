@@ -61,6 +61,14 @@ FAKE_HF = {
         {"rfilename": "tokenizer.json", "size": 700_000},
     ]},
     "Contrastive-LM/CLM-v0.1-8B": {"siblings": [{"rfilename": "CLM_v0.1-8B.pt", "size": 75_000_000}]},
+    "nace-ai/drex-dlm": {"siblings": [
+        {"rfilename": "model-00001-of-00004.safetensors", "size": 4_900_000_000},
+        {"rfilename": "model-00002-of-00004.safetensors", "size": 4_900_000_000},
+        {"rfilename": "model-00003-of-00004.safetensors", "size": 4_900_000_000},
+        {"rfilename": "model-00004-of-00004.safetensors", "size": 1_600_000_000},
+        {"rfilename": "head.pt", "size": 8_000_000},
+        {"rfilename": "tokenizer.json", "size": 11_000_000},
+    ]},
     "mlx-community/clef-flash-4bit": {"siblings": [{"rfilename": "model.safetensors", "size": 6_000_000_000}]},
     "mlx-community/pplx-decider-v1.1-27b-4bit": {"siblings": [
         {"rfilename": "model-00001-of-00002.safetensors", "size": 8_000_000_000},
@@ -86,6 +94,7 @@ FAKE_RECORDED = {k: {"key": k, "bytes": v, "what": f"{k} fake", "host": "fake-ho
                      "bekko_venv": 660_000_000,
                      "clef_venv": 580_000_000,
                      "pplx_venv": 610_000_000,
+                     "drex_venv": 4_900_000_000,
                  }.items()}
 # the two recorded_files records carry their per-file values (the real
 # entries restate the same measurement's lstat values; sums asserted)
@@ -162,7 +171,7 @@ def local_bytes_patcher():
 @case("every candidate renders with the full field set")
 def _():
     d = patched_build()
-    assert len(d["candidates"]) == 14, len(d["candidates"])
+    assert len(d["candidates"]) == 15, len(d["candidates"])
     for c in d["candidates"]:
         for f in ("key", "name", "framework", "engine_bytes", "engine_what",
                   "model_what", "targets", "engine_provenance"):
@@ -215,6 +224,7 @@ def _():
     }
     assert {k for k, c in by.items() if c["engine_kind"] == "python"} == {
         "laya_python", "gliner", "agentjev", "openthai", "bekko", "bekko68m", "clef", "pplx", "clm",
+        "drex",
     }
     assert all(c["engine_kind"] in ("rust", "python") for c in by.values())
 
