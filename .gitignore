@@ -11,3 +11,8 @@ CLAUDE.md
 .refine/
 
 .wt-jev/
+
+# local secrets (template: .env.example, tracked)
+.env
+.env.local
+.dev.vars

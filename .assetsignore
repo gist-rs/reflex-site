@@ -24,3 +24,6 @@ HISTORY.md
 .plans
 .refine
 .assetsignore
+# local secrets + their template — never served
+.env*
+.dev.vars
