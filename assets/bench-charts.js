@@ -1878,8 +1878,8 @@
       X.suites.map(suiteHtml).join("") +
       (ref.rows && ref.rows.length
         ? `<h3 class="suite">The JDI board's own rows <span class="cases">— reference only</span></h3>` +
-          `<div class="scroll"><table class="bench"><thead><tr><th>entrant</th><th>balanced raw</th><th>balanced skill</th><th>median ms</th><th>note</th></tr></thead><tbody>` +
-          ref.rows.map((r) => `<tr><td>${esc(r.entrant)}</td><td>${esc(fmt(r.balanced_raw))}</td><td>${esc(fmt(r.balanced_skill))}</td><td>${esc(fmt(r.median_ms))}</td><td class="bc-mut">${esc(r.note || "")}</td></tr>`).join("") +
+          `<div class="scroll"><table class="bench"><thead><tr><th>entrant</th><th>balanced raw</th><th>Full (private)</th><th>public</th><th>median ms</th><th>note</th></tr></thead><tbody>` +
+          ref.rows.map((r) => `<tr><td>${esc(r.entrant)}</td><td>${esc(fmt(r.balanced_raw))}</td><td><b>${esc(fmt(r.full_skill))}</b></td><td class="bc-mut">${esc(fmt(r.public_skill))}</td><td>${esc(fmt(r.median_ms))}</td><td class="bc-mut">${esc(r.note || "")}</td></tr>`).join("") +
           `</tbody></table></div><p class="cases">${esc(ref.note || "")}</p>`
         : "") +
       (blog.rows && blog.rows.length

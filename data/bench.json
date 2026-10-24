@@ -19665,90 +19665,134 @@
    }
   ],
   "board_reference": {
-   "note": "The JDI board's own rows \u2014 their frozen corpus, their protocol, their hardware (edition release-v3 / Decision Index 0.3, generated 2026-10-07, pinned in reflex .research/005; balanced_skill is the v3 BLEND 0.20 public + 0.50 private-same-skills + 0.30 private-new-domains \u2014 never compare across editions). REFERENCE ONLY: no number here is comparable with the measured rows above without the caveat's full weight.",
+   "note": "The JDI board's own rows \u2014 their frozen corpus, their protocol, their hardware (edition release-v4 / Decision Index 0.4.1, generated 2026-10-22, pinned in rethink .research/data/ + Issue 032 T10; Full (balanced_skill) is now 100% PRIVATE \u2014 0.60 private-same-skills + 0.40 private-new-domains, stock-model-mapped \u2014 while public benchmarks no longer count toward it, so the two columns are rendered SEPARATE and never blended or compared across editions; the instrument repair: rethink bench 072 proved public_skill == the per-area category prints and bounded the per-case divergence class). REFERENCE ONLY: no number here is comparable with the measured rows above without the caveat's full weight. reflex-27b-pmscr is a THIRD-PARTY fork (kshetrajna12) wearing our lane's name \u2014 never a reflex row.",
    "columns": [
     "entrant",
     "balanced_raw",
-    "balanced_skill",
+    "full_skill",
+    "public_skill",
     "median_ms"
    ],
    "rows": [
     {
-     "entrant": "Perplexity Decider v1.1 (27B)",
-     "balanced_raw": 71.66,
-     "balanced_skill": 62.75,
-     "median_ms": 104.1,
-     "note": "#1 blended (v3); public-only #2 (62.25)"
+     "entrant": "mammoth-1 (Base Labs, 27B)",
+     "balanced_raw": 81.19,
+     "full_skill": 68.44,
+     "public_skill": 75.34,
+     "median_ms": 220.1,
+     "note": "board-#1 BOTH aggregates; MIT - the first permissively-licensed #1"
     },
     {
-     "entrant": "Fastino GLiDE no-thinking (28B)",
-     "balanced_raw": 69.61,
-     "balanced_skill": 60.21,
-     "median_ms": 98.4,
-     "note": "#2 blended"
+     "entrant": "StartLux-Decision v1.1 Instant (27B)",
+     "balanced_raw": 79.39,
+     "full_skill": 67.92,
+     "public_skill": 72.88,
+     "median_ms": 79.8,
+     "note": "our startlux lane's model; CC BY-NC 4.0 (measurement-only posture)"
+    },
+    {
+     "entrant": "elephant-1 (Base Labs, 9B)",
+     "balanced_raw": 78.88,
+     "full_skill": 60.26,
+     "public_skill": 72.24,
+     "median_ms": 113.7,
+     "note": "public #4; the M5 sub-15B bar holder; MIT"
+    },
+    {
+     "entrant": "Fastino GLiDE v1.2 (28B)",
+     "balanced_raw": 78.89,
+     "full_skill": 71.52,
+     "public_skill": 71.99,
+     "median_ms": 92.9,
+     "note": ""
+    },
+    {
+     "entrant": "Perplexity Decider v1.2 (27B)",
+     "balanced_raw": 75.59,
+     "full_skill": 67.98,
+     "public_skill": 67.74,
+     "median_ms": 144.4,
+     "note": "our pplx lane's model (v1.1 on the old pin, now v1.2)"
+    },
+    {
+     "entrant": "Drex max v1",
+     "balanced_raw": 75.4,
+     "full_skill": 66.6,
+     "public_skill": 67.52,
+     "median_ms": 103.6,
+     "note": "our drex lane's family"
     },
     {
      "entrant": "Torchcast Decision 27B",
      "balanced_raw": 73.64,
-     "balanced_skill": 59.91,
+     "full_skill": 61.49,
+     "public_skill": 65.1,
      "median_ms": 99.9,
-     "note": "public-only #1 (65.10); #4 blended"
-    },
-    {
-     "entrant": "Rune 26B-A4B v3",
-     "balanced_raw": 68.45,
-     "balanced_skill": 57.43,
-     "median_ms": 120.5,
-     "note": "#10 blended"
-    },
-    {
-     "entrant": "JEV-27B (jev-1.13.0)",
-     "balanced_raw": 65.0,
-     "balanced_skill": 55.64,
-     "median_ms": 102.1,
-     "note": "#14 blended (tied)"
+     "note": "was the 0.3 public-only #1 (65.10 - the same print carries over)"
     },
     {
      "entrant": "Cloudflare clef (27B)",
      "balanced_raw": 71.07,
-     "balanced_skill": 53.08,
+     "full_skill": 54.92,
+     "public_skill": 61.71,
      "median_ms": 102.1,
-     "note": "public-only #3 (61.71); #19 blended"
+     "note": "our clef lane's model - the SAME public print as the 0.3 pin"
+    },
+    {
+     "entrant": "JEV (jev-1.13.0)",
+     "balanced_raw": 68.55,
+     "full_skill": 59.22,
+     "public_skill": 57.96,
+     "median_ms": 524.0,
+     "note": "the M1 pass-Jev bar is jev's 0.4.1 PRINT: 60.70"
+    },
+    {
+     "entrant": "reflex-27b-pmscr (kshetrajna12 - THIRD-PARTY, NOT OURS)",
+     "balanced_raw": 67.88,
+     "full_skill": 58.77,
+     "public_skill": 57.34,
+     "median_ms": 148.5,
+     "note": "a fork wearing our lane's name - never quoted as a reflex row"
     },
     {
      "entrant": "Cloudflare clef-flash (9B)",
      "balanced_raw": 66.53,
-     "balanced_skill": 47.61,
+     "full_skill": 44.43,
+     "public_skill": 56.15,
      "median_ms": 53.4,
-     "note": "our clef lane's model; #31 blended"
+     "note": "our clef lane's model"
     },
     {
      "entrant": "Winnow-12B (Q8 GGUF/llama.cpp)",
      "balanced_raw": 62.84,
-     "balanced_skill": 49.27,
+     "full_skill": 46.57,
+     "public_skill": 50.66,
      "median_ms": 72.5,
-     "note": "#26 blended"
+     "note": ""
     },
     {
      "entrant": "GLiNER2.5-Decide (our GLiNER lane)",
      "balanced_raw": 33.08,
-     "balanced_skill": 9.24,
+     "full_skill": 10.14,
+     "public_skill": 11.48,
      "median_ms": 23.3,
      "note": ""
     },
     {
      "entrant": "CLM-v0.1-8B (our CLM lane)",
      "balanced_raw": 28.52,
-     "balanced_skill": 6.24,
+     "full_skill": 6.49,
+     "public_skill": 7.41,
      "median_ms": 46.8,
      "note": ""
     },
     {
      "entrant": "laya (our laya lane's source)",
      "balanced_raw": 28.26,
-     "balanced_skill": 4.43,
+     "full_skill": 9.21,
+     "public_skill": 6.19,
      "median_ms": 5.8,
-     "note": "fastest on board"
+     "note": "still among the fastest on board"
     }
    ]
   },

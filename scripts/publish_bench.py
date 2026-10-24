@@ -639,36 +639,55 @@ CROSSWALK_B5_CAVEAT = (
 )
 
 # The JDI board's own rows (their frozen corpus, their protocol, their
-# hardware — REFERENCE ONLY). Pinned from the live board fetch of
-# 2026-10-09 (reflex .raw/jdi/index.json, session-local; re-derive from the
-# space URL): edition release-v3 / "Decision Index 0.3" (panel_id
-# decision-index-0.3), generated 2026-10-07T18:25:58Z, 114 entrants,
-# hardware "1 x NVIDIA RTX PRO 6000", Jev jev-1.13.0 — recorded in reflex
-# .research/005 §crosswalk (the Update 2026-10-09 note). v3 CHANGED the
-# headline: balanced_skill is now BLENDED
-# 0.20*public + 0.50*private_same_skills + 0.30*private_new_domains — the
-# public_skill column (kept in the notes here) is the closer cousin of the
-# 0.2.1-era figure; never compare across editions. These are CURATED
-# constants (the AREA_CHANCE precedent), never measurements by this
-# harness. The sha-watch on this board is scripts/watch_jdi.py (reflex).
+# hardware — REFERENCE ONLY). Pinned from the ARCHIVED 0.4.1 snapshot
+# (rethink .research/data/jdi_index_release-v4_2026-10-22_da1586d5.json,
+# sha256 da1586d5...7044, generated 2026-10-22T05:40:06Z, 225 entrants,
+# hardware "1 x NVIDIA RTX PRO 6000", jev-1.14.0 — the rethink Issue 032
+# T10 pin; the instrument: rethink scripts/jdi_aggregate.py, whose 0.4.1
+# repair (bench 072) proved public_skill == sum(w * category prints) and
+# shipped the BOUNDED per-case divergence class). 0.4.1 CHANGED the
+# headline AGAIN: balanced_skill (= Full) is now 100% PRIVATE —
+# 0.60*private_same_skills + 0.40*private_new_domains, stock-model-mapped;
+# public benchmarks are still run and shown but count toward NOTHING. The
+# Full and public_skill columns are therefore rendered VISUALLY SEPARATE
+# (the board itself separates them) and NEVER blended or compared across
+# editions (the T10.5 discipline). These are CURATED constants (the
+# AREA_CHANCE precedent), never measurements by this harness. The bars
+# are quoted from PRINTS (the authority): M1 pass-Jev 60.70, M5
+# sub-15B 72.24 (elephant-1), M3 board-#1 75.34 (mammoth-1) — rethink
+# Issue 032 T10.
+#
+# The pmscr naming law (T10.5): "reflex-27b-pmscr" (57.34 public) is a
+# THIRD-PARTY fork — kshetrajna12's pmscr arm, NOT OURS — and is named as
+# such wherever a reflex-named board row is mentioned.
 JDI_BOARD_REFERENCE = [
-    # (entrant, balanced_raw, balanced_skill, median_ms, note)
-    ("Perplexity Decider v1.1 (27B)", 71.66, 62.75, 104.1,
-     "#1 blended (v3); public-only #2 (62.25)"),
-    ("Fastino GLiDE no-thinking (28B)", 69.61, 60.21, 98.4, "#2 blended"),
-    ("Torchcast Decision 27B", 73.64, 59.91, 99.9,
-     "public-only #1 (65.10); #4 blended"),
-    ("Rune 26B-A4B v3", 68.45, 57.43, 120.5, "#10 blended"),
-    ("JEV-27B (jev-1.13.0)", 65.00, 55.64, 102.1, "#14 blended (tied)"),
-    ("Cloudflare clef (27B)", 71.07, 53.08, 102.1,
-     "public-only #3 (61.71); #19 blended"),
-    ("Cloudflare clef-flash (9B)", 66.53, 47.61, 53.4,
-     "our clef lane's model; #31 blended"),
-    ("Winnow-12B (Q8 GGUF/llama.cpp)", 62.84, 49.27, 72.5, "#26 blended"),
-    ("GLiNER2.5-Decide (our GLiNER lane)", 33.08, 9.24, 23.3, ""),
-    ("CLM-v0.1-8B (our CLM lane)", 28.52, 6.24, 46.8, ""),
-    ("laya (our laya lane's source)", 28.26, 4.43, 5.8,
-     "fastest on board"),
+    # (entrant, balanced_raw, full_skill, public_skill, median_ms, note)
+    ("mammoth-1 (Base Labs, 27B)", 81.19, 68.44, 75.34, 220.1,
+     "board-#1 BOTH aggregates; MIT - the first permissively-licensed #1"),
+    ("StartLux-Decision v1.1 Instant (27B)", 79.39, 67.92, 72.88, 79.8,
+     "our startlux lane's model; CC BY-NC 4.0 (measurement-only posture)"),
+    ("elephant-1 (Base Labs, 9B)", 78.88, 60.26, 72.24, 113.7,
+     "public #4; the M5 sub-15B bar holder; MIT"),
+    ("Fastino GLiDE v1.2 (28B)", 78.89, 71.52, 71.99, 92.9, ""),
+    ("Perplexity Decider v1.2 (27B)", 75.59, 67.98, 67.74, 144.4,
+     "our pplx lane's model (v1.1 on the old pin, now v1.2)"),
+    ("Drex max v1", 75.4, 66.6, 67.52, 103.6,
+     "our drex lane's family"),
+    ("Torchcast Decision 27B", 73.64, 61.49, 65.1, 99.9,
+     "was the 0.3 public-only #1 (65.10 - the same print carries over)"),
+    ("Cloudflare clef (27B)", 71.07, 54.92, 61.71, 102.1,
+     "our clef lane's model - the SAME public print as the 0.3 pin"),
+    ("JEV (jev-1.13.0)", 68.55, 59.22, 57.96, 524.0,
+     "the M1 pass-Jev bar is jev's 0.4.1 PRINT: 60.70"),
+    ("reflex-27b-pmscr (kshetrajna12 - THIRD-PARTY, NOT OURS)", 67.88, 58.77, 57.34, 148.5,
+     "a fork wearing our lane's name - never quoted as a reflex row"),
+    ("Cloudflare clef-flash (9B)", 66.53, 44.43, 56.15, 53.4,
+     "our clef lane's model"),
+    ("Winnow-12B (Q8 GGUF/llama.cpp)", 62.84, 46.57, 50.66, 72.5, ""),
+    ("GLiNER2.5-Decide (our GLiNER lane)", 33.08, 10.14, 11.48, 23.3, ""),
+    ("CLM-v0.1-8B (our CLM lane)", 28.52, 6.49, 7.41, 46.8, ""),
+    ("laya (our laya lane's source)", 28.26, 9.21, 6.19, 5.8,
+     "still among the fastest on board"),
 ]
 
 # The blog's own BANKING77 macro-F1 table (Clef's run, not the board —
@@ -1602,20 +1621,27 @@ def compute_crosswalk(d):
         "board_reference": {
             "note": (
                 "The JDI board's own rows — their frozen corpus, their "
-                "protocol, their hardware (edition release-v3 / Decision "
-                "Index 0.3, generated 2026-10-07, pinned in reflex "
-                ".research/005; balanced_skill is the v3 BLEND "
-                "0.20 public + 0.50 private-same-skills + 0.30 "
-                "private-new-domains — never compare across editions). "
-                "REFERENCE ONLY: no number here is comparable with the "
-                "measured rows above without the caveat's full weight."
+                "protocol, their hardware (edition release-v4 / Decision "
+                "Index 0.4.1, generated 2026-10-22, pinned in rethink "
+                ".research/data/ + Issue 032 T10; Full (balanced_skill) is "
+                "now 100% PRIVATE — 0.60 private-same-skills + 0.40 "
+                "private-new-domains, stock-model-mapped — while public "
+                "benchmarks no longer count toward it, so the two columns "
+                "are rendered SEPARATE and never blended or compared across "
+                "editions; the instrument repair: rethink bench 072 proved "
+                "public_skill == the per-area category prints and bounded "
+                "the per-case divergence class). REFERENCE ONLY: no number "
+                "here is comparable with the measured rows above without "
+                "the caveat's full weight. reflex-27b-pmscr is a THIRD-"
+                "PARTY fork (kshetrajna12) wearing our lane's name — never "
+                "a reflex row."
             ),
-            "columns": ["entrant", "balanced_raw", "balanced_skill",
-                        "median_ms"],
+            "columns": ["entrant", "balanced_raw", "full_skill",
+                        "public_skill", "median_ms"],
             "rows": [
-                {"entrant": e, "balanced_raw": raw, "balanced_skill": sk,
-                 "median_ms": ms, "note": note}
-                for (e, raw, sk, ms, note) in JDI_BOARD_REFERENCE
+                {"entrant": e, "balanced_raw": raw, "full_skill": full,
+                 "public_skill": public, "median_ms": ms, "note": note}
+                for (e, raw, full, public, ms, note) in JDI_BOARD_REFERENCE
             ],
         },
         "blog_banking77_mf1": {
