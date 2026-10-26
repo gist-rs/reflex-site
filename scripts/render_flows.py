@@ -1181,7 +1181,8 @@ def embed_findings(site: Path, name: str, svg: str) -> list:
             tw = re.search(r'\bwidth="([\d.]+)"', t)
             th = re.search(r'\bheight="([\d.]+)"', t)
             if tw and th and (tw.group(1), th.group(1)) != (w, h):
-                out.append(f"{p.relative_to(site)}: <{re.match(r'<(\w+)', t).group(1)}> {name} is {tw.group(1)}×{th.group(1)}, the SVG is {w}×{h}")
+                tag = re.match(r'<(\w+)', t).group(1)
+                out.append(f"{p.relative_to(site)}: <{tag}> {name} is {tw.group(1)}×{th.group(1)}, the SVG is {w}×{h}")
     return out
 
 
