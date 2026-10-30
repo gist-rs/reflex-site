@@ -45,11 +45,27 @@ Expected movement on the board suites (accuracy, board metric):
 - [ ] T4 read the rendered /bench/ (step-5 chromium smoke + eyes on the 8
       board rows above); the home TL;DR/averaged chart move with it
 - [ ] T5 commit + push (`main`), cite the riir-reflex sha of the docs
-- [ ] T6 DEPLOY from the **M3**, not bmo — Touch ID needs the GUI session:
-      owner creates `cf-deploy-reflex` (Specified Workers → the reflex-site
-      worker, Editor) + `kat-secret seal cf-deploy-reflex`; then the
-      riir-deployer `touch-deploy` skill line. Probe reflex.riir.ai/bench/
-      for the mammoth column.
+- [ ] T6 DEPLOY from the **M3**, not bmo — Touch ID needs the M3's GUI
+      session (an SSH shell gets LAError -1000). The token is READY:
+      `cf-deploy-reflex` (Account API token, Specified Workers →
+      `reflex-site`, Editor) sealed 2026-10-30 in the M3's kat-secret store
+      (`~/.kat/secrets/cf-deploy-reflex.katsec`). bmo: after T5, hand off
+      (message the M3 session / owner) — do NOT look for a token on bmo.
+      The M3 agent runs (riir-deployer `touch-deploy` skill):
+      ```sh
+      git -C ~/git/reflex-site fetch origin
+      git -C ~/git/reflex-site worktree add --detach /tmp/reflex-site-deploy origin/main
+      cd /tmp/reflex-site-deploy && \
+      CLOUDFLARE_ACCOUNT_ID=7e11517c4dd4f6e9cede7da9b60d66eb \
+      kat-secret exec cf-deploy-reflex --env CLOUDFLARE_API_TOKEN \
+        --why "deploy reflex-site <sha>" -- \
+        npx wrangler deploy --message "mammoth-1 board lane (<sha>)"
+      git -C ~/git/reflex-site worktree remove --force /tmp/reflex-site-deploy
+      ```
+      Warn the owner first ("Touch ID prompt incoming for cf-deploy-reflex");
+      use `exec`, never `open`. Then probe
+      `curl -s https://reflex.riir.ai/bench/ | grep -c mammoth` (> 0) and
+      record the wrangler Version ID here.
 
 ## Notes for the bmo agent
 
