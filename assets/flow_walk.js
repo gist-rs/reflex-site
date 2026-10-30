@@ -1,4 +1,4 @@
-// flow_walk.js — the gist.rs family flow step-through (design guide §8.4,
+// flow_walk.js — the riir.ai family flow step-through (design guide §8.4,
 // riir-ai .docs/13_web_family/design_guide.md; riir-ai Plan 620 P1.4).
 //
 // A <figure data-walk="/assets/<file>.svg"> becomes walkable: restart / prev /

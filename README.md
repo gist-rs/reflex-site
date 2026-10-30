@@ -1,7 +1,7 @@
 # reflex-site
 
 The public arena site for **Reflex** (the riir-reflex decision engine) —
-static content only, deployed to `reflex.gist.rs` on Cloudflare Workers
+static content only, deployed to `reflex.riir.ai` on Cloudflare Workers
 static assets.
 
 - `/` — the landing: the measured TL;DR + the averaged all-suites chart, the
@@ -57,7 +57,7 @@ static assets.
   record, and each step rings the cells it talks about);
   `scripts/flow_walk_smoke.mjs` is the headless check; the live-page
   `scripts/arena_prod_smoke.mjs` — run green 2026-09-26 against a local
-  engine armed `RIIR_REFLEX_ALLOWED_ORIGIN=https://reflex.gist.rs`, both
+  engine armed `RIIR_REFLEX_ALLOWED_ORIGIN=https://reflex.riir.ai`, both
   lanes ready). With an engine connected, laya (Rust), KatGPT modelless
   and raw play on the visitor's machine; laya (Python) — the original torch
   reference, never shipped — always replays its recorded game. Without an
@@ -78,7 +78,7 @@ Cloudflare** (beside the raw baseline). One engine, two hosts: the
 reflexer engine (gist-rs/riir-reflexer `crates/reflexer-wasm`,
 `wasm32-wasip1`) runs in the tab from `assets/reflexer.wasm`, and the SAME
 bytes answer `POST /v1/decide` on the reflexer Worker
-(`https://reflexer.gist.rs`, riir-reflexer
+(`https://reflexer.riir.ai`, riir-reflexer
 `cloudflare/reflexer-worker`). Both boards play the identical seeded game;
 the Cloudflare board's capsule (`assets/latcap.css`, `.latcap.live`) is the
 measured browser round trip per decision, live. The four classic lanes carry
@@ -91,7 +91,7 @@ the source git + sha256):
 ```sh
 ../riir-reflexer/cloudflare/reflexer-worker/build.sh --site .
 node scripts/reflexer_parity.mjs                                  # wasm in-process: 300/300 picks = the recorded walk
-node scripts/reflexer_parity.mjs --url https://reflexer.gist.rs   # the Worker, same check + latency
+node scripts/reflexer_parity.mjs --url https://reflexer.riir.ai   # the Worker, same check + latency
 ```
 
 Deploy is manual from the M3 through the riir-deployer manifest (both
@@ -391,7 +391,7 @@ caught at the source repo's gate too.
 ## Deploy
 
 ```sh
-npx wrangler deploy          # static assets; the reflex.gist.rs custom domain
+npx wrangler deploy          # static assets; the reflex.riir.ai custom domain
                              # is dashboard-attached (wrangler.toml has the why)
 npx wrangler dev             # local preview
 ```
@@ -400,7 +400,7 @@ No secrets, no bindings, no KV — the worker serves files and nothing else.
 
 ## Theme
 
-The gist.rs web family (adopted 2026-10-03): `assets/family.css` is a
+The riir.ai web family (adopted 2026-10-03): `assets/family.css` is a
 byte-identical copy of `riir-ai/.docs/13_web_family/family.css` (re-copy it
 when the source moves — never fork a token here) and loads before
 `assets/style.css`; `assets/family_hl.js` is likewise a byte-identical copy of

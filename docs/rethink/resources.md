@@ -1,4 +1,4 @@
-PUBLIC BY MIRROR — this file ships to reflex.gist.rs; keep it concept-level (no code, no repo paths, no digests, no measured numbers)
+PUBLIC BY MIRROR — this file ships to reflex.riir.ai; keep it concept-level (no code, no repo paths, no digests, no measured numbers)
 
 # Rethink — the encoder tier
 
@@ -10,7 +10,7 @@ Rethink is a **product**, not a research note: it is built to serve typed
 decisions [structured questions that deserve a structured answer, not free
 text] over the same wire the open lanes use, and every answer carries a
 receipt [a hashed record of exactly what produced the answer]. The hosted
-lane is not open yet — rethink.gist.rs marks each step live, test network
+lane is not open yet — rethink.riir.ai marks each step live, test network
 or planned. It is also
 **private forever** — the source stays ours, and so do the trained heads.
 
@@ -45,7 +45,7 @@ that is the whole point of the class.
 
 ## How to see it
 
-- **The storefront** — [rethink.gist.rs](https://rethink.gist.rs):
+- **The storefront** — [rethink.riir.ai](https://rethink.riir.ai):
   what the hosted tier does, how your data is handled, and the roadmap
   each step's state lives on. It is live; the hosted API itself is
   still forming — the storefront marks each card live, test network

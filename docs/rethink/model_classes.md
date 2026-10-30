@@ -1,4 +1,4 @@
-PUBLIC BY MIRROR — this file ships to reflex.gist.rs; keep it concept-level (no code, no repo paths, no digests, no measured numbers)
+PUBLIC BY MIRROR — this file ships to reflex.riir.ai; keep it concept-level (no code, no repo paths, no digests, no measured numbers)
 
 # Model classes — encoder, autoregressive, and what trains
 

@@ -196,7 +196,7 @@ function digitFindings(text, label, fail) {
     product: document.documentElement.getAttribute("data-product"),
     foot: [...document.querySelectorAll("footer.gf-foot a")].map((a) => new URL(a.href).host),
   }));
-  const hosts = ["reflex.gist.rs", "rethink.gist.rs", "refine.gist.rs", "ai.gist.rs"];
+  const hosts = ["reflex.riir.ai", "rethink.riir.ai", "refine.riir.ai", "riir.ai"];
   if (!chrome.firstIsBar) fail("gf-bar must be the first element in <body>");
   if (chrome.current.join() !== "Reflex") fail(`gf-bar current must be Reflex, got ${JSON.stringify(chrome.current)}`);
   if (chrome.product !== "reflex") fail(`<html data-product> must be reflex, got ${chrome.product}`);
@@ -305,13 +305,13 @@ function digitFindings(text, label, fail) {
     fail,
   );
 
-  // 9. the storefront is LIVE (rethink.gist.rs deployed 2026-10-03 — the old
+  // 9. the storefront is LIVE (rethink.riir.ai deployed 2026-10-03 — the old
   //    "incoming / may be dark" wording is a stale claim, web trust audit
   //    Issue 005 T2): the FAQ links it and no "incoming"/"dark" hedge remains
-  const store = await page.evaluate(() => [...document.querySelectorAll("#rethink a[href^='https://rethink.gist.rs']")].length);
-  if (!store) fail("the Rethink section must link the live storefront (rethink.gist.rs)");
+  const store = await page.evaluate(() => [...document.querySelectorAll("#rethink a[href^='https://rethink.riir.ai']")].length);
+  if (!store) fail("the Rethink section must link the live storefront (rethink.riir.ai)");
   else if (/incoming|may be\s+dark/.test(flat)) fail("stale storefront hedge (incoming / may be dark) still on the page");
-  else console.log("ok: rethink.gist.rs linked as live (no incoming/dark hedge)");
+  else console.log("ok: rethink.riir.ai linked as live (no incoming/dark hedge)");
 
   // 10. nav: exactly one Resources link, marked current here; GitHub icon in
   const cur = await page.$$eval("header.site nav a", (as) =>

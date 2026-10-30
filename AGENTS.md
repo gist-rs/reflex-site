@@ -5,7 +5,7 @@ contract (what this repo owns, what it does not); on conflict it wins.
 [`README.md`](README.md) carries the full recipes — this file is the index.
 
 The repo root IS the public assets directory (`wrangler.toml`): anything not
-listed in `.assetsignore` is served at `reflex.gist.rs`. Never write build
+listed in `.assetsignore` is served at `reflex.riir.ai`. Never write build
 output, screenshots or notes to the root — use the gitignored `scripts/out/`.
 
 ## Instruments

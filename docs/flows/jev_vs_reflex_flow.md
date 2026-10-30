@@ -4,7 +4,7 @@
 reflex-site `scripts/render_flows.py` (riir-ai Plan 620; family design guide
 §8) into `assets/jev_vs_reflex_flow.svg` (desktop swimlane) and
 `assets/jev_vs_reflex_flow_m.svg` (390 px card list), with the same bytes
-beside this doc. Shown in the `#learn` section of reflex.gist.rs/resources.
+beside this doc. Shown in the `#learn` section of reflex.riir.ai/resources.
 
 This doc is SITE-LOCAL (reflex-site owns it — the figure compares an external
 product with ours, so it has no sibling-repo home). It replaced a hand-built

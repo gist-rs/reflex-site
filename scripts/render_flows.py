@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Render the gist.rs flow figures from their doc sources (two-mirror law).
+"""Render the riir.ai flow figures from their doc sources (two-mirror law).
 
 ONE renderer for every flow figure (riir-ai Plan 620; the spec is the family
 design guide §8, riir-ai `.docs/13_web_family/design_guide.md`). One block
@@ -29,11 +29,11 @@ SOURCES OF TRUTH (one doc per owning repo; the SOURCES table below):
   `.docs/05_resources/dev_flow.md`, riir-rethink
   `.docs/03_decision_flow/rethink_flow.md`, `.docs/05_resources/dev_flow.md`
   (both PUBLIC-BY-MIRROR, fenced by sync_mirror.py) and
-  `.docs/06_trust_flow/trust_flow.md` (the rethink.gist.rs #trust figure —
+  `.docs/06_trust_flow/trust_flow.md` (the rethink.riir.ai #trust figure —
   the first gfflow block, the golden test).
 
 Each source names its SITE directory: the reflex-site root for every figure
-reflex.gist.rs serves, riir-rethink's `site/` for the trust figure (that
+reflex.riir.ai serves, riir-rethink's `site/` for the trust figure (that
 storefront is its own deploy). Every output is written byte-identically to
 
     <owning repo>/<doc dir>/<doc filename>     beside the doc
@@ -136,7 +136,7 @@ def dapps_root() -> Path:
 
 
 def kat_service_src() -> Path:
-    # the refine.gist.rs worker: static bytes are include_str!'d from src/,
+    # the refine.riir.ai worker: static bytes are include_str!'d from src/,
     # so the renderer's site mirror root is the src dir (assets/ under it)
     return _checkout("DAPPS_CHECKOUT", "riir-dapps") / "cloudflare/kat-service/src"
 

@@ -5,7 +5,7 @@
    segmented "remain" bar + ONE LINE PER SUITE (owner ask 2026-09-29: the
    prose rows were unreadable). Reframed 2026-10-03 (reflex-site issue 010,
    owner call: the fallback is the design — Rethink races OTHERS, never its
-   own rungs; wording consolidated with rethink.gist.rs/#why):
+   own rungs; wording consolidated with rethink.riir.ai/#why):
 
    1. "Reflex vs Instinct · trained specialists (encoderless)" — the
       ENCODERLESS rung only (hybrid cells): what the trained specialists add
@@ -287,7 +287,7 @@ function render(bench) {
       (tiedReal.length ? ` · tied on ${tiedReal.length}` : "") +
       (floorSeated.length ? ` · floor-seated (A0 — no specialist earned a seat) on ${floorSeated.length}` : "") +
       (hybNoArm > 0 ? ` · no specialist arm yet on ${hybNoArm} of ${suites.length} published suites.` : ".") +
-      ` <a href="https://rethink.gist.rs/">Rethink goes one rung deeper — the trained encoder for what the specialists miss →</a>`);
+      ` <a href="https://rethink.riir.ai/">Rethink goes one rung deeper — the trained encoder for what the specialists miss →</a>`);
     const main = li.querySelector(".iv-main");
     segBar(main, ahead.length, tiedReal.length, gapsReal.length + gapsNoise.length, hybNoArm,
       "have no specialist arm yet", floorSeated.length);
@@ -317,7 +317,7 @@ function render(bench) {
     chip = document.createElement("p");
     chip.style.cssText = "margin:0 0 8px";
     // The fallback to a lower rung is the DESIGN (issue 010 — the rung
-    // model at rethink.gist.rs/#why), so the open race is the stack against
+    // model at rethink.riir.ai/#why), so the open race is the stack against
     // the other published lanes; ties count toward the to-go (GOAT needs
     // strictly best everywhere).
     chip.innerHTML = `<span class="chip ${strictlyAll ? "ok" : "poc"}">${strictlyAll ? "GOAT" : "PoC"}</span> ` +

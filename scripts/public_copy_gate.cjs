@@ -133,7 +133,7 @@ function served(rel) {
         if (r.product !== "reflex") fail(`${tag}: <html data-product> = ${r.product}`);
         if (!r.firstIsBar) fail(`${tag}: gf-bar is not the first element in <body>`);
         if (r.current !== "Reflex") fail(`${tag}: gf-bar current = ${JSON.stringify(r.current)}`);
-        for (const h of ["reflex.gist.rs", "rethink.gist.rs", "refine.gist.rs", "ai.gist.rs"]) {
+        for (const h of ["reflex.riir.ai", "rethink.riir.ai", "refine.riir.ai", "reflexer.riir.ai", "riir.ai"]) {
           if (!r.foot.includes(h)) fail(`${tag}: family footer misses ${h}`);
         }
       } else if (r.sw !== r.iw) {

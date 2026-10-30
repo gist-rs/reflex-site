@@ -1,6 +1,6 @@
-// Production smoke: the LIVE https://reflex.gist.rs/arena/ page against the
+// Production smoke: the LIVE https://reflex.riir.ai/arena/ page against the
 // local engine (CORS allows the custom domain). Run only when the local
-// engine is up with RIIR_REFLEX_ALLOWED_ORIGIN=https://reflex.gist.rs.
+// engine is up with RIIR_REFLEX_ALLOWED_ORIGIN=https://reflex.riir.ai.
 import { createRequire } from "node:module";
 
 const siblingRequire = createRequire(
@@ -18,7 +18,7 @@ page.on("pageerror", (e) => errs.push(e.message));
 let failed = false;
 
 try {
-  await page.goto("https://reflex.gist.rs/arena/", { waitUntil: "networkidle" });
+  await page.goto("https://reflex.riir.ai/arena/", { waitUntil: "networkidle" });
   await page.waitForFunction(
     () => document.getElementById("status-text").textContent.includes("engine detected"),
     { timeout: 10000 },
