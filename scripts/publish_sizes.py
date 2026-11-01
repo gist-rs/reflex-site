@@ -110,7 +110,7 @@ CANDIDATES = [
         "model": ("recorded_files", "instinct_winner_vessels", {"kind": "specialist"}),
         "model_what": "the six winner files (each pinned by a BLAKE3 digest in the manifest, checked at load — the signed HOSTED-ONLY vessel is not yet the serving path)",
         "targets": ["container (cf-container)", "hosted serving"],
-        "note": "the trained sibling lane: the specialists serve six text suites; game spots answer through its Reflex half. The three-product naming is Reflex / Instinct / Rethink — Instinct is the open teaching lane (052); Rethink is the private moat",
+        "note": "the trained sibling lane: the specialists serve six text suites; game spots answer through its Reflex half. The three-product naming is Reflex / Instinct / Rethink — Instinct is the open teaching lane (052); Rethink is the hosted research lane",
     },
     {
         "key": "rethink_encoder",

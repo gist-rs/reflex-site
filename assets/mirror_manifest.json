@@ -24,13 +24,13 @@
       "repo": "riir-reflex",
       "src": ".docs/04_agent_skill/SKILL.md",
       "dst": "skills/reflex-integration/SKILL.md",
-      "sha256": "7650f02a7708f27d7e835e5603c273cabb2190343a00ccc96d79139ea6c1bd2d"
+      "sha256": "7a5e17f70812fec93067a997d31631c06fa11097293f054e781e588cc45a29ef"
     },
     {
       "repo": "riir-reflex",
       "src": ".docs/05_resources/resources.md",
       "dst": "docs/reflex/resources.md",
-      "sha256": "c25adb9ccb11a97540ce41bafd13fa38f8c258810aac127d8682a2ccee81d87e"
+      "sha256": "587c417e36ac32ef768245df491cb10003d6347e5c656e29012d4634afb7e604"
     },
     {
       "repo": "riir-reflex",
@@ -78,7 +78,7 @@
       "repo": "riir-instinct",
       "src": ".docs/05_resources/resources.md",
       "dst": "docs/instinct/resources.md",
-      "sha256": "f4534936d1ba166bc96dcfa41704a10ae3bcaba227aa34b0675d25890c084ff6"
+      "sha256": "504a39985ffb087e6f89a9c828010b66b73be712965c4881aa10e841ee4a2044"
     },
     {
       "repo": "riir-instinct",
@@ -120,13 +120,13 @@
       "repo": "riir-rethink",
       "src": ".docs/05_resources/resources.md",
       "dst": "docs/rethink/resources.md",
-      "sha256": "b541733c662dae7d6e001fea619d95aa5554a926f861798143dc13b49bae2215"
+      "sha256": "f17b9a9fd8ffd3b3dbe5b60d26145899c3a3c13ede644921fbf244f516a18bd8"
     },
     {
       "repo": "riir-rethink",
       "src": ".docs/05_resources/dev_flow.md",
       "dst": "docs/rethink/dev_flow.md",
-      "sha256": "4d060915f4e5943ad4179ab8048761cf4bdc6a2b5b588ea941fa410eca8eee7e"
+      "sha256": "9cee90fc23bb3161097466f85202e1a7b15a0ba1d57b213f22cc329757416ee1"
     },
     {
       "repo": "riir-rethink",
@@ -144,7 +144,7 @@
       "repo": "riir-rethink",
       "src": ".docs/05_resources/model_classes.md",
       "dst": "docs/rethink/model_classes.md",
-      "sha256": "e0a8ea9f350c9b3a191c8e0c9425a158c79c71e194e4b8a0adbec2b05e4d1ef2"
+      "sha256": "20e4da0c0587bd828545a18c741351f2f6b2738e3a346e806ad3adc2dd21dcfa"
     },
     {
       "repo": "riir-rethink",
@@ -174,7 +174,7 @@
       "repo": "riir-reflexer",
       "src": ".docs/06_resources/resources.md",
       "dst": "docs/reflexer/resources.md",
-      "sha256": "983b2f2fc09af052824d5b5989a3be5f5921e9a71bbd475c7c5164ec65bf69d3"
+      "sha256": "4c2da33da74345cb6c261337c825ec1f603940bfd1057b7a46491dbe82a255af"
     },
     {
       "repo": "riir-reflexer",
