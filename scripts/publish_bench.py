@@ -482,6 +482,7 @@ def rename_lanes(d):
             + ([s["clef"]] if s.get("clef") else [])
             + ([s["pplx"]] if s.get("pplx") else [])
             + ([s["drex"]] if s.get("drex") else [])
+            + ([s["mammoth"]] if s.get("mammoth") else [])
             + ([s["openthai"]] if s.get("openthai") else [])
         )
         for l in lanes:
@@ -3154,6 +3155,8 @@ def finalize(d):
                 + ([host_lanes["clef"]] if host_lanes.get("clef") else [])
                 + ([host_lanes["pplx"]] if host_lanes.get("pplx") else [])
                 + ([host_lanes["drex"]] if host_lanes.get("drex") else [])
+                + ([host_lanes["mammoth"]] if host_lanes.get("mammoth")
+                   else [])
             )
             for l in lanes:
                 l["lane"] = LANE_DISPLAY.get(l.get("lane"), l.get("lane"))

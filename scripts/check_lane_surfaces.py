@@ -103,6 +103,22 @@ def main():
             problems.append(f"publish_bench.py LANE_TIMING: no row for '{c}'")
         if f's.get("{c}")' not in pb:
             problems.append(f"publish_bench.py merge: no s.get('{c}') block")
+        # the display passes (primary doc + extras sanitize) enumerate lanes
+        # by hand - a lane missing from either publishes under its raw name
+        # (the mammoth detour, 2026-11-02: the merge renamed, the display
+        # pass did not know the lane, the raw name shipped). Exception:
+        # "laya" enumerates as a dict (s.get("laya") or {}).values() - the
+        # per-checkpoint shape; "python" merges under laya.
+        if c in ("laya", "python"):
+            continue
+        if f'([s["{c}"]] if s.get("{c}")' not in pb:
+            problems.append(
+                f"publish_bench.py primary display pass: '{c}' not in the "
+                "hand-built lane enumeration (publishes raw)")
+        if f'host_lanes["{c}"]' not in pb:
+            problems.append(
+                f"publish_bench.py extras sanitize pass: '{c}' not in the "
+                "hand-built enumeration (publishes raw)")
         if f'("{c}", "' not in pb:
             problems.append(f"publish_bench.py AREA_LANES: no row for '{c}'")
 
