@@ -357,7 +357,11 @@ const server = http.createServer((req, res) => {
       for (const h of Object.values(s.extra_host_lanes || {})) {
         if (h.modelless?.latency_p50_ms != null) visibleP50s.push(h.modelless.latency_p50_ms);
         for (const l of Object.values(h.laya || {})) if (l.latency_p50_ms != null) visibleP50s.push(l.latency_p50_ms);
-        for (const lane of [h.openthai, h.bekko]) if (lane?.latency_p50_ms != null) visibleP50s.push(lane.latency_p50_ms);
+        // the comparison lanes join as their cells become quotable — the
+        // list mirrors the render walkers (a lane missing here understates
+        // the expected table break signs; the mammoth add, 2026-11-02)
+        for (const lane of [h.openthai, h.bekko, h.paw, h.paw_local, h.clef, h.pplx, h.drex, h.mammoth])
+          if (lane?.latency_p50_ms != null) visibleP50s.push(lane.latency_p50_ms);
       }
       if (s.openthai?.latency_p50_ms != null) visibleP50s.push(s.openthai.latency_p50_ms);
       if (s.bekko?.latency_p50_ms != null) visibleP50s.push(s.bekko.latency_p50_ms);
@@ -411,7 +415,10 @@ const server = http.createServer((req, res) => {
       const out = [];
       if (base.modelless) out.push(base.modelless);
       for (const k of Object.keys(base.laya || {})) out.push(base.laya[k]);
-      for (const k of ["clm", "gliner", "bekko", "agentjev", "openthai", "paw", "paw_local", "clef", "hybrid", "encoder"])
+      // the enumerator list mirrors bench-charts.js allLanes/extraLanes —
+      // a lane missing here understates the expected break signs and the
+      // pin reds on publish (the pplx/drex/mammoth adds, 2026-11-02)
+      for (const k of ["clm", "gliner", "bekko", "agentjev", "openthai", "paw", "paw_local", "clef", "pplx", "drex", "mammoth", "hybrid", "encoder"])
         if (base[k]) out.push(base[k]);
       return out;
     };

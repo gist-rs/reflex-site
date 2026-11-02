@@ -536,6 +536,7 @@
     // reader cannot filter is a lane the filter does not govern).
     if (s.pplx) out.push(s.pplx);
     if (s.drex) out.push(s.drex);
+    if (s.mammoth) out.push(s.mammoth);
     if (s.hybrid) out.push(s.hybrid);
     if (s.encoder) out.push(s.encoder);
     return out;
@@ -555,6 +556,7 @@
       if (hl.clef) out.push([hl.clef, host]);
       if (hl.pplx) out.push([hl.pplx, host]);
       if (hl.drex) out.push([hl.drex, host]);
+      if (hl.mammoth) out.push([hl.mammoth, host]);
       if (hl.hybrid) out.push([hl.hybrid, host]);
       if (hl.encoder) out.push([hl.encoder, host]);
     }

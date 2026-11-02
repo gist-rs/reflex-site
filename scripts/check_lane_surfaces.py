@@ -79,6 +79,25 @@ def main():
                     "but has no family row (a size label needs its model regex; "
                     "state the size or drop sizeFrom - never guess)")
 
+    # 2b. bench-charts.js cell walkers (allLanes + extraLanes): a lane
+    # missing from these renders "not run" with published cells (the pplx
+    # 2026-10-09 precedent, the mammoth 2026-11-02 repeat). The single-cell
+    # walkers use s.<c> / hl.<c>; laya enumerates its dict; the product
+    # lanes are covered.
+    walker_exceptions = {"laya", "python", "modelless", "hybrid", "encoder"}
+    for c in classes:
+        if c in walker_exceptions:
+            continue
+        key = PALETTE_KEY.get(c, c)
+        if f"s.{key})" not in charts and f"if (s.{key})" not in charts:
+            problems.append(
+                f"bench-charts.js allLanes: '{c}' not enumerated "
+                '(renders "not run" beside published cells)')
+        if f"hl.{key})" not in charts and f"if (hl.{key})" not in charts:
+            problems.append(
+                f"bench-charts.js extraLanes: '{c}' not enumerated "
+                '(renders "not run" beside published cells)')
+
     # 3. instinct.js rival lists: a class is covered when it appears in
     # ANY bracketed string array that also carries "hybrid", "encoder"
     # (the two tail markers every rival list shares).
