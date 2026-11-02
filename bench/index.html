@@ -120,6 +120,7 @@
   .run-chip { display: inline-flex; align-items: baseline; gap: 7px; border: 1px solid var(--line); background: var(--panel); border-radius: 8px; padding: 4px 10px; font-size: 12.5px; white-space: nowrap; }
   .run-chip b { color: var(--text); font-weight: 600; }
   .run-chip .rc-meta { color: var(--muted); font-size: 11.5px; font-variant-numeric: tabular-nums; }
+  .run-chip .rc-spec { display: block; color: var(--muted); font-size: 11px; margin-top: 1px; }
   .rc-note { color: var(--muted); font-size: 12px; }
   .runs-notes { color: var(--muted); font-size: 12.5px; margin: 4px 0 0; flex-basis: 100%; }
   /* the two h2 siblings carry margin-top:40px inline; #per-suite was the one
@@ -861,9 +862,14 @@ const fmtUtc = (s) => {
 };
 
 // One run chip: host · device · sha · when (the provenance strip's unit).
+// h.spec (the publisher's HOST_SPECS row, stamped at publish) renders as
+// the chip's title/second line - what the machine IS, so a host display
+// name never reads as rig-internal jargon (the 2026-11-02 owner ask).
 const runChip = (h) =>
-  `<span class="run-chip"><b>${h.host || "?"}</b><span class="rc-meta">` +
-  `${deviceWord(h.laya_device)}${h.laya_feature ? "" : " · no laya"} · ${h.git_sha || "?"} · ${fmtUtc(h.date_utc)}</span></span>`;
+  `<span class="run-chip"${h.spec ? ` title="${h.spec.replace(/"/g, "&quot;")}"` : ""}><b>${h.host || "?"}</b><span class="rc-meta">` +
+  `${deviceWord(h.laya_device)}${h.laya_feature ? "" : " · no laya"} · ${h.git_sha || "?"} · ${fmtUtc(h.date_utc)}</span>` +
+  (h.spec ? `<span class="rc-spec">${h.spec}</span>` : "") +
+  `</span>`;
 
 // The primary run's host (meta.host), set once per render: its rows carry
 // "@host" exactly like the extra hosts', so every row names its machine.

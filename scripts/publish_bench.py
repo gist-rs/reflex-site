@@ -425,6 +425,28 @@ HOST_DISPLAY = {
     # as 4090-win — the alias keeps those lanes in the existing host
     # container instead of minting a phantom fourth host.
     "shikuwa": "4090-win",
+    # rethink 032's bmo publish (2026-11-02, owner call): the rig nickname
+    # is workspace-internal jargon - a reader must not need the fleet's
+    # nickname table to know what machine measured the cells. The owner's
+    # explicit display spelling; the full spec rides the HOST_SPECS row
+    # (the provenance strip renders it).
+    "bmo": "BMO (M5 Ultra)",
+}
+
+# The per-host spec note (the provenance strip renders it under each run
+# chip) - what the machine IS, so "BMO (M5 Ultra)" reads as hardware, not
+# a nickname. One row per known host; a host without a row renders bare
+# (never guessed). Filled from the fleet's own records 2026-11-02.
+HOST_SPECS = {
+    "m3-max-metal": ("Apple MacBook Pro (M3 Max, 16-core), 64 GB unified "
+                     "memory, macOS - GPU lanes on Metal"),
+    "m3-max-ane": ("the same M3 Max MacBook, the encoder rung served on "
+                   "the Apple Neural Engine (CoreML whole-graph)"),
+    "4090-win": ("Windows workstation, NVIDIA GeForce RTX 4090 24 GB, "
+                 "CUDA - the GPU-heavy lanes"),
+    "BMO (M5 Ultra)": ("Apple Mac Studio (M5 Ultra), 96 GB unified memory, "
+                       "macOS - the mammoth-1 27B teacher self-hosted on "
+                       "Metal (bf16 MPS, sequential fork)"),
 }
 
 # Device-variant hosts: the SAME physical machine as another host, serving
@@ -459,6 +481,9 @@ def rename_hosts(d):
     for row in m.get("hosts") or []:
         if row.get("host"):
             row["host"] = display_host(row["host"])
+        spec = HOST_SPECS.get(row.get("host"))
+        if spec:
+            row["spec"] = spec
     for s in d.get("suites", []):
         lanes = s.get("extra_host_lanes")
         if lanes:

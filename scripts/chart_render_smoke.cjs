@@ -102,13 +102,15 @@ const p50 = checkMetric("p50", "summary");
 // typed_decisions/banking77 cells (since the bekko 400M quotable-timing
 // window, reflex bench 115), paw's hosted aggregate (~1.1 s over its 3
 // quotable cells, reflex bench 116), and clef's two quotable cells
-// (3368/1690 ms, reflex bench 118's quiet-box re-read) — so the p50 body
-// renders exactly four sz-break signs, the dashed break gridline
-// once per axis (top + bottom), and an axis tick naming the break. Re-pin
-// the count when the data's slowest read moves across the break.
+// (3368/1690 ms, reflex bench 118's quiet-box re-read) — and mammoth's
+// quotable cells joined at the rethink 032 publish (1.4-6.5 s per suite,
+// all past the break) — so the p50 body renders exactly five sz-break
+// signs, the dashed break gridline once per axis (top + bottom), and an
+// axis tick naming the break. Re-pin the count when the data's slowest
+// read moves across the break.
 const p50Html = captured["summary"].innerHTML;
 const p50Breaks = (p50Html.match(/class="sz-break"/g) || []).length;
-if (p50Breaks !== 4) { console.error(`FAIL[p50-break]: expected exactly 4 sz-break signs, got ${p50Breaks}`); process.exit(1); }
+if (p50Breaks !== 5) { console.error(`FAIL[p50-break]: expected exactly 5 sz-break signs, got ${p50Breaks}`); process.exit(1); }
 const p50GridBreaks = (p50Html.match(/sz-grid-break/g) || []).length;
 const p50Rows = (p50Html.match(/class="bc-hbar"/g) || []).length;
 // the grid rides EVERY row track (one per lane row), so the break gridline

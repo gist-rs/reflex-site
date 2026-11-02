@@ -117,7 +117,8 @@
       "date_utc": "2026-10-08T01:38:13Z"
      }
     },
-    "head_posture": "OFF (head_scale 0 \u2014 the published baseline posture)"
+    "head_posture": "OFF (head_scale 0 \u2014 the published baseline posture)",
+    "spec": "Apple MacBook Pro (M3 Max, 16-core), 64 GB unified memory, macOS - GPU lanes on Metal"
    },
    {
     "host": "m3-max-ane",
@@ -134,7 +135,8 @@
       "git_sha": "2f6b58c",
       "date_utc": "2026-09-30T10:35:35Z"
      }
-    }
+    },
+    "spec": "the same M3 Max MacBook, the encoder rung served on the Apple Neural Engine (CoreML whole-graph)"
    },
    {
     "host": "4090-win",
@@ -188,10 +190,11 @@
       "date_utc": "2026-10-08T02:36:48Z"
      }
     },
-    "head_posture": "OFF (head_scale 0 \u2014 the published baseline posture)"
+    "head_posture": "OFF (head_scale 0 \u2014 the published baseline posture)",
+    "spec": "Windows workstation, NVIDIA GeForce RTX 4090 24 GB, CUDA - the GPU-heavy lanes"
    },
    {
-    "host": "bmo",
+    "host": "BMO (M5 Ultra)",
     "date_utc": "2026-11-01T17:11:16Z",
     "git_sha": "4fcd8ed",
     "profile": "release",
@@ -221,7 +224,8 @@
       "git_sha": "4fcd8ed",
       "date_utc": "2026-11-02T00:55:24Z"
      }
-    }
+    },
+    "spec": "Apple Mac Studio (M5 Ultra), 96 GB unified memory, macOS - the mammoth-1 27B teacher self-hosted on Metal (bf16 MPS, sequential fork)"
    }
   ],
   "head_posture": "OFF (head_scale 0 \u2014 the published baseline posture)",
@@ -2356,7 +2360,7 @@
       }
      }
     },
-    "bmo": {
+    "BMO (M5 Ultra)": {
      "mammoth": {
       "lane": "mammoth-1 (local)",
       "model": "mammoth-1@mammoth-1",
@@ -4262,7 +4266,7 @@
       }
      }
     },
-    "bmo": {
+    "BMO (M5 Ultra)": {
      "mammoth": {
       "lane": "mammoth-1 (local)",
       "model": "mammoth-1@mammoth-1",
@@ -5938,7 +5942,7 @@
       }
      }
     },
-    "bmo": {
+    "BMO (M5 Ultra)": {
      "mammoth": {
       "lane": "mammoth-1 (local)",
       "model": "mammoth-1@mammoth-1",
@@ -7545,7 +7549,7 @@
       }
      }
     },
-    "bmo": {
+    "BMO (M5 Ultra)": {
      "mammoth": {
       "lane": "mammoth-1 (local)",
       "model": "mammoth-1@mammoth-1",
@@ -9118,7 +9122,7 @@
       }
      }
     },
-    "bmo": {
+    "BMO (M5 Ultra)": {
      "mammoth": {
       "lane": "mammoth-1 (local)",
       "model": "mammoth-1@mammoth-1",
@@ -10788,7 +10792,7 @@
       }
      }
     },
-    "bmo": {
+    "BMO (M5 Ultra)": {
      "mammoth": {
       "lane": "mammoth-1 (local)",
       "model": "mammoth-1@mammoth-1",
@@ -12306,7 +12310,7 @@
       }
      }
     },
-    "bmo": {
+    "BMO (M5 Ultra)": {
      "mammoth": {
       "lane": "mammoth-1 (local)",
       "model": "mammoth-1@mammoth-1",
@@ -13901,7 +13905,7 @@
       }
      }
     },
-    "bmo": {
+    "BMO (M5 Ultra)": {
      "mammoth": {
       "lane": "mammoth-1 (local)",
       "model": "mammoth-1@mammoth-1",
@@ -18396,7 +18400,7 @@
    "n_questions": 3200,
    "n_cases": 3200,
    "extra_host_lanes": {
-    "bmo": {
+    "BMO (M5 Ultra)": {
      "mammoth": {
       "lane": "mammoth-1 (local)",
       "model": "mammoth-1@mammoth-1",
@@ -18469,7 +18473,7 @@
    "n_questions": 2000,
    "n_cases": 2000,
    "extra_host_lanes": {
-    "bmo": {
+    "BMO (M5 Ultra)": {
      "mammoth": {
       "lane": "mammoth-1 (local)",
       "model": "mammoth-1@mammoth-1",
@@ -18542,7 +18546,7 @@
    "n_questions": 2000,
    "n_cases": 2000,
    "extra_host_lanes": {
-    "bmo": {
+    "BMO (M5 Ultra)": {
      "mammoth": {
       "lane": "mammoth-1 (local)",
       "model": "mammoth-1@mammoth-1",
@@ -18615,7 +18619,7 @@
    "n_questions": 1267,
    "n_cases": 1267,
    "extra_host_lanes": {
-    "bmo": {
+    "BMO (M5 Ultra)": {
      "mammoth": {
       "lane": "mammoth-1 (local)",
       "model": "mammoth-1@mammoth-1",
@@ -19537,7 +19541,7 @@
     "complete": true,
     "host": "4090-win"
    },
-   "mammoth@bmo": {
+   "mammoth@BMO (M5 Ultra)": {
     "display": "mammoth-1 (local)",
     "color_key": "mammoth",
     "kind": "local-weights-serve",
@@ -19587,7 +19591,7 @@
      "of": 8
     },
     "complete": true,
-    "host": "bmo"
+    "host": "BMO (M5 Ultra)"
    }
   },
   "timing": {
@@ -19742,7 +19746,7 @@
     "n_unjudged": 0,
     "note": "population = the suites behind the lane's index; p50 geometric mean over latency_quotable cells only (unfit timing is shown in the tables, never plotted)"
    },
-   "mammoth@bmo": {
+   "mammoth@BMO (M5 Ultra)": {
     "clock": "http",
     "method": "HTTP round-trip to baselabs/mammoth-1 (27B, MIT - the JDI board-#1 teacher) over their own qev runtime (OneJev @81ce62f + the checkpoint's serve.patch, block-bidirectional attention, slot_lm readout) on loopback: bmo M5 Ultra, bf16 MPS, sequential fork; determinism answer-stable (the envelope-clock false root-caused + fixed, rethink Bench 082)",
     "suites": 8,
