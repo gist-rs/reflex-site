@@ -21,6 +21,7 @@ output, screenshots or notes to the root — use the gitignored `scripts/out/`.
 | `scripts/render_flows.py` | render the flow figures from their source docs
 | `scripts/build_flow_walks.py` | derive the decision-flow figures' step-through payloads from CAPTURED bytes (riir-ai Plan 620 Group R; payloads are recorded artifacts, never typed) |
 | `scripts/build_arena_flow_walks.py` | derive the arena lanes' "how each lane picks a spot" figure payloads from recorded walks (pairs with render_flows.py) |
+| `scripts/check_lane_surfaces.py` | the lane-surface completeness gate (the 2026-11-02 mammoth lesson): every `LANE_CLASSES` class must appear on EVERY rendering surface — bench-charts.js palette + MODEL_FAMILIES, instinct.js rival lists, the publisher's LANE_KIND/LANE_TIMING/AREA_LANES/merge block. Wired as republish_bench.sh step 0/5; exceptions documented in-file, both directions |
 | `scripts/check_lane_pairing.py` | the pairing gate (site Issue 002 T3 / riir-reflex Issue 040): after a publish, every compared lane pair shares a population identity or is explicitly acknowledged |
 | `scripts/backfill_latency_verdicts.py` | one-shot backfill (Issue 021 data half): resolve each pre-verdict lane cell's `latency_quotable` from its source run's own box_state; publish_bench.py stamps new cells itself | (tetris + reflex decision flow + instinct + the three lanes' dev-flow figures; per-source palette — family ink + the owning product's accent, the Tetris figures on the Reflex accent (the brown theme is retired); rename map keeps site filenames unique; `--check` = no-network mirror diff; `--only <repo>` re-renders one source) |
 | `scripts/arena_legibility_smoke.mjs` | /arena at 390 + 1280: every chart / flow / board label renders ≥ 11 px (computed size × svg scale), no sideways page scroll, and no retired brown-palette literal in the Tetris figures or the step-through |
@@ -32,6 +33,25 @@ output, screenshots or notes to the root — use the gitignored `scripts/out/`.
 | `scripts/public_copy_gate.cjs` | every served page rendered (details open): no internal record ids (`Plan/Proposal/Issue/Bench N`, `N-era`, `pre-N`), no "seal" (also over the served md/svg mirrors), no typed figure in FAQ copy (bind it to `data/bench.json` via `[data-ot]`, or allow it with a reason in `FAQ_FIGURE_ALLOW` — a stale allow row reds too), the family chrome, and no sideways scroll at 390 px |
 | `scripts/image_gate.sh` | the image linter (WebP-first): every shipped raster is WebP where possible (cwebp, resized to the layout width it renders at, ~q 80; `--strict` makes non-WebP rasters fail instead of warn; `IMAGE_GATE_ALLOW` = deliberate exceptions, disclosed both directions), a size-bloat warning list (`IMAGE_GATE_WARN_KB` 300 soft / `IMAGE_GATE_MAX_KB` 1024 hard), and a zero-image scan refuses as a blind walk; `--self-test` proves every detector |
 | `scripts/*_smoke.*`, `scripts/arena_demo_check.mjs` | page render smokes and the no-engine demo replay check |
+
+## Adding a comparison lane (the checklist the mammoth publish paid for)
+
+A new lane is ONE verdict in MANY files; the lane-surface gate (step 0/5 of
+`republish_bench.sh`) enforces the file set, the edition ledger forces the
+rest:
+
+1. `publish_bench.py`: LANE_CLASSES + AREA_LANES + LANE_KIND + LANE_TIMING
+   + LANE_DISPLAY + the merge block (the pplx/drex carry-law shape)
+2. edition ledger row + `EDITION` bump + `data/changes.json` row (the
+   scoring basis changes — the guard refuses without it)
+3. `scripts/test_publish_bench.py`: the frozen digest literal moves WITH
+   the ledger (stale pins red both directions)
+4. `assets/bench-charts.js`: LANES palette entry (+ MODEL_FAMILIES row when
+   `sizeFrom: "family"` — state the size or drop sizeFrom, never guess)
+5. `assets/instinct.js`: the rival-list arrays (the loss rows go silent
+   about a lane that misses this — the owner-visible failure)
+6. run `scripts/republish_bench.sh` (the gate is step 0/5), review the
+   diff, commit, deploy, probe the live page
 
 ## Before a deploy
 

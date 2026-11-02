@@ -111,6 +111,14 @@
     // all-pairs). No sizeFrom: the DLM's parameter count is not stated
     // on the model card, and the site never guesses a size.
     { key: "drex", label: "drex", color: "#e53935", match: (l) => l.lane === "drex (reference)" },
+    // The mammoth comparison lane (rethink 032 close): baselabs mammoth-1,
+    // the JDI board-#1 teacher, SELF-HOSTED on bmo over their qev runtime
+    // (MIT; the hosted posture never ran — the owner LOCAL-ONLY policy).
+    // Amber slot — between laya's blue and paw's lime, distinct from drex's
+    // deep red and clef's taupe (relaxed-contrast disclosure, same as the
+    // bekko/clef/pplx slots). sizeFrom "family": the label names the
+    // family AND size off the cell's model id (MODEL_FAMILIES).
+    { key: "mammoth", label: "mammoth-1", color: "#ffb300", sizeFrom: "family", match: (l) => l.lane === "mammoth-1 (local)" },
   ];
   const OTHER = { key: "other", label: "other", color: "#69718a" };
   const laneOf = (l) => LANES.find((x) => x.match(l)) || OTHER;
@@ -389,6 +397,7 @@
     { re: /(?:^|[^a-z0-9])pplx-decider/i, name: "pplx-decider", size: "27B" },
     { re: /(?:^|\/)clef-flash(?!\w)/i, name: "clef-flash", size: "9B" },
     { re: /(?:^|\/)clef(?!-flash)(?!\w)/i, name: "clef", size: "27B" },
+    { re: /mammoth-1/i, name: "mammoth-1", size: "27B" },
   ];
   // lane key → its sized label for this data load (absent = bare label)
   const laneSized = new Map();

@@ -33,6 +33,12 @@ if [ "$#" -lt 1 ]; then
     exit 2
 fi
 
+echo "== 0/5 lane-surface gate (every lane class on every rendering surface)"
+python3 "$SITE_ROOT/scripts/check_lane_surfaces.py" || {
+    echo "⛔ a lane class is missing from a rendering surface (palette / size families / rival lists / publisher rows) - fix the file the gate names, never the gate"
+    exit 1
+}
+
 echo "== 1/5 publish_bench self-test"
 # Env-clean: the merge-law self-test must be deterministic regardless of the
 # caller lane-scoping/ack env — with PUBLISH_BENCH_LANES exported (the
