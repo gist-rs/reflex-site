@@ -2206,7 +2206,9 @@ def case_chance_digest_and_edition_pin():
     # publish (2026-10's literal was 0133fc49a0baec3b3293f51324b5416b;
     # 2026-10-2 added the clef lane — plan 011 C3; 2026-10-11 retired
     # code_fixtures — the chance table + "Decisions" area narrowed)
-    assert pb.edition_basis_digest() == "7615ae2e353abc350568048aea353941"
+    # 2026-11-02 added the mammoth comparison lane (rethink 032 LOCAL-ONLY
+    # teacher columns, bmo self-hosted)
+    assert pb.edition_basis_digest() == "ecec78302da15a9543639de432d49c41"
     # ledger shape: EDITION is the last key; digests pairwise distinct
     assert list(pb.EDITIONS)[-1] == pb.EDITION
     assert len(set(pb.EDITIONS.values())) == len(pb.EDITIONS)

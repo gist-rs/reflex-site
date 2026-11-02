@@ -1,92 +1,97 @@
 [
-  {
-    "date": "2026-10-02",
-    "change": "The six harness_* decision-point suites removed from the board (owner call)",
-    "why": "Modelless reads at chance on them at the honest wide-eval populations (0.22–0.31 vs ~0.2–0.33 random-pick; the old small-n template-shared rows read 0.56–0.92 — the inflation the wide eval removed), and the suites are deleted from the reflex harness upstream — the board rows went with them (17 → 11 suites). The publisher drops the retired names at the load boundary of every path (fresh docs, updates, --rederive), so no older results doc can re-grow a row; the divergences line naming them is scrubbed too. The /families/ quarantined page + data/families.json — which existed only to show these six families per lane — were removed in the same call."
-  },
-  {
-    "date": "2026-10-02",
-    "change": "Family rows' served fallback fixed on the hero — Instinct/Rethink ↩ bars render where the Reflex matcher swallowed them",
-    "why": "laneOf()'s katgpt matcher (model === \"modelless\") classified the derived tier-fallback cells (the modelless tier's served answer riding the Instinct/Rethink lane) as Reflex cells, so the hero rendered \"Instinct — not run\" / \"Rethink — not run\" on the five harness families while the verdict card counted the same cells as family arms (2026-10-02 user report). The matcher now defers any cell whose lane names a product lane; the verdict card tags fallback arms ↩ (hover names the answering tier)."
-  },
-  {
-    "date": "2026-10-02",
-    "change": "Edition label + timing/kind disclosure + efficiency frontier + cc table column",
-    "why": "The Jev Decision Index distill: the scoring basis is pinned by digest under meta.edition 2026-10 (an AREA_CHANCE / area-membership / lane-set edit must bump the edition + add a row here); each lane discloses its entrant kind and its timing clock, and the frontier plots cc index vs p50 with the Pareto marks scoped to equal-coverage lanes. Below-chance cc stays negative everywhere (the ▾ / hollow-dot marks); the tables gain a cc column."
-  },
-  {
-    "date": "2026-10-01",
-    "change": "Corpus-reset ack hardened; typed timing refresh",
-    "why": "Timing close-out: the corpus-reset ack now fires on a carried-timing incumbent (8d33e3f), and the typed_decisions m3 timing cell re-pinned on a fit box — p50 0.517 → 0.782 ms on the 1200-row pool (2b699f0)."
-  },
-  {
-    "date": "2026-10-01",
-    "change": "Rethink board completed (11 encoder cells + disclosure state); family-arm law",
-    "why": "the vs-best card counts the best measured cell of Instinct + Rethink per suite, encoder rows colored violet + record-only tag; coverage literals became data-derived in both smokes (df4e558); the typed_decisions Rethink cell seated at ENC v2 0.7550, record-only serve ✗ (245bf34, 2e26f84)."
-  },
-  {
-    "date": "2026-09-30",
-    "change": "Chance-corrected areas rollup shipped; reflex Issue-058 board restore",
-    "why": "compute_areas emits per-suite chance-corrected cc (UNCLIPPED — below-chance cells stay negative), per-area means, per-lane index + coverage (f0185af, fixed 47f786d, documented cf23805); the full-pool basis + dated disclosure restored (d750175), with the corpus-reset ack follow-ups through 8d33e3f."
-  },
-  {
-    "date": "2026-10-04",
-    "change": "Clef-flash (9B) comparison lane joins the board (edition 2026-10-2: clef-flash (9B), local — community 4-bit quant, m3 loopback; banking77 + typed_decisions acc-only)",
-    "why": "the Clef-flash (9B)-vs-Rethink crosswalk starts with the local-posture cells published on the JDI axes (macro F1 + chance-corrected skill); latency stays acc-only until the quiet-box re-read, the hosted Clef (27B) cell is owner-gated"
-  },
-  {
-    "date": "2026-10-04",
-    "change": "The JDI crosswalk section ships on /bench/ (plan-011 C3): the side-by-side on the clef-flash (9B)-carrying suites, every measured row digest-pinned to one population",
-    "why": "the Rethink hybrid + encoder cells joined the pin (axes + cases_digest from the C2 gold join); the JDI board's own rows + Clef's blog table render as reference only under the B5 caveat, verbatim; mismatched or unpinnable lanes are excluded with the reason shown, never silently mixed"
-  },
-  {
-    "date": "2026-10-04",
-    "change": "clef-flash (9B)'s timing graduates to quotable (the quiet-box re-read): banking77 p50 3368 ms · typed 1690 ms — the acc-only posture retires; the p50 presence row retires with it",
-    "why": "both re-reads on a preflight-clean box (load 2.57→1.07 / 1.22→2.80, AC, High Power) with accuracy, ECE, macro-F1 and the population digests reproducing the lane's first reading exactly — the determinism witnesses; the loaded-box figures were 14-29% inflated exactly as the Issue-021 law predicts"
-  },
-  {
-    "date": "2026-10-04",
-    "change": "clef-flash (9B) completes its 9-suite index (the dataset-suite tail, local 4-bit rig): 7 new cells, all timing-quotable — p50 geomean 680 ms across the lane",
-    "why": "clef-flash (9B) leads sst5 (0.6033), massive_intent (0.9333) and banking77 (0.9540); bekko leads ag_news at 0.9150, openthai leads xnli_en at 0.8967, Instinct leads emotion and prompt_injections; code_fixtures is a three-way tie at 0.5938 — the crosswalk's verdict lines now say 'ties' where nobody leads, never a false leader"
-  },
-  {
-    "date": "2026-10-09",
-    "change": "The pplx comparison lane ships (reflex 082): Perplexity's pplx-decider-v1.1-27b — the JDI v3 board's #1 (62.75 blended) — measured on our 9 comparison suites at the local MLX 4-bit posture (the clef-lane class) (edition 2026-10-9)",
-    "why": "the 623 distill-teacher read (clef-flash vs pplx v1.1) rides these cells; latency acc-only until a quiet-box re-read (the bench-131 law)"
-  },
-  {
-    "date": "2026-10-09",
-    "change": "Rethink's record cells gain their confidence-derived metrics (typed 0.8520 · ag_news 0.9950 · xnli_en 0.9733 acc@50cov, + ECE and mean confidence) — stamped from the runs' own frozen per-row data; the pplx lane joins the filter, the hero, the tables and the summary (it had rendered on the areas radar only)",
-    "why": "the 2026-10-09 report: acc@50 read 5/9 beside full accuracy data — the fallback cells carried the field while the encoder's own measured suites lacked it (the metric inverted Rethink's true coverage); sst5's record predates the per-row freeze and stays honestly '—' (issue 011); pplx was missing from the lane enumerators, and an accuracy-only lane now reads 'latency not measured yet', never the loaded-box text"
-  },
-  {
-    "date": "2026-10-09",
-    "change": "Rethink's sst5 record cell gains its confidence metrics (acc@50cov 0.6400 · ECE 0.0663 · mean-conf 0.4955) — a fresh live re-read of the same sealed head over the same 600-question seat (bench 066, accuracy byte-identical at 316/600 for the fourth independent posture)",
-    "why": "the acc@50 metric's last gap (issue 011): the 029 record predates the per-row freeze, so the field needed a re-measure, never a stamp from aggregates; the re-read ran under sibling load and its latency is not quotable — the cell keeps the original quiet 14.7 ms read; Rethink's acc@50% coverage on the shared suites is now 9/9 (the 2026-10-09 report opened at 5/9)"
-  },
-  {
-    "date": "2026-10-10",
-    "change": "Reflex modelless timing graduates to quotable (the quiet-box re-read, reflex bench 137): p50 geomean 0.14 ms across the 13 published modelless suites — typed 0.762 ms · banking77 0.357 ms · s1mb_score 0.245 ms — the 'timing failed the loaded-box check' presence row retires from the home chart",
-    "why": "the re-read ran preflight-clean end to end (load 4.0 start / 2.5 end, AC, High Power — the first quotable m3 window since the 09-24 primary; the two armed attempts before it ended unquotable when siblings returned mid-run, exactly as the Issue-021 wall demands); accuracy digit-matches every published cell (13/13, corpus digests equal) so this is a pure timing attach; the publish also fixed a publisher defect the re-read surfaced — an acc-only-stripped incumbent could VACUOUSLY carry (donating no timing, popping the update's quotable verdict, stamping a false provenance note; self-test 93/93, prove-fires without the guard)"
-  },
-  {
-    "date": "2026-10-10",
-    "change": "Instinct's latency row is honest end-to-end again: the p50 now plots ONLY its seat+arm cells (~0.10 ms over 2 suites) — the 7 arm-only cells (the µs-class fusion forward; no seat solve in the measurement) are excluded from the geomean, counted as ＋marg7 on the row; the efficiency frontier follows (Instinct no longer sits 45× under its own substrate); a 'native clocks' toggle joins the latency view — ON hides the HTTP/subprocess round-trip lanes for a like-for-like native comparison (their p50 is their deployment reality, never re-timed; paw's server-side p50 rides its tooltip)",
-    "why": "the Instinct-faster-than-Reflex report: both are native in-process lanes, so a composite 45× under its substrate is anti-physics — instinct Issue 007 (09-27) diagnosed this exact shape at the lane's birth (A1/H2 arms time the composition forward alone) and landed the per-cell scope, but the home chart + areas timing + frontier (built 09-30+) never inherited the law and pooled both scopes into one geomean; the law is completed for every aggregate, per-cell tooltips + the profile table now name the scope (Issue 007 T3 restored), and the clock toggle answers the transport-vs-native fairness question by FILTER, never by fabricating a native cost nobody measured"
-  },
-  {
-    "date": "2026-10-10",
-    "change": "Rethink's latency row reads honest again: its 4 tier-fallback spokes that carried the answering A1/H2 arms' µs fusion marginals (min 0.54 µs — 44× under Reflex's fastest cell) no longer enter the row's geomean — served, disclosed, but the clock is the answering tier's marginal, not the encoder's latency. Rethink plots 7.73 ms over 5 cells (4 own encoder forwards + the emotion seat+arm fallback); per-cell tooltips + the profile table now name whose clock a fallback spoke carries",
-    "why": "the Rethink-min-under-Reflex report: the composition-marginal law (instinct Issue 007, completed earlier today for the Instinct row and the areas block) leaked back in through the product-lane fallback spokes — the served-product law copies the answering tier's clock onto the declined lane's cell, and where the answering arm is A1/H2 that clock is the arm-only fusion forward the Instinct row itself refuses to plot. A physics pin now guards the invariant (Rethink's geomean must sit above Reflex's; the pin unit-normalizes µs/ms — its first draft compared 7.73 against 157 and fired on units, not physics)"
-  },
-  {
-    "date": "2026-10-10",
-    "change": "The drex comparison lane joins the board — Nace AI's Drex-DLM, measured on our suites (reflex 085 T1, edition 2026-10-10)",
-    "why": "The lane was measured 2026-10-08 (reflex benches 073/125/126) but never registered on the publish surface — the cells sat in-repo only while every other comparison lane shipped as a (reference) row. Registered across the full surface: filter chip, radar, hero, tables, crosswalk, JDI-class disclosure (http-oracle). Two postures publish under one lane: 4090-win their Python serve.py BF16 CUDA (quotable timing, determinism re-verified 10/10 after the timing-tail strip — the det-✗ attribution in their own T5 record measured their latency_ms clock, not the decision); m3 their llama.cpp edlm fork Q8_0 Metal (accuracy-only — its preflight REFUSED at load 13–16, the ms figures are never quoted, the record's own law). Cross-posture agreement 0.5855–0.5865 on typed_decisions; NOT CALIBRATED on our split — their own model-card disclaimer, confirmed. Weights CC BY-NC 4.0 — measurement-only, never a distill teacher, never a product. The open drex-v1.5 (9B) is a DIFFERENT artifact under the RAIL-M license and stays owner-gated (reflex .issues/085 T0)."
-  },
-  {
-    "date": "2026-10-11",
-    "change": "code_fixtures removed from the board (owner call; edition 2026-10-11)",
-    "why": "The last self-authored synthetic suite — generated from riir-reflex's own fn spans (n=32 questions / 16 cases, gold programmatic, seat-marked synthetic) — retired and deleted from the reflex harness itself (reflex 658e920). The gap row it carried (-12.5 vs the pplx (local) bar) was the noisiest cell on the public table (one question = +/-3.1 pt at n=32; ECE 0.186 at that population). The chance table drops its entry, the 'Decisions & code' area narrows to 'Decisions' (typed_decisions only), and the row drops at the load boundary of every publish path, so no older results doc can re-grow it. Board 9 -> 8 dataset-backed suites; its bench records stay in reflex .benchmarks as history."
-  }
+ {
+  "date": "2026-10-02",
+  "change": "The six harness_* decision-point suites removed from the board (owner call)",
+  "why": "Modelless reads at chance on them at the honest wide-eval populations (0.22–0.31 vs ~0.2–0.33 random-pick; the old small-n template-shared rows read 0.56–0.92 — the inflation the wide eval removed), and the suites are deleted from the reflex harness upstream — the board rows went with them (17 → 11 suites). The publisher drops the retired names at the load boundary of every path (fresh docs, updates, --rederive), so no older results doc can re-grow a row; the divergences line naming them is scrubbed too. The /families/ quarantined page + data/families.json — which existed only to show these six families per lane — were removed in the same call."
+ },
+ {
+  "date": "2026-10-02",
+  "change": "Family rows' served fallback fixed on the hero — Instinct/Rethink ↩ bars render where the Reflex matcher swallowed them",
+  "why": "laneOf()'s katgpt matcher (model === \"modelless\") classified the derived tier-fallback cells (the modelless tier's served answer riding the Instinct/Rethink lane) as Reflex cells, so the hero rendered \"Instinct — not run\" / \"Rethink — not run\" on the five harness families while the verdict card counted the same cells as family arms (2026-10-02 user report). The matcher now defers any cell whose lane names a product lane; the verdict card tags fallback arms ↩ (hover names the answering tier)."
+ },
+ {
+  "date": "2026-10-02",
+  "change": "Edition label + timing/kind disclosure + efficiency frontier + cc table column",
+  "why": "The Jev Decision Index distill: the scoring basis is pinned by digest under meta.edition 2026-10 (an AREA_CHANCE / area-membership / lane-set edit must bump the edition + add a row here); each lane discloses its entrant kind and its timing clock, and the frontier plots cc index vs p50 with the Pareto marks scoped to equal-coverage lanes. Below-chance cc stays negative everywhere (the ▾ / hollow-dot marks); the tables gain a cc column."
+ },
+ {
+  "date": "2026-10-01",
+  "change": "Corpus-reset ack hardened; typed timing refresh",
+  "why": "Timing close-out: the corpus-reset ack now fires on a carried-timing incumbent (8d33e3f), and the typed_decisions m3 timing cell re-pinned on a fit box — p50 0.517 → 0.782 ms on the 1200-row pool (2b699f0)."
+ },
+ {
+  "date": "2026-10-01",
+  "change": "Rethink board completed (11 encoder cells + disclosure state); family-arm law",
+  "why": "the vs-best card counts the best measured cell of Instinct + Rethink per suite, encoder rows colored violet + record-only tag; coverage literals became data-derived in both smokes (df4e558); the typed_decisions Rethink cell seated at ENC v2 0.7550, record-only serve ✗ (245bf34, 2e26f84)."
+ },
+ {
+  "date": "2026-09-30",
+  "change": "Chance-corrected areas rollup shipped; reflex Issue-058 board restore",
+  "why": "compute_areas emits per-suite chance-corrected cc (UNCLIPPED — below-chance cells stay negative), per-area means, per-lane index + coverage (f0185af, fixed 47f786d, documented cf23805); the full-pool basis + dated disclosure restored (d750175), with the corpus-reset ack follow-ups through 8d33e3f."
+ },
+ {
+  "date": "2026-10-04",
+  "change": "Clef-flash (9B) comparison lane joins the board (edition 2026-10-2: clef-flash (9B), local — community 4-bit quant, m3 loopback; banking77 + typed_decisions acc-only)",
+  "why": "the Clef-flash (9B)-vs-Rethink crosswalk starts with the local-posture cells published on the JDI axes (macro F1 + chance-corrected skill); latency stays acc-only until the quiet-box re-read, the hosted Clef (27B) cell is owner-gated"
+ },
+ {
+  "date": "2026-10-04",
+  "change": "The JDI crosswalk section ships on /bench/ (plan-011 C3): the side-by-side on the clef-flash (9B)-carrying suites, every measured row digest-pinned to one population",
+  "why": "the Rethink hybrid + encoder cells joined the pin (axes + cases_digest from the C2 gold join); the JDI board's own rows + Clef's blog table render as reference only under the B5 caveat, verbatim; mismatched or unpinnable lanes are excluded with the reason shown, never silently mixed"
+ },
+ {
+  "date": "2026-10-04",
+  "change": "clef-flash (9B)'s timing graduates to quotable (the quiet-box re-read): banking77 p50 3368 ms · typed 1690 ms — the acc-only posture retires; the p50 presence row retires with it",
+  "why": "both re-reads on a preflight-clean box (load 2.57→1.07 / 1.22→2.80, AC, High Power) with accuracy, ECE, macro-F1 and the population digests reproducing the lane's first reading exactly — the determinism witnesses; the loaded-box figures were 14-29% inflated exactly as the Issue-021 law predicts"
+ },
+ {
+  "date": "2026-10-04",
+  "change": "clef-flash (9B) completes its 9-suite index (the dataset-suite tail, local 4-bit rig): 7 new cells, all timing-quotable — p50 geomean 680 ms across the lane",
+  "why": "clef-flash (9B) leads sst5 (0.6033), massive_intent (0.9333) and banking77 (0.9540); bekko leads ag_news at 0.9150, openthai leads xnli_en at 0.8967, Instinct leads emotion and prompt_injections; code_fixtures is a three-way tie at 0.5938 — the crosswalk's verdict lines now say 'ties' where nobody leads, never a false leader"
+ },
+ {
+  "date": "2026-10-09",
+  "change": "The pplx comparison lane ships (reflex 082): Perplexity's pplx-decider-v1.1-27b — the JDI v3 board's #1 (62.75 blended) — measured on our 9 comparison suites at the local MLX 4-bit posture (the clef-lane class) (edition 2026-10-9)",
+  "why": "the 623 distill-teacher read (clef-flash vs pplx v1.1) rides these cells; latency acc-only until a quiet-box re-read (the bench-131 law)"
+ },
+ {
+  "date": "2026-10-09",
+  "change": "Rethink's record cells gain their confidence-derived metrics (typed 0.8520 · ag_news 0.9950 · xnli_en 0.9733 acc@50cov, + ECE and mean confidence) — stamped from the runs' own frozen per-row data; the pplx lane joins the filter, the hero, the tables and the summary (it had rendered on the areas radar only)",
+  "why": "the 2026-10-09 report: acc@50 read 5/9 beside full accuracy data — the fallback cells carried the field while the encoder's own measured suites lacked it (the metric inverted Rethink's true coverage); sst5's record predates the per-row freeze and stays honestly '—' (issue 011); pplx was missing from the lane enumerators, and an accuracy-only lane now reads 'latency not measured yet', never the loaded-box text"
+ },
+ {
+  "date": "2026-10-09",
+  "change": "Rethink's sst5 record cell gains its confidence metrics (acc@50cov 0.6400 · ECE 0.0663 · mean-conf 0.4955) — a fresh live re-read of the same sealed head over the same 600-question seat (bench 066, accuracy byte-identical at 316/600 for the fourth independent posture)",
+  "why": "the acc@50 metric's last gap (issue 011): the 029 record predates the per-row freeze, so the field needed a re-measure, never a stamp from aggregates; the re-read ran under sibling load and its latency is not quotable — the cell keeps the original quiet 14.7 ms read; Rethink's acc@50% coverage on the shared suites is now 9/9 (the 2026-10-09 report opened at 5/9)"
+ },
+ {
+  "date": "2026-10-10",
+  "change": "Reflex modelless timing graduates to quotable (the quiet-box re-read, reflex bench 137): p50 geomean 0.14 ms across the 13 published modelless suites — typed 0.762 ms · banking77 0.357 ms · s1mb_score 0.245 ms — the 'timing failed the loaded-box check' presence row retires from the home chart",
+  "why": "the re-read ran preflight-clean end to end (load 4.0 start / 2.5 end, AC, High Power — the first quotable m3 window since the 09-24 primary; the two armed attempts before it ended unquotable when siblings returned mid-run, exactly as the Issue-021 wall demands); accuracy digit-matches every published cell (13/13, corpus digests equal) so this is a pure timing attach; the publish also fixed a publisher defect the re-read surfaced — an acc-only-stripped incumbent could VACUOUSLY carry (donating no timing, popping the update's quotable verdict, stamping a false provenance note; self-test 93/93, prove-fires without the guard)"
+ },
+ {
+  "date": "2026-10-10",
+  "change": "Instinct's latency row is honest end-to-end again: the p50 now plots ONLY its seat+arm cells (~0.10 ms over 2 suites) — the 7 arm-only cells (the µs-class fusion forward; no seat solve in the measurement) are excluded from the geomean, counted as ＋marg7 on the row; the efficiency frontier follows (Instinct no longer sits 45× under its own substrate); a 'native clocks' toggle joins the latency view — ON hides the HTTP/subprocess round-trip lanes for a like-for-like native comparison (their p50 is their deployment reality, never re-timed; paw's server-side p50 rides its tooltip)",
+  "why": "the Instinct-faster-than-Reflex report: both are native in-process lanes, so a composite 45× under its substrate is anti-physics — instinct Issue 007 (09-27) diagnosed this exact shape at the lane's birth (A1/H2 arms time the composition forward alone) and landed the per-cell scope, but the home chart + areas timing + frontier (built 09-30+) never inherited the law and pooled both scopes into one geomean; the law is completed for every aggregate, per-cell tooltips + the profile table now name the scope (Issue 007 T3 restored), and the clock toggle answers the transport-vs-native fairness question by FILTER, never by fabricating a native cost nobody measured"
+ },
+ {
+  "date": "2026-10-10",
+  "change": "Rethink's latency row reads honest again: its 4 tier-fallback spokes that carried the answering A1/H2 arms' µs fusion marginals (min 0.54 µs — 44× under Reflex's fastest cell) no longer enter the row's geomean — served, disclosed, but the clock is the answering tier's marginal, not the encoder's latency. Rethink plots 7.73 ms over 5 cells (4 own encoder forwards + the emotion seat+arm fallback); per-cell tooltips + the profile table now name whose clock a fallback spoke carries",
+  "why": "the Rethink-min-under-Reflex report: the composition-marginal law (instinct Issue 007, completed earlier today for the Instinct row and the areas block) leaked back in through the product-lane fallback spokes — the served-product law copies the answering tier's clock onto the declined lane's cell, and where the answering arm is A1/H2 that clock is the arm-only fusion forward the Instinct row itself refuses to plot. A physics pin now guards the invariant (Rethink's geomean must sit above Reflex's; the pin unit-normalizes µs/ms — its first draft compared 7.73 against 157 and fired on units, not physics)"
+ },
+ {
+  "date": "2026-10-10",
+  "change": "The drex comparison lane joins the board — Nace AI's Drex-DLM, measured on our suites (reflex 085 T1, edition 2026-10-10)",
+  "why": "The lane was measured 2026-10-08 (reflex benches 073/125/126) but never registered on the publish surface — the cells sat in-repo only while every other comparison lane shipped as a (reference) row. Registered across the full surface: filter chip, radar, hero, tables, crosswalk, JDI-class disclosure (http-oracle). Two postures publish under one lane: 4090-win their Python serve.py BF16 CUDA (quotable timing, determinism re-verified 10/10 after the timing-tail strip — the det-✗ attribution in their own T5 record measured their latency_ms clock, not the decision); m3 their llama.cpp edlm fork Q8_0 Metal (accuracy-only — its preflight REFUSED at load 13–16, the ms figures are never quoted, the record's own law). Cross-posture agreement 0.5855–0.5865 on typed_decisions; NOT CALIBRATED on our split — their own model-card disclaimer, confirmed. Weights CC BY-NC 4.0 — measurement-only, never a distill teacher, never a product. The open drex-v1.5 (9B) is a DIFFERENT artifact under the RAIL-M license and stays owner-gated (reflex .issues/085 T0)."
+ },
+ {
+  "date": "2026-10-11",
+  "change": "code_fixtures removed from the board (owner call; edition 2026-10-11)",
+  "why": "The last self-authored synthetic suite — generated from riir-reflex's own fn spans (n=32 questions / 16 cases, gold programmatic, seat-marked synthetic) — retired and deleted from the reflex harness itself (reflex 658e920). The gap row it carried (-12.5 vs the pplx (local) bar) was the noisiest cell on the public table (one question = +/-3.1 pt at n=32; ECE 0.186 at that population). The chance table drops its entry, the 'Decisions & code' area narrows to 'Decisions' (typed_decisions only), and the row drops at the load boundary of every publish path, so no older results doc can re-grow it. Board 9 -> 8 dataset-backed suites; its bench records stay in reflex .benchmarks as history."
+ },
+ {
+  "date": "2026-11-02",
+  "change": "mammoth-1 (local) joins the lane set (edition 2026-11-02)",
+  "why": "baselabs/mammoth-1 (27B, MIT) - the Jev Decision Index board-#1 teacher (public_skill 75.34 at the 2026-10-29 snapshot) - measured on OUR suites, SELF-HOSTED on the bmo M5 Ultra over the model's own qev runtime (OneJev @81ce62f + serve.patch: block-bidirectional attention, slot_lm readout; bf16 MPS, sequential fork; attention noncausal bootcheck). The hosted Baseten posture never ran: the owner ruled the lane LOCAL-ONLY (no paid API; submission only when we hold #1 AND it costs nothing). 12/12 suites, case sets digest-identical to the frozen amo panel; determinism answer-stable (an envelope-clock artifact root-caused and fixed). The paired fold vs the modelless floor: pooled delta +53.76 pp, LB95 +52.78 pp > 0 - SIGNIFICANT, every suite individually significant; the full record is rethink .benchmarks/082_t102_local_paired_read. The teacher columns are the distillation headroom: the next lane (riir-train 640) retrains only the heads the teacher beats, each gated by its own paired LB95."
+ }
 ]

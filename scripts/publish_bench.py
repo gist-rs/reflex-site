@@ -300,6 +300,12 @@ LANE_DISPLAY = {
     # llama.cpp edlm fork Q8_0 Metal) — the per-cell model id + the
     # timing-method table name the posture.
     "drex": "drex (reference)",
+    # rethink 032 T10: baselabs mammoth-1 (27B, MIT) - the JDI board-#1
+    # teacher, SELF-HOSTED (their qev runtime on the bmo M5 Ultra); the
+    # hosted Baseten posture never ran (the owner LOCAL-ONLY policy), so
+    # the (local) qualifier like the pplx/clef family - their model, our
+    # measurement, no hosted row to pool.
+    "mammoth": "mammoth-1 (local)",
 }
 
 # The hand-maintained DISCLOSURE table (2026-10-02, the full-coverage
@@ -740,6 +746,7 @@ AREA_LANES = (
     ("clef", "clef (local)", "clef"),
     ("pplx", "pplx (local)", "pplx"),
     ("drex", "drex", "drex"),
+    ("mammoth", "mammoth-1 (local)", "mammoth"),
 )
 
 # ── Lane classification (plan 001 task 5; the Jev Index's entrant
@@ -769,6 +776,11 @@ LANE_KIND = {
     "clef": "http-oracle",
     "pplx": "http-oracle",
     "drex": "http-oracle",
+    # the JDI board-#1 teacher, SELF-HOSTED weights (MIT) - their engine,
+    # our listener (the elephant-server shape); a 27B weights-on-card
+    # serve, not a hosted API row (the hosted posture never ran: the
+    # owner LOCAL-ONLY policy, rethink 032 close)
+    "mammoth": "local-weights-serve",
 }
 
 # ── Per-lane timing-method disclosure (plan 001 task 4; their per-engine
@@ -873,6 +885,16 @@ LANE_TIMING = {
                    "measurement-only, never a distill teacher, never a "
                    "product"),
     },
+    "mammoth": {
+        "clock": "http",
+        "method": ("HTTP round-trip to baselabs/mammoth-1 (27B, MIT - the "
+                   "JDI board-#1 teacher) over their own qev runtime "
+                   "(OneJev @81ce62f + the checkpoint's serve.patch, "
+                   "block-bidirectional attention, slot_lm readout) on "
+                   "loopback: bmo M5 Ultra, bf16 MPS, sequential fork; "
+                   "determinism answer-stable (the envelope-clock false "
+                   "root-caused + fixed, rethink Bench 082)"),
+    },
 }
 
 # ── Edition (plan 001 task 7; their edition label + auditability) ─────
@@ -888,7 +910,7 @@ LANE_TIMING = {
 # the guard's refusal), point EDITION at it, freeze the outgoing table
 # (the publisher archives it automatically, on BOTH the publish and the
 # --rederive paths), and add a data/changes.json row.
-EDITION = "2026-10-11"
+EDITION = "2026-11-02"
 
 
 def _basis_payload():
@@ -940,6 +962,15 @@ EDITIONS = {
     # LOAD boundary (RETIRED_SUITES), the reflex harness row is deleted
     # upstream (reflex 658e920).
     "2026-10-11": "7615ae2e353abc350568048aea353941",
+    # 2026-11-02 (rethink 032 close, the owner LOCAL-ONLY lane): the
+    # mammoth comparison lane joins the lane set - baselabs mammoth-1
+    # (27B, MIT), the JDI board-#1 teacher, SELF-HOSTED on the bmo M5
+    # Ultra over their own qev runtime (local-mps-bf16, sequential
+    # fork); the hosted posture never ran (no paid API, by policy).
+    # The teacher columns land beside the served lanes (the B5
+    # both-tables law); the paired-LB95 fold lives in rethink
+    # .benchmarks/082 (pooled +52.78 pp, SIGNIFICANT).
+    "2026-11-02": "ecec78302da15a9543639de432d49c41",
 }
 
 
@@ -2081,6 +2112,20 @@ def merge(primary, extras):
                 updated_lanes["drex"] = True
             elif edx:
                 skipped_variant_lanes.append(f"drex@{ehost}")
+            # The mammoth comparison lane (rethink 032 T10, the owner
+            # LOCAL-ONLY close): the same carry law - baselabs mammoth-1
+            # (27B, MIT), the JDI board-#1 teacher, measured per-host at
+            # the SELF-HOSTED posture (their qev runtime on the bmo M5
+            # Ultra; the hosted Baseten posture never ran - no paid API
+            # by policy, so there is no second row to pool). The paired
+            # fold vs the modelless floor: rethink .benchmarks/082.
+            ema = s.get("mammoth")
+            if ema and not device_variant:
+                stamp_cell(ema, s, emeta)
+                entry["mammoth"] = ema
+                updated_lanes["mammoth"] = True
+            elif ema:
+                skipped_variant_lanes.append(f"mammoth@{ehost}")
             # The Issue-024 leak block (T4): a slice property of the
             # DATASETS + registry caps, not of the host — the latest
             # run's scan is the published one (a doc without it never
@@ -2712,7 +2757,7 @@ def _carry_into(lane, incumbent):
 # one checkpoint drops published cells even though the class survives.
 LANE_CLASSES = ("modelless", "laya", "clm", "gliner", "bekko", "agentjev",
                 "hybrid", "encoder", "paw", "paw_local", "openthai", "clef",
-                "pplx", "drex")
+                "pplx", "drex", "mammoth")
 
 
 def lane_inventory(d):

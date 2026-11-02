@@ -189,10 +189,43 @@
      }
     },
     "head_posture": "OFF (head_scale 0 \u2014 the published baseline posture)"
+   },
+   {
+    "host": "bmo",
+    "date_utc": "2026-11-01T17:11:16Z",
+    "git_sha": "4fcd8ed",
+    "profile": "release",
+    "laya_feature": false,
+    "laya_device": "n/a (compiled without laya-riir)",
+    "laya_python_lane": "off (pass --laya-python to add the reference lane)",
+    "laya_max_questions": 0,
+    "corpus_cap_mode": "registry defaults",
+    "latency_quotable": true,
+    "absent_suites": [
+     "typed_decisions",
+     "emotion",
+     "sst5",
+     "prompt_injections",
+     "xnli_en",
+     "massive_intent_en",
+     "banking77",
+     "thai_wisesight",
+     "thai_sib200",
+     "s1mb_choice",
+     "s1mb_noul",
+     "s1mb_score",
+     "semantic_defects"
+    ],
+    "lane_sources": {
+     "mammoth": {
+      "git_sha": "4fcd8ed",
+      "date_utc": "2026-11-02T00:55:24Z"
+     }
+    }
    }
   ],
   "head_posture": "OFF (head_scale 0 \u2014 the published baseline posture)",
-  "edition": "2026-10-11"
+  "edition": "2026-11-02"
  },
  "suites": [
   {
@@ -2322,6 +2355,109 @@
        "date_utc": "2026-10-08T02:36:48Z"
       }
      }
+    },
+    "bmo": {
+     "mammoth": {
+      "lane": "mammoth",
+      "model": "mammoth-1@mammoth-1",
+      "hard": {
+       "n": 2000,
+       "accuracy": 0.7605,
+       "macro_f1": 0.7589787902132483,
+       "ece": 0.10662099999999997,
+       "brier": 0.3558287549704988,
+       "nll": 0.6163422735969952,
+       "aurc": 0.1098477055395015,
+       "mean_confidence": 0.6547728909999998,
+       "acc_at_50_coverage": 0.892,
+       "acc_at_80_coverage": 0.819375
+      },
+      "readout_ece": 0.16538913299999994,
+      "readout_brier": 0.1946612977021307,
+      "raw_abstain": null,
+      "calibrated_abstain": null,
+      "abstain_causes": null,
+      "readout_ece_raw": null,
+      "readout_ece_calibrated": null,
+      "floor_ece": null,
+      "g1_pass": null,
+      "g1_verdict": null,
+      "by_question_type": {
+       "choice": {
+        "n": 600,
+        "accuracy": 0.6983333333333334,
+        "macro_f1": 0.7029303085046879,
+        "ece": 0.07947873666666654,
+        "brier": 0.39029951751150777,
+        "nll": 0.6823890580947347,
+        "aurc": 0.12583455733526513,
+        "mean_confidence": 0.6244779766666668,
+        "acc_at_50_coverage": 0.8833333333333333,
+        "acc_at_80_coverage": 0.7625
+       },
+       "noul": {
+        "n": 600,
+        "accuracy": 0.8333333333333334,
+        "macro_f1": 0.8333036984352773,
+        "ece": 0.03310216833333342,
+        "brier": 0.23544789560026344,
+        "nll": 0.3748690407922186,
+        "aurc": 0.06121253327840674,
+        "mean_confidence": 0.8146861316666667,
+        "acc_at_50_coverage": 0.95,
+        "acc_at_80_coverage": 0.8958333333333334
+       },
+       "score": {
+        "n": 800,
+        "accuracy": 0.7525,
+        "macro_f1": 0.7451634473825809,
+        "ece": 0.19928705125,
+        "brier": 0.42026132759241963,
+        "nll": 0.7479121098272765,
+        "aurc": 0.13574736231408435,
+        "mean_confidence": 0.5575591462499995,
+        "acc_at_50_coverage": 0.875,
+        "acc_at_80_coverage": 0.8015625
+       }
+      },
+      "soft_acc": 0.5218483242893034,
+      "brier_soft": 0.06792662232784813,
+      "score_mae": 0.24077187499999997,
+      "within_1": 0.9775,
+      "latency_p50_ms": 6554.0,
+      "latency_p99_ms": 9037.0,
+      "latency_tail_support": 5,
+      "latency_extremes": {
+       "first_ms": 5291.0,
+       "max_ms": 9070.0,
+       "argmax_case": 151
+      },
+      "determinism_ok": false,
+      "determinism_n": 10,
+      "seconds": 2752.611279333,
+      "n_cases": 400,
+      "n_questions": 2000,
+      "score_threshold": null,
+      "distance_threshold": null,
+      "threshold_recommendation": null,
+      "corpus_cap": null,
+      "head_selection": null,
+      "nb_selection": null,
+      "oc_selection": null,
+      "ridge_selection": null,
+      "genome_selection": null,
+      "transductive": null,
+      "confusion": null,
+      "pair_head_ab": null,
+      "jdi_chance": 0.2925,
+      "jdi_skill": 0.6614840989399293,
+      "cases_digest": "fnv1a64-6e37760ee2a5b6c9",
+      "latency_quotable": true,
+      "source_run": {
+       "git_sha": "4fcd8ed",
+       "date_utc": "2026-11-02T00:15:51Z"
+      }
+     }
     }
    },
    "pairing": {
@@ -4125,6 +4261,72 @@
        "date_utc": "2026-10-04T17:23:40Z"
       }
      }
+    },
+    "bmo": {
+     "mammoth": {
+      "lane": "mammoth",
+      "model": "mammoth-1@mammoth-1",
+      "hard": {
+       "n": 400,
+       "accuracy": 0.8875,
+       "macro_f1": 0.8786587878243277,
+       "ece": 0.05758393250000033,
+       "brier": 0.1819470046360525,
+       "nll": 0.4028553286169204,
+       "aurc": 0.05400118308411985,
+       "mean_confidence": 0.9220333574999998,
+       "acc_at_50_coverage": 0.955,
+       "acc_at_80_coverage": 0.93125
+      },
+      "readout_ece": 0.062027722500000104,
+      "readout_brier": 0.0896371576316575,
+      "raw_abstain": null,
+      "calibrated_abstain": null,
+      "abstain_causes": null,
+      "readout_ece_raw": null,
+      "readout_ece_calibrated": null,
+      "floor_ece": null,
+      "g1_pass": null,
+      "g1_verdict": null,
+      "by_question_type": null,
+      "soft_acc": null,
+      "brier_soft": null,
+      "score_mae": null,
+      "within_1": null,
+      "latency_p50_ms": 1778.0,
+      "latency_p99_ms": 2584.0,
+      "latency_tail_support": 5,
+      "latency_extremes": {
+       "first_ms": 1788.0,
+       "max_ms": 2601.0,
+       "argmax_case": 5
+      },
+      "determinism_ok": false,
+      "determinism_n": 10,
+      "seconds": 781.071307917,
+      "n_cases": 400,
+      "n_questions": 400,
+      "score_threshold": null,
+      "distance_threshold": null,
+      "threshold_recommendation": null,
+      "corpus_cap": null,
+      "head_selection": null,
+      "nb_selection": null,
+      "oc_selection": null,
+      "ridge_selection": null,
+      "genome_selection": null,
+      "transductive": null,
+      "confusion": null,
+      "pair_head_ab": null,
+      "jdi_chance": 0.3075,
+      "jdi_skill": 0.8375451263537905,
+      "cases_digest": "fnv1a64-07eff23c06505584",
+      "latency_quotable": true,
+      "source_run": {
+       "git_sha": "4fcd8ed",
+       "date_utc": "2026-11-01T17:11:16Z"
+      }
+     }
     }
    },
    "leak": {
@@ -5735,6 +5937,72 @@
        "date_utc": "2026-10-04T17:23:40Z"
       }
      }
+    },
+    "bmo": {
+     "mammoth": {
+      "lane": "mammoth",
+      "model": "mammoth-1@mammoth-1",
+      "hard": {
+       "n": 400,
+       "accuracy": 0.5875,
+       "macro_f1": 0.49258133381949837,
+       "ece": 0.14666877499999995,
+       "brier": 0.5698888772145752,
+       "nll": 1.279953034632762,
+       "aurc": 0.21568559888038327,
+       "mean_confidence": 0.734168774999999,
+       "acc_at_50_coverage": 0.795,
+       "acc_at_80_coverage": 0.65
+      },
+      "readout_ece": 0.10768076749999995,
+      "readout_brier": 0.20477296565387726,
+      "raw_abstain": null,
+      "calibrated_abstain": null,
+      "abstain_causes": null,
+      "readout_ece_raw": null,
+      "readout_ece_calibrated": null,
+      "floor_ece": null,
+      "g1_pass": null,
+      "g1_verdict": null,
+      "by_question_type": null,
+      "soft_acc": null,
+      "brier_soft": null,
+      "score_mae": null,
+      "within_1": null,
+      "latency_p50_ms": 1770.0,
+      "latency_p99_ms": 1781.0,
+      "latency_tail_support": 5,
+      "latency_extremes": {
+       "first_ms": 1769.0,
+       "max_ms": 1784.0,
+       "argmax_case": 260
+      },
+      "determinism_ok": false,
+      "determinism_n": 10,
+      "seconds": 713.99742075,
+      "n_cases": 400,
+      "n_questions": 400,
+      "score_threshold": null,
+      "distance_threshold": null,
+      "threshold_recommendation": null,
+      "corpus_cap": null,
+      "head_selection": null,
+      "nb_selection": null,
+      "oc_selection": null,
+      "ridge_selection": null,
+      "genome_selection": null,
+      "transductive": null,
+      "confusion": null,
+      "pair_head_ab": null,
+      "jdi_chance": 0.2975,
+      "jdi_skill": 0.41281138790035593,
+      "cases_digest": "fnv1a64-6feefd1c947dd008",
+      "latency_quotable": true,
+      "source_run": {
+       "git_sha": "4fcd8ed",
+       "date_utc": "2026-11-01T20:05:55Z"
+      }
+     }
     }
    },
    "leak": {
@@ -7276,6 +7544,72 @@
        "date_utc": "2026-10-04T17:23:40Z"
       }
      }
+    },
+    "bmo": {
+     "mammoth": {
+      "lane": "mammoth",
+      "model": "mammoth-1@mammoth-1",
+      "hard": {
+       "n": 600,
+       "accuracy": 0.5516666666666666,
+       "macro_f1": 0.5360545455365149,
+       "ece": 0.08179316166666664,
+       "brier": 0.5907158576043731,
+       "nll": 1.0093746581082939,
+       "aurc": 0.4068442376858698,
+       "mean_confidence": 0.6152662216666666,
+       "acc_at_50_coverage": 0.5866666666666667,
+       "acc_at_80_coverage": 0.5791666666666667
+      },
+      "readout_ece": 0.11055294833333339,
+      "readout_brier": 0.2582143477244848,
+      "raw_abstain": null,
+      "calibrated_abstain": null,
+      "abstain_causes": null,
+      "readout_ece_raw": null,
+      "readout_ece_calibrated": null,
+      "floor_ece": null,
+      "g1_pass": null,
+      "g1_verdict": null,
+      "by_question_type": null,
+      "soft_acc": null,
+      "brier_soft": null,
+      "score_mae": null,
+      "within_1": null,
+      "latency_p50_ms": 1774.0,
+      "latency_p99_ms": 1783.0,
+      "latency_tail_support": 7,
+      "latency_extremes": {
+       "first_ms": 1773.0,
+       "max_ms": 1785.0,
+       "argmax_case": 19
+      },
+      "determinism_ok": false,
+      "determinism_n": 10,
+      "seconds": 1071.880232375,
+      "n_cases": 600,
+      "n_questions": 600,
+      "score_threshold": null,
+      "distance_threshold": null,
+      "threshold_recommendation": null,
+      "corpus_cap": null,
+      "head_selection": null,
+      "nb_selection": null,
+      "oc_selection": null,
+      "ridge_selection": null,
+      "genome_selection": null,
+      "transductive": null,
+      "confusion": null,
+      "pair_head_ab": null,
+      "jdi_chance": 0.2733333333333333,
+      "jdi_skill": 0.3830275229357798,
+      "cases_digest": "fnv1a64-ad64a6cb0039e916",
+      "latency_quotable": true,
+      "source_run": {
+       "git_sha": "4fcd8ed",
+       "date_utc": "2026-11-01T23:29:56Z"
+      }
+     }
     }
    },
    "leak": {
@@ -8781,6 +9115,72 @@
       "source_run": {
        "git_sha": "5a52ff9",
        "date_utc": "2026-10-04T17:23:40Z"
+      }
+     }
+    },
+    "bmo": {
+     "mammoth": {
+      "lane": "mammoth",
+      "model": "mammoth-1@mammoth-1",
+      "hard": {
+       "n": 116,
+       "accuracy": 0.7241379310344828,
+       "macro_f1": 0.7070707070707071,
+       "ece": 0.18539339655172404,
+       "brier": 0.4041631003787931,
+       "nll": 0.6171015814644331,
+       "aurc": 0.08900690047455653,
+       "mean_confidence": 0.9019840344827589,
+       "acc_at_50_coverage": 0.9310344827586207,
+       "acc_at_80_coverage": 0.7934782608695652
+      },
+      "readout_ece": 0.18539339655172404,
+      "readout_brier": 0.20208155018939658,
+      "raw_abstain": null,
+      "calibrated_abstain": null,
+      "abstain_causes": null,
+      "readout_ece_raw": null,
+      "readout_ece_calibrated": null,
+      "floor_ece": null,
+      "g1_pass": null,
+      "g1_verdict": null,
+      "by_question_type": null,
+      "soft_acc": null,
+      "brier_soft": null,
+      "score_mae": null,
+      "within_1": null,
+      "latency_p50_ms": 1772.0,
+      "latency_p99_ms": 2195.0,
+      "latency_tail_support": 2,
+      "latency_extremes": {
+       "first_ms": 2194.0,
+       "max_ms": 2203.0,
+       "argmax_case": 57
+      },
+      "determinism_ok": false,
+      "determinism_n": 10,
+      "seconds": 234.796640292,
+      "n_cases": 116,
+      "n_questions": 116,
+      "score_threshold": null,
+      "distance_threshold": null,
+      "threshold_recommendation": null,
+      "corpus_cap": null,
+      "head_selection": null,
+      "nb_selection": null,
+      "oc_selection": null,
+      "ridge_selection": null,
+      "genome_selection": null,
+      "transductive": null,
+      "confusion": null,
+      "pair_head_ab": null,
+      "jdi_chance": 0.5172413793103449,
+      "jdi_skill": 0.42857142857142855,
+      "cases_digest": "fnv1a64-5080803ec29f2423",
+      "latency_quotable": true,
+      "source_run": {
+       "git_sha": "4fcd8ed",
+       "date_utc": "2026-11-01T23:12:03Z"
       }
      }
     }
@@ -10387,6 +10787,72 @@
        "date_utc": "2026-10-04T17:23:40Z"
       }
      }
+    },
+    "bmo": {
+     "mammoth": {
+      "lane": "mammoth",
+      "model": "mammoth-1@mammoth-1",
+      "hard": {
+       "n": 300,
+       "accuracy": 0.93,
+       "macro_f1": 0.9301953528686203,
+       "ece": 0.046643186666666885,
+       "brier": 0.11202015599699656,
+       "nll": 0.2189390149672215,
+       "aurc": 0.01524417035716994,
+       "mean_confidence": 0.9101781200000011,
+       "acc_at_50_coverage": 0.9866666666666667,
+       "acc_at_80_coverage": 0.975
+      },
+      "readout_ece": 0.07545475666666697,
+      "readout_brier": 0.06528252053098998,
+      "raw_abstain": null,
+      "calibrated_abstain": null,
+      "abstain_causes": null,
+      "readout_ece_raw": null,
+      "readout_ece_calibrated": null,
+      "floor_ece": null,
+      "g1_pass": null,
+      "g1_verdict": null,
+      "by_question_type": null,
+      "soft_acc": null,
+      "brier_soft": null,
+      "score_mae": null,
+      "within_1": null,
+      "latency_p50_ms": 1778.0,
+      "latency_p99_ms": 1788.0,
+      "latency_tail_support": 4,
+      "latency_extremes": {
+       "first_ms": 1782.0,
+       "max_ms": 1789.0,
+       "argmax_case": 78
+      },
+      "determinism_ok": false,
+      "determinism_n": 10,
+      "seconds": 571.9388285,
+      "n_cases": 300,
+      "n_questions": 300,
+      "score_threshold": null,
+      "distance_threshold": null,
+      "threshold_recommendation": null,
+      "corpus_cap": null,
+      "head_selection": null,
+      "nb_selection": null,
+      "oc_selection": null,
+      "ridge_selection": null,
+      "genome_selection": null,
+      "transductive": null,
+      "confusion": null,
+      "pair_head_ab": null,
+      "jdi_chance": 0.3333333333333333,
+      "jdi_skill": 0.8949999999999999,
+      "cases_digest": "fnv1a64-b136750e5af1d412",
+      "latency_quotable": true,
+      "source_run": {
+       "git_sha": "4fcd8ed",
+       "date_utc": "2026-11-02T00:55:24Z"
+      }
+     }
     }
    },
    "leak": {
@@ -11837,6 +12303,72 @@
       "source_run": {
        "git_sha": "5a52ff9",
        "date_utc": "2026-10-04T17:23:40Z"
+      }
+     }
+    },
+    "bmo": {
+     "mammoth": {
+      "lane": "mammoth",
+      "model": "mammoth-1@mammoth-1",
+      "hard": {
+       "n": 300,
+       "accuracy": 0.9366666666666666,
+       "macro_f1": 0.9320204996871319,
+       "ece": 0.0258239033333332,
+       "brier": 0.0908183575566291,
+       "nll": 0.20340333023100376,
+       "aurc": 0.005398887065428114,
+       "mean_confidence": 0.9532334766666662,
+       "acc_at_50_coverage": 1.0,
+       "acc_at_80_coverage": 0.9958333333333333
+      },
+      "readout_ece": 0.020960973333332973,
+      "readout_brier": 0.03753610680365999,
+      "raw_abstain": null,
+      "calibrated_abstain": null,
+      "abstain_causes": null,
+      "readout_ece_raw": null,
+      "readout_ece_calibrated": null,
+      "floor_ece": null,
+      "g1_pass": null,
+      "g1_verdict": null,
+      "by_question_type": null,
+      "soft_acc": null,
+      "brier_soft": null,
+      "score_mae": null,
+      "within_1": null,
+      "latency_p50_ms": 2618.0,
+      "latency_p99_ms": 3000.0,
+      "latency_tail_support": 4,
+      "latency_extremes": {
+       "first_ms": 2590.0,
+       "max_ms": 3002.0,
+       "argmax_case": 266
+      },
+      "determinism_ok": false,
+      "determinism_n": 10,
+      "seconds": 835.556267042,
+      "n_cases": 300,
+      "n_questions": 300,
+      "score_threshold": null,
+      "distance_threshold": null,
+      "threshold_recommendation": null,
+      "corpus_cap": null,
+      "head_selection": null,
+      "nb_selection": null,
+      "oc_selection": null,
+      "ridge_selection": null,
+      "genome_selection": null,
+      "transductive": null,
+      "confusion": null,
+      "pair_head_ab": null,
+      "jdi_chance": 0.08666666666666667,
+      "jdi_skill": 0.9306569343065694,
+      "cases_digest": "fnv1a64-49390c8b80475849",
+      "latency_quotable": true,
+      "source_run": {
+       "git_sha": "4fcd8ed",
+       "date_utc": "2026-11-01T21:40:28Z"
       }
      }
     }
@@ -13366,6 +13898,72 @@
       "source_run": {
        "git_sha": "5a52ff9",
        "date_utc": "2026-10-04T17:23:40Z"
+      }
+     }
+    },
+    "bmo": {
+     "mammoth": {
+      "lane": "mammoth",
+      "model": "mammoth-1@mammoth-1",
+      "hard": {
+       "n": 500,
+       "accuracy": 0.93,
+       "macro_f1": 0.9289532617454689,
+       "ece": 0.03639654999999897,
+       "brier": 0.10787696362164682,
+       "nll": 0.2803105064717816,
+       "aurc": 0.014323798950746819,
+       "mean_confidence": 0.9609132459999988,
+       "acc_at_50_coverage": 0.988,
+       "acc_at_80_coverage": 0.98
+      },
+      "readout_ece": 0.03611227000000039,
+      "readout_brier": 0.050733150349873996,
+      "raw_abstain": null,
+      "calibrated_abstain": null,
+      "abstain_causes": null,
+      "readout_ece_raw": null,
+      "readout_ece_calibrated": null,
+      "floor_ece": null,
+      "g1_pass": null,
+      "g1_verdict": null,
+      "by_question_type": null,
+      "soft_acc": null,
+      "brier_soft": null,
+      "score_mae": null,
+      "within_1": null,
+      "latency_p50_ms": 5154.0,
+      "latency_p99_ms": 5532.0,
+      "latency_tail_support": 6,
+      "latency_extremes": {
+       "first_ms": 5116.0,
+       "max_ms": 5541.0,
+       "argmax_case": 26
+      },
+      "determinism_ok": false,
+      "determinism_n": 10,
+      "seconds": 2772.004320834,
+      "n_cases": 500,
+      "n_questions": 500,
+      "score_threshold": null,
+      "distance_threshold": null,
+      "threshold_recommendation": null,
+      "corpus_cap": null,
+      "head_selection": null,
+      "nb_selection": null,
+      "oc_selection": null,
+      "ridge_selection": null,
+      "genome_selection": null,
+      "transductive": null,
+      "confusion": null,
+      "pair_head_ab": null,
+      "jdi_chance": 0.014,
+      "jdi_skill": 0.9290060851926978,
+      "cases_digest": "fnv1a64-dd8ab35333abb82a",
+      "latency_quotable": true,
+      "source_run": {
+       "git_sha": "4fcd8ed",
+       "date_utc": "2026-11-01T19:54:00Z"
       }
      }
     }
@@ -17792,11 +18390,303 @@
      "date_utc": "2026-10-08T15:09:13Z"
     }
    }
+  },
+  {
+   "name": "anli_jdi",
+   "n_questions": 3200,
+   "n_cases": 3200,
+   "extra_host_lanes": {
+    "bmo": {
+     "mammoth": {
+      "lane": "mammoth",
+      "model": "mammoth-1@mammoth-1",
+      "hard": {
+       "n": 3200,
+       "accuracy": 0.8371875,
+       "macro_f1": 0.8369197162248257,
+       "ece": 0.011849420937500089,
+       "brier": 0.23588860004869538,
+       "nll": 0.4020499384970037,
+       "aurc": 0.058636939945724886,
+       "mean_confidence": 0.8406531959374991,
+       "acc_at_50_coverage": 0.9575,
+       "acc_at_80_coverage": 0.896484375
+      },
+      "readout_ece": 0.07620768593749998,
+      "readout_brier": 0.12828378425670553,
+      "raw_abstain": null,
+      "calibrated_abstain": null,
+      "abstain_causes": null,
+      "readout_ece_raw": null,
+      "readout_ece_calibrated": null,
+      "floor_ece": null,
+      "g1_pass": null,
+      "g1_verdict": null,
+      "by_question_type": null,
+      "soft_acc": null,
+      "brier_soft": null,
+      "score_mae": null,
+      "within_1": null,
+      "latency_p50_ms": 2190.0,
+      "latency_p99_ms": 2597.0,
+      "latency_tail_support": 33,
+      "latency_extremes": {
+       "first_ms": 2191.0,
+       "max_ms": 2998.0,
+       "argmax_case": 2231
+      },
+      "determinism_ok": false,
+      "determinism_n": 10,
+      "seconds": 6987.545991959,
+      "n_cases": 3200,
+      "n_questions": 3200,
+      "score_threshold": null,
+      "distance_threshold": null,
+      "threshold_recommendation": null,
+      "corpus_cap": null,
+      "head_selection": null,
+      "nb_selection": null,
+      "oc_selection": null,
+      "ridge_selection": null,
+      "genome_selection": null,
+      "transductive": null,
+      "confusion": null,
+      "pair_head_ab": null,
+      "jdi_chance": 0.334375,
+      "jdi_skill": 0.7553990610328638,
+      "cases_digest": "fnv1a64-149acab424cb5a6d",
+      "latency_quotable": true,
+      "source_run": {
+       "git_sha": "4fcd8ed",
+       "date_utc": "2026-11-01T19:07:46Z"
+      }
+     }
+    }
+   }
+  },
+  {
+   "name": "hellaswag_jdi",
+   "n_questions": 2000,
+   "n_cases": 2000,
+   "extra_host_lanes": {
+    "bmo": {
+     "mammoth": {
+      "lane": "mammoth",
+      "model": "mammoth-1@mammoth-1",
+      "hard": {
+       "n": 2000,
+       "accuracy": 0.9765,
+       "macro_f1": 0.9765265336235588,
+       "ece": 0.007881403500008592,
+       "brier": 0.035258243335934705,
+       "nll": 0.06289636019925925,
+       "aurc": 0.001054167487810433,
+       "mean_confidence": 0.97772365449999,
+       "acc_at_50_coverage": 1.0,
+       "acc_at_80_coverage": 0.999375
+      },
+      "readout_ece": 0.008433723500010027,
+      "readout_brier": 0.018126939910756472,
+      "raw_abstain": null,
+      "calibrated_abstain": null,
+      "abstain_causes": null,
+      "readout_ece_raw": null,
+      "readout_ece_calibrated": null,
+      "floor_ece": null,
+      "g1_pass": null,
+      "g1_verdict": null,
+      "by_question_type": null,
+      "soft_acc": null,
+      "brier_soft": null,
+      "score_mae": null,
+      "within_1": null,
+      "latency_p50_ms": 2585.0,
+      "latency_p99_ms": 3380.0,
+      "latency_tail_support": 21,
+      "latency_extremes": {
+       "first_ms": 2997.0,
+       "max_ms": 3429.0,
+       "argmax_case": 1713
+      },
+      "determinism_ok": false,
+      "determinism_n": 10,
+      "seconds": 4833.843484792,
+      "n_cases": 2000,
+      "n_questions": 2000,
+      "score_threshold": null,
+      "distance_threshold": null,
+      "threshold_recommendation": null,
+      "corpus_cap": null,
+      "head_selection": null,
+      "nb_selection": null,
+      "oc_selection": null,
+      "ridge_selection": null,
+      "genome_selection": null,
+      "transductive": null,
+      "confusion": null,
+      "pair_head_ab": null,
+      "jdi_chance": 0.265,
+      "jdi_skill": 0.9680272108843538,
+      "cases_digest": "fnv1a64-61e6ad438aadff5b",
+      "latency_quotable": true,
+      "source_run": {
+       "git_sha": "4fcd8ed",
+       "date_utc": "2026-11-01T21:26:31Z"
+      }
+     }
+    }
+   }
+  },
+  {
+   "name": "mmlupro_jdi",
+   "n_questions": 2000,
+   "n_cases": 2000,
+   "extra_host_lanes": {
+    "bmo": {
+     "mammoth": {
+      "lane": "mammoth",
+      "model": "mammoth-1@mammoth-1",
+      "hard": {
+       "n": 2000,
+       "accuracy": 0.772,
+       "macro_f1": 0.7711421326093613,
+       "ece": 0.02156233949999957,
+       "brier": 0.31020744252579086,
+       "nll": 0.69733605256776,
+       "aurc": 0.06472427303580143,
+       "mean_confidence": 0.7736949635000014,
+       "acc_at_50_coverage": 0.962,
+       "acc_at_80_coverage": 0.875625
+      },
+      "readout_ece": 0.03641191450000009,
+      "readout_brier": 0.11944064503624555,
+      "raw_abstain": null,
+      "calibrated_abstain": null,
+      "abstain_causes": null,
+      "readout_ece_raw": null,
+      "readout_ece_calibrated": null,
+      "floor_ece": null,
+      "g1_pass": null,
+      "g1_verdict": null,
+      "by_question_type": null,
+      "soft_acc": null,
+      "brier_soft": null,
+      "score_mae": null,
+      "within_1": null,
+      "latency_p50_ms": 2584.0,
+      "latency_p99_ms": 5041.0,
+      "latency_tail_support": 21,
+      "latency_extremes": {
+       "first_ms": 2173.0,
+       "max_ms": 8541.0,
+       "argmax_case": 1458
+      },
+      "determinism_ok": false,
+      "determinism_n": 10,
+      "seconds": 5256.175371291,
+      "n_cases": 2000,
+      "n_questions": 2000,
+      "score_threshold": null,
+      "distance_threshold": null,
+      "threshold_recommendation": null,
+      "corpus_cap": null,
+      "head_selection": null,
+      "nb_selection": null,
+      "oc_selection": null,
+      "ridge_selection": null,
+      "genome_selection": null,
+      "transductive": null,
+      "confusion": null,
+      "pair_head_ab": null,
+      "jdi_chance": 0.1195,
+      "jdi_skill": 0.7410562180579217,
+      "cases_digest": "fnv1a64-6a2d24628ce7b916",
+      "latency_quotable": true,
+      "source_run": {
+       "git_sha": "4fcd8ed",
+       "date_utc": "2026-11-01T23:08:06Z"
+      }
+     }
+    }
+   }
+  },
+  {
+   "name": "winogrande_jdi",
+   "n_questions": 1267,
+   "n_cases": 1267,
+   "extra_host_lanes": {
+    "bmo": {
+     "mammoth": {
+      "lane": "mammoth",
+      "model": "mammoth-1@mammoth-1",
+      "hard": {
+       "n": 1267,
+       "accuracy": 0.9605367008681925,
+       "macro_f1": 0.9605360862761514,
+       "ece": 0.02265738279400206,
+       "brier": 0.06599625287434256,
+       "nll": 0.1411353433945819,
+       "aurc": 0.011183177961835862,
+       "mean_confidence": 0.9769551128650353,
+       "acc_at_50_coverage": 0.9936808846761453,
+       "acc_at_80_coverage": 0.9881539980256664
+      },
+      "readout_ece": 0.027191802683504067,
+      "readout_brier": 0.03630674925087767,
+      "raw_abstain": null,
+      "calibrated_abstain": null,
+      "abstain_causes": null,
+      "readout_ece_raw": null,
+      "readout_ece_calibrated": null,
+      "floor_ece": null,
+      "g1_pass": null,
+      "g1_verdict": null,
+      "by_question_type": null,
+      "soft_acc": null,
+      "brier_soft": null,
+      "score_mae": null,
+      "within_1": null,
+      "latency_p50_ms": 1394.0,
+      "latency_p99_ms": 1401.0,
+      "latency_tail_support": 13,
+      "latency_extremes": {
+       "first_ms": 1392.0,
+       "max_ms": 1404.0,
+       "argmax_case": 597
+      },
+      "determinism_ok": false,
+      "determinism_n": 10,
+      "seconds": 1797.897046375,
+      "n_cases": 1267,
+      "n_questions": 1267,
+      "score_threshold": null,
+      "distance_threshold": null,
+      "threshold_recommendation": null,
+      "corpus_cap": null,
+      "head_selection": null,
+      "nb_selection": null,
+      "oc_selection": null,
+      "ridge_selection": null,
+      "genome_selection": null,
+      "transductive": null,
+      "confusion": null,
+      "pair_head_ab": null,
+      "jdi_chance": 0.5043409629044988,
+      "jdi_skill": 0.9203821656050954,
+      "cases_digest": "fnv1a64-293400e84e987360",
+      "latency_quotable": true,
+      "source_run": {
+       "git_sha": "4fcd8ed",
+       "date_utc": "2026-11-02T00:45:50Z"
+      }
+     }
+    }
+   }
   }
  ],
  "areas": {
   "version": 4,
-  "edition": "2026-10-11",
+  "edition": "2026-11-02",
   "chance_digest": "61c5096331d22d6383de84f51a20f717",
   "scale": "chance-corrected accuracy: cc = (acc - chance) / (1 - chance); 0 = random guessing, 1 = every question right; per-suite chance = the mean per-question random-pick probability of the harness's own option construction (a dataset fact, not a measurement); values below 0 are BELOW CHANCE and stay negative on purpose \u2014 a lane scoring under random guessing must read that way, and negatives pull area means and the index down by design",
   "suites": {
@@ -18646,6 +19536,58 @@
     },
     "complete": true,
     "host": "4090-win"
+   },
+   "mammoth@bmo": {
+    "display": "mammoth-1 (local)",
+    "color_key": "mammoth",
+    "kind": "local-weights-serve",
+    "per_suite": {
+     "ag_news": {
+      "acc": 0.8875,
+      "cc": 0.85
+     },
+     "massive_intent_en": {
+      "acc": 0.936667,
+      "cc": 0.933333
+     },
+     "banking77": {
+      "acc": 0.93,
+      "cc": 0.929079
+     },
+     "sst5": {
+      "acc": 0.551667,
+      "cc": 0.439583
+     },
+     "emotion": {
+      "acc": 0.5875,
+      "cc": 0.505
+     },
+     "xnli_en": {
+      "acc": 0.93,
+      "cc": 0.895
+     },
+     "prompt_injections": {
+      "acc": 0.724138,
+      "cc": 0.448276
+     },
+     "typed_decisions": {
+      "acc": 0.7605,
+      "cc": 0.649084
+     }
+    },
+    "areas": {
+     "language": 0.904137,
+     "sentiment": 0.472291,
+     "reasoning": 0.671638,
+     "decisions": 0.649084
+    },
+    "index": 0.674287,
+    "coverage": {
+     "suites": 8,
+     "of": 8
+    },
+    "complete": true,
+    "host": "bmo"
    }
   },
   "timing": {
@@ -18799,6 +19741,16 @@
     "n_unquotable": 0,
     "n_unjudged": 0,
     "note": "population = the suites behind the lane's index; p50 geometric mean over latency_quotable cells only (unfit timing is shown in the tables, never plotted)"
+   },
+   "mammoth@bmo": {
+    "clock": "http",
+    "method": "HTTP round-trip to baselabs/mammoth-1 (27B, MIT - the JDI board-#1 teacher) over their own qev runtime (OneJev @81ce62f + the checkpoint's serve.patch, block-bidirectional attention, slot_lm readout) on loopback: bmo M5 Ultra, bf16 MPS, sequential fork; determinism answer-stable (the envelope-clock false root-caused + fixed, rethink Bench 082)",
+    "suites": 8,
+    "p50_geomean_ms": 2506.0188,
+    "n_used": 8,
+    "n_unquotable": 0,
+    "n_unjudged": 0,
+    "note": "population = the suites behind the lane's index; p50 geometric mean over latency_quotable cells only (unfit timing is shown in the tables, never plotted)"
    }
   },
   "scope": "primary-host rows; a lane the primary host never ran rolls up from its serving host under a host-tagged lane key (clm@4090-win); a product lane's fallback spokes roll up from the answering tier (marked fallback, drawn as triangles \u2014 coverage stays the lane's own measured count)"
@@ -18927,7 +19879,7 @@
  },
  "abstention": {
   "version": 1,
-  "edition": "2026-10-11",
+  "edition": "2026-11-02",
   "lanes": {
    "modelless": {
     "causes": {
