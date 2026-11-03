@@ -243,6 +243,16 @@
    "host": "4090-win",
    "date_utc": "2026-10-12",
    "how": "the bench-time env itself (.raw/drex-env on the 4090 box): sum of file sizes (4,871,415,165 over 20,623 files) + dir entries (1,838), the lstat convention of the sibling venv rows"
+  },
+  {
+   "key": "mammoth_rig",
+   "label": "the mammoth lane's local serve rig (engine)",
+   "kind": "runtime",
+   "bytes": 885340467,
+   "what": "the uv venv (python 3.12: torch 2.14.1 MPS + transformers 5.19.0 + tokenizers + safetensors + accelerate + the qev editable install = 766,153,559 B) + the pinned OneJev runtime checkout @81ce62f with the checkpoint's serve.patch applied (= 119,186,908 B) — the engine side a consumer installs to serve the lane",
+   "host": "bmo (M5 Ultra)",
+   "date_utc": "2026-11-02",
+   "how": "sum of lstat sizes over the venv tree + the OneJev checkout on bmo (measured 2026-11-02, rethink 032's local lane; the venv carries the MPS torch build — a CUDA box's engine differs)"
   }
  ]
 }

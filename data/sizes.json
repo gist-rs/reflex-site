@@ -1,6 +1,6 @@
 {
  "meta": {
-  "date_utc": "2026-10-12T04:46:06Z",
+  "date_utc": "2026-11-02T06:55:51Z",
   "release": {
    "tag": "v0.2.4",
    "url": "https://github.com/gist-rs/reflex/releases/tag/v0.2.4",
@@ -882,7 +882,7 @@
      "src": 0
     }
    ],
-   "model_bytes": 16403005719,
+   "model_bytes": 16403006382,
    "model_what": "the Drex-DLM decision model as the full BF16 safetensors tree (4 shards + the decision head.pt + tokenizer) \u2014 the tree a consumer downloads",
    "model_provenance": {
     "source": "huggingface.co tree API (exact bytes)",
@@ -898,7 +898,7 @@
     {
      "label": "drex-dlm (Efficient-DLM-8B) BF16 tree",
      "kind": "weights",
-     "bytes": 16403005719,
+     "bytes": 16403006382,
      "src": 0
     }
    ],
@@ -976,6 +976,60 @@
     "GPU (CUDA)"
    ],
    "note": null
+  },
+  {
+   "key": "mammoth",
+   "name": "mammoth-1 (27B) \u00b7 local bf16",
+   "framework": "their own qev runtime (OneJev @81ce62f + the checkpoint's serve.patch) behind a loopback listener",
+   "engine_kind": "python",
+   "engine_bytes": 885340467,
+   "engine_what": "the bmo rig: the uv venv (torch 2.14.1 MPS + transformers 5.19.0 + the qev editable install) + the pinned OneJev runtime checkout",
+   "engine_provenance": {
+    "source": "recorded measurement",
+    "detail": "the uv venv (python 3.12: torch 2.14.1 MPS + transformers 5.19.0 + tokenizers + safetensors + accelerate + the qev editable install = 766,153,559 B) + the pinned OneJev runtime checkout @81ce62f with the checkpoint's serve.patch applied (= 119,186,908 B) \u2014 the engine side a consumer installs to serve the lane \u2014 measured 2026-11-02 on bmo (M5 Ultra): sum of lstat sizes over the venv tree + the OneJev checkout on bmo (measured 2026-11-02, rethink 032's local lane; the venv carries the MPS torch build \u2014 a CUDA box's engine differs)",
+    "parts": [
+     {
+      "source": "recorded measurement",
+      "label": "the mammoth lane's local serve rig (engine)",
+      "what": "the uv venv (python 3.12: torch 2.14.1 MPS + transformers 5.19.0 + tokenizers + safetensors + accelerate + the qev editable install = 766,153,559 B) + the pinned OneJev runtime checkout @81ce62f with the checkpoint's serve.patch applied (= 119,186,908 B) \u2014 the engine side a consumer installs to serve the lane",
+      "date_utc": "2026-11-02",
+      "host": "bmo (M5 Ultra)",
+      "how": "sum of lstat sizes over the venv tree + the OneJev checkout on bmo (measured 2026-11-02, rethink 032's local lane; the venv carries the MPS torch build \u2014 a CUDA box's engine differs)"
+     }
+    ]
+   },
+   "engine_stack": [
+    {
+     "label": "the mammoth lane's local serve rig (engine)",
+     "kind": "runtime",
+     "bytes": 885340467,
+     "src": 0
+    }
+   ],
+   "model_bytes": 54734135235,
+   "model_what": "Base Labs' mammoth-1 as shipped \u2014 the bf16 safetensors tree a consumer downloads (no quantized posture exists; the board measures the weights as published)",
+   "model_provenance": {
+    "source": "huggingface.co tree API (exact bytes)",
+    "detail": "baselabs/mammoth-1",
+    "parts": [
+     {
+      "source": "huggingface.co tree API (exact bytes)",
+      "what": "baselabs/mammoth-1"
+     }
+    ]
+   },
+   "model_stack": [
+    {
+     "label": "mammoth-1 (27B) bf16 tree",
+     "kind": "weights",
+     "bytes": 54734135235,
+     "src": 0
+    }
+   ],
+   "targets": [
+    "Apple GPU (Metal/MPS, 96 GB unified)"
+   ],
+   "note": "the bench board's mammoth comparison lane (baselabs/mammoth-1, MIT \u2014 the CURRENT JDI board's #1, public_skill 75.34 at the 2026-10-29 snapshot): the SELF-HOSTED posture the board measures (the owner LOCAL-ONLY policy \u2014 the hosted API never ran); a 27B at FULL bf16, the pplx row's 4-bit quant is ~15 GB for the same parameter class"
   }
  ]
 }
