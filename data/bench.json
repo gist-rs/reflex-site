@@ -223,6 +223,10 @@
      "mammoth": {
       "git_sha": "4fcd8ed",
       "date_utc": "2026-11-02T00:55:24Z"
+     },
+     "encoder": {
+      "git_sha": "11a00d6",
+      "date_utc": "2026-11-04T02:09:53Z"
      }
     },
     "spec": "Apple Mac Studio (M5 Ultra), 96 GB unified memory, macOS - the mammoth-1 27B teacher self-hosted on Metal (bf16 MPS, sequential fork)"
@@ -7612,6 +7616,40 @@
       "source_run": {
        "git_sha": "4fcd8ed",
        "date_utc": "2026-11-01T23:29:56Z"
+      }
+     },
+     "encoder": {
+      "lane": "Rethink",
+      "model": "ENC-t662_sst5_teacher (laya-english encoder + NLEH v1 head)",
+      "hard": {
+       "n": 600,
+       "accuracy": 0.5316666666666666,
+       "macro_f1": 0.5176581962183393,
+       "jdi_chance": 0.2733333333333333,
+       "jdi_skill": 0.3555045871559633,
+       "ece": 0.04140946457783378,
+       "mean_confidence": 0.5069445775945981,
+       "acc_at_50_coverage": 0.6333333333333333
+      },
+      "consult_rate": 1.0,
+      "latency_scope": "arm-only",
+      "latency_rows": "questions",
+      "latency_p50_ms": 9.796,
+      "latency_p99_ms": 11.16,
+      "serves": "\u2717 (encoder class refused at serve \u2014 the incumbent arm serves; instinct issue 014 C1, seating per issue 017)",
+      "gate": "acc 0.5317 (319/600 question rows) \u00b7 paired vs the incumbent arm: SKIPPED (--skip-incumbent) \u00b7 perm-probe: EXCLUDED (non-Choice question kind \u2014 the choice-only permutation predicate does not apply; presentation order is the semantics) \u00b7 per-row p50 9.796 ms (metal device, laya-english). Serve REFUSED (014 class-wide latency class); record-only cell, seated per the owner call 2026-10-01 (instinct issue 017).",
+      "head_blake3": "108d541f5bc93e230f082689a104668b99c9d53785848665da0d1b73384bef48",
+      "perm_probe": "perm-probe: EXCLUDED (non-Choice question kind \u2014 the choice-only permutation predicate does not apply; presentation order is the semantics)",
+      "device": "metal",
+      "head_kind": "v1",
+      "ckpt": "english",
+      "shape_desc": "5 classes \u00b7 feat 6144",
+      "record_only": true,
+      "cases_digest": "fnv1a64-ad64a6cb0039e916",
+      "latency_quotable": true,
+      "source_run": {
+       "git_sha": "11a00d6",
+       "date_utc": "2026-11-04T02:09:53Z"
       }
      }
     }
