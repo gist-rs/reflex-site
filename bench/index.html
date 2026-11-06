@@ -36,6 +36,13 @@
   /* the per-bar host tag (all-rigs hero): same overflow idiom as bc-none —
      9.5px text on a 6px line-box, so the row rhythm never grows */
   .bc-hhost { flex: none; font-size: 9.5px; line-height: 6px; color: var(--muted); white-space: nowrap; }
+  /* The 390 fix (site Issue 013 T3): the bar row is minmax(150px,1fr) — the
+     frac() caps every bar at the 100% tick, so the room is a floor, never a
+     promise. A narrow host tag (flex:none, nowrap) whose floor row runs out
+     of room overflowed the PAGE (scrollWidth 1145). The same idiom as
+     bc-none: the row clips inside the track, the tooltip carries everything. */
+  .bc-htrack .bc-hbar { min-width: 0; overflow: hidden; }
+  .bc-htrack .bc-hbar .bc-hhost { margin-left: auto; }
   /* the tier-fallback mark (owner 2026-10-02): the value shown IS what the
      product serves; ↩ says a fallback tier answered (its name on hover) */
   .bc-fb { flex: none; font-size: 10px; line-height: 6px; color: var(--muted); cursor: help; }
@@ -97,7 +104,12 @@
   .iv-fill { position: absolute; top: 0; bottom: 0; left: 0; border-radius: 5px 0 0 5px; }
   .iv-gap { position: absolute; top: 0; bottom: 0; opacity: .35; }
   .iv-tick { position: absolute; top: -1px; bottom: -1px; width: 2px; border-radius: 1px; }
-  .iv-nums { display: table-cell; width: 300px; max-width: 300px; white-space: nowrap; overflow: hidden; color: var(--muted); font-variant-numeric: tabular-nums; vertical-align: middle; }
+  .iv-nums { display: table-cell; width: 300px; max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--muted); font-variant-numeric: tabular-nums; vertical-align: middle; }
+  /* the 390 guard (site Issue 013 T3): display:table cells ignore
+     max-width against a fixed layout — the cell must clip through its own
+     overflow, never propagate to the page */
+  .iv-line { table-layout: fixed; }
+  .iv-nums { max-width: 0; width: 1%; }
   .iv-nums b { font-weight: 600; }
   .iv-host { font-style: normal; font-size: 10px; color: var(--muted); }
   .iv-fb { font-size: 10px; line-height: 6px; color: var(--muted); cursor: help; }
@@ -117,7 +129,13 @@
   }
   /* the runs strip: one chip per host run (host · device · sha · when) */
   #bench-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; margin: 10px 0 2px; color: var(--muted); font-size: 13.5px; }
-  .run-chip { display: inline-flex; align-items: baseline; gap: 7px; border: 1px solid var(--line); background: var(--panel); border-radius: 8px; padding: 4px 10px; font-size: 12.5px; white-space: nowrap; }
+    .run-chip { display: inline-flex; align-items: baseline; gap: 7px; border: 1px solid var(--line); background: var(--panel); border-radius: 8px; padding: 4px 10px; font-size: 12.5px; white-space: nowrap; }
+  /* the 390 fix (site Issue 013 T3): the runs strip is a flex row of
+     nowrap chips — a spec note chip measured 1129px on a 390 phone and
+     widened the whole page. The strip scrolls inside itself (the family
+     mobile invariant: wide things scroll in their own wrapper) */
+  #bench-meta { overflow-x: auto; scrollbar-width: none; }
+  #bench-meta::-webkit-scrollbar { display: none; }
   .run-chip b { color: var(--text); font-weight: 600; }
   .run-chip .rc-meta { color: var(--muted); font-size: 11.5px; font-variant-numeric: tabular-nums; }
   .run-chip .rc-spec { display: block; color: var(--muted); font-size: 11px; margin-top: 1px; }

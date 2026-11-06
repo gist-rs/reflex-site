@@ -126,7 +126,7 @@
     "git_sha": "afacc3a",
     "profile": "release",
     "laya_feature": true,
-    "laya_device": "ane (LAYA_DEVICE=ane \u2192 load_ane; whole-graph CoreML encoder, Plan 002)",
+    "laya_device": "ane (LAYA_DEVICE=ane \u2192 load_ane; whole-graph CoreML encoder)",
     "laya_python_lane": "off (pass --laya-python to add the reference lane)",
     "laya_max_questions": 0,
     "corpus_cap_mode": "registry defaults",
@@ -2670,8 +2670,8 @@
     "latency_rows": "questions",
     "latency_p50_ms": 47.335,
     "latency_p99_ms": 74.193,
-    "serves": "\u2717 (encoder class refused at serve \u2014 the incumbent arm serves; instinct issue 014 C1, seating per issue 017)",
-    "gate": "acc 0.7550 (1510/2000 question rows) \u00b7 paired vs the incumbent arm (H2(\u03b2=0.5,nmin=2,\u03c4=2)): mean +0.1075 \u00b7 LB95 +0.0862 \u00b7 per-row p50 47.335 ms (metal device, laya-typed). Serve REFUSED (014 class-wide latency class); record-only cell, seated per the owner call 2026-10-01 (instinct issue 017).",
+    "serves": "\u2717 (encoder class refused at serve \u2014 the incumbent arm serves)",
+    "gate": "acc 0.7550 (1510/2000 question rows) \u00b7 paired vs the incumbent arm (H2(\u03b2=0.5,nmin=2,\u03c4=2)): mean +0.1075 \u00b7 LB95 +0.0862 \u00b7 per-row p50 47.335 ms (metal device, laya-typed). Serve REFUSED (014 class-wide latency class); record-only cell, seated per the owner call 2026-10-01.",
     "device": "metal",
     "head_kind": "v2 per-option",
     "ckpt": "typed",
@@ -4503,8 +4503,8 @@
     "latency_rows": "questions",
     "latency_p50_ms": 16.983,
     "latency_p99_ms": 27.313,
-    "serves": "\u2717 (encoder class refused at serve \u2014 the incumbent arm serves; instinct issue 014 C1, seating per issue 017)",
-    "gate": "acc 0.9475 (379/400 rows) \u00b7 paired vs the incumbent A1: mean +0.0600 \u00b7 LB95 +0.0320 \u00b7 per-row p50 16.983 ms (metal device). Serve REFUSED (014 class-wide latency class); record-only cell, seated per the owner call 2026-10-01 (instinct issue 017). The head reads one question under its own reference (riir-train 600 T1).",
+    "serves": "\u2717 (encoder class refused at serve \u2014 the incumbent arm serves)",
+    "gate": "acc 0.9475 (379/400 rows) \u00b7 paired vs the incumbent A1: mean +0.0600 \u00b7 LB95 +0.0320 \u00b7 per-row p50 16.983 ms (metal device). Serve REFUSED (014 class-wide latency class); record-only cell, seated per the owner call 2026-10-01. The head reads one question under its own reference (riir-train 600 T1).",
     "device": "metal",
     "record_only": true,
     "latency_quotable": true,
@@ -6244,7 +6244,7 @@
     "latency_tail_support": 5,
     "serves": "tier-fallback",
     "served_by": "Instinct (A0)",
-    "fallback_note": "screened \u2014 no head earned: 6 gold-only fits (the 5-seed T7 sweep + 1 fresh seed) all refused on holdout; the encoder reference reads 0.5950 vs the incumbent 0.8850 (instinct issue 016 T7/T8, riir-train t599/t7 + t8 record)",
+    "fallback_note": "screened \u2014 no head earned: 6 gold-only fits (the 5-seed T7 sweep + 1 fresh seed) all refused on holdout; the encoder reference reads 0.5950 vs the incumbent 0.8850",
     "derived": true,
     "source_run": {
      "git_sha": "8bbff09",
@@ -7636,8 +7636,8 @@
       "latency_rows": "questions",
       "latency_p50_ms": 9.796,
       "latency_p99_ms": 11.16,
-      "serves": "\u2717 (encoder class refused at serve \u2014 the incumbent arm serves; instinct issue 014 C1, seating per issue 017)",
-      "gate": "acc 0.5317 (319/600 question rows) \u00b7 paired vs the incumbent arm: SKIPPED (--skip-incumbent) \u00b7 perm-probe: EXCLUDED (non-Choice question kind \u2014 the choice-only permutation predicate does not apply; presentation order is the semantics) \u00b7 per-row p50 9.796 ms (metal device, laya-english). Serve REFUSED (014 class-wide latency class); record-only cell, seated per the owner call 2026-10-01 (instinct issue 017).",
+      "serves": "\u2717 (encoder class refused at serve \u2014 the incumbent arm serves)",
+      "gate": "acc 0.5317 (319/600 question rows) \u00b7 paired vs the incumbent arm: SKIPPED (--skip-incumbent) \u00b7 perm-probe: EXCLUDED (non-Choice question kind \u2014 the choice-only permutation predicate does not apply; presentation order is the semantics) \u00b7 per-row p50 9.796 ms (metal device, laya-english). Serve REFUSED (014 class-wide latency class); record-only cell, seated per the owner call 2026-10-01.",
       "head_blake3": "108d541f5bc93e230f082689a104668b99c9d53785848665da0d1b73384bef48",
       "perm_probe": "perm-probe: EXCLUDED (non-Choice question kind \u2014 the choice-only permutation predicate does not apply; presentation order is the semantics)",
       "device": "metal",
@@ -7820,8 +7820,8 @@
     "latency_rows": "questions",
     "latency_p50_ms": 14.708917,
     "latency_p99_ms": 17.452375,
-    "serves": "\u2717 (encoder class refused at serve \u2014 A1 serves; instinct issue 014 C1)",
-    "gate": "T2-certified above the incumbent A1 (paired LB95 +0.0535, mean +0.1050) \u2014 serve REFUSED on the latency class (14.7 ms/row vs the ~0.3 ms provisional bar; issue 014 decision 1)",
+    "serves": "\u2717 (encoder class refused at serve \u2014 the incumbent arm serves)",
+    "gate": "T2-certified above the incumbent A1 (paired LB95 +0.0535, mean +0.1050) \u2014 serve REFUSED on the latency class (14.7 ms/row vs the ~0.3 ms provisional bar)",
     "device": "metal",
     "record_only": true,
     "source_run": {
@@ -9474,8 +9474,8 @@
      "consult_rate": 1.0,
      "latency_scope": "arm-only",
      "latency_rows": "questions",
-     "serves": "\u2717 (encoder class refused at serve \u2014 the incumbent arm serves; instinct issue 014 C1, seating per issue 017)",
-     "gate": "acc 0.8017 (93/116 question rows) \u00b7 paired vs the incumbent A1: mean -0.0517 \u00b7 LB95 -0.1343 \u00b7 per-row p50 13.873 ms (metal device, laya-english). Serve REFUSED (014 class-wide latency class); record-only cell, seated per the owner call 2026-10-01 (instinct issue 017).",
+     "serves": "\u2717 (encoder class refused at serve \u2014 the incumbent arm serves)",
+     "gate": "acc 0.8017 (93/116 question rows) \u00b7 paired vs the incumbent A1: mean -0.0517 \u00b7 LB95 -0.1343 \u00b7 per-row p50 13.873 ms (metal device, laya-english). Serve REFUSED (014 class-wide latency class); record-only cell, seated per the owner call 2026-10-01.",
      "device": "metal",
      "head_kind": "v1",
      "ckpt": "english",
@@ -11063,8 +11063,8 @@
     "latency_rows": "questions",
     "latency_p50_ms": 16.513,
     "latency_p99_ms": 18.634,
-    "serves": "\u2717 (encoder class refused at serve \u2014 the incumbent arm serves; instinct issue 014 C1, seating per issue 017)",
-    "gate": "acc 0.8600 (258/300 rows) \u00b7 paired vs the incumbent A1: mean +0.4500 \u00b7 LB95 +0.3832 \u00b7 per-row p50 16.513 ms (metal device). Serve REFUSED (014 class-wide latency class); record-only cell, seated per the owner call 2026-10-01 (instinct issue 017). Reference-identified: the head ties the laya-english forward 300/300 picks (riir-train 599 T5a) \u2014 the cell is the encoder lane's own frozen read, not the trainer's lift.",
+    "serves": "\u2717 (encoder class refused at serve \u2014 the incumbent arm serves)",
+    "gate": "acc 0.8600 (258/300 rows) \u00b7 paired vs the incumbent A1: mean +0.4500 \u00b7 LB95 +0.3832 \u00b7 per-row p50 16.513 ms (metal device). Serve REFUSED (014 class-wide latency class); record-only cell, seated per the owner call 2026-10-01. Reference-identified: the head ties the laya-english forward 300/300 picks (riir-train 599 T5a) \u2014 the cell is the encoder lane's own frozen read, not the trainer's lift.",
     "device": "metal",
     "record_only": true,
     "latency_quotable": true,
@@ -12671,8 +12671,8 @@
      "consult_rate": 1.0,
      "latency_scope": "arm-only",
      "latency_rows": "questions",
-     "serves": "\u2717 (encoder class refused at serve \u2014 the incumbent arm serves; instinct issue 014 C1, seating per issue 017)",
-     "gate": "acc 0.6567 (197/300 question rows) \u00b7 paired vs the incumbent A1: mean -0.1600 \u00b7 LB95 -0.2194 \u00b7 per-row p50 31.332 ms (metal device, laya-english). Serve REFUSED (014 class-wide latency class); record-only cell, seated per the owner call 2026-10-01 (instinct issue 017).",
+     "serves": "\u2717 (encoder class refused at serve \u2014 the incumbent arm serves)",
+     "gate": "acc 0.6567 (197/300 question rows) \u00b7 paired vs the incumbent A1: mean -0.1600 \u00b7 LB95 -0.2194 \u00b7 per-row p50 31.332 ms (metal device, laya-english). Serve REFUSED (014 class-wide latency class); record-only cell, seated per the owner call 2026-10-01.",
      "device": "metal",
      "head_kind": "v1",
      "ckpt": "english",
@@ -14266,8 +14266,8 @@
      "consult_rate": 1.0,
      "latency_scope": "arm-only",
      "latency_rows": "questions",
-     "serves": "\u2717 (encoder class refused at serve \u2014 the incumbent arm serves; instinct issue 014 C1, seating per issue 017)",
-     "gate": "acc 0.4420 (221/500 question rows) \u00b7 paired vs the incumbent A1: mean -0.3860 \u00b7 LB95 -0.4363 \u00b7 per-row p50 42.983 ms (metal device, laya-english). Serve REFUSED (014 class-wide latency class); record-only cell, seated per the owner call 2026-10-01 (instinct issue 017).",
+     "serves": "\u2717 (encoder class refused at serve \u2014 the incumbent arm serves)",
+     "gate": "acc 0.4420 (221/500 question rows) \u00b7 paired vs the incumbent A1: mean -0.3860 \u00b7 LB95 -0.4363 \u00b7 per-row p50 42.983 ms (metal device, laya-english). Serve REFUSED (014 class-wide latency class); record-only cell, seated per the owner call 2026-10-01.",
      "device": "metal",
      "head_kind": "v1",
      "ckpt": "english",
@@ -16320,7 +16320,7 @@
        "date_utc": "2026-10-09T00:13:55Z"
       },
       "latency_provenance": {
-       "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
+       "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (the LANE-CARRY posture)"
       }
      }
     }
@@ -16990,7 +16990,7 @@
        "date_utc": "2026-10-09T00:13:55Z"
       },
       "latency_provenance": {
-       "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
+       "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (the LANE-CARRY posture)"
       }
      },
      "laya": {
@@ -17745,7 +17745,7 @@
        "date_utc": "2026-10-09T00:13:55Z"
       },
       "latency_provenance": {
-       "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)"
+       "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (the LANE-CARRY posture)"
       }
      },
      "laya": {
@@ -19645,7 +19645,7 @@
    },
    "hybrid": {
     "clock": "in-process",
-    "method": "Rust in-process; seat+arm cells time the full composed path (modelless seat + arm), arm-only cells (A1/H2) time the composition forward alone - the modelless seat is NOT in that number (instinct Issue 007)",
+    "method": "Rust in-process; seat+arm cells time the full composed path (modelless seat + arm), arm-only cells (A1/H2) time the composition forward alone - the modelless seat is NOT in that number",
     "suites": 8,
     "p50_geomean_ms": 0.1,
     "n_used": 2,
@@ -19786,7 +19786,7 @@
    },
    "mammoth@BMO (M5 Ultra)": {
     "clock": "http",
-    "method": "HTTP round-trip to baselabs/mammoth-1 (27B, MIT - the JDI board-#1 teacher) over their own qev runtime (OneJev @81ce62f + the checkpoint's serve.patch, block-bidirectional attention, slot_lm readout) on loopback: bmo M5 Ultra, bf16 MPS, sequential fork; determinism answer-stable (the envelope-clock false root-caused + fixed, rethink Bench 082)",
+    "method": "HTTP round-trip to baselabs/mammoth-1 (27B, MIT - the JDI board-#1 teacher) over their own qev runtime (OneJev @81ce62f + the checkpoint's serve.patch, block-bidirectional attention, slot_lm readout) on loopback: bmo M5 Ultra, bf16 MPS, sequential fork; determinism answer-stable (an early envelope-clock mismeasure was root-caused and fixed)",
     "suites": 8,
     "p50_geomean_ms": 2506.0188,
     "n_used": 8,
@@ -20005,7 +20005,7 @@
       "macro_f1": 0.7445330507017898,
       "jdi_chance": 0.2925,
       "jdi_skill": 0.6537102473498233,
-      "serves": "\u2717 (encoder class refused at serve \u2014 the incumbent arm serves; instinct issue 014 C1, seating per issue 017)",
+      "serves": "\u2717 (encoder class refused at serve \u2014 the incumbent arm serves)",
       "record_only": true
      },
      {
@@ -20659,7 +20659,7 @@
    }
   ],
   "board_reference": {
-   "note": "The JDI board's own rows \u2014 their frozen corpus, their protocol, their hardware (edition release-v4 / Decision Index 0.4.1, generated 2026-10-22, pinned in rethink .research/data/ + Issue 032 T10; Full (balanced_skill) is now 100% PRIVATE \u2014 0.60 private-same-skills + 0.40 private-new-domains, stock-model-mapped \u2014 while public benchmarks no longer count toward it, so the two columns are rendered SEPARATE and never blended or compared across editions; the instrument repair: rethink bench 072 proved public_skill == the per-area category prints and bounded the per-case divergence class). REFERENCE ONLY: no number here is comparable with the measured rows above without the caveat's full weight. reflex-27b-pmscr is a THIRD-PARTY fork (kshetrajna12) wearing our lane's name \u2014 never a reflex row.",
+   "note": "The JDI board's own rows \u2014 their frozen corpus, their protocol, their hardware (edition release-v4 / Decision Index 0.4.1, generated 2026-10-22, pinned alongside the board's own research data; Full (balanced_skill) is now 100% PRIVATE \u2014 0.60 private-same-skills + 0.40 private-new-domains, stock-model-mapped \u2014 while public benchmarks no longer count toward it, so the two columns are rendered SEPARATE and never blended or compared across editions; the instrument repair: public_skill was proven equal to the per-area category prints and the per-case divergence class was bounded). REFERENCE ONLY: no number here is comparable with the measured rows above without the caveat's full weight. reflex-27b-pmscr is a THIRD-PARTY fork (kshetrajna12) wearing our lane's name \u2014 never a reflex row.",
    "columns": [
     "entrant",
     "balanced_raw",

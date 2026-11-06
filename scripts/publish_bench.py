@@ -159,6 +159,7 @@ import hashlib
 import json
 import math
 import os
+import re
 import sys
 from pathlib import Path
 
@@ -325,9 +326,8 @@ DISCLOSURES = {
         "instinct-encoder": (
             "encoder head screened — no head earned: 6 gold-only fits (the "
             "5-seed T7 sweep + 1 fresh seed) all refused on holdout; the "
-            "encoder reference reads 0.5950 vs the incumbent 0.8850 "
-            "(instinct issue 016 T7/T8) — the served answer is the cell "
-            "shown"
+            "encoder reference reads 0.5950 vs the incumbent 0.8850 — "
+            "the served answer is the cell shown"
         ),
     },
 }
@@ -831,7 +831,7 @@ LANE_TIMING = {
         "method": ("Rust in-process; seat+arm cells time the full composed "
                    "path (modelless seat + arm), arm-only cells (A1/H2) time "
                    "the composition forward alone - the modelless seat is "
-                   "NOT in that number (instinct Issue 007)"),
+                   "NOT in that number"),
     },
     "encoder": {
         "clock": "in-process",
@@ -918,8 +918,8 @@ LANE_TIMING = {
                    "(OneJev @81ce62f + the checkpoint's serve.patch, "
                    "block-bidirectional attention, slot_lm readout) on "
                    "loopback: bmo M5 Ultra, bf16 MPS, sequential fork; "
-                   "determinism answer-stable (the envelope-clock false "
-                   "root-caused + fixed, rethink Bench 082)"),
+                   "determinism answer-stable (an early envelope-clock "
+                   "mismeasure was root-caused and fixed)"),
     },
 }
 
@@ -1679,15 +1679,15 @@ def compute_crosswalk(d):
             "note": (
                 "The JDI board's own rows — their frozen corpus, their "
                 "protocol, their hardware (edition release-v4 / Decision "
-                "Index 0.4.1, generated 2026-10-22, pinned in rethink "
-                ".research/data/ + Issue 032 T10; Full (balanced_skill) is "
+                "Index 0.4.1, generated 2026-10-22, pinned alongside the "
+                "board's own research data; Full (balanced_skill) is "
                 "now 100% PRIVATE — 0.60 private-same-skills + 0.40 "
                 "private-new-domains, stock-model-mapped — while public "
                 "benchmarks no longer count toward it, so the two columns "
                 "are rendered SEPARATE and never blended or compared across "
-                "editions; the instrument repair: rethink bench 072 proved "
-                "public_skill == the per-area category prints and bounded "
-                "the per-case divergence class). REFERENCE ONLY: no number "
+                "editions; the instrument repair: public_skill was proven "
+                "equal to the per-area category prints and the per-case "
+                "divergence class was bounded). REFERENCE ONLY: no number "
                 "here is comparable with the measured rows above without "
                 "the caveat's full weight. reflex-27b-pmscr is a THIRD-"
                 "PARTY fork (kshetrajna12) wearing our lane's name — never "
@@ -2774,7 +2774,7 @@ def _carry_into(lane, incumbent):
     else:
         lane.pop("latency_quotable", None)
     lane["latency_provenance"] = {
-        "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (LANE-CARRY, Issue 032)",
+        "note": "latency cells carried from the host's incumbent run; accuracy is this lane's own (the LANE-CARRY posture)",
     }
 
 
@@ -3113,6 +3113,105 @@ def archive_on_edition(out: Path) -> None:
     print(f"archived the outgoing edition -> {arch}")
 
 
+# ── The public-copy id scrub (site Issue 013) ────────────────────────────
+# bench.json is PUBLIC copy. The workspace's internal ticket numbers
+# (Issue/Bench/Plan/Proposal NNN) and the banned family word are
+# bookkeeping, not reader content — the same discipline as the
+# machine-local path sanitize: the raw results docs keep their ids
+# (source traceability), the published artifact ships clean.
+# REWRITES are exact strings (never a blind regex delete — a dangling
+# paren reads as a truncation), each row naming its source doc; an
+# UNKNOWN id pattern after the map is a LOUD REFUSAL — the next new
+# source-side id must earn a source fix or a reasoned map row, never
+# slip through. Scrubbing runs BEFORE rederive's byte-guard snapshot:
+# these fields are annotations (the LANE-CARRY note rides inside the
+# cell's latency_provenance), and copy is exactly what this pass is
+# allowed to move — measurements are not.
+COPY_ID_REWRITES = [
+    # instinct hybrid_lane_doc.json `serves` rows (the two historical forms)
+    ("✗ (encoder class refused at serve — A1 serves; instinct "
+     "issue 014 C1)",
+     "✗ (encoder class refused at serve — the incumbent arm "
+     "serves)"),
+    ("✗ (encoder class refused at serve — the incumbent arm "
+     "serves; instinct issue 014 C1, seating per issue 017)",
+     "✗ (encoder class refused at serve — the incumbent arm "
+     "serves)"),
+    # instinct seating gate lines (the latency-refusal disclosure)
+    ("(14.7 ms/row vs the ~0.3 ms provisional bar; issue 014 decision 1)",
+     "(14.7 ms/row vs the ~0.3 ms provisional bar)"),
+    # instinct seating gate lines, the record-only-cell form (the owner
+    # seating call stands; the ticket ref does not)
+    (" seated per the owner call 2026-10-01 (instinct issue 017).",
+     " seated per the owner call 2026-10-01."),
+    # emotion encoder fallback_note (the instinct screening record; the
+    # data's wrapped form drops the trailing s)
+    (" (instinct issue 016 T7/T8, riir-train t599/t7 + t8 records)", ""),
+    (" (instinct issue 016 T7/T8, riir-train t599/t7 + t8 record)", ""),
+    # LANE-CARRY stamps (merge-time; legacy cells keep the pre-013 text)
+    ("(LANE-CARRY, Issue 032)", "(the LANE-CARRY posture)"),
+    # the host device descriptor (laya results meta)
+    (", Plan 002)", ")"),
+]
+COPY_ID_RE = re.compile(r"\b(?:Plan|Proposal|Issue|Bench)\s+\d+\b",
+                        re.IGNORECASE)
+COPY_SEAL_RE = re.compile(r"\bseal(?:ed|s|ing)?\b", re.IGNORECASE)
+
+
+def scrub_copy_ids(d):
+    """Apply COPY_ID_REWRITES over every string in the doc (idempotent;
+    returns the number of rewritten sites)."""
+    hit = 0
+
+    def walk(o):
+        nonlocal hit
+        if isinstance(o, dict):
+            return {k: walk(v) for k, v in o.items()}
+        if isinstance(o, list):
+            return [walk(v) for v in o]
+        if isinstance(o, str):
+            s = o
+            for old, new in COPY_ID_REWRITES:
+                if old in s:
+                    s = s.replace(old, new)
+                    hit += 1
+            return s
+        return o
+
+    d2 = walk(d)
+    d.clear()
+    d.update(d2)
+    return hit
+
+
+def assert_no_public_ids(d):
+    """The publish-side mirror of the site copy gate: an id pattern or the
+    banned word surviving anywhere in the published artifact is a REFUSAL —
+    fix the source string, then add the exact rewrite above."""
+    bad = []
+
+    def walk(o, path=""):
+        if isinstance(o, dict):
+            for k, v in o.items():
+                walk(v, f"{path}.{k}")
+        elif isinstance(o, list):
+            for i, v in enumerate(o):
+                walk(v, f"{path}[{i}]")
+        elif isinstance(o, str):
+            bad.extend(m.group(0) for m in COPY_ID_RE.finditer(o))
+            bad.extend(m.group(0) for m in COPY_SEAL_RE.finditer(o))
+
+    walk(d)
+    if bad:
+        print("⛔ refusing: internal ids / banned word survive the "
+              f"copy scrub: {sorted(set(bad))} — fix the source "
+              "string, then add the exact rewrite to COPY_ID_REWRITES "
+              "(site Issue 013)",
+              file=sys.stderr)
+        return False
+    return True
+
+
 def finalize(d):
     """The shared publish tail (the ordinary merge path AND --rederive):
     sanitize meta, stamp the edition, land the display spellings, recompute
@@ -3185,6 +3284,12 @@ def finalize(d):
             )
             for l in lanes:
                 l["lane"] = LANE_DISPLAY.get(l.get("lane"), l.get("lane"))
+    # The public-copy id scrub (site Issue 013): the last writer of the
+    # published artifact guarantees it ships clean — an id that survives
+    # the map is a refusal, never a silent pass.
+    scrub_copy_ids(d)
+    if not assert_no_public_ids(d):
+        return None
     return n_paired
 
 
@@ -3231,6 +3336,13 @@ def rederive(path: Path) -> int:
     # retired suite row is the owner-directed change this pass exists to
     # land; the guard then proves every SURVIVING suite's cells untouched.
     drop_retired_suites(d)
+    # The copy scrub runs BEFORE the snapshot too (site Issue 013): the
+    # annotation strings it rewrites (exact map rows only) are copy, not
+    # measurement, and re-stamping them here is the sanctioned way a
+    # published file loses legacy id text without the raw results docs.
+    # finalize's own scrub is then a no-op and the byte-guard compares
+    # like with like.
+    n_scrub = scrub_copy_ids(d)
     before = json.dumps([_measurable(s) for s in d.get("suites", [])],
                         sort_keys=True)
     n_paired = finalize(d)
@@ -3257,7 +3369,7 @@ def rederive(path: Path) -> int:
     lanes = len((d.get("areas") or {}).get("lanes") or {})
     print(f"rederived {path} ({n_suites} suites; {lanes} area lanes; "
           f"edition {EDITION}; pairing verdicts: {n_paired}; cells "
-          "byte-identical)")
+          f"byte-identical; copy-scrub sites: {n_scrub})")
     return 0
 
 

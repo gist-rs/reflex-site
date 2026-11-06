@@ -161,7 +161,7 @@ function suiteLine(L, r, cmp, opts = {}) {
   // lane's color, and a record-only arm is TAGGED so it is never mistaken
   // for the serving posture (the honesty half of the 017 display law).
   const armColor = r.viaEncoder ? L.color("Rethink") : L.instinct;
-  const roTag = r.viaEncoder ? `<span class="iv-host" title="record-only — the encoder class is refused at serve (issue 014); the serving arm is the hybrid lane's">· record-only</span>` : "";
+  const roTag = r.viaEncoder ? `<span class="iv-host" title="record-only — the encoder class is refused at serve; the serving arm is the hybrid lane's">· record-only</span>` : "";
   // The tier-fallback badge mirrors the board's bc-fb mark: the number IS
   // what the product serves, the hover names the tier that answered.
   const fbTag = r.viaFallback
