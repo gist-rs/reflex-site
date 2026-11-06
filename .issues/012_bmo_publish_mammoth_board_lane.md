@@ -51,6 +51,22 @@ Expected movement on the board suites (accuracy, board metric):
       `reflex-site`, Editor) sealed 2026-10-30 in the M3's kat-secret store
       (`~/.kat/secrets/cf-deploy-reflex.katsec`). bmo: after T5, hand off
       (message the M3 session / owner) — do NOT look for a token on bmo.
+      **2026-11-06 (zed-m3 idle lane): T1–T5 are SUPERSEDED-BY-LANDED** —
+      the lane reached every rendering surface (`593519b` edition
+      2026-11-02, then `96dc674`/`97edfa7`/`6483c64` surface+gate fixes,
+      `122fa29` sizes row) AND the i662 sst5 encoder cell re-seat published
+      on top (`52ad378`, both-host). LIVE SITE VERIFIED this date: the
+      Worker serves the mammoth lane on all 12 suites (board 200s) — the
+      bmo pickup never fired; the M3 landing wave absorbed T1–T5. Only the
+      DEPLOY of `52ad378`'s `data/bench.json` remains: the live Worker was
+      verified this date serving the PRE-52ad378 board (live sha256
+      e67cb35d81edab35 vs origin/main 6b4be8b65fb0dace — only sst5's
+      extra_host_lanes BMO encoder cell differs), the deploy was attempted
+      from the M3 per this runbook and **TIMED OUT at the kat-secret Touch
+      ID prompt (nobody home to biometric)** — worktree cleaned, nothing
+      shipped. Deploy is OWNER-PRESENT (Touch ID): the owner runs the
+      exact line below at the M3 GUI, then the probe. Until then the site
+      is one sst5 encoder cell behind origin/main (disclosed, harmless).
       The M3 agent runs (riir-deployer `touch-deploy` skill):
       ```sh
       git -C ~/git/reflex-site fetch origin
