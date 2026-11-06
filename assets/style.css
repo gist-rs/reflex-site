@@ -226,8 +226,12 @@ footer.site .credit { color: var(--text-2); }
 .bc-toggle button { background: transparent; color: var(--muted); border: 0; padding: 4px 10px; font: inherit; font-size: 12.5px; cursor: pointer; }
 .bc-toggle button + button { border-left: 1px solid var(--line); }
 .bc-toggle button[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent); }
-.bc-hgrid { display: grid; grid-template-columns: 150px 1fr; column-gap: 12px; row-gap: 9px; align-items: center; }
-.bc-hlabel { font-size: 12.5px; color: var(--muted); text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bc-hgrid { display: grid; grid-template-columns: minmax(150px, max-content) 1fr; column-gap: 12px; row-gap: 9px; align-items: center; }
+/* auto-fit: the column grows to the longest label (coverage/tag suffixes
+   included — the 2026-11-06 user report: "mammoth-1 (27B) · 12/18" read
+   "· 1…"); the 260px cap + wrap is the bounded fallback, never an ellipsis
+   (a clipped coverage count reads as a different denominator) */
+.bc-hlabel { font-size: 12.5px; color: var(--muted); text-align: right; overflow-wrap: break-word; max-width: 260px; }
 .bc-hlabel:hover { color: var(--ember); }
 .bc-htrack { position: relative; display: flex; flex-direction: column; gap: 2px; }
 .bc-hbar { position: relative; height: 6px; display: flex; align-items: center; gap: 6px; }
