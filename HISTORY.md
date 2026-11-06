@@ -4,6 +4,9 @@ One hash-pinned line per removed issue (the fleet noise-reduction convention:
 an issue file is removed once its work is verifiably landed; this file is the
 durable record). Full narrative of each: `git log --follow -- .issues/<file>`.
 
+- **2026-11-06 — Issue 012 CLOSED (the mammoth-1 board lane): the board deploy landed owner-present — one sst5 encoder cell, live verified.**
+  T1–T5 landed by the M3 wave (superseded-by-landed, `11d768a`); T6 the Touch-ID deploy of `origin/main` (`11d768a`) via `cf-deploy-reflex` + kat-secret `exec`: wrangler Version ID `c417aad9-85cd-4820-aef1-dffd93333be8`, 1 new asset (`/data/bench.json`; 174 already up), probed live: `0.5317` (the i662 sst5 BMO encoder-cell re-seat, `52ad378`) on reflex.riir.ai AND workers.dev, live bench.json == origin/main's (44 `mammoth` refs each). The issue's prescribed probe (`/bench/` HTML `grep -c mammoth` > 0) is unachievable by construction — the board is client-rendered (`bench/index.html` fetches `bench.json`, 14 refs; HTML carries no lane names). First attempt the same day timed out at the biometric prompt (nobody home). File removed per the noise rule.
+
 - **2026-10-09 — Issue 011 closed (sst5 encoder acc@50 gap): the last record cell re-measured, the field complete on all 9 shared suites.**
   The re-read machinery emits the confidence fields natively now (riir-reflex `197e855` — the acc@X%coverage law hoisted beside `ece_of`; rethink `b285d2e` — bench 066 + the 029 lineage stamp); the stamp tool grew `--from-doc` (instinct `0b926fe`); the earlier same-day stamps (typed/ag_news/xnli) + pplx's filter/hero/tables/summary wiring + the acc-only presence-row split landed at `f1d9953`, the /#sizes pplx row at `32a7ef9`. Rethink acc@50cov: 5/9 → 9/9.
 
