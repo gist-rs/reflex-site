@@ -93,8 +93,8 @@
       "date_utc": "2026-09-28T16:27:36Z"
      },
      "encoder": {
-      "git_sha": "e493c56",
-      "date_utc": "2026-10-07T01:37:41Z"
+      "git_sha": "486e277",
+      "date_utc": "2026-11-07T16:59:48Z"
      },
      "bekko": {
       "git_sha": "e8328de",
@@ -12640,50 +12640,32 @@
    },
    "encoder": {
     "lane": "Rethink",
-    "model": "H2(\u03b2=1,nmin=2,\u03c4=8)",
+    "model": "ESC-composed H2+mammoth-1",
     "hard": {
      "n": 300,
-     "accuracy": 0.8266666666666667,
-     "ece": 0.06070700170483837,
-     "mean_confidence": 0.8355173326634961,
-     "acc_at_50_coverage": 0.9933333333333333
+     "accuracy": 0.8833333333333333
     },
-    "latency_scope": "arm-only",
-    "latency_rows": "questions",
-    "latency_p50_ms": 0.001042,
-    "latency_p99_ms": 0.002125,
-    "latency_tail_support": 4,
-    "serves": "tier-fallback",
-    "served_by": "Instinct (H2(\u03b2=1,nmin=2,\u03c4=8))",
-    "fallback_note": "best-of-family (owner 2026-10-02): the encoder arm's own measured read is 0.6567, 0.1700 under the served arm \u2014 refused at serve, so the served answer is shown; the refused arm's full record rides the cell (displaced_record)",
-    "derived": true,
-    "source_run": {
-     "git_sha": "8bbff09",
-     "date_utc": "2026-09-28T10:13:40Z"
-    },
-    "displaced_record": {
-     "lane": "Rethink",
-     "model": "ENC-massive_encoder_v1_probe (laya-english encoder + NLEH v1 head)",
-     "hard": {
-      "n": 300,
-      "accuracy": 0.6566666666666666
+    "serves": "ESC-composed (rho 0.60)",
+    "gate": "composed 0.8833 vs cheap 0.8400 (paired delta +0.0433, LB95 +0.0137) at escalation rate 42.7% (cal 42.5%, the armed rho 0.60 fit, thresholds score 0.000 / dist 0.643); full-teacher context 0.9367; escalation answers pay the think tier's latency (the teacher's local posture, p50 1.4-6.5 s/case) while the cheap tier answers in microseconds; accuracy-only cells (the composition latency was not re-measured in-run); the massive_intent_en gain reads on the SAME population as every other lane on this row; paraphrase shadow read CLEAN: the gain is robust on an independent paraphrase slice (composed +12.0pp, LB95 +8.1pp; the teacher's own retention there is within noise), the 2026-11-07 shadow record",
+    "esc": {
+     "rho": 0.6,
+     "thresholds": {
+      "score": 0.0,
+      "distance": 0.6426007747650146
      },
-     "consult_rate": 1.0,
-     "latency_scope": "arm-only",
-     "latency_rows": "questions",
-     "serves": "\u2717 (encoder class refused at serve \u2014 the incumbent arm serves)",
-     "gate": "acc 0.6567 (197/300 question rows) \u00b7 paired vs the incumbent A1: mean -0.1600 \u00b7 LB95 -0.2194 \u00b7 per-row p50 31.332 ms (metal device, laya-english). Serve REFUSED (014 class-wide latency class); record-only cell, seated per the owner call 2026-10-01.",
-     "device": "metal",
-     "head_kind": "v1",
-     "ckpt": "english",
-     "shape_desc": "20 classes \u00b7 feat 21504",
-     "record_only": true,
-     "latency_quotable": false,
-     "source_run": {
-      "git_sha": "e0440e3",
-      "date_utc": "2026-10-01T17:58:51Z"
-     }
-    }
+     "cal_rate": 0.425,
+     "test_rate": 0.4266666666666667,
+     "cheap_acc": 0.84,
+     "composed_acc": 0.8833333333333333,
+     "delta": 0.043333333333333335,
+     "paired_lb95": 0.013749332898268053,
+     "full_teacher_acc": 0.9366666666666666
+    },
+    "source_run": {
+     "git_sha": "486e277",
+     "date_utc": "2026-11-07T16:59:48Z"
+    },
+    "cases_digest": "fnv1a64-49390c8b80475849"
    },
    "paw_local": {
     "lane": "paw (local)",
@@ -14235,50 +14217,32 @@
    },
    "encoder": {
     "lane": "Rethink",
-    "model": "H2(\u03b2=2,nmin=8,\u03c4=8)",
+    "model": "ESC-composed H2+mammoth-1",
     "hard": {
      "n": 500,
-     "accuracy": 0.854,
-     "ece": 0.08412793359878214,
-     "mean_confidence": 0.9374190933679326,
-     "acc_at_50_coverage": 0.996
+     "accuracy": 0.896
     },
-    "latency_scope": "arm-only",
-    "latency_rows": "questions",
-    "latency_p50_ms": 0.008541,
-    "latency_p99_ms": 0.06775,
-    "latency_tail_support": 6,
-    "serves": "tier-fallback",
-    "served_by": "Instinct (H2(\u03b2=2,nmin=8,\u03c4=8))",
-    "fallback_note": "best-of-family (owner 2026-10-02): the encoder arm's own measured read is 0.4420, 0.4120 under the served arm \u2014 refused at serve, so the served answer is shown; the refused arm's full record rides the cell (displaced_record)",
-    "derived": true,
-    "source_run": {
-     "git_sha": "8bbff09",
-     "date_utc": "2026-09-28T10:13:40Z"
-    },
-    "displaced_record": {
-     "lane": "Rethink",
-     "model": "ENC-banking77_encoder_v1 (laya-english encoder + NLEH v1 head)",
-     "hard": {
-      "n": 500,
-      "accuracy": 0.442
+    "serves": "ESC-composed (rho 0.45)",
+    "gate": "composed 0.8960 vs cheap 0.8540 (paired delta +0.0420, LB95 +0.0137) at escalation rate 52.8% (cal 49.0%, the armed rho 0.45 fit, thresholds score 0.000 / dist 0.665); full-teacher context 0.9300; escalation answers pay the think tier's latency (the teacher's local posture, p50 1.4-6.5 s/case) while the cheap tier answers in microseconds; accuracy-only cells (the composition latency was not re-measured in-run); the banking77 gain reads on the SAME population as every other lane on this row; paraphrase shadow read MIXED: the teacher's own accuracy drops 10.2pp on paraphrases (significant, contamination-consistent but confounded with a benign formal-style shift over 77 fine intents) while the composed advantage still grew (+29.2pp); the armed rate axis transferred out-of-window on that surface (86.8% escalation, where the production rate guard latches the cheap-only demotion), so the benchmark-conditioned caveat stays, 2026-11-07 shadow record",
+    "esc": {
+     "rho": 0.45,
+     "thresholds": {
+      "score": 0.0,
+      "distance": 0.664568305015564
      },
-     "consult_rate": 1.0,
-     "latency_scope": "arm-only",
-     "latency_rows": "questions",
-     "serves": "\u2717 (encoder class refused at serve \u2014 the incumbent arm serves)",
-     "gate": "acc 0.4420 (221/500 question rows) \u00b7 paired vs the incumbent A1: mean -0.3860 \u00b7 LB95 -0.4363 \u00b7 per-row p50 42.983 ms (metal device, laya-english). Serve REFUSED (014 class-wide latency class); record-only cell, seated per the owner call 2026-10-01.",
-     "device": "metal",
-     "head_kind": "v1",
-     "ckpt": "english",
-     "shape_desc": "77 classes \u00b7 feat 79872",
-     "record_only": true,
-     "latency_quotable": true,
-     "source_run": {
-      "git_sha": "e0440e3",
-      "date_utc": "2026-10-01T18:50:28Z"
-     }
-    }
+     "cal_rate": 0.49,
+     "test_rate": 0.528,
+     "cheap_acc": 0.854,
+     "composed_acc": 0.896,
+     "delta": 0.042,
+     "paired_lb95": 0.013672601844852993,
+     "full_teacher_acc": 0.93
+    },
+    "source_run": {
+     "git_sha": "486e277",
+     "date_utc": "2026-11-07T16:59:48Z"
+    },
+    "cases_digest": "fnv1a64-dd8ab35333abb82a"
    },
    "paw_local": {
     "lane": "paw (local)",
@@ -18912,18 +18876,12 @@
       "cc": 0.93
      },
      "massive_intent_en": {
-      "acc": 0.826667,
-      "cc": 0.817544,
-      "fallback": true,
-      "served_by": "Instinct (H2(\u03b2=1,nmin=2,\u03c4=8))",
-      "record_acc": 0.656667
+      "acc": 0.883333,
+      "cc": 0.877193
      },
      "banking77": {
-      "acc": 0.854,
-      "cc": 0.852079,
-      "fallback": true,
-      "served_by": "Instinct (H2(\u03b2=2,nmin=8,\u03c4=8))",
-      "record_acc": 0.442
+      "acc": 0.896,
+      "cc": 0.894632
      },
      "sst5": {
       "acc": 0.526667,
@@ -18952,21 +18910,19 @@
      }
     },
     "areas": {
-     "language": 0.866541,
+     "language": 0.900608,
      "sentiment": 0.635166,
      "reasoning": 0.748449,
      "decisions": 0.641026
     },
-    "index": 0.722796,
+    "index": 0.731312,
     "coverage": {
-     "suites": 4,
+     "suites": 6,
      "of": 8
     },
     "complete": false,
     "fallback_suites": [
-     "banking77",
      "emotion",
-     "massive_intent_en",
      "prompt_injections"
     ],
     "served_coverage": {
@@ -19662,7 +19618,7 @@
     "n_used": 3,
     "n_unquotable": 0,
     "n_unjudged": 5,
-    "note": "population = the suites behind the lane's index; p50 geometric mean over latency_quotable cells only (unfit timing is shown in the tables, never plotted); 4 fallback spoke(s) carry the answering tier's timing, unjudged here \u2014 shown in the suite tables, never plotted"
+    "note": "population = the suites behind the lane's index; p50 geometric mean over latency_quotable cells only (unfit timing is shown in the tables, never plotted); 2 fallback spoke(s) carry the answering tier's timing, unjudged here \u2014 shown in the suite tables, never plotted"
    },
    "laya": {
     "clock": "in-process",
@@ -20530,6 +20486,18 @@
       "record_only": false
      },
      {
+      "lane": "encoder",
+      "display": "Rethink",
+      "model": "ESC-composed H2+mammoth-1",
+      "n": 300,
+      "accuracy": 0.8833333333333333,
+      "macro_f1": null,
+      "jdi_chance": null,
+      "jdi_skill": null,
+      "serves": "ESC-composed (rho 0.60)",
+      "record_only": false
+     },
+     {
       "lane": "modelless",
       "display": "KatGPT",
       "model": "modelless",
@@ -20567,7 +20535,6 @@
      }
     ],
     "excluded": [
-     "encoder@massive_intent_en: tier-fallback (the answering tier's read, not this lane's own)",
      "paw_local@massive_intent_en: no measured accuracy on this suite",
      "paw@massive_intent_en: no measured accuracy on this suite"
     ]
@@ -20615,6 +20582,18 @@
       "record_only": false
      },
      {
+      "lane": "encoder",
+      "display": "Rethink",
+      "model": "ESC-composed H2+mammoth-1",
+      "n": 500,
+      "accuracy": 0.896,
+      "macro_f1": null,
+      "jdi_chance": null,
+      "jdi_skill": null,
+      "serves": "ESC-composed (rho 0.45)",
+      "record_only": false
+     },
+     {
       "lane": "modelless",
       "display": "KatGPT",
       "model": "modelless",
@@ -20652,7 +20631,6 @@
      }
     ],
     "excluded": [
-     "encoder@banking77: tier-fallback (the answering tier's read, not this lane's own)",
      "paw_local@banking77: no measured accuracy on this suite",
      "paw@banking77: no measured accuracy on this suite"
     ]
