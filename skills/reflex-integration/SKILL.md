@@ -47,7 +47,7 @@ iwr -useb https://raw.githubusercontent.com/riir-ai/reflex/main/install.ps1 | ie
 brew tap riir-ai/tap && brew trust riir-ai/tap && brew install riir-reflex
 
 # Scoop (Windows)
-scoop bucket add gist-rs https://github.com/gist-rs/scoop-bucket && scoop install riir-reflex
+scoop bucket add riir-ai https://github.com/riir-ai/scoop-bucket && scoop install riir-reflex
 ```
 
 Every channel installs one command: `reflex`.
