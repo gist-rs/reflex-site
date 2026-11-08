@@ -105,11 +105,13 @@
   .iv-gap { position: absolute; top: 0; bottom: 0; opacity: .35; }
   .iv-tick { position: absolute; top: -1px; bottom: -1px; width: 2px; border-radius: 1px; }
   .iv-nums { display: table-cell; width: 300px; max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--muted); font-variant-numeric: tabular-nums; vertical-align: middle; }
-  /* the 390 guard (site Issue 013 T3): display:table cells ignore
-     max-width against a fixed layout — the cell must clip through its own
-     overflow, never propagate to the page */
-  .iv-line { table-layout: fixed; }
-  .iv-nums { max-width: 0; width: 1%; }
+  /* The 390 guard that used to live here (site Issue 013 T3:
+     .iv-nums { max-width: 0; width: 1%; }) collapsed the numbers column at
+     EVERY width — the teacher target read as missing on desktop while the
+     text stayed selectable in the DOM (2026-11-08 owner report). The fixed
+     table layout above already clips the 300px column through its own
+     overflow, and the <=760px block layout below wraps the line, so narrow
+     widths are covered without the zero-width cell. */
   .iv-nums b { font-weight: 600; }
   .iv-host { font-style: normal; font-size: 10px; color: var(--muted); }
   .iv-fb { font-size: 10px; line-height: 6px; color: var(--muted); cursor: help; }
@@ -123,7 +125,7 @@
     .iv-lines, .iv-line, .iv-line tbody { display: block; }
     .iv-line { position: relative; padding-right: 3.4em; }
     .iv-suite, .iv-bar, .iv-nums, .iv-delta { display: block; width: auto; }
-    .iv-nums { overflow: visible; }
+    .iv-nums { overflow: visible; white-space: normal; }
     .iv-delta { position: absolute; right: 0; top: 1px; }
     .iv-bar { margin: 2px 0; }
   }
