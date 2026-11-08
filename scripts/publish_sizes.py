@@ -6,7 +6,7 @@ The bench.json law, verbatim: every NUMBER on the page renders from
 generated data, never hand-typed. Three source classes:
 
   LIVE — refreshed on every run:
-    - gist-rs/reflex latest release: archive sizes from the GitHub API +
+    - riir-ai/reflex latest release: archive sizes from the GitHub API +
       the UNPACKED footprint (binary + THIRD_PARTY_LICENSES.md) of the
       aarch64-apple-darwin archive, downloaded to a tmpdir and stat'd
     - model trees from the HF API (blobs=true), summed per subtree
@@ -52,7 +52,7 @@ SITE_ROOT = Path(__file__).resolve().parent.parent
 OUT_PATH = SITE_ROOT / "data" / "sizes.json"
 MEAS_PATH = SITE_ROOT / "data" / "sizes.measurements.json"
 
-GITHUB_API = "https://api.github.com/repos/gist-rs/reflex/releases/latest"
+GITHUB_API = "https://api.github.com/repos/riir-ai/reflex/releases/latest"
 HF_API = "https://huggingface.co/api/models/{repo}?blobs=true"
 UA = "reflex-site-publish-sizes/1.0"
 
@@ -287,7 +287,7 @@ def http_json(url: str):
 # ── LIVE sources ─────────────────────────────────────────────────────────
 
 def fetch_release() -> dict:
-    """The latest gist-rs/reflex release: per-target archive bytes + the
+    """The latest riir-ai/reflex release: per-target archive bytes + the
     UNPACKED installed footprint of the reference target (darwin-arm64)."""
     try:
         rel = http_json(GITHUB_API)

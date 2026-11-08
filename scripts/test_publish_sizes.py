@@ -17,7 +17,7 @@ spec.loader.exec_module(ps)
 
 FAKE_REL = {
     "tag": "v9.9.9",
-    "url": "https://github.com/gist-rs/reflex/releases/v9.9.9",
+    "url": "https://github.com/riir-ai/reflex/releases/v9.9.9",
     "archives": {
         "reflex-v9.9.9-aarch64-apple-darwin.tar.gz": 1_000_000,
         "reflex-v9.9.9-x86_64-apple-darwin.tar.gz": 1_100_000,

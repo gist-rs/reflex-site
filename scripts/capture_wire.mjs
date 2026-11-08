@@ -357,7 +357,7 @@ const doc = {
     engine: `reflex ${version}`,
     version,
     features,
-    release_notes: `https://github.com/gist-rs/reflex/releases/tag/v${version}`,
+    release_notes: `https://github.com/riir-ai/reflex/releases/tag/v${version}`,
     captured: new Date().toISOString().slice(0, 10),
     deterministic_repeat: deterministic,
     demo_heads_minted: true,

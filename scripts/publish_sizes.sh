@@ -10,7 +10,7 @@
 #   scripts/publish_sizes.sh          # generate + check + render smoke
 #
 # Sources:
-#   LIVE     gist-rs/reflex latest release (GitHub API + the unpacked
+#   LIVE     riir-ai/reflex latest release (GitHub API + the unpacked
 #            darwin-arm64 archive), HF model trees, assets/arena_head.wasm
 #   RECORDED data/sizes.measurements.json — venvs / docker / python-runtime
 #            facts, re-measured per bench window (see the file's `how` rows)

@@ -4,7 +4,7 @@
     "engine": "reflex 0.2.4",
     "version": "0.2.4",
     "features": "default laya-riir laya-riir-metal modelless nb-ridge nb-scope option-cond vessel-public-read",
-    "release_notes": "https://github.com/gist-rs/reflex/releases/tag/v0.2.4",
+    "release_notes": "https://github.com/riir-ai/reflex/releases/tag/v0.2.4",
     "captured": "2026-10-04",
     "deterministic_repeat": true,
     "demo_heads_minted": true,

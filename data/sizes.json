@@ -3,7 +3,7 @@
   "date_utc": "2026-11-02T06:55:51Z",
   "release": {
    "tag": "v0.2.4",
-   "url": "https://github.com/gist-rs/reflex/releases/tag/v0.2.4",
+   "url": "https://github.com/riir-ai/reflex/releases/tag/v0.2.4",
    "archives": {
     "reflex-v0.2.4-aarch64-apple-darwin.tar.gz": 1880244,
     "reflex-v0.2.4-aarch64-unknown-linux-musl.tar.gz": 1925853,

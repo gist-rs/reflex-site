@@ -282,7 +282,7 @@ moves:
 scripts/publish_sizes.sh
 ```
 
-Sources, two classes: **LIVE** (refreshed every run — the gist-rs/reflex
+Sources, two classes: **LIVE** (refreshed every run — the riir-ai/reflex
 latest release via the GitHub API *plus the unpacked darwin-arm64 archive
 downloaded and stat'd*, the Hugging Face tree API for every model bytes
 figure, the local wasm) and **RECORDED**
