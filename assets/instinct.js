@@ -195,16 +195,21 @@ function render(bench) {
   const box = document.getElementById("instinct-verdict");
   if (!box) return;
   const suites = bench.suites || [];
-  const withKm = suites.filter((s) => accOf(s.modelless) != null);
 
   // Per suite with an arm: the FAMILY's best measured cell — the hybrid
   // lane (Instinct, serving) or the encoder lane (Rethink, record-only;
   // owner call 2026-10-01, issue 017 T5: a measured cell the board hides
   // reads as no progress). The Reflex row, and the best OTHER published
   // lane (best non-multilingual checkpoint, any host) — the family lanes
-  // are never their own comparator.
+  // are never their own comparator. The population is EVERY suite with a
+  // family arm and a published comparator, not only suites carrying a
+  // modelless cell (owner call 2026-11-08): the JDI suites measure the
+  // ESC-composed encoder arm against the published mammoth-1 teacher lane,
+  // and leaving them out read as "0/12" while the losses sat in the
+  // per-suite tables (the show-losses law). A family arm with no
+  // comparator can't race and is skipped (none today).
   const armed = [];
-  for (const s of withKm) {
+  for (const s of suites) {
     const cells = cellsOf(s);
     const fam = cells.filter(([l]) => isFamily(l));
     if (!fam.length) continue;
@@ -221,6 +226,7 @@ function render(bench) {
     const kmCell = cells.find(([l]) => isModelless(l));
     const km = kmCell ? accOf(kmCell[0]) : null;
     const others = cells.filter(([l]) => !isFamilyServing(l) && l.model !== "multilingual");
+    if (!others.length) continue; // a family arm with no published lane to race can't enter the comparator
     const best = others.reduce((a, b) => (accOf(b[0]) > accOf(a[0]) ? b : a));
     // Row 1 is the ENCODERLESS claim (issue 010): its cell is the best HYBRID
     // arm only — an encoder read must never be credited to "trained

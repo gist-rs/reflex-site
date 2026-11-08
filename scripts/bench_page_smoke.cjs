@@ -774,14 +774,24 @@ const server = http.createServer((req, res) => {
     const isHybrid = (l) => l.lane === "Instinct" || l.lane === "Instinct (hybrid)";
     const isEncoder = (l) => l.lane === "Rethink" || l.lane === "Rethink (encoder)" || l.lane === "Instinct (encoder)";
     const isFamily = (l) => isHybrid(l) || isEncoder(l);
+    // The mirror carries the page's cellsOf key list EXACTLY (pplx/drex/
+    // mammoth included — a missing key hides a comparator and can flip a
+    // loss into a phantom win in the strictly-best re-derivation).
     const cells = (s) => {
-      const out = [s.modelless, ...Object.values(s.laya || {}), s.clm, s.gliner, s.bekko, s.agentjev, s.openthai, s.paw, s.paw_local, s.clef, s.hybrid, s.encoder]
+      const out = [s.modelless, ...Object.values(s.laya || {}), s.clm, s.gliner, s.bekko, s.agentjev, s.openthai, s.paw, s.paw_local, s.clef, s.pplx, s.drex, s.mammoth, s.hybrid, s.encoder]
         .filter(Boolean);
       for (const hl of Object.values(s.extra_host_lanes || {}))
-        out.push(hl.modelless, ...Object.values(hl.laya || {}), hl.clm, hl.gliner, hl.bekko, hl.agentjev, hl.openthai, hl.paw, hl.paw_local, hl.clef, hl.hybrid, hl.encoder);
+        out.push(hl.modelless, ...Object.values(hl.laya || {}), hl.clm, hl.gliner, hl.bekko, hl.agentjev, hl.openthai, hl.paw, hl.paw_local, hl.clef, hl.pplx, hl.drex, hl.mammoth, hl.hybrid, hl.encoder);
       return out.filter(Boolean);
     };
-    const armed = bench.suites.filter((s) => accOf(s.modelless) != null && cells(s).some(isFamily));
+    // The race population mirrors the page (owner call 2026-11-08): every
+    // suite with a family arm AND a published comparator — not only suites
+    // carrying a modelless cell (the JDI suites race the mammoth-1 teacher
+    // lane; hiding them read as "0/12" while the losses sat in the tables).
+    const hasOther = (s) => cells(s).some((l) => !isFamily(l)
+      && !(l.derived && (l.lane === "Rethink" || l.lane === "Rethink (encoder)"))
+      && l.model !== "multilingual");
+    const armed = bench.suites.filter((s) => cells(s).some(isFamily) && hasOther(s));
     const famOf = (s) => Math.max(...cells(s).filter(isFamily).map(accOf));
     // Row 1 is the ENCODERLESS claim (reflex-site issue 010): hybrid cells
     // only, mirroring the page's isHybrid filter exactly.
