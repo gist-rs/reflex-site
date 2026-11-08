@@ -24,13 +24,13 @@
       "repo": "riir-reflex",
       "src": ".docs/04_agent_skill/SKILL.md",
       "dst": "skills/reflex-integration/SKILL.md",
-      "sha256": "7a5e17f70812fec93067a997d31631c06fa11097293f054e781e588cc45a29ef"
+      "sha256": "5c6357a9331cb550c19c2160b34a5d7d5e9b40b79109970059266793234d08d0"
     },
     {
       "repo": "riir-reflex",
       "src": ".docs/05_resources/resources.md",
       "dst": "docs/reflex/resources.md",
-      "sha256": "587c417e36ac32ef768245df491cb10003d6347e5c656e29012d4634afb7e604"
+      "sha256": "7f22332528aee534bd12784c55f0bf3fcdb3153e9e461f393391708486774a60"
     },
     {
       "repo": "riir-reflex",
@@ -78,13 +78,13 @@
       "repo": "riir-instinct",
       "src": ".docs/05_resources/resources.md",
       "dst": "docs/instinct/resources.md",
-      "sha256": "504a39985ffb087e6f89a9c828010b66b73be712965c4881aa10e841ee4a2044"
+      "sha256": "a7c0ee0d912d9fe7cea4c73cec1abe5a396ddb9e3ae53b9b907ae37d73c9c974"
     },
     {
       "repo": "riir-instinct",
       "src": ".docs/05_resources/dev_flow.md",
       "dst": "docs/instinct/dev_flow.md",
-      "sha256": "69760065db6f9ea284b161a7ba6c132d158f72ea30a07dccb6ed3bf01455b348"
+      "sha256": "592a3caf2b2311a55ced1af623f952b7a18f8b172d1fcdcc235bdf72672ad5b3"
     },
     {
       "repo": "riir-instinct",
@@ -174,7 +174,7 @@
       "repo": "riir-reflexer",
       "src": ".docs/06_resources/resources.md",
       "dst": "docs/reflexer/resources.md",
-      "sha256": "4c2da33da74345cb6c261337c825ec1f603940bfd1057b7a46491dbe82a255af"
+      "sha256": "59f397e0c419f83c3e8bae5d617dbb8dd7253c4a0606d1426d7f378379762ee7"
     },
     {
       "repo": "riir-reflexer",
