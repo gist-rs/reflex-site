@@ -30,7 +30,7 @@
         <a href="/resources/">Resources</a>
         <a href="/docs/api/">API</a>
         <a href="/#skill">For agents</a>
-        <a class="gh" href="https://github.com/gist-rs/riir-reflex" aria-label="Reflex on GitHub" title="github.com/gist-rs/riir-reflex"><svg viewBox="0 0 16 16" width="18" height="18" fill="currentColor" aria-hidden="true" focusable="false"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg></a>
+        <a class="gh" href="https://github.com/riir-ai/riir-reflex" aria-label="Reflex on GitHub" title="github.com/riir-ai/riir-reflex"><svg viewBox="0 0 16 16" width="18" height="18" fill="currentColor" aria-hidden="true" focusable="false"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg></a>
       </nav>
     </div>
   </header>
@@ -661,13 +661,13 @@
         <li><b>Reflex · rulebook</b> runs the public reflexer engine as WebAssembly — in this tab and on a Cloudflare Worker (stateless,
           no storage). Both replay the recorded walk pick-for-pick.
           <span class="src"><a href="https://github.com/gist-rs/reflex-site/blob/HEAD/scripts/reflexer_parity.mjs">reflexer_parity.mjs</a></span>
-          <span class="src"><a href="https://github.com/gist-rs/riir-reflexer">gist-rs/riir-reflexer</a></span></li>
+          <span class="src"><a href="https://github.com/riir-ai/riir-reflexer">riir-ai/riir-reflexer</a></span></li>
         <li><b>Recorded boards</b> (laya, raw, and any lane without its host) replay committed runs through the same wire —
           labelled, never mixed with live results.
           <span class="src"><a href="/arena/demo_oracle.json">demo_oracle.json</a></span></li>
         <li><b>laya (Rust)</b> is our Rust port of the open-weights model, G5-parity-gated against its reference checkpoints; no Python
           ships anywhere. <b>laya (Python)</b> is that reference, recorded offline for comparison only.
-          <span class="src"><a href="https://github.com/gist-rs/riir-reflex/blob/HEAD/tests/laya_riir_parity.rs">laya_riir_parity.rs</a></span>
+          <span class="src"><a href="https://github.com/riir-ai/riir-reflex/blob/HEAD/tests/laya_riir_parity.rs">laya_riir_parity.rs</a></span>
           <span class="src"><a href="https://www.brainfunctioncollapse.com/laya/">laya</a></span></li>
         <li>The TL;DR above is computed from <a href="/data/bench.json">data/bench.json</a> on load — never typed.
           <span class="src"><a href="https://github.com/gist-rs/reflex-site/blob/HEAD/assets/arena_tldr.js">arena_tldr.js</a></span></li>
@@ -692,13 +692,13 @@
       <div class="gf-legal">
         <div class="credit">Built on <a href="https://github.com/katopz/katgpt-rs">KatGPT-RS</a> — the open modelless primitives under every Reflex engine.</div>
         <div class="fine">Binaries: <a href="https://github.com/gist-rs/reflex">gist-rs/reflex</a> ·
-        rulebook engine: <a href="https://github.com/gist-rs/riir-reflexer">gist-rs/riir-reflexer</a> ·
+        rulebook engine: <a href="https://github.com/riir-ai/riir-reflexer">riir-ai/riir-reflexer</a> ·
         <a href="https://github.com/gist-rs/reflex/releases">Download</a> ·
       <!-- wire:version --><span data-wire-version>engine <a href="https://github.com/gist-rs/reflex/releases/tag/v0.2.4">reflex 0.2.4 · release notes</a></span><!-- /wire:version --></div>
       <div class="fine about">
       Reflex is built and run by the <a href="https://github.com/gist-rs">riir.ai</a> team — the same people behind
       <a href="https://rethink.riir.ai/">Rethink</a>, <a href="https://refine.riir.ai/">Refine</a> and the <a href="https://riir.ai/">riir.ai</a> network.
-      Bugs and questions: <a href="https://github.com/gist-rs/riir-reflex/issues">GitHub issues</a> ·
+      Bugs and questions: <a href="https://github.com/riir-ai/riir-reflex/issues">GitHub issues</a> ·
       security reports: <a href="mailto:security@riir.ai">security@riir.ai</a> · <a href="/.well-known/security.txt">security.txt</a> ·
       licences: the engine, the rulebook engine and this site are MIT source; release binaries come from gist-rs/reflex;
       the optional comparison weights are Apache-2.0, downloaded at runtime and never redistributed.

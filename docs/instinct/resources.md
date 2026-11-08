@@ -44,7 +44,7 @@ and nothing is re-fitted at serve time.
 
 ## Links
 
-- GitHub: [gist-rs/riir-instinct](https://github.com/gist-rs/riir-instinct)
+- GitHub: [riir-ai/riir-instinct](https://github.com/riir-ai/riir-instinct)
   — **LIVE since 2026-10-03** — the one repo, single source of truth:
   public, full history (the owner retired the fresh-root/internal split
   the same day it landed).

@@ -75,7 +75,7 @@ static assets.
 
 Tetris row 2 right is **Reflexer · wasm local**, row 3 left is **Reflexer ·
 Cloudflare** (beside the raw baseline). One engine, two hosts: the
-reflexer engine (gist-rs/riir-reflexer `crates/reflexer-wasm`,
+reflexer engine (riir-ai/riir-reflexer `crates/reflexer-wasm`,
 `wasm32-wasip1`) runs in the tab from `assets/reflexer.wasm`, and the SAME
 bytes answer `POST /v1/decide` on the reflexer Worker
 (`https://reflexer.riir.ai`, riir-reflexer

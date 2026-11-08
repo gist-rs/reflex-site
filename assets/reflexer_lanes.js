@@ -1,7 +1,7 @@
 /* The two Reflexer boards — ONE engine, two hosts, so the boards differ by
    the network hop and nothing else:
 
-   - "Reflexer · wasm local": the reflexer engine (gist-rs/riir-reflexer
+   - "Reflexer · wasm local": the reflexer engine (riir-ai/riir-reflexer
      crates/reflexer-wasm) compiled to wasm32-wasip1, running in THIS tab.
    - "Reflexer · Cloudflare": the SAME wasm bytes served by the reflexer
      Worker at REFLEXER_CLOUD — the latency capsule on that board is the

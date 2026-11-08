@@ -69,11 +69,11 @@ carry their own in-engine timing in the envelope, and the engine never
 makes a network call in a measurement path. The measured side lives on
 the site's bench lanes and the arena's recorded boards.
 
-- GitHub: [gist-rs/riir-reflexer](https://github.com/gist-rs/riir-reflexer)
+- GitHub: [riir-ai/riir-reflexer](https://github.com/riir-ai/riir-reflexer)
 - The arena's rulebook boards:
   [reflex.riir.ai/arena](https://reflex.riir.ai/arena/)
 - The engine's own end-to-end flow:
-  [decision_flow.md](https://github.com/gist-rs/riir-reflexer/blob/develop/.docs/03_decision_flow/decision_flow.md)
+  [decision_flow.md](https://github.com/riir-ai/riir-reflexer/blob/develop/.docs/03_decision_flow/decision_flow.md)
 
 ## The relation figure
 

@@ -29,7 +29,7 @@
       <a href="/resources/" aria-current="page">Resources</a>
       <a href="/docs/api/">API</a>
       <a href="/#skill">For agents</a>
-      <a class="gh" href="https://github.com/gist-rs/riir-reflex" aria-label="Reflex on GitHub" title="github.com/gist-rs/riir-reflex"><svg viewBox="0 0 16 16" width="18" height="18" fill="currentColor" aria-hidden="true" focusable="false"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg></a>
+      <a class="gh" href="https://github.com/riir-ai/riir-reflex" aria-label="Reflex on GitHub" title="github.com/riir-ai/riir-reflex"><svg viewBox="0 0 16 16" width="18" height="18" fill="currentColor" aria-hidden="true" focusable="false"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg></a>
     </nav>
   </div>
 </header>
@@ -466,7 +466,7 @@
         <a href="/bench/#instinct">the benchmark's Instinct section</a>, in learning vocabulary instead of
         measurement vocabulary. Orange = your machine (the free floor) · pink = the open lane (serves live) ·
         violet = our GPU hosts (the encoder rung, record-only). Write-up:
-        <a href="https://github.com/gist-rs/riir-instinct/blob/HEAD/.docs/03_decision_flow/instinct_flow.md">instinct_flow.md</a>.</figcaption>
+        <a href="https://github.com/riir-ai/riir-instinct/blob/HEAD/.docs/03_decision_flow/instinct_flow.md">instinct_flow.md</a>.</figcaption>
     </figure>
     <!-- gfflow:walk instinct_flow.svg -->
 <details class="gf-walk-static" data-walk-static="instinct_flow.svg"><summary>Step by step: what goes in and what comes out</summary>
@@ -647,7 +647,7 @@
       <figcaption>The Reflex decision flow — the same figure as the <a href="/#flow">home page</a>
         (one asset, two readers, no copy). Numbered steps in path order; lanes group the stages —
         your machine, the modelless engine, and the two outcomes (answered, abstained). Write-up:
-        <a href="https://github.com/gist-rs/riir-reflex/blob/HEAD/.docs/03_decision_flow/decision_flow.md">decision_flow.md</a>.</figcaption>
+        <a href="https://github.com/riir-ai/riir-reflex/blob/HEAD/.docs/03_decision_flow/decision_flow.md">decision_flow.md</a>.</figcaption>
     </figure>
     <!-- gfflow:walk decision_flow.svg -->
 <details class="gf-walk-static" data-walk-static="decision_flow.svg"><summary>Step by step: what goes in and what comes out</summary>
@@ -766,7 +766,7 @@
       and a locked per-domain specialist scores them. The answer carries a <b>receipt</b> — an audit trail of
       what answered, from which lane, checksum-committed in both directions.</p>
     <p>The idea is taught by the open lane
-      <a href="https://github.com/gist-rs/riir-instinct">gist-rs/riir-instinct</a> — and a specialist serves only
+      <a href="https://github.com/riir-ai/riir-instinct">riir-ai/riir-instinct</a> — and a specialist serves only
       where it <a href="/bench/#instinct">strictly beat the free engine on a frozen test read</a>. A tie or a loss
       sells nothing; the free engine keeps answering.</p>
 
@@ -787,7 +787,7 @@
         <summary>Deep write-up</summary>
         <p>The lane's own explainer, mirrored on this site:
         <a href="/docs/reflex/resources.md">resources.md (local mirror)</a> ·
-        <a href="https://github.com/gist-rs/riir-reflex/blob/HEAD/.docs/05_resources/resources.md">on GitHub</a>.</p>
+        <a href="https://github.com/riir-ai/riir-reflex/blob/HEAD/.docs/05_resources/resources.md">on GitHub</a>.</p>
       </details>
     </div>
   </section>
@@ -810,7 +810,7 @@
       <figcaption>The relation: <strong>same question vocabulary, same envelope, different state</strong> —
         the branch shape is the whole story. Write-up:
         <a href="/docs/reflexer/resources.md">resources.md (local mirror)</a> ·
-        <a href="https://github.com/gist-rs/riir-reflexer/blob/develop/.docs/06_resources/resources.md">on GitHub</a>.</figcaption>
+        <a href="https://github.com/riir-ai/riir-reflexer/blob/develop/.docs/06_resources/resources.md">on GitHub</a>.</figcaption>
     </figure>
     <!-- gfflow:walk reflexer_relation_flow.svg -->
 <details class="gf-walk-static" data-walk-static="reflexer_relation_flow.svg"><summary>Step by step: what goes in and what comes out</summary>
@@ -970,7 +970,7 @@
         <summary>Deep write-up</summary>
         <p>The lane's own explainer, mirrored on this site:
           <a href="/docs/reflexer/resources.md">resources.md (local mirror)</a> ·
-          <a href="https://github.com/gist-rs/riir-reflexer">gist-rs/riir-reflexer on GitHub</a>.</p>
+          <a href="https://github.com/riir-ai/riir-reflexer">riir-ai/riir-reflexer on GitHub</a>.</p>
       </details>
     </div>
   </section>
@@ -1190,7 +1190,7 @@
           The <a href="https://rethink.riir.ai/#roadmap">roadmap's</a> v2 plans the rethink download — one
           program on your machine with the engine built in, and leaseable specialists and encoders (planned,
           after v1). Until then, the open lanes — <a href="#reflex">Reflex</a> and the
-          <a href="https://github.com/gist-rs/riir-instinct">Instinct teaching lane</a> — are the ones you can
+          <a href="https://github.com/riir-ai/riir-instinct">Instinct teaching lane</a> — are the ones you can
           run.</p>
       </details>
       <details class="faq">
@@ -1231,7 +1231,7 @@
       <figcaption>Author your domain as closed-grammar sentences, label a small slice, refit, serve on loopback,
         ship the binary. Write-up:
         <a href="/docs/reflex/dev_flow.md">dev_flow.md (local mirror)</a> ·
-        <a href="https://github.com/gist-rs/riir-reflex/blob/HEAD/.docs/05_resources/dev_flow.md">on GitHub</a>.</figcaption>
+        <a href="https://github.com/riir-ai/riir-reflex/blob/HEAD/.docs/05_resources/dev_flow.md">on GitHub</a>.</figcaption>
     </figure>
     <!-- gfflow:walk reflex_dev_flow.svg -->
 <details class="gf-walk-static" data-walk-static="reflex_dev_flow.svg"><summary>Step by step: what goes in and what comes out</summary>
@@ -1304,7 +1304,7 @@
       <figcaption>Make a corpus from public data, train one specialist per domain, apply the winner law on a
         stratified holdout, lock the winner, register it, serve with receipts. Write-up:
         <a href="/docs/instinct/dev_flow.md">dev_flow.md (local mirror)</a> ·
-        <a href="https://github.com/gist-rs/riir-instinct/blob/HEAD/.docs/05_resources/dev_flow.md">on GitHub</a>.</figcaption>
+        <a href="https://github.com/riir-ai/riir-instinct/blob/HEAD/.docs/05_resources/dev_flow.md">on GitHub</a>.</figcaption>
     </figure>
     <!-- gfflow:walk instinct_dev_flow.svg -->
 <details class="gf-walk-static" data-walk-static="instinct_dev_flow.svg"><summary>Step by step: what goes in and what comes out</summary>
@@ -1549,8 +1549,8 @@
     </div>
       <div class="fine">
       Binaries: <a href="https://github.com/gist-rs/reflex">gist-rs/reflex</a> ·
-      engine: <a href="https://github.com/gist-rs/riir-reflex">gist-rs/riir-reflex</a> ·
-      rulebook engine: <a href="https://github.com/gist-rs/riir-reflexer">gist-rs/riir-reflexer</a> ·
+      engine: <a href="https://github.com/riir-ai/riir-reflex">riir-ai/riir-reflex</a> ·
+      rulebook engine: <a href="https://github.com/riir-ai/riir-reflexer">riir-ai/riir-reflexer</a> ·
       site: <a href="https://github.com/gist-rs/reflex-site">gist-rs/reflex-site</a> ·
       <a href="https://github.com/gist-rs/reflex/releases">Download</a> ·
       <!-- wire:version --><span data-wire-version>engine <a href="https://github.com/gist-rs/reflex/releases/tag/v0.2.4">reflex 0.2.4 · release notes</a></span><!-- /wire:version -->
@@ -1558,7 +1558,7 @@
       <div class="fine about">
       Reflex is built and run by the <a href="https://github.com/gist-rs">riir.ai</a> team — the same people behind
       <a href="https://rethink.riir.ai/">Rethink</a>, <a href="https://refine.riir.ai/">Refine</a> and the <a href="https://riir.ai/">riir.ai</a> network.
-      Bugs and questions: <a href="https://github.com/gist-rs/riir-reflex/issues">GitHub issues</a> ·
+      Bugs and questions: <a href="https://github.com/riir-ai/riir-reflex/issues">GitHub issues</a> ·
       security reports: <a href="mailto:security@riir.ai">security@riir.ai</a> · <a href="/.well-known/security.txt">security.txt</a> ·
       licences: the engine, the rulebook engine and this site are MIT source; release binaries come from gist-rs/reflex;
       the optional comparison weights are Apache-2.0, downloaded at runtime and never redistributed.

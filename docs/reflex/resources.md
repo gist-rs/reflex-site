@@ -32,7 +32,7 @@ check that decides whether to consult a specialist] routes the abstained
 cases to it. The specialist scores the survivors on top, never instead: the
 free answer stands wherever it was confident, and the specialist pays only
 where it was not. The open teaching lane lives at
-[gist-rs/riir-instinct](https://github.com/gist-rs/riir-instinct).
+[riir-ai/riir-instinct](https://github.com/riir-ai/riir-instinct).
 
 ## Where it runs
 
@@ -52,7 +52,7 @@ where it was not. The open teaching lane lives at
 Every performance claim on this page is a class, not a figure. The measured
 side lives on the site's bench lanes: [/bench/](/bench/).
 
-- GitHub: [gist-rs/riir-reflex](https://github.com/gist-rs/riir-reflex)
+- GitHub: [riir-ai/riir-reflex](https://github.com/riir-ai/riir-reflex)
 - Measured lanes: [/bench/](/bench/)
 - The one decision-flow figure:
-  [decision_flow.md](https://github.com/gist-rs/riir-reflex/blob/develop/.docs/03_decision_flow/decision_flow.md)
+  [decision_flow.md](https://github.com/riir-ai/riir-reflex/blob/develop/.docs/03_decision_flow/decision_flow.md)

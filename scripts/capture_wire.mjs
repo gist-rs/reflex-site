@@ -58,7 +58,7 @@ const headsDir = path.join(tmp, "heads");
 const { existsSync } = await import("node:fs");
 const FIXTURES = path.join(ROOT, "..", "riir-reflex", "assets", "game_heads");
 if (!existsSync(path.join(FIXTURES, "tetris_oracle_laya_en_v3.jsonl"))) {
-  fail(`the engine fixtures are not at ${FIXTURES} — clone gist-rs/riir-reflex beside this checkout (the mint needs assets/game_heads)`);
+  fail(`the engine fixtures are not at ${FIXTURES} — clone riir-ai/riir-reflex beside this checkout (the mint needs assets/game_heads)`);
 }
 const mint = JSON.parse(
   execFileSync(ENGINE, ["mint-heads", "--out", headsDir, "--fixtures", FIXTURES, "--key-id", "42", `--key=${CAPTURE_KEY}`], { encoding: "utf8" }).split("\n").filter((l) => l.startsWith("{")).pop(),

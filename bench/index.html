@@ -224,7 +224,7 @@
       <a href="/resources/">Resources</a>
       <a href="/docs/api/">API</a>
       <a href="/#skill">For agents</a>
-      <a class="gh" href="https://github.com/gist-rs/riir-reflex" aria-label="Reflex on GitHub" title="github.com/gist-rs/riir-reflex"><svg viewBox="0 0 16 16" width="18" height="18" fill="currentColor" aria-hidden="true" focusable="false"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg></a>
+      <a class="gh" href="https://github.com/riir-ai/riir-reflex" aria-label="Reflex on GitHub" title="github.com/riir-ai/riir-reflex"><svg viewBox="0 0 16 16" width="18" height="18" fill="currentColor" aria-hidden="true" focusable="false"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg></a>
     </nav>
   </div>
 </header>
@@ -321,7 +321,7 @@
 
     <h2 id="instinct" style="margin-top:40px"><a class="hlink" href="#instinct">Instinct — the trained add-on (PoC)</a></h2>
     <div class="instinct">
-      <p class="sub"><strong>Instinct</strong> (<a href="https://github.com/gist-rs/riir-instinct">gist-rs/riir-instinct</a>) is Reflex's trained sibling: per-domain
+      <p class="sub"><strong>Instinct</strong> (<a href="https://github.com/riir-ai/riir-instinct">riir-ai/riir-instinct</a>) is Reflex's trained sibling: per-domain
         specialist models — distilled, pinned by a BLAKE3 digest checked at every load, hot-swapped as whole artifacts — composed <em>on top of</em> the free engine, never instead of it.
         That is the family's rung model: each rung answers only what the rung below is not confident about — you pay for thinking, never for re-answering what the
         free floor already knows — so a fallback to Reflex or Instinct is the design, not a miss. <strong>Rethink</strong> is the same family's hosted rung
@@ -344,7 +344,7 @@
         </picture>
         <figcaption>Registered arms only: a specialist joins the manifest solely where it beat free Reflex pre-registration, on one frozen test read
           (the GOAT gate). Orange = your machine · pink = the open lane (serves live) · violet = our GPU hosts (the encoder rung, record-only). Write-up:
-          <a href="https://github.com/gist-rs/riir-instinct/blob/HEAD/.docs/03_decision_flow/instinct_flow.md">instinct_flow.md</a>.</figcaption>
+          <a href="https://github.com/riir-ai/riir-instinct/blob/HEAD/.docs/03_decision_flow/instinct_flow.md">instinct_flow.md</a>.</figcaption>
       </figure>
       <!-- gfflow:walk instinct_flow.svg -->
 <details class="gf-walk-static" data-walk-static="instinct_flow.svg"><summary>Step by step: what goes in and what comes out</summary>
@@ -634,7 +634,7 @@
     <div class="notes"><ul>
       <li><strong>Fair board</strong> — every lane sees byte-identical questions. No single "we win" number exists or will exist.</li>
       <li><strong>Instinct / Rethink</strong> are Reflex's trained sibling lanes (Instinct is open source,
-        <a href="https://github.com/gist-rs/riir-instinct">gist-rs/riir-instinct</a>; Rethink is the hosted product, private source):
+        <a href="https://github.com/riir-ai/riir-instinct">riir-ai/riir-instinct</a>; Rethink is the hosted product, private source):
         <strong>Instinct</strong> composes distilled per-domain specialists on top of the free engine — consulted only where
         Reflex's calibrated gate declines; <strong>Rethink</strong> is the same family's encoder arm (record-only so far —
         refused at serve, a partial-coverage lane). Full description: <a href="#faq"><em>What are the lanes?</em></a> and
@@ -675,7 +675,7 @@
 
     <h2 id="references" style="margin-top:40px"><a class="hlink" href="#references">References</a></h2>
     <div class="refs"><ul>
-      <li>Harness + gates: <a href="https://github.com/gist-rs/riir-reflex">gist-rs/riir-reflex</a> ·
+      <li>Harness + gates: <a href="https://github.com/riir-ai/riir-reflex">riir-ai/riir-reflex</a> ·
         publisher <a href="https://github.com/gist-rs/reflex-site/blob/HEAD/scripts/publish_bench.py">publish_bench.py</a></li>
       <li>Engine binaries: <a href="https://github.com/gist-rs/reflex">gist-rs/reflex</a> ·
         <a href="https://github.com/gist-rs/reflex/releases">releases</a> · raw data
@@ -760,8 +760,8 @@
       <div class="credit">Built on <a href="https://github.com/katopz/katgpt-rs">KatGPT-RS</a> — the open modelless primitives under every Reflex engine.</div>
       <div class="fine">
       Binaries: <a href="https://github.com/gist-rs/reflex">gist-rs/reflex</a> ·
-      engine: <a href="https://github.com/gist-rs/riir-reflex">gist-rs/riir-reflex</a> ·
-      rulebook engine: <a href="https://github.com/gist-rs/riir-reflexer">gist-rs/riir-reflexer</a> ·
+      engine: <a href="https://github.com/riir-ai/riir-reflex">riir-ai/riir-reflex</a> ·
+      rulebook engine: <a href="https://github.com/riir-ai/riir-reflexer">riir-ai/riir-reflexer</a> ·
       site: <a href="https://github.com/gist-rs/reflex-site">gist-rs/reflex-site</a> ·
       <a href="https://github.com/gist-rs/reflex/releases">Download</a> ·
       <!-- wire:version --><span data-wire-version>engine <a href="https://github.com/gist-rs/reflex/releases/tag/v0.2.4">reflex 0.2.4 · release notes</a></span><!-- /wire:version -->
@@ -769,7 +769,7 @@
       <div class="fine about">
       Reflex is built and run by the <a href="https://github.com/gist-rs">riir.ai</a> team — the same people behind
       <a href="https://rethink.riir.ai/">Rethink</a>, <a href="https://refine.riir.ai/">Refine</a> and the <a href="https://riir.ai/">riir.ai</a> network.
-      Bugs and questions: <a href="https://github.com/gist-rs/riir-reflex/issues">GitHub issues</a> ·
+      Bugs and questions: <a href="https://github.com/riir-ai/riir-reflex/issues">GitHub issues</a> ·
       security reports: <a href="mailto:security@riir.ai">security@riir.ai</a> · <a href="/.well-known/security.txt">security.txt</a> ·
       licences: the engine, the rulebook engine and this site are MIT source; release binaries come from gist-rs/reflex;
       the optional comparison weights are Apache-2.0, downloaded at runtime and never redistributed.
