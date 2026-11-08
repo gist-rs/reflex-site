@@ -93,8 +93,8 @@
       "date_utc": "2026-09-28T16:27:36Z"
      },
      "encoder": {
-      "git_sha": "486e277",
-      "date_utc": "2026-11-07T16:59:48Z"
+      "git_sha": "d33fe17",
+      "date_utc": "2026-11-08T13:09:01Z"
      },
      "bekko": {
       "git_sha": "e8328de",
@@ -14220,7 +14220,8 @@
     "model": "ESC-composed H2+mammoth-1",
     "hard": {
      "n": 500,
-     "accuracy": 0.896
+     "accuracy": 0.896,
+     "macro_f1": 0.8932803148807724
     },
     "serves": "ESC-composed (rho 0.45)",
     "gate": "composed 0.8960 vs cheap 0.8540 (paired delta +0.0420, LB95 +0.0137) at escalation rate 52.8% (cal 49.0%, the armed rho 0.45 fit, thresholds score 0.000 / dist 0.665); full-teacher context 0.9300; escalation answers pay the think tier's latency (the teacher's local posture, p50 1.4-6.5 s/case) while the cheap tier answers in microseconds; accuracy-only cells (the composition latency was not re-measured in-run); the banking77 gain reads on the SAME population as every other lane on this row; paraphrase shadow read MIXED: the teacher's own accuracy drops 10.2pp on paraphrases (significant, contamination-consistent but confounded with a benign formal-style shift over 77 fine intents) while the composed advantage still grew (+29.2pp); the armed rate axis transferred out-of-window on that surface (86.8% escalation, where the production rate guard latches the cheap-only demotion), so the benchmark-conditioned caveat stays, 2026-11-07 shadow record",
@@ -14239,8 +14240,8 @@
      "full_teacher_acc": 0.93
     },
     "source_run": {
-     "git_sha": "486e277",
-     "date_utc": "2026-11-07T16:59:48Z"
+     "git_sha": "d33fe17",
+     "date_utc": "2026-11-08T13:09:01Z"
     },
     "cases_digest": "fnv1a64-dd8ab35333abb82a"
    },
@@ -18541,6 +18542,35 @@
       }
      }
     }
+   },
+   "encoder": {
+    "lane": "Rethink",
+    "model": "ESC-composed H2+mammoth-1",
+    "hard": {
+     "n": 2000,
+     "accuracy": 0.3995
+    },
+    "serves": "ESC-composed (rho 0.10)",
+    "gate": "composed 0.3995 vs cheap 0.2565 (paired delta +0.1430, LB95 +0.1277) at escalation rate 19.8% (cal 12.0%, the armed rho 0.10 fit, thresholds score 0.000 / dist 0.306); full-teacher context 0.9765; escalation answers pay the think tier's latency (the teacher's local posture, p50 1.4-6.5 s/case) while the cheap tier answers in microseconds; accuracy-only cells (the composition latency was not re-measured in-run); the hellaswag_jdi gain reads on the SAME population as every other lane on this row; contamination caveat: no shadow read covers this arm yet - public hellaswag_jdi mammoth-training unverified, the gain is benchmark-conditioned until an independent paraphrase or real-traffic read says otherwise",
+    "esc": {
+     "rho": 0.1,
+     "thresholds": {
+      "score": 0.0,
+      "distance": 0.30568015575408936
+     },
+     "cal_rate": 0.12,
+     "test_rate": 0.198,
+     "cheap_acc": 0.2565,
+     "composed_acc": 0.3995,
+     "delta": 0.143,
+     "paired_lb95": 0.12765382580254309,
+     "full_teacher_acc": 0.9765
+    },
+    "source_run": {
+     "git_sha": "d33fe17",
+     "date_utc": "2026-11-08T13:09:01Z"
+    },
+    "cases_digest": "fnv1a64-61e6ad438aadff5b"
    }
   },
   {
@@ -18687,6 +18717,35 @@
       }
      }
     }
+   },
+   "encoder": {
+    "lane": "Rethink",
+    "model": "ESC-composed H2+mammoth-1",
+    "hard": {
+     "n": 1267,
+     "accuracy": 0.7269139700078927
+    },
+    "serves": "ESC-composed (rho 0.45)",
+    "gate": "composed 0.7269 vs cheap 0.4830 (paired delta +0.2439, LB95 +0.2191) at escalation rate 51.1% (cal 52.0%, the armed rho 0.45 fit, thresholds score 0.000 / dist 0.538); full-teacher context 0.9605; escalation answers pay the think tier's latency (the teacher's local posture, p50 1.4-6.5 s/case) while the cheap tier answers in microseconds; accuracy-only cells (the composition latency was not re-measured in-run); the winogrande_jdi gain reads on the SAME population as every other lane on this row; contamination caveat: no shadow read covers this arm yet - public winogrande_jdi mammoth-training unverified, the gain is benchmark-conditioned until an independent paraphrase or real-traffic read says otherwise",
+    "esc": {
+     "rho": 0.45,
+     "thresholds": {
+      "score": 0.0,
+      "distance": 0.5376397371292114
+     },
+     "cal_rate": 0.52,
+     "test_rate": 0.5114443567482242,
+     "cheap_acc": 0.48303078137332284,
+     "composed_acc": 0.7269139700078927,
+     "delta": 0.24388318863456984,
+     "paired_lb95": 0.21913990032211578,
+     "full_teacher_acc": 0.9605367008681925
+    },
+    "source_run": {
+     "git_sha": "d33fe17",
+     "date_utc": "2026-11-08T13:09:01Z"
+    },
+    "cases_digest": "fnv1a64-293400e84e987360"
    }
   }
  ],
@@ -20587,7 +20646,7 @@
       "model": "ESC-composed H2+mammoth-1",
       "n": 500,
       "accuracy": 0.896,
-      "macro_f1": null,
+      "macro_f1": 0.8932803148807724,
       "jdi_chance": null,
       "jdi_skill": null,
       "serves": "ESC-composed (rho 0.45)",
