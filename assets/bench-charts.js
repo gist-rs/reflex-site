@@ -349,6 +349,11 @@
   };
 
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+  // A suite id label (snake_case) in a narrow track: offer a soft break
+  // after each '_' so it wraps at the underscore instead of tearing a word
+  // mid-token (web-family gate L4 @ 390 px; overflow-wrap:break-word is
+  // inherited from family.css). Escapes first, then inserts <wbr>.
+  const escId = (s) => esc(s).replace(/_/g, "_<wbr>");
   const num = (v) => typeof v === "number" && isFinite(v);
   const pct = (v) => (v * 100).toFixed(1) + "%";
   const lat = (v) => v < 1 ? +(v * 1000).toPrecision(3) + " µs" : v < 1000 ? +v.toPrecision(3) + " ms" : +(v / 1000).toPrecision(3) + " s";
@@ -834,7 +839,7 @@
         if (!l) return noneBar(lane, s, false);
         return barHtml(s, lane, l, host, true) || noneBar(lane, s, true);
       }).join("");
-      return `<a class="bc-hlabel" href="#suite-${esc(s.name)}">${esc(s.name)}</a><div class="bc-htrack">${grid(m)}${bars}</div>`;
+      return `<a class="bc-hlabel" href="#suite-${esc(s.name)}">${escId(s.name)}</a><div class="bc-htrack">${grid(m)}${bars}</div>`;
     }).join("");
     const picks = new Set();
     for (const s of d.suites || [])
@@ -1787,7 +1792,7 @@
         const c = (ln.cells || {})[name];
         return c && num(c.acc) ? cellBar(ln, c) : noneBar(ln, "not measured");
       }).join("") || emptyGuard;
-      return `<a class="bc-hlabel" href="#suite-${esc(name)}">${esc(suiteName[name] || name)}</a>` +
+      return `<a class="bc-hlabel" href="#suite-${esc(name)}">${escId(suiteName[name] || name)}</a>` +
         `<div class="bc-htrack">${grid("acc")}${bars}</div>`;
     };
     // "avg" stays short for the 96px mobile label column (design guide §6);
